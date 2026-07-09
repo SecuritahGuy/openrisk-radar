@@ -1,0 +1,49 @@
+name: Bug report
+description: Report a reproducible problem in OpenRisk Radar.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting a problem. Please include enough detail to reproduce it.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the exact steps, searched location, radius, filters, and source toggles if relevant.
+      placeholder: |
+        1. Search for ...
+        2. Enable ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: "Chrome 126 on macOS"
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or console output
+      description: Attach screenshots or paste relevant console/network errors.

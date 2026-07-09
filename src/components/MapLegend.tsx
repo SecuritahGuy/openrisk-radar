@@ -11,6 +11,8 @@ const ITEMS: LegendItem[] = [
   { label: "Wildfire", color: "#d84315", shape: "circle" },
   { label: "Convective outlook", color: "#00897b", shape: "square" },
   { label: "Tropical cyclone", color: "#c62828", shape: "circle" },
+  { label: "Global disaster", color: "#1565c0", shape: "circle" },
+  { label: "Earth observation", color: "#6a1b9a", shape: "circle" },
   { label: "Radius ring", color: "#1565c0", shape: "diamond" },
 ];
 

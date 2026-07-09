@@ -82,10 +82,19 @@ function mapSeverity(magnitude: number | null, unit: string | null): Severity {
 }
 
 function extractPolygon(feature: EonetFeature): number[][] | null {
-  if (feature.geometry.type !== "Polygon") return null;
-  const coords = feature.geometry.coordinates as number[][][];
-  if (!coords?.[0]) return null;
-  return coords[0].map(([lng, lat]) => [lng, lat]);
+  if (feature.geometry.type === "Polygon") {
+    const coords = feature.geometry.coordinates as number[][][];
+    if (!coords?.[0]) return null;
+    return coords[0].map(([lng, lat]) => [lng, lat]);
+  }
+
+  if (feature.geometry.type === "MultiPolygon") {
+    const coords = feature.geometry.coordinates as number[][][][];
+    if (!coords?.[0]?.[0]) return null;
+    return coords[0][0].map(([lng, lat]) => [lng, lat]);
+  }
+
+  return null;
 }
 
 function normalizeFeature(feature: EonetFeature): RiskEvent | null {
@@ -145,6 +154,49 @@ function haversineKm(latA: number, lngA: number, latB: number, lngB: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function pointInPolygon(lng: number, lat: number, polygon: number[][]): boolean {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    const intersects =
+      yi > lat !== yj > lat &&
+      lng < ((xj - xi) * (lat - yi)) / (yj - yi || Number.EPSILON) + xi;
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
+function polygonNearLocation(
+  polygon: number[][],
+  lat: number,
+  lng: number,
+  radiusKm: number
+): boolean {
+  return polygon.some(
+    ([polyLng, polyLat]) => haversineKm(lat, lng, polyLat, polyLng) <= radiusKm
+  );
+}
+
+function isNearLocation(
+  feature: EonetFeature,
+  lat: number,
+  lng: number,
+  radiusKm: number
+): boolean {
+  const coords = feature.geometry.coordinates as number[];
+  if (feature.geometry.type === "Point" && coords?.length >= 2) {
+    return haversineKm(lat, lng, coords[1], coords[0]) <= radiusKm;
+  }
+
+  const polygon = extractPolygon(feature);
+  if (!polygon?.length) return false;
+  return (
+    pointInPolygon(lng, lat, polygon) ||
+    polygonNearLocation(polygon, lat, lng, radiusKm)
+  );
+}
+
 export async function fetchEonetEvents(
   lat: number,
   lng: number,
@@ -160,12 +212,7 @@ export async function fetchEonetEvents(
   const results: RiskEvent[] = [];
 
   for (const feature of data.features ?? []) {
-    const coords = feature.geometry.coordinates as number[];
-    if (feature.geometry.type === "Point" && coords?.length >= 2) {
-      const fLat = coords[1];
-      const fLng = coords[0];
-      if (haversineKm(lat, lng, fLat, fLng) > radiusKm) continue;
-    }
+    if (!isNearLocation(feature, lat, lng, radiusKm)) continue;
     const event = normalizeFeature(feature);
     if (event) results.push(event);
   }

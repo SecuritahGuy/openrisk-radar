@@ -1,10 +1,12 @@
 import { useState } from "react";
 import type { ResolvedLocation, RadiusOption, Criticality, LocationType, Location } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
+import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 import type { CurrentWeather } from "../services/weather";
 import type { NwsWeatherOverlay } from "../services/nwsWeatherOverlay";
 import { weatherLabel } from "../services/weather";
 import { formatTimestamp } from "../lib/format";
+import { severityColor } from "../lib/riskInsights";
 
 interface UpdatePanelProps {
   location: ResolvedLocation | null;
@@ -16,7 +18,10 @@ interface UpdatePanelProps {
   wildfires: RiskEvent[];
   spcOutlooks: RiskEvent[];
   nhcStorms: RiskEvent[];
+  gdacsEvents: RiskEvent[];
+  eonetEvents: RiskEvent[];
   currentWeather: CurrentWeather | null;
+  supplementalSignals: SupplementalRiskSignal[];
   weatherOverlay: NwsWeatherOverlay | null;
   showWeatherOverlay: boolean;
   onToggleWeatherOverlay: (show: boolean) => void;
@@ -52,7 +57,10 @@ export function UpdatePanel({
   wildfires,
   spcOutlooks,
   nhcStorms,
+  gdacsEvents,
+  eonetEvents,
   currentWeather,
+  supplementalSignals,
   weatherOverlay,
   showWeatherOverlay,
   onToggleWeatherOverlay,
@@ -73,10 +81,12 @@ export function UpdatePanel({
   const [editingLabel, setEditingLabel] = useState(false);
   const [draftLabel, setDraftLabel] = useState("");
 
-  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms];
+  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms, ...gdacsEvents, ...eonetEvents];
   const total = allEvents.length;
   const criticalCount = countBySeverity(allEvents, "Extreme", "Severe");
   const moderateCount = countBySeverity(allEvents, "Moderate");
+  const airQualitySignals = supplementalSignals.filter((s) => s.category === "Air Quality");
+  const marineSignals = supplementalSignals.filter((s) => s.category === "Coastal Water");
 
   const label = activeSavedLocation?.label ?? (location ? `${location.city}, ${location.state}` : "");
   const criticality = activeSavedLocation?.criticality ?? "Medium";
@@ -98,7 +108,17 @@ export function UpdatePanel({
   return (
     <div style={styles.container}>
       <div style={styles.titleRow}>
-        <h3 style={styles.title}>OpenRisk Radar</h3>
+        <div>
+          <h3 style={styles.title}>OpenRisk Radar</h3>
+          <a
+            href="https://github.com/SecuritahGuy/openrisk-radar"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={styles.githubLink}
+          >
+            View source on GitHub ↗
+          </a>
+        </div>
         <button
           onClick={onRefresh}
           disabled={isFetching || !location}
@@ -353,7 +373,52 @@ export function UpdatePanel({
                 ? `${nhcStorms.length} active tropical cyclone${nhcStorms.length !== 1 ? "s" : ""} in range`
                 : "No active tropical cyclones in range"}
             </div>
+            <div style={styles.signal}>
+              <span
+                style={{
+                  ...styles.signalDot,
+                  color: gdacsEvents.length > 0 ? "#1565c0" : "#9e9e9e",
+                }}
+              >
+                &#9679;
+              </span>{" "}
+              {gdacsEvents.length > 0
+                ? `${gdacsEvents.length} GDACS global event${gdacsEvents.length !== 1 ? "s" : ""} nearby`
+                : "No GDACS global events nearby"}
+            </div>
+            <div style={styles.signal}>
+              <span
+                style={{
+                  ...styles.signalDot,
+                  color: eonetEvents.length > 0 ? "#6a1b9a" : "#9e9e9e",
+                }}
+              >
+                &#9679;
+              </span>{" "}
+              {eonetEvents.length > 0
+                ? `${eonetEvents.length} NASA EONET event${eonetEvents.length !== 1 ? "s" : ""} nearby`
+                : "No NASA EONET events nearby"}
+            </div>
           </div>
+
+          {supplementalSignals.length > 0 && (
+            <div style={styles.section}>
+              <div style={styles.label}>Environmental signals</div>
+              {airQualitySignals.map((signal) => (
+                <SupplementalSignalLine key={signal.id} signal={signal} />
+              ))}
+              {marineSignals.map((signal) => (
+                <SupplementalSignalLine key={signal.id} signal={signal} />
+              ))}
+              {supplementalSignals.length > airQualitySignals.length + marineSignals.length && (
+                <div style={styles.detail}>
+                  {supplementalSignals.length - airQualitySignals.length - marineSignals.length} additional supplemental signal
+                  {supplementalSignals.length - airQualitySignals.length - marineSignals.length !== 1 ? "s" : ""}
+                </div>
+              )}
+              <div style={styles.detail}>Source: Open-Meteo</div>
+            </div>
+          )}
 
           {total > 0 && (
             <div style={styles.section}>
@@ -412,6 +477,30 @@ export function UpdatePanel({
   );
 }
 
+function SupplementalSignalLine({ signal }: { signal: SupplementalRiskSignal }) {
+  const metricSummary = signal.metrics
+    .slice(0, 3)
+    .map((metric) => `${metric.label} ${metric.value}${metric.unit ? ` ${metric.unit}` : ""}`)
+    .join(" · ");
+
+  return (
+    <div style={styles.supplementalLine}>
+      <span
+        style={{
+          ...styles.signalDot,
+          color: severityColor(signal.severity),
+        }}
+      >
+        &#9679;
+      </span>{" "}
+      <span style={styles.supplementalHeadline}>{signal.headline}</span>
+      {metricSummary && (
+        <div style={styles.supplementalMetrics}>{metricSummary}</div>
+      )}
+    </div>
+  );
+}
+
 const styles: Record<string, React.CSSProperties> = {
   container: {
     width: 320,
@@ -432,6 +521,14 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 18,
     fontWeight: 700,
     color: "#1565c0",
+  },
+  githubLink: {
+    display: "inline-block",
+    marginTop: 3,
+    fontSize: 11,
+    color: "#607d8b",
+    textDecoration: "none",
+    fontWeight: 600,
   },
   refreshBtn: {
     padding: "4px 10px",
@@ -514,6 +611,20 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 6,
   },
   signalDot: { fontSize: 10 },
+  supplementalLine: {
+    fontSize: 13,
+    color: "#424242",
+    marginTop: 8,
+  },
+  supplementalHeadline: {
+    fontWeight: 600,
+  },
+  supplementalMetrics: {
+    fontSize: 11,
+    color: "#757575",
+    marginLeft: 16,
+    marginTop: 2,
+  },
   spinner: { fontSize: 13 },
   impactLine: { fontSize: 13, fontWeight: 600, marginTop: 4 },
   weatherRow: { display: "flex", alignItems: "baseline", gap: 8, marginTop: 4 },

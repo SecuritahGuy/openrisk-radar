@@ -1,0 +1,73 @@
+name: Data source request
+description: Request a new hazard, risk, or environmental data source.
+title: "[Data Source]: "
+labels:
+  - data-source
+  - enhancement
+body:
+  - type: input
+    id: provider
+    attributes:
+      label: Provider name
+      placeholder: "Example: NOAA, NASA, USGS, OpenAQ"
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: API or feed URL
+      placeholder: "https://..."
+    validations:
+      required: true
+  - type: input
+    id: hazard
+    attributes:
+      label: Hazard type
+      placeholder: "Flood, wildfire, air quality, tropical cyclone, etc."
+    validations:
+      required: true
+  - type: input
+    id: coverage
+    attributes:
+      label: Geographic coverage
+      placeholder: "Global, U.S., Europe, coastal U.S., etc."
+    validations:
+      required: true
+  - type: textarea
+    id: auth
+    attributes:
+      label: Authentication requirements
+      description: Does it require an API key, account, token, or special header?
+    validations:
+      required: true
+  - type: textarea
+    id: cors
+    attributes:
+      label: CORS / browser compatibility
+      description: Can the feed be called directly from a browser?
+    validations:
+      required: true
+  - type: input
+    id: format
+    attributes:
+      label: Data format
+      placeholder: "GeoJSON, JSON, CAP XML, RSS, CSV, WMS, etc."
+    validations:
+      required: true
+  - type: input
+    id: frequency
+    attributes:
+      label: Update frequency
+      placeholder: "Every 5 minutes, hourly, daily, event-driven"
+  - type: textarea
+    id: terms
+    attributes:
+      label: Licensing or terms considerations
+      description: Include provider terms, attribution requirements, or redistribution limits.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Why should this source be prioritized?

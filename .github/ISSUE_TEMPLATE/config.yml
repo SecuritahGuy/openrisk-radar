@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Live OpenRisk Radar
+    url: https://openriskradar.com
+    about: Open the production application.
+  - name: Project roadmap
+    url: https://github.com/SecuritahGuy/openrisk-radar/blob/main/ROADMAP.md
+    about: Review active, upcoming, and future source integrations.

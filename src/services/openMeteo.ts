@@ -83,7 +83,7 @@ export function openMeteoWeatherLabel(code: number): string {
   return labels[code] ?? "Unknown";
 }
 
-function aqiSeverity(europeanAqi: number | null, usAqi: number | null): Severity {
+export function aqiSeverity(europeanAqi: number | null, usAqi: number | null): Severity {
   const aqi = usAqi ?? europeanAqi ?? 0;
   if (aqi >= 301) return "Extreme";
   if (aqi >= 201) return "Severe";
@@ -231,6 +231,8 @@ export async function fetchOpenMeteoMarine(
   if (c.swell_wave_height != null) metrics.push({ label: "Swell Height", value: c.swell_wave_height, unit: "m" });
   if (c.swell_wave_direction != null) metrics.push({ label: "Swell Direction", value: c.swell_wave_direction, unit: "°" });
   if (c.ocean_current_velocity != null) metrics.push({ label: "Current Velocity", value: c.ocean_current_velocity, unit: "km/h" });
+
+  if (metrics.length === 0) return [];
 
   const signal: SupplementalRiskSignal = {
     id: newEventId(),

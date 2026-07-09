@@ -59,7 +59,10 @@ export default function App() {
     wildfires,
     spcOutlooks,
     nhcStorms,
+    gdacsEvents,
+    eonetEvents,
     currentWeather,
+    supplementalSignals,
     allEvents,
     error: feedError,
     refetch,
@@ -199,7 +202,10 @@ export default function App() {
         wildfires={wildfires}
         spcOutlooks={spcOutlooks}
         nhcStorms={nhcStorms}
+        gdacsEvents={gdacsEvents}
+        eonetEvents={eonetEvents}
         currentWeather={currentWeather}
+        supplementalSignals={supplementalSignals}
         weatherOverlay={weatherOverlay}
         showWeatherOverlay={showWeatherOverlay}
         onToggleWeatherOverlay={setShowWeatherOverlay}

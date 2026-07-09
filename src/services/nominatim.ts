@@ -2,7 +2,7 @@ import type { ResolvedLocation } from "../types/location";
 import { stateAbbr } from "../data/state-abbr";
 
 const BASE = "https://nominatim.openstreetmap.org";
-const USER_AGENT = "OpenRadarRisk/1.0 (https://github.com/SecuritahGuy/openradar-risk)";
+const USER_AGENT = "OpenRiskRadar/1.0 (https://github.com/SecuritahGuy/openrisk-radar)";
 
 interface NominatimAddress {
   city?: string;
