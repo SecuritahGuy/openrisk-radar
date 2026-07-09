@@ -15,6 +15,7 @@ import {
   defaultSourceFilters,
   filterEvents,
 } from "./lib/riskInsights";
+import { isCurrentImpact } from "./lib/impactInsights";
 import type { RadiusOption, Criticality, LocationType } from "./types/location";
 import type { EventSource, RiskEvent, Severity } from "./types/riskEvent";
 import type { WeatherLayerMode } from "./types/weatherLayer";
@@ -46,6 +47,7 @@ export default function App() {
   const [weatherLayerMode, setWeatherLayerMode] =
     useState<WeatherLayerMode>("temp");
   const [feedExplorerCollapsed, setFeedExplorerCollapsed] = useState(false);
+  const [currentImpactOnly, setCurrentImpactOnly] = useState(false);
   const [sourceFilters, setSourceFilters] = useState(defaultSourceFilters);
   const [severityFilters, setSeverityFilters] = useState(defaultSeverityFilters);
   const [selectedEvent, setSelectedEvent] = useState<RiskEvent | null>(null);
@@ -80,10 +82,11 @@ export default function App() {
   const activeSavedLocation =
     savedLocations.find((l) => coordsMatch(l, result)) ?? null;
 
-  const filteredEvents = useMemo(
-    () => filterEvents(allEvents, sourceFilters, severityFilters),
-    [allEvents, sourceFilters, severityFilters]
-  );
+  const filteredEvents = useMemo(() => {
+    const visible = filterEvents(allEvents, sourceFilters, severityFilters);
+    if (!currentImpactOnly) return visible;
+    return visible.filter((event) => isCurrentImpact(event, result, radius));
+  }, [allEvents, sourceFilters, severityFilters, currentImpactOnly, result, radius]);
 
   const handleToggleSource = useCallback((source: EventSource) => {
     setSourceFilters((current) => ({
@@ -150,6 +153,8 @@ export default function App() {
           radius={radius}
           events={allEvents}
           currentWeather={currentWeather}
+          currentImpactOnly={currentImpactOnly}
+          onToggleCurrentImpact={setCurrentImpactOnly}
           onEventClick={setSelectedEvent}
         />
         <MapView
@@ -161,6 +166,7 @@ export default function App() {
           weatherLayerMode={weatherLayerMode}
           sourceFilters={sourceFilters}
           severityFilters={severityFilters}
+          currentImpactOnly={currentImpactOnly}
           onToggleSource={handleToggleSource}
           onToggleSeverity={handleToggleSeverity}
           onToggleWeatherOverlay={setShowWeatherOverlay}
@@ -174,6 +180,7 @@ export default function App() {
           events={filteredEvents}
           totalEvents={allEvents.length}
           location={result}
+          radius={radius}
           isFetching={isFetching}
           collapsed={feedExplorerCollapsed}
           onCollapsedChange={setFeedExplorerCollapsed}
@@ -229,6 +236,8 @@ export default function App() {
       {selectedEvent && (
         <EventDetailPanel
           event={selectedEvent}
+          location={result}
+          radius={radius}
           onClose={() => setSelectedEvent(null)}
         />
       )}

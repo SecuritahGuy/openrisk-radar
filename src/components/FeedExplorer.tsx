@@ -9,11 +9,14 @@ import {
   severityRank,
   sourceColor,
 } from "../lib/riskInsights";
+import { assessImpact, impactColor } from "../lib/impactInsights";
+import type { RadiusOption } from "../types/location";
 
 interface FeedExplorerProps {
   events: RiskEvent[];
   totalEvents: number;
   location: ResolvedLocation | null;
+  radius: RadiusOption;
   isFetching: boolean;
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
@@ -36,6 +39,7 @@ type SortKey =
   | "type"
   | "category"
   | "severity"
+  | "impact"
   | "headline"
   | "distance"
   | "expires"
@@ -54,7 +58,12 @@ function expiryMinutes(event: RiskEvent): number {
 }
 
 function defaultDirection(key: SortKey): SortDirection {
-  if (key === "severity" || key === "updated" || key === "priority") {
+  if (
+    key === "severity" ||
+    key === "impact" ||
+    key === "updated" ||
+    key === "priority"
+  ) {
     return "desc";
   }
   return "asc";
@@ -75,6 +84,7 @@ export function FeedExplorer({
   events,
   totalEvents,
   location,
+  radius,
   isFetching,
   collapsed = false,
   onCollapsedChange,
@@ -120,6 +130,13 @@ export function FeedExplorer({
           direction
         );
       }
+      if (key === "impact") {
+        return applyDirection(
+          assessImpact(a, location, radius).sortRank -
+            assessImpact(b, location, radius).sortRank,
+          direction
+        );
+      }
       if (key === "headline") {
         return applyDirection(compareText(a.headline, b.headline), direction);
       }
@@ -138,6 +155,11 @@ export function FeedExplorer({
         return applyDirection(expiryMinutes(a) - expiryMinutes(b), direction);
       }
 
+      const impactDelta =
+        assessImpact(b, location, radius).sortRank -
+        assessImpact(a, location, radius).sortRank;
+      if (impactDelta !== 0) return impactDelta;
+
       const severityDelta = severityRank(b.severity) - severityRank(a.severity);
       if (severityDelta !== 0) return severityDelta;
       const aDistance = distanceMiles(location, a) ?? Number.POSITIVE_INFINITY;
@@ -145,7 +167,7 @@ export function FeedExplorer({
       if (aDistance !== bDistance) return aDistance - bDistance;
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-  }, [events, location, sortState]);
+  }, [events, location, radius, sortState]);
 
   const hasNoEvents = events.length === 0 && !isFetching;
   const title = `Feed Explorer (${events.length}${
@@ -176,6 +198,7 @@ export function FeedExplorer({
           <option value="type">Type</option>
           <option value="category">Category</option>
           <option value="severity">Severity</option>
+          <option value="impact">Impact</option>
           <option value="headline">Headline</option>
           <option value="updated">Updated</option>
           <option value="distance">Distance</option>
@@ -232,6 +255,13 @@ export function FeedExplorer({
               onSort={updateSort}
             />
             <ColumnHeader
+              label="Impact"
+              sortKey="impact"
+              sortState={sortState}
+              style={styles.colImpact}
+              onSort={updateSort}
+            />
+            <ColumnHeader
               label="Headline"
               sortKey="headline"
               sortState={sortState}
@@ -261,8 +291,9 @@ export function FeedExplorer({
             />
           </div>
           {sortedEvents.map((evt) => (
-            <div
+            <button
               key={evt.id}
+              type="button"
               style={styles.row}
               onClick={() => onEventClick?.(evt)}
               title="Click for details"
@@ -282,13 +313,16 @@ export function FeedExplorer({
               <span style={styles.colSeverity}>
                 <SeverityBadge severity={evt.severity} />
               </span>
+              <span style={styles.colImpact}>
+                <ImpactBadge event={evt} location={location} radius={radius} />
+              </span>
               <span style={styles.colHeadline}>{evt.headline}</span>
               <span style={styles.colDistance}>
                 {formatDistance(distanceMiles(location, evt))}
               </span>
               <span style={styles.colExpires}>{expiresLabel(evt)}</span>
               <span style={styles.colTime}>{timeAgo(evt.updatedAt)}</span>
-            </div>
+            </button>
           ))}
         </div>
       )}
@@ -351,6 +385,35 @@ function SeverityBadge({ severity }: { severity: string }) {
       }}
     >
       {severity}
+    </span>
+  );
+}
+
+function ImpactBadge({
+  event,
+  location,
+  radius,
+}: {
+  event: RiskEvent;
+  location: ResolvedLocation | null;
+  radius: RadiusOption;
+}) {
+  const impact = assessImpact(event, location, radius);
+  const color = impactColor(impact.level);
+  return (
+    <span
+      title={impact.detail}
+      style={{
+        fontSize: 10,
+        fontWeight: 700,
+        color,
+        background: `${color}16`,
+        padding: "2px 6px",
+        borderRadius: 3,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {impact.label}
     </span>
   );
 }
@@ -446,16 +509,22 @@ const styles: Record<string, React.CSSProperties> = {
   },
   row: {
     display: "flex",
+    width: "100%",
     padding: "6px 12px",
+    border: "none",
     borderBottom: "1px solid #f0f0f0",
+    background: "transparent",
     alignItems: "center",
     cursor: "pointer",
     transition: "background 0.1s",
+    font: "inherit",
+    textAlign: "left" as const,
   },
   colSource: { width: 60 },
   colType: { width: 120 },
   colCategory: { width: 80, color: "#616161" },
   colSeverity: { width: 80 },
+  colImpact: { width: 104 },
   colHeadline: {
     flex: 1,
     minWidth: 220,

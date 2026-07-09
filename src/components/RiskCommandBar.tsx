@@ -10,12 +10,15 @@ import {
   severityColor,
   sourceColor,
 } from "../lib/riskInsights";
+import { buildImpactSummary, isCurrentImpact } from "../lib/impactInsights";
 
 interface RiskCommandBarProps {
   location: ResolvedLocation | null;
   radius: RadiusOption;
   events: RiskEvent[];
   currentWeather: CurrentWeather | null;
+  currentImpactOnly: boolean;
+  onToggleCurrentImpact: (enabled: boolean) => void;
   onEventClick: (event: RiskEvent) => void;
 }
 
@@ -88,6 +91,8 @@ export function RiskCommandBar({
   radius,
   events,
   currentWeather,
+  currentImpactOnly,
+  onToggleCurrentImpact,
   onEventClick,
 }: RiskCommandBarProps) {
   if (!location) {
@@ -102,7 +107,15 @@ export function RiskCommandBar({
   }
 
   const summary = buildRiskSummary(events);
-  const topEvents = attentionEvents(events, location, 2);
+  const impactSummary = buildImpactSummary(events, location, radius);
+  const currentImpactEvents = events.filter((event) =>
+    isCurrentImpact(event, location, radius)
+  );
+  const topEvents = attentionEvents(
+    currentImpactEvents.length > 0 ? currentImpactEvents : events,
+    location,
+    2
+  );
   const color = levelColor(summary.level);
 
   return (
@@ -114,9 +127,23 @@ export function RiskCommandBar({
       </div>
 
       <div style={styles.metricGrid}>
+        <button
+          type="button"
+          style={{
+            ...styles.metric,
+            ...(currentImpactOnly ? styles.metricActive : {}),
+          }}
+          onClick={() => onToggleCurrentImpact(!currentImpactOnly)}
+          title="Show only events affecting or near this location"
+        >
+          <span style={styles.metricValue}>{impactSummary.currentImpactCount}</span>
+          <span style={styles.metricLabel}>
+            {currentImpactOnly ? "Showing impact" : "Current impact"}
+          </span>
+        </button>
         <div style={styles.metric}>
-          <span style={styles.metricValue}>{summary.activeCount}</span>
-          <span style={styles.metricLabel}>Signals</span>
+          <span style={styles.metricValue}>{impactSummary.affectsCount}</span>
+          <span style={styles.metricLabel}>Affects area</span>
         </div>
         <div style={styles.metric}>
           <span style={styles.metricValue}>
@@ -125,12 +152,8 @@ export function RiskCommandBar({
           <span style={styles.metricLabel}>High priority</span>
         </div>
         <div style={styles.metric}>
-          <span style={styles.metricValue}>{summary.expiringCount}</span>
-          <span style={styles.metricLabel}>Expiring soon</span>
-        </div>
-        <div style={styles.metric}>
-          <span style={styles.metricValue}>{radius}</span>
-          <span style={styles.metricLabel}>Miles</span>
+          <span style={styles.metricValue}>{impactSummary.historicalCount}</span>
+          <span style={styles.metricLabel}>History</span>
         </div>
       </div>
 
@@ -226,6 +249,14 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #dfe6ee",
     borderRadius: 8,
     padding: "10px 8px",
+    textAlign: "left",
+    cursor: "pointer",
+    font: "inherit",
+  },
+  metricActive: {
+    border: "1px solid #1565c0",
+    boxShadow: "inset 0 0 0 1px #1565c0",
+    cursor: "pointer",
   },
   metricValue: {
     display: "block",

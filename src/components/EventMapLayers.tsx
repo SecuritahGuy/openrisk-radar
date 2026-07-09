@@ -1,9 +1,14 @@
 import { Polygon, CircleMarker, Popup, Tooltip } from "react-leaflet";
 import type { RiskEvent } from "../types/riskEvent";
+import type { RadiusOption, ResolvedLocation } from "../types/location";
 import { sourceColor } from "../lib/riskInsights";
+import { assessImpact, impactColor } from "../lib/impactInsights";
 
 interface EventMapLayersProps {
   events: RiskEvent[];
+  location: ResolvedLocation | null;
+  radius: RadiusOption;
+  currentImpactOnly: boolean;
   onEventClick?: (event: RiskEvent) => void;
 }
 
@@ -43,10 +48,36 @@ const detailLinkStyle: React.CSSProperties = {
   textDecoration: "underline",
 };
 
-export function EventMapLayers({ events, onEventClick }: EventMapLayersProps) {
+const impactBadgeStyle: React.CSSProperties = {
+  display: "inline-block",
+  fontSize: 10,
+  fontWeight: 800,
+  padding: "2px 6px",
+  borderRadius: 3,
+  marginTop: 6,
+};
+
+const impactDetailStyle: React.CSSProperties = {
+  color: "#616161",
+  fontSize: 11,
+};
+
+export function EventMapLayers({
+  events,
+  location,
+  radius,
+  currentImpactOnly,
+  onEventClick,
+}: EventMapLayersProps) {
   return (
     <>
       {events.map((evt) => {
+        const impact = assessImpact(evt, location, radius);
+        const dimmed =
+          !currentImpactOnly &&
+          (impact.level === "monitor" || impact.level === "historical");
+        const color = eventColor(evt);
+
         if (evt.geometryType === "Polygon" && evt.polygon && evt.polygon.length >= 3) {
           const coords = evt.polygon.map(
             ([lng, lat]) => [lat, lng] as [number, number]
@@ -56,14 +87,27 @@ export function EventMapLayers({ events, onEventClick }: EventMapLayersProps) {
               key={evt.id}
               positions={coords}
               pathOptions={{
-                color: eventColor(evt),
-                fillColor: eventColor(evt),
-                fillOpacity: 0.12,
-                weight: 2,
+                color,
+                fillColor: color,
+                fillOpacity: dimmed ? 0.035 : impact.level === "affects" ? 0.18 : 0.1,
+                opacity: dimmed ? 0.45 : 1,
+                weight: impact.level === "affects" ? 3 : 2,
               }}
             >
               <Popup>
                 <strong>{evt.headline}</strong>
+                <br />
+                <span
+                  style={{
+                    ...impactBadgeStyle,
+                    color: impactColor(impact.level),
+                    background: `${impactColor(impact.level)}16`,
+                  }}
+                >
+                  {impact.label}
+                </span>
+                {" "}
+                <span style={impactDetailStyle}>{impact.detail}</span>
                 <br />
                 {evt.description?.slice(0, 200)}
                 <br />
@@ -85,10 +129,11 @@ export function EventMapLayers({ events, onEventClick }: EventMapLayersProps) {
               center={[evt.latitude, evt.longitude]}
               radius={eventRadius(evt)}
               pathOptions={{
-                color: eventColor(evt),
-                fillColor: eventColor(evt),
-                fillOpacity: 0.5,
-                weight: 2,
+                color,
+                fillColor: color,
+                fillOpacity: dimmed ? 0.2 : 0.58,
+                opacity: dimmed ? 0.5 : 1,
+                weight: impact.level === "nearby" ? 3 : 2,
               }}
             >
               <Tooltip direction="top" offset={[0, -10]}>
@@ -96,6 +141,18 @@ export function EventMapLayers({ events, onEventClick }: EventMapLayersProps) {
               </Tooltip>
               <Popup>
                 <strong>{evt.headline}</strong>
+                <br />
+                <span
+                  style={{
+                    ...impactBadgeStyle,
+                    color: impactColor(impact.level),
+                    background: `${impactColor(impact.level)}16`,
+                  }}
+                >
+                  {impact.label}
+                </span>
+                {" "}
+                <span style={impactDetailStyle}>{impact.detail}</span>
                 <br />
                 {evt.description?.slice(0, 200)}
                 <br />

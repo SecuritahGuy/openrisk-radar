@@ -23,9 +23,7 @@ import {
 } from "../lib/riskInsights";
 import { EventMapLayers } from "./EventMapLayers";
 import { MapLegend } from "./MapLegend";
-import {
-  NwsWeatherMapLayers,
-} from "./NwsWeatherMapLayers";
+import { NwsWeatherMapLayers } from "./NwsWeatherMapLayers";
 import {
   WEATHER_LAYER_OPTIONS,
   type WeatherLayerMode,
@@ -48,6 +46,7 @@ interface MapViewProps {
   weatherLayerMode: WeatherLayerMode;
   sourceFilters: SourceFilters;
   severityFilters: SeverityFilters;
+  currentImpactOnly: boolean;
   onToggleSource: (source: EventSource) => void;
   onToggleSeverity: (severity: Severity) => void;
   onToggleWeatherOverlay: (show: boolean) => void;
@@ -367,6 +366,7 @@ export function MapView({
   weatherLayerMode,
   sourceFilters,
   severityFilters,
+  currentImpactOnly,
   onToggleSource,
   onToggleSeverity,
   onToggleWeatherOverlay,
@@ -474,7 +474,13 @@ export function MapView({
             </Marker>
           </>
         )}
-        <EventMapLayers events={events} onEventClick={onEventClick} />
+        <EventMapLayers
+          events={events}
+          location={location}
+          radius={radius}
+          currentImpactOnly={currentImpactOnly}
+          onEventClick={onEventClick}
+        />
         <ClickSearchMarker
           point={pendingPoint}
           onClickPoint={handleClickPoint}

@@ -1,7 +1,11 @@
 import type { RiskEvent } from "../types/riskEvent";
+import type { RadiusOption, ResolvedLocation } from "../types/location";
+import { assessImpact, impactColor } from "../lib/impactInsights";
 
 interface EventDetailPanelProps {
   event: RiskEvent;
+  location: ResolvedLocation | null;
+  radius: RadiusOption;
   onClose: () => void;
 }
 
@@ -65,7 +69,8 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 }
 
 function NwsFields({ raw }: { raw: Record<string, unknown> }) {
-  const p = raw as Record<string, string | null>;
+  const p = ((raw.properties as Record<string, string | null> | undefined) ??
+    raw) as Record<string, string | null>;
   return (
     <>
       <DetailRow label="Urgency" value={p.urgency ?? "—"} />
@@ -77,13 +82,21 @@ function NwsFields({ raw }: { raw: Record<string, unknown> }) {
 }
 
 function UsgsFields({ raw }: { raw: Record<string, unknown> }) {
-  const p = raw as Record<string, string | number | null>;
+  const p = ((raw.properties as
+    | Record<string, string | number | null>
+    | undefined) ?? raw) as Record<string, string | number | null>;
+  const geometry = raw.geometry as
+    | { coordinates?: [number, number, number] }
+    | undefined;
   return (
     <>
       <DetailRow label="Magnitude" value={p.mag != null ? String(p.mag) : "—"} />
       <DetailRow label="Mag Type" value={String(p.magType ?? "—")} />
       <DetailRow label="Place" value={String(p.place ?? "—")} />
       <DetailRow label="Type" value={String(p.type ?? "—")} />
+      {geometry?.coordinates?.[2] != null && (
+        <DetailRow label="Depth" value={`${geometry.coordinates[2]} km`} />
+      )}
     </>
   );
 }
@@ -140,11 +153,18 @@ function FemaFields({ raw }: { raw: Record<string, unknown> }) {
   );
 }
 
-export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
+export function EventDetailPanel({
+  event,
+  location,
+  radius,
+  onClose,
+}: EventDetailPanelProps) {
   const coords =
     event.latitude != null && event.longitude != null
       ? `${event.latitude.toFixed(4)}, ${event.longitude.toFixed(4)}`
       : "—";
+  const impact = assessImpact(event, location, radius);
+  const impactBadgeColor = impactColor(impact.level);
 
   return (
     <div style={styles.backdrop} onClick={onClose}>
@@ -161,6 +181,15 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
             </span>
             <span style={styles.headerType}>{event.type}</span>
             <span style={severityStyle(event.severity)}>{event.severity}</span>
+            <span
+              style={{
+                ...styles.impactBadge,
+                color: impactBadgeColor,
+                background: `${impactBadgeColor}16`,
+              }}
+            >
+              {impact.label}
+            </span>
           </div>
           <button onClick={onClose} style={styles.closeBtn}>
             &times;
@@ -174,7 +203,8 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
         )}
 
         <div style={styles.section}>
-          <div style={styles.sectionTitle}>Timing & Location</div>
+          <div style={styles.sectionTitle}>Impact, Timing & Location</div>
+          <DetailRow label="Impact" value={impact.detail} />
           <DetailRow label="Started" value={formatTime(event.startedAt)} />
           <DetailRow label="Updated" value={formatTime(event.updatedAt)} />
           {event.expiresAt && (
@@ -271,6 +301,12 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 13,
     color: "#616161",
     fontWeight: 500,
+  },
+  impactBadge: {
+    fontSize: 11,
+    fontWeight: 700,
+    padding: "2px 8px",
+    borderRadius: 3,
   },
   closeBtn: {
     border: "none",
