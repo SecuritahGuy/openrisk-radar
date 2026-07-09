@@ -267,7 +267,7 @@ function MapControlPanel({
                     ? {
                         color: "#fff",
                         background: sourceColor(source),
-                        borderColor: sourceColor(source),
+                        border: `1px solid ${sourceColor(source)}`,
                       }
                     : {}),
                 }}
@@ -293,7 +293,7 @@ function MapControlPanel({
                     ? {
                         color: severityColor(severity),
                         background: `${severityColor(severity)}18`,
-                        borderColor: `${severityColor(severity)}66`,
+                        border: `1px solid ${severityColor(severity)}66`,
                       }
                     : {}),
                 }}
@@ -567,7 +567,7 @@ const styles: Record<string, React.CSSProperties> = {
   radiusActive: {
     color: "#fff",
     background: "#1565c0",
-    borderColor: "#1565c0",
+    border: "1px solid #1565c0",
   },
   weatherToggle: {
     display: "flex",
@@ -605,7 +605,7 @@ const styles: Record<string, React.CSSProperties> = {
   weatherModeActive: {
     color: "#fff",
     background: "#00897b",
-    borderColor: "#00897b",
+    border: "1px solid #00897b",
   },
   checkbox: {
     width: 15,
