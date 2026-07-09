@@ -30,13 +30,45 @@ function timeAgo(iso: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-type SortMode = "priority" | "updated" | "distance" | "expires";
+type SortKey =
+  | "priority"
+  | "source"
+  | "type"
+  | "category"
+  | "severity"
+  | "headline"
+  | "distance"
+  | "expires"
+  | "updated";
+type SortDirection = "asc" | "desc";
+type SortState = {
+  key: SortKey;
+  direction: SortDirection;
+};
 
 function expiryMinutes(event: RiskEvent): number {
   if (!event.expiresAt) return Number.POSITIVE_INFINITY;
   const value = new Date(event.expiresAt).getTime();
   if (Number.isNaN(value)) return Number.POSITIVE_INFINITY;
   return Math.max(0, Math.round((value - Date.now()) / 60_000));
+}
+
+function defaultDirection(key: SortKey): SortDirection {
+  if (key === "severity" || key === "updated" || key === "priority") {
+    return "desc";
+  }
+  return "asc";
+}
+
+function compareText(a: string, b: string): number {
+  return a.localeCompare(b, undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
+}
+
+function applyDirection(value: number, direction: SortDirection): number {
+  return direction === "asc" ? value : -value;
 }
 
 export function FeedExplorer({
@@ -48,19 +80,62 @@ export function FeedExplorer({
   onCollapsedChange,
   onEventClick,
 }: FeedExplorerProps) {
-  const [sortMode, setSortMode] = useState<SortMode>("priority");
-  const sortedEvents = useMemo(() => {
-    return [...events].sort((a, b) => {
-      if (sortMode === "updated") {
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  const [sortState, setSortState] = useState<SortState>({
+    key: "priority",
+    direction: "desc",
+  });
+
+  function updateSort(key: SortKey) {
+    setSortState((current) => {
+      if (current.key === key && key !== "priority") {
+        return {
+          key,
+          direction: current.direction === "asc" ? "desc" : "asc",
+        };
       }
-      if (sortMode === "distance") {
+
+      return {
+        key,
+        direction: defaultDirection(key),
+      };
+    });
+  }
+
+  const sortedEvents = useMemo(() => {
+    const { key, direction } = sortState;
+
+    return [...events].sort((a, b) => {
+      if (key === "source") {
+        return applyDirection(compareText(a.source, b.source), direction);
+      }
+      if (key === "type") {
+        return applyDirection(compareText(a.type, b.type), direction);
+      }
+      if (key === "category") {
+        return applyDirection(compareText(a.category, b.category), direction);
+      }
+      if (key === "severity") {
+        return applyDirection(
+          severityRank(a.severity) - severityRank(b.severity),
+          direction
+        );
+      }
+      if (key === "headline") {
+        return applyDirection(compareText(a.headline, b.headline), direction);
+      }
+      if (key === "updated") {
+        return applyDirection(
+          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime(),
+          direction
+        );
+      }
+      if (key === "distance") {
         const aDistance = distanceMiles(location, a) ?? Number.POSITIVE_INFINITY;
         const bDistance = distanceMiles(location, b) ?? Number.POSITIVE_INFINITY;
-        return aDistance - bDistance;
+        return applyDirection(aDistance - bDistance, direction);
       }
-      if (sortMode === "expires") {
-        return expiryMinutes(a) - expiryMinutes(b);
+      if (key === "expires") {
+        return applyDirection(expiryMinutes(a) - expiryMinutes(b), direction);
       }
 
       const severityDelta = severityRank(b.severity) - severityRank(a.severity);
@@ -70,7 +145,7 @@ export function FeedExplorer({
       if (aDistance !== bDistance) return aDistance - bDistance;
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-  }, [events, location, sortMode]);
+  }, [events, location, sortState]);
 
   const hasNoEvents = events.length === 0 && !isFetching;
   const title = `Feed Explorer (${events.length}${
@@ -91,12 +166,17 @@ export function FeedExplorer({
           </span>
         )}
         <select
-          value={sortMode}
-          onChange={(event) => setSortMode(event.target.value as SortMode)}
+          value={sortState.key}
+          onChange={(event) => updateSort(event.target.value as SortKey)}
           style={styles.sortSelect}
           title="Sort events"
         >
           <option value="priority">Priority</option>
+          <option value="source">Source</option>
+          <option value="type">Type</option>
+          <option value="category">Category</option>
+          <option value="severity">Severity</option>
+          <option value="headline">Headline</option>
           <option value="updated">Updated</option>
           <option value="distance">Distance</option>
           <option value="expires">Expires</option>
@@ -121,50 +201,139 @@ export function FeedExplorer({
             : "No events found for this location."}
         </div>
       ) : (
-      <div style={styles.table}>
-        <div style={styles.tableHeader}>
-          <span style={styles.colSource}>Source</span>
-          <span style={styles.colType}>Type</span>
-          <span style={styles.colCategory}>Category</span>
-          <span style={styles.colSeverity}>Severity</span>
-          <span style={styles.colHeadline}>Headline</span>
-          <span style={styles.colDistance}>Distance</span>
-          <span style={styles.colExpires}>Expires</span>
-          <span style={styles.colTime}>Updated</span>
-        </div>
-        {sortedEvents.map((evt) => (
-          <div
-            key={evt.id}
-            style={styles.row}
-            onClick={() => onEventClick?.(evt)}
-            title="Click for details"
-          >
-            <span style={styles.colSource}>
-              <span
-                style={{
-                  ...styles.badge,
-                  background: sourceColor(evt.source),
-                }}
-              >
-                {evt.source}
-              </span>
-            </span>
-            <span style={styles.colType}>{evt.type}</span>
-            <span style={styles.colCategory}>{evt.category}</span>
-            <span style={styles.colSeverity}>
-              <SeverityBadge severity={evt.severity} />
-            </span>
-            <span style={styles.colHeadline}>{evt.headline}</span>
-            <span style={styles.colDistance}>
-              {formatDistance(distanceMiles(location, evt))}
-            </span>
-            <span style={styles.colExpires}>{expiresLabel(evt)}</span>
-            <span style={styles.colTime}>{timeAgo(evt.updatedAt)}</span>
+        <div style={styles.table}>
+          <div style={styles.tableHeader}>
+            <ColumnHeader
+              label="Source"
+              sortKey="source"
+              sortState={sortState}
+              style={styles.colSource}
+              onSort={updateSort}
+            />
+            <ColumnHeader
+              label="Type"
+              sortKey="type"
+              sortState={sortState}
+              style={styles.colType}
+              onSort={updateSort}
+            />
+            <ColumnHeader
+              label="Category"
+              sortKey="category"
+              sortState={sortState}
+              style={styles.colCategory}
+              onSort={updateSort}
+            />
+            <ColumnHeader
+              label="Severity"
+              sortKey="severity"
+              sortState={sortState}
+              style={styles.colSeverity}
+              onSort={updateSort}
+            />
+            <ColumnHeader
+              label="Headline"
+              sortKey="headline"
+              sortState={sortState}
+              style={styles.colHeadline}
+              onSort={updateSort}
+            />
+            <ColumnHeader
+              label="Distance"
+              sortKey="distance"
+              sortState={sortState}
+              style={styles.colDistance}
+              onSort={updateSort}
+            />
+            <ColumnHeader
+              label="Expires"
+              sortKey="expires"
+              sortState={sortState}
+              style={styles.colExpires}
+              onSort={updateSort}
+            />
+            <ColumnHeader
+              label="Updated"
+              sortKey="updated"
+              sortState={sortState}
+              style={styles.colTime}
+              onSort={updateSort}
+            />
           </div>
-        ))}
-      </div>
+          {sortedEvents.map((evt) => (
+            <div
+              key={evt.id}
+              style={styles.row}
+              onClick={() => onEventClick?.(evt)}
+              title="Click for details"
+            >
+              <span style={styles.colSource}>
+                <span
+                  style={{
+                    ...styles.badge,
+                    background: sourceColor(evt.source),
+                  }}
+                >
+                  {evt.source}
+                </span>
+              </span>
+              <span style={styles.colType}>{evt.type}</span>
+              <span style={styles.colCategory}>{evt.category}</span>
+              <span style={styles.colSeverity}>
+                <SeverityBadge severity={evt.severity} />
+              </span>
+              <span style={styles.colHeadline}>{evt.headline}</span>
+              <span style={styles.colDistance}>
+                {formatDistance(distanceMiles(location, evt))}
+              </span>
+              <span style={styles.colExpires}>{expiresLabel(evt)}</span>
+              <span style={styles.colTime}>{timeAgo(evt.updatedAt)}</span>
+            </div>
+          ))}
+        </div>
       )}
     </div>
+  );
+}
+
+function ColumnHeader({
+  label,
+  sortKey,
+  sortState,
+  style,
+  onSort,
+}: {
+  label: string;
+  sortKey: SortKey;
+  sortState: SortState;
+  style: React.CSSProperties;
+  onSort: (key: SortKey) => void;
+}) {
+  const active = sortState.key === sortKey;
+  return (
+    <span style={style}>
+      <button
+        type="button"
+        style={{
+          ...styles.columnSortButton,
+          ...(active ? styles.columnSortButtonActive : {}),
+        }}
+        onClick={() => onSort(sortKey)}
+        aria-sort={
+          active
+            ? sortState.direction === "asc"
+              ? "ascending"
+              : "descending"
+            : "none"
+        }
+        title={`Sort by ${label}`}
+      >
+        <span>{label}</span>
+        <span style={styles.sortIndicator}>
+          {active ? sortState.direction.toUpperCase() : ""}
+        </span>
+      </button>
+    </span>
   );
 }
 
@@ -251,6 +420,29 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     color: "#757575",
     borderBottom: "1px solid #e0e0e0",
+  },
+  columnSortButton: {
+    border: "none",
+    background: "transparent",
+    color: "inherit",
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 4,
+    maxWidth: "100%",
+    padding: 0,
+    font: "inherit",
+    textAlign: "left" as const,
+  },
+  columnSortButtonActive: {
+    color: "#1565c0",
+  },
+  sortIndicator: {
+    color: "#1565c0",
+    fontSize: 10,
+    fontWeight: 800,
+    minWidth: 22,
+    textTransform: "uppercase" as const,
   },
   row: {
     display: "flex",
