@@ -1,7 +1,7 @@
 import type { ResolvedLocation } from "../types/location";
 import type { EventSource, RiskEvent, Severity } from "../types/riskEvent";
 
-export const EVENT_SOURCES: EventSource[] = ["NWS", "USGS", "FEMA", "NIFC", "SPC"];
+export const EVENT_SOURCES: EventSource[] = ["NWS", "USGS", "FEMA", "NIFC", "SPC", "NHC", "GDACS"];
 export const EVENT_SEVERITIES: Severity[] = [
   "Extreme",
   "Severe",
@@ -30,6 +30,8 @@ export function defaultSourceFilters(): SourceFilters {
     FEMA: true,
     NIFC: true,
     SPC: true,
+    NHC: true,
+    GDACS: true,
   };
 }
 
@@ -54,6 +56,10 @@ export function sourceColor(source: EventSource): string {
       return "#d84315";
     case "SPC":
       return "#00897b";
+    case "NHC":
+      return "#c62828";
+    case "GDACS":
+      return "#1565c0";
   }
 }
 

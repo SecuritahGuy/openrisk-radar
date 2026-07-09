@@ -21,6 +21,8 @@ function sourceColor(source: string): string {
       return "#d84315";
     case "SPC":
       return "#00897b";
+    case "NHC":
+      return "#c62828";
     default:
       return "#757575";
   }
@@ -167,6 +169,23 @@ function SpcFields({ raw }: { raw: Record<string, unknown> }) {
   );
 }
 
+function NhcFields({ raw }: { raw: Record<string, unknown> }) {
+  const publicAdvisory = raw.publicAdvisory as { advNum?: string } | null;
+  return (
+    <>
+      <DetailRow label="Classification" value={String(raw.classification ?? "—")} />
+      <DetailRow label="Advisory" value={publicAdvisory?.advNum ?? "—"} />
+      <DetailRow label="Wind" value={raw.intensity ? `${raw.intensity} kt` : "—"} />
+      <DetailRow label="Pressure" value={raw.pressure ? `${raw.pressure} mb` : "—"} />
+      <DetailRow label="Movement" value={
+        raw.movementDir != null && raw.movementSpeed != null
+          ? `${raw.movementDir} deg at ${raw.movementSpeed} kt`
+          : "—"
+      } />
+    </>
+  );
+}
+
 export function EventDetailPanel({
   event,
   location,
@@ -256,6 +275,12 @@ export function EventDetailPanel({
           <div style={styles.section}>
             <div style={styles.sectionTitle}>Convective Outlook Details</div>
             <SpcFields raw={event.raw} />
+          </div>
+        )}
+        {event.source === "NHC" && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Tropical Cyclone Details</div>
+            <NhcFields raw={event.raw} />
           </div>
         )}
 
