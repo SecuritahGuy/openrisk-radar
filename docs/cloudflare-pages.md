@@ -1,0 +1,36 @@
+# Cloudflare Pages Deployment
+
+OpenRisk Radar is currently set up as a static Cloudflare Pages app. Keep it static while traffic is small so the project stays inside the free tier without Workers or storage bindings.
+
+## Pages Settings
+
+- Framework preset: Vite
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Node version: `22`
+
+Cloudflare Pages will deploy the generated static files and use the files in `public/` for routing and headers:
+
+- `_redirects` sends all routes to `index.html`, so future client-side routes work.
+- `_headers` adds browser security headers, allows the current feed/map domains, and marks hashed assets as immutable.
+
+## Current Runtime Shape
+
+The app calls public feeds directly from the browser:
+
+- NWS active weather alerts
+- NWS current observations and hourly forecast fallback
+- NWS forecast grid cells, forecast zones, fire weather zones, and nearby station observations for the optional map overlay
+- USGS earthquake events
+- FEMA disaster declarations
+- NIFC ArcGIS wildfire incidents
+- Nominatim geocoding, with local ZIP/city fallback
+- OpenStreetMap map tiles
+
+Saved locations live in browser IndexedDB. There is no backend database, scheduled job, or Pages Function in the free-tier baseline.
+
+## When To Add Pages Functions
+
+Add a small `/api/feeds` Pages Function only if direct browser calls become unreliable or provider policy requires server-side headers/caching. If that happens, keep the Function as a thin proxy with short cache TTLs because Pages Functions count against Workers free-plan quotas.
+
+NWS and Nominatim both document expectations around identifiable clients, but browser JavaScript cannot set a custom `User-Agent` header. Keep searches user-triggered, avoid autocomplete, cache where practical, prefer local ZIP/city resolution when possible, and add a narrow Pages Function proxy if either provider requires app-specific server-side headers.
