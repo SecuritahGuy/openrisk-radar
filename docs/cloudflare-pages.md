@@ -9,9 +9,9 @@ OpenRisk Radar is currently set up as a static Cloudflare Pages app. Keep it sta
 - Build output directory: `dist`
 - Node version: `22`
 
-Cloudflare Pages will deploy the generated static files and use the files in `public/` for routing and headers:
+Cloudflare Pages will deploy the generated static files and use the files in `public/` for headers:
 
-- `_redirects` sends all routes to `index.html`, so future client-side routes work.
+- Do not add a catch-all `_redirects` rule for the SPA shell. Cloudflare Pages already serves the root app for unknown paths when there is no top-level `404.html`, and `/* /index.html 200` can fail validation as an infinite loop.
 - `_headers` adds browser security headers, allows the current feed/map domains, and marks hashed assets as immutable.
 
 ## Current Runtime Shape
