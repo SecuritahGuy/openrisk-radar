@@ -1,5 +1,5 @@
-export type EventSource = "NWS" | "USGS" | "FEMA" | "NIFC" | "SPC" | "NHC" | "GDACS";
-export type EventCategory = "Weather" | "Seismic" | "Disaster" | "Wildfire" | "Tropical" | "Volcanic";
+export type EventSource = "NWS" | "USGS" | "FEMA" | "NIFC" | "SPC" | "NHC" | "GDACS" | "EONET";
+export type EventCategory = "Weather" | "Seismic" | "Disaster" | "Wildfire" | "Tropical" | "Volcanic" | "Ice" | "Landslide" | "Dust";
 export type Severity = "Minor" | "Moderate" | "Severe" | "Extreme";
 export type GeometryType = "Point" | "Polygon" | "None";
 export type Confidence = "Source reported" | "Estimated" | "Unknown";
