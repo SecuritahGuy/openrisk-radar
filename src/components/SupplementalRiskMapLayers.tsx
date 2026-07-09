@@ -1,0 +1,166 @@
+import type React from "react";
+import { CircleMarker, Polygon, Popup, Tooltip } from "react-leaflet";
+import type { SupplementalRiskSignal, SupplementalSource } from "../types/supplementalRisk";
+
+interface SupplementalRiskMapLayersProps {
+  signals: SupplementalRiskSignal[];
+  onSignalClick?: (signal: SupplementalRiskSignal) => void;
+}
+
+function sourceColor(source: SupplementalSource): string {
+  switch (source) {
+    case "SPC":
+      return "#1565c0";
+    case "USGS_WATER":
+      return "#0277bd";
+    case "COOPS":
+      return "#00838f";
+    case "NHC":
+      return "#ad1457";
+    case "AIRNOW":
+      return "#6a1b9a";
+  }
+}
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function pointRadius(signal: SupplementalRiskSignal): number {
+  if (signal.source === "AIRNOW") {
+    const aqi = Number(signal.metrics.find((metric) => metric.label === "AQI")?.value ?? 0);
+    return Math.max(8, Math.min(22, 8 + aqi / 25));
+  }
+  if (signal.source === "NHC") return 14;
+  return 8;
+}
+
+function popupContent(
+  signal: SupplementalRiskSignal,
+  onSignalClick?: (signal: SupplementalRiskSignal) => void
+): React.ReactNode {
+  return (
+    <>
+      <strong>{signal.headline}</strong>
+      <br />
+      {signal.description}
+      <br />
+      <em style={{ fontSize: 11 }}>
+        {signal.source} · {signal.severity} · Updated {formatTime(signal.updatedAt)}
+      </em>
+      {signal.metrics.length > 0 && (
+        <>
+          <br />
+          <span style={{ fontSize: 11 }}>
+            {signal.metrics
+              .slice(0, 3)
+              .map((metric) =>
+                `${metric.label}: ${metric.value}${metric.unit ? ` ${metric.unit}` : ""}`
+              )
+              .join(" · ")}
+          </span>
+        </>
+      )}
+      {onSignalClick && (
+        <>
+          <br />
+          <span style={detailLinkStyle} onClick={() => onSignalClick(signal)}>
+            Details &rarr;
+          </span>
+        </>
+      )}
+    </>
+  );
+}
+
+export function SupplementalRiskMapLayers({
+  signals,
+  onSignalClick,
+}: SupplementalRiskMapLayersProps) {
+  return (
+    <>
+      {signals.map((signal) => {
+        const color = sourceColor(signal.source);
+        if (signal.geometry.type === "Point") {
+          return (
+            <CircleMarker
+              key={signal.id}
+              center={[signal.geometry.latitude, signal.geometry.longitude]}
+              radius={pointRadius(signal)}
+              pathOptions={{
+                color,
+                fillColor: color,
+                fillOpacity: 0.65,
+                weight: 2,
+              }}
+            >
+              <Popup>{popupContent(signal, onSignalClick)}</Popup>
+              <Tooltip direction="top" offset={[0, -8]}>
+                {signal.headline}
+              </Tooltip>
+            </CircleMarker>
+          );
+        }
+
+        if (signal.geometry.type === "Polygon") {
+          const positions = signal.geometry.polygon.map(
+            ([lng, lat]) => [lat, lng] as [number, number]
+          );
+          return (
+            <Polygon
+              key={signal.id}
+              positions={positions}
+              pathOptions={{
+                color,
+                fillColor: color,
+                fillOpacity: 0.1,
+                weight: 2,
+              }}
+            >
+              <Popup>{popupContent(signal, onSignalClick)}</Popup>
+            </Polygon>
+          );
+        }
+
+        if (signal.geometry.type === "MultiPolygon") {
+          return signal.geometry.polygons.map((polygon, index) => {
+            const positions = polygon.map(
+              ([lng, lat]) => [lat, lng] as [number, number]
+            );
+            return (
+              <Polygon
+                key={`${signal.id}-${index}`}
+                positions={positions}
+                pathOptions={{
+                  color,
+                  fillColor: color,
+                  fillOpacity: 0.08,
+                  weight: 2,
+                }}
+              >
+                <Popup>{popupContent(signal, onSignalClick)}</Popup>
+              </Polygon>
+            );
+          });
+        }
+
+        return null;
+      })}
+    </>
+  );
+}
+
+const detailLinkStyle: React.CSSProperties = {
+  display: "inline-block",
+  marginTop: 6,
+  fontSize: 11,
+  color: "#1565c0",
+  fontWeight: 600,
+  cursor: "pointer",
+  textDecoration: "underline",
+};

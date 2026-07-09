@@ -102,6 +102,10 @@ export default function App() {
     }));
   }, []);
 
+  const handleSelectEvent = useCallback((event: RiskEvent) => {
+    setSelectedEvent(event);
+  }, []);
+
   const handleSaveLocation = useCallback(() => {
     if (!result) return;
     saveLocation({
@@ -155,7 +159,7 @@ export default function App() {
           currentWeather={currentWeather}
           currentImpactOnly={currentImpactOnly}
           onToggleCurrentImpact={setCurrentImpactOnly}
-          onEventClick={setSelectedEvent}
+          onEventClick={handleSelectEvent}
         />
         <MapView
           location={result}
@@ -174,7 +178,7 @@ export default function App() {
           onRadiusChange={setRadius}
           onSearchMapArea={searchCoordinates}
           mapSearchLoading={loading}
-          onEventClick={setSelectedEvent}
+          onEventClick={handleSelectEvent}
         />
         <FeedExplorer
           events={filteredEvents}
@@ -184,7 +188,7 @@ export default function App() {
           isFetching={isFetching}
           collapsed={feedExplorerCollapsed}
           onCollapsedChange={setFeedExplorerCollapsed}
-          onEventClick={setSelectedEvent}
+          onEventClick={handleSelectEvent}
         />
       </div>
       <UpdatePanel

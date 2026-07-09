@@ -295,6 +295,10 @@ export function FeedExplorer({
               key={evt.id}
               type="button"
               style={styles.row}
+              onPointerDown={(event) => {
+                if (event.button !== 0) return;
+                onEventClick?.(evt);
+              }}
               onClick={() => onEventClick?.(evt)}
               title="Click for details"
             >
@@ -512,7 +516,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
     padding: "6px 12px",
     border: "none",
-    borderBottom: "1px solid #f0f0f0",
+    boxShadow: "inset 0 -1px 0 #f0f0f0",
     background: "transparent",
     alignItems: "center",
     cursor: "pointer",

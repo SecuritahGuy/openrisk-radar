@@ -167,8 +167,8 @@ export function EventDetailPanel({
   const impactBadgeColor = impactColor(impact.level);
 
   return (
-    <div style={styles.backdrop} onClick={onClose}>
-      <div style={styles.panel} onClick={(e) => e.stopPropagation()}>
+    <div style={styles.backdrop} onMouseDown={onClose}>
+      <div style={styles.panel} onMouseDown={(e) => e.stopPropagation()}>
         <div style={styles.header}>
           <div style={styles.headerLeft}>
             <span
