@@ -83,9 +83,10 @@ export async function fetchUsgsWaterSites(
 ): Promise<UsgsWaterSite[]> {
   const radiusMiles = kmToMiles(radiusKm);
   const bbox = bboxAround(latitude, longitude, radiusMiles);
+  const round6 = (n: number) => n.toFixed(6);
   const params = new URLSearchParams({
     format: "rdb",
-    bBox: `${bbox.west},${bbox.south},${bbox.east},${bbox.north}`,
+    bBox: `${round6(bbox.west)},${round6(bbox.south)},${round6(bbox.east)},${round6(bbox.north)}`,
     parameterCd: PARAMETERS.join(","),
     siteStatus: "active",
   });
