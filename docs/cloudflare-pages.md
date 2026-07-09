@@ -24,6 +24,7 @@ The app calls public feeds directly from the browser:
 - USGS earthquake events
 - FEMA disaster declarations
 - NIFC ArcGIS wildfire incidents
+- SPC convective outlook polygons
 - Nominatim geocoding, with local ZIP/city fallback
 - OpenStreetMap map tiles
 

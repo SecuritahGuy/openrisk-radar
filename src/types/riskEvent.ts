@@ -1,4 +1,4 @@
-export type EventSource = "NWS" | "USGS" | "FEMA" | "NIFC";
+export type EventSource = "NWS" | "USGS" | "FEMA" | "NIFC" | "SPC";
 export type EventCategory = "Weather" | "Seismic" | "Disaster" | "Wildfire";
 export type Severity = "Minor" | "Moderate" | "Severe" | "Extreme";
 export type GeometryType = "Point" | "Polygon" | "None";

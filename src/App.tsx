@@ -57,6 +57,7 @@ export default function App() {
     earthquakes,
     femaDeclarations,
     wildfires,
+    spcOutlooks,
     currentWeather,
     allEvents,
     error: feedError,
@@ -195,6 +196,7 @@ export default function App() {
         earthquakes={earthquakes}
         femaDeclarations={femaDeclarations}
         wildfires={wildfires}
+        spcOutlooks={spcOutlooks}
         currentWeather={currentWeather}
         weatherOverlay={weatherOverlay}
         showWeatherOverlay={showWeatherOverlay}

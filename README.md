@@ -2,6 +2,8 @@
 
 A real-time risk aggregation dashboard that pulls natural hazard and disaster data from US government APIs and displays it on an interactive map.
 
+Production: https://openradar-risk.766px7rb9p.workers.dev
+
 ## Data Sources
 
 | Source | Agency | Events |
@@ -10,6 +12,7 @@ A real-time risk aggregation dashboard that pulls natural hazard and disaster da
 | **USGS** | U.S. Geological Survey | Earthquakes (proximity search) |
 | **FEMA** | Federal Emergency Management Agency | Disaster declarations (by state/county) |
 | **NIFC** | National Interagency Fire Center | Wildfires & prescribed burns (proximity search) |
+| **SPC** | Storm Prediction Center | Day 1-3 convective outlook polygons (proximity search) |
 
 Also fetches current weather conditions from NWS observation stations (with hourly forecast fallback) and optional weather overlay grids (temperature, dewpoint, wind speed).
 
@@ -31,14 +34,14 @@ npm install
 npm run dev
 ```
 
-App runs at `http://localhost:5173`.
+App runs locally at `http://localhost:5173`. Use the production deployment above when checking deployed behavior or provider/CSP behavior outside the Vite dev server.
 
 ## Usage
 
 1. Enter a **zip code** or **city, state** in the search bar.
 2. The map centers on the resolved location with a configurable radius ring.
-3. Risk events from all four sources appear on the map colored by severity.
-4. Filter events by source (NWS/USGS/FEMA/NIFC) or severity (Minor/Moderate/Severe/Extreme).
+3. Risk events from the integrated sources appear on the map colored by severity.
+4. Filter events by source (NWS/USGS/FEMA/NIFC/SPC) or severity (Minor/Moderate/Severe/Extreme).
 5. Click an event on the map or in the feed explorer for details.
 6. Save frequently monitored locations with custom labels and criticality tags.
 
@@ -53,7 +56,7 @@ App runs at `http://localhost:5173`.
 
 ## Architecture
 
-- `src/services/` — API clients for each data source (NWS, USGS, FEMA, NIFC, weather)
+- `src/services/` — API clients for each data source (NWS, USGS, FEMA, NIFC, SPC, weather)
 - `src/hooks/` — React Query hooks wrapping each service
 - `src/components/` — UI components (map, search bar, feed explorer, detail panels)
 - `src/types/` — Shared TypeScript types

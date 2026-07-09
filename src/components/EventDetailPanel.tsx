@@ -19,6 +19,8 @@ function sourceColor(source: string): string {
       return "#7b1fa2";
     case "NIFC":
       return "#d84315";
+    case "SPC":
+      return "#00897b";
     default:
       return "#757575";
   }
@@ -153,6 +155,18 @@ function FemaFields({ raw }: { raw: Record<string, unknown> }) {
   );
 }
 
+function SpcFields({ raw }: { raw: Record<string, unknown> }) {
+  return (
+    <>
+      <DetailRow label="Outlook Day" value={raw.day != null ? `Day ${raw.day}` : "—"} />
+      <DetailRow label="Risk Label" value={String(raw.label ?? "—")} />
+      <DetailRow label="Risk Detail" value={String(raw.label2 ?? "—")} />
+      <DetailRow label="Valid" value={raw.valid ? String(raw.valid) : "—"} />
+      <DetailRow label="Expires" value={raw.expire ? String(raw.expire) : "—"} />
+    </>
+  );
+}
+
 export function EventDetailPanel({
   event,
   location,
@@ -236,6 +250,12 @@ export function EventDetailPanel({
           <div style={styles.section}>
             <div style={styles.sectionTitle}>Disaster Declaration Details</div>
             <FemaFields raw={event.raw} />
+          </div>
+        )}
+        {event.source === "SPC" && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Convective Outlook Details</div>
+            <SpcFields raw={event.raw} />
           </div>
         )}
 

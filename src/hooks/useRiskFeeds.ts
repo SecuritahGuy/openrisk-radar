@@ -5,6 +5,7 @@ import { fetchNwsAlerts } from "../services/nws";
 import { fetchEarthquakes } from "../services/usgs";
 import { fetchFemaDeclarations } from "../services/fema";
 import { fetchWildfires } from "../services/nifc";
+import { fetchSpcOutlooks } from "../services/spc";
 import { fetchCurrentWeather } from "../services/weather";
 import type { CurrentWeather } from "../services/weather";
 
@@ -13,6 +14,7 @@ interface UseRiskFeedsResult {
   earthquakes: RiskEvent[];
   femaDeclarations: RiskEvent[];
   wildfires: RiskEvent[];
+  spcOutlooks: RiskEvent[];
   currentWeather: CurrentWeather | null;
   allEvents: RiskEvent[];
   isLoading: boolean;
@@ -67,6 +69,15 @@ export function useRiskFeeds(
     retry: 2,
   });
 
+  const spcQuery = useQuery<RiskEvent[]>({
+    queryKey: ["spc-outlooks", location?.latitude, location?.longitude, radius],
+    queryFn: () =>
+      fetchSpcOutlooks(location!.latitude, location!.longitude, radius),
+    enabled: !!location,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
   const weatherQuery = useQuery<CurrentWeather>({
     queryKey: ["current-weather", location?.latitude, location?.longitude],
     queryFn: () =>
@@ -80,17 +91,19 @@ export function useRiskFeeds(
   const earthquakes = usgsQuery.data ?? [];
   const femaDeclarations = femaQuery.data ?? [];
   const wildfires = nifcQuery.data ?? [];
+  const spcOutlooks = spcQuery.data ?? [];
   const currentWeather = weatherQuery.data ?? null;
-  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires];
-  const isFetching = nwsQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || weatherQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || weatherQuery.isLoading;
-  const isError = nwsQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || weatherQuery.isError;
+  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks];
+  const isFetching = nwsQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || weatherQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || weatherQuery.isLoading;
+  const isError = nwsQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || spcQuery.isError || weatherQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
   if (usgsQuery.error) errors.push(`USGS: ${usgsQuery.error.message}`);
   if (femaQuery.error) errors.push(`FEMA: ${femaQuery.error.message}`);
   if (nifcQuery.error) errors.push(`NIFC: ${nifcQuery.error.message}`);
+  if (spcQuery.error) errors.push(`SPC: ${spcQuery.error.message}`);
 
   const lastUpdated = (() => {
     const dates = allEvents
@@ -106,6 +119,7 @@ export function useRiskFeeds(
     earthquakes,
     femaDeclarations,
     wildfires,
+    spcOutlooks,
     currentWeather,
     allEvents,
     isLoading,
@@ -116,6 +130,7 @@ export function useRiskFeeds(
       usgsQuery.refetch();
       femaQuery.refetch();
       nifcQuery.refetch();
+      spcQuery.refetch();
       weatherQuery.refetch();
     },
     lastUpdated,

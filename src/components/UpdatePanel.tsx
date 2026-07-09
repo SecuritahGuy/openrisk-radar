@@ -14,6 +14,7 @@ interface UpdatePanelProps {
   earthquakes: RiskEvent[];
   femaDeclarations: RiskEvent[];
   wildfires: RiskEvent[];
+  spcOutlooks: RiskEvent[];
   currentWeather: CurrentWeather | null;
   weatherOverlay: NwsWeatherOverlay | null;
   showWeatherOverlay: boolean;
@@ -48,6 +49,7 @@ export function UpdatePanel({
   earthquakes,
   femaDeclarations,
   wildfires,
+  spcOutlooks,
   currentWeather,
   weatherOverlay,
   showWeatherOverlay,
@@ -69,7 +71,7 @@ export function UpdatePanel({
   const [editingLabel, setEditingLabel] = useState(false);
   const [draftLabel, setDraftLabel] = useState("");
 
-  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires];
+  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks];
   const total = allEvents.length;
   const criticalCount = countBySeverity(allEvents, "Extreme", "Severe");
   const moderateCount = countBySeverity(allEvents, "Moderate");
@@ -322,6 +324,19 @@ export function UpdatePanel({
               {wildfires.length > 0
                 ? `${wildfires.length} wildfire${wildfires.length !== 1 ? "s" : ""} nearby`
                 : "No wildfires nearby"}
+            </div>
+            <div style={styles.signal}>
+              <span
+                style={{
+                  ...styles.signalDot,
+                  color: spcOutlooks.length > 0 ? "#00897b" : "#9e9e9e",
+                }}
+              >
+                &#9679;
+              </span>{" "}
+              {spcOutlooks.length > 0
+                ? `${spcOutlooks.length} SPC outlook polygon${spcOutlooks.length !== 1 ? "s" : ""} nearby`
+                : "No SPC outlook polygons nearby"}
             </div>
           </div>
 
