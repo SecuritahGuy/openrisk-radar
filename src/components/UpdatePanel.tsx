@@ -4,6 +4,7 @@ import type { RiskEvent } from "../types/riskEvent";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 import type { CurrentWeather } from "../services/weather";
 import type { NwsWeatherOverlay } from "../services/nwsWeatherOverlay";
+import type { SourceHealthItem, SourceHealthStatus } from "../hooks/useRiskFeeds";
 import { weatherLabel } from "../services/weather";
 import { formatTimestamp } from "../lib/format";
 import { severityColor } from "../lib/riskInsights";
@@ -22,6 +23,7 @@ interface UpdatePanelProps {
   eonetEvents: RiskEvent[];
   currentWeather: CurrentWeather | null;
   supplementalSignals: SupplementalRiskSignal[];
+  sourceHealth: SourceHealthItem[];
   weatherOverlay: NwsWeatherOverlay | null;
   showWeatherOverlay: boolean;
   onToggleWeatherOverlay: (show: boolean) => void;
@@ -61,6 +63,7 @@ export function UpdatePanel({
   eonetEvents,
   currentWeather,
   supplementalSignals,
+  sourceHealth,
   weatherOverlay,
   showWeatherOverlay,
   onToggleWeatherOverlay,
@@ -440,7 +443,11 @@ export function UpdatePanel({
                 </div>
               )}
               <div style={styles.detail}>
-                Sources: {[airQualitySignals.length || marineSignals.length ? "Open-Meteo" : null, riverSignals.length ? "USGS Water" : null].filter(Boolean).join(", ")}
+                Sources: {[
+                  airQualitySignals.length || marineSignals.length ? "Open-Meteo" : null,
+                  riverSignals.length ? "USGS Water" : null,
+                  volcanoSignals.length ? "USGS Volcanoes" : null,
+                ].filter(Boolean).join(", ")}
               </div>
             </div>
           )}
@@ -476,6 +483,8 @@ export function UpdatePanel({
               <div style={{ fontSize: 12, color: "#c62828" }}>{error}</div>
             </div>
           )}
+
+          <SourceHealthPanel items={sourceHealth} />
 
           <div style={styles.actionRow}>
             {isSaved ? (
@@ -522,6 +531,89 @@ function SupplementalSignalLine({ signal }: { signal: SupplementalRiskSignal }) 
       {metricSummary && (
         <div style={styles.supplementalMetrics}>{metricSummary}</div>
       )}
+    </div>
+  );
+}
+
+function statusLabel(status: SourceHealthStatus): string {
+  switch (status) {
+    case "disabled":
+      return "Waiting";
+    case "loading":
+      return "Checking";
+    case "live":
+      return "Live";
+    case "empty":
+      return "No signal";
+    case "error":
+      return "Error";
+    case "unavailable":
+      return "Unavailable";
+  }
+}
+
+function statusColor(status: SourceHealthStatus): string {
+  switch (status) {
+    case "live":
+      return "#2e7d32";
+    case "loading":
+      return "#1565c0";
+    case "empty":
+      return "#607d8b";
+    case "error":
+      return "#c62828";
+    case "unavailable":
+      return "#8d6e63";
+    case "disabled":
+      return "#9e9e9e";
+  }
+}
+
+function SourceHealthPanel({ items }: { items: SourceHealthItem[] }) {
+  const liveCount = items.filter((item) => item.status === "live").length;
+  const issueCount = items.filter(
+    (item) => item.status === "error" || item.status === "unavailable"
+  ).length;
+
+  return (
+    <div style={styles.section}>
+      <div style={styles.healthHeader}>
+        <div>
+          <div style={styles.label}>Data coverage</div>
+          <div style={styles.detail}>
+            {liveCount} live source{liveCount !== 1 ? "s" : ""}
+            {issueCount > 0 ? ` · ${issueCount} unavailable or errored` : ""}
+          </div>
+        </div>
+      </div>
+      <div style={styles.healthList}>
+        {items.map((item) => {
+          const color = statusColor(item.status);
+          return (
+            <div key={item.id} style={styles.healthRow}>
+              <div style={styles.healthTopLine}>
+                <span style={styles.healthName}>{item.label}</span>
+                <span
+                  style={{
+                    ...styles.healthBadge,
+                    color,
+                    background: `${color}14`,
+                    borderColor: `${color}55`,
+                  }}
+                >
+                  {statusLabel(item.status)}
+                </span>
+              </div>
+              <div style={styles.healthDetail}>
+                {item.count != null && (
+                  <span style={styles.healthCount}>{item.count}</span>
+                )}
+                {item.detail}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -673,6 +765,56 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
     color: "#c62828",
     marginTop: 4,
+  },
+  healthHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 8,
+    alignItems: "flex-start",
+  },
+  healthList: {
+    marginTop: 8,
+    border: "1px solid #eceff1",
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  healthRow: {
+    padding: "8px 9px",
+    borderBottom: "1px solid #eceff1",
+    background: "#fff",
+  },
+  healthTopLine: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 8,
+  },
+  healthName: {
+    fontSize: 12,
+    color: "#263238",
+    fontWeight: 700,
+    minWidth: 0,
+  },
+  healthBadge: {
+    flex: "0 0 auto",
+    fontSize: 10,
+    fontWeight: 800,
+    border: "1px solid",
+    borderRadius: 999,
+    padding: "2px 6px",
+  },
+  healthDetail: {
+    fontSize: 11,
+    color: "#607d8b",
+    marginTop: 3,
+    lineHeight: 1.35,
+  },
+  healthCount: {
+    display: "inline-block",
+    minWidth: 16,
+    marginRight: 5,
+    color: "#263238",
+    fontWeight: 800,
   },
   placeholder: {
     fontSize: 14,

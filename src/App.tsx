@@ -163,6 +163,7 @@ export default function App() {
     eonetEvents,
     currentWeather,
     supplementalSignals,
+    sourceHealth,
     allEvents,
     error: feedError,
     refetch,
@@ -382,6 +383,7 @@ export default function App() {
         eonetEvents={eonetEvents}
         currentWeather={currentWeather}
         supplementalSignals={supplementalSignals}
+        sourceHealth={sourceHealth}
         weatherOverlay={weatherOverlay}
         showWeatherOverlay={showWeatherOverlay}
         onToggleWeatherOverlay={setShowWeatherOverlay}

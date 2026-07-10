@@ -82,7 +82,7 @@ function queryHealth({
   enabled: boolean;
   isLoading: boolean;
   isFetching: boolean;
-  error: Error | null;
+  error: string | null;
   count: number;
   liveDetail: string;
   emptyDetail: string;
@@ -103,7 +103,7 @@ function queryHealth({
       label,
       status: "error",
       count,
-      detail: error.message,
+      detail: error,
     };
   }
 
@@ -301,39 +301,68 @@ export function useRiskFeeds(
     retry: 1,
   });
 
-  const supplementalQuery = useQuery<SupplementalRiskSignal[]>({
+  const label = location
+    ? `${location.city}, ${location.state}`
+    : undefined;
+
+  const airQualityQuery = useQuery<SupplementalRiskSignal[]>({
     queryKey: [
-      "openmeteo-supplemental",
+      "openmeteo-air-quality",
       location?.latitude,
       location?.longitude,
-      location?.city,
-      location?.state,
+    ],
+    queryFn: () =>
+      fetchOpenMeteoAirQuality(location!.latitude, location!.longitude, label),
+    enabled: !!location,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
+  const marineQuery = useQuery<SupplementalRiskSignal[]>({
+    queryKey: [
+      "openmeteo-marine",
+      location?.latitude,
+      location?.longitude,
+    ],
+    queryFn: () =>
+      fetchOpenMeteoMarine(location!.latitude, location!.longitude, label),
+    enabled: !!location,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
+  const riverQuery = useQuery<SupplementalRiskSignal[]>({
+    queryKey: [
+      "river-conditions",
+      location?.latitude,
+      location?.longitude,
       radiusKm,
     ],
-    queryFn: async () => {
-      const label = location
-        ? `${location.city}, ${location.state}`
-        : undefined;
-      const results = await Promise.allSettled([
-        fetchOpenMeteoAirQuality(location!.latitude, location!.longitude, label),
-        fetchOpenMeteoMarine(location!.latitude, location!.longitude, label),
-        fetchRiverConditions(
-          location!.latitude,
-          location!.longitude,
-          radiusKm,
-          label
-        ),
-        fetchNearbyVolcanoes(
-          location!.latitude,
-          location!.longitude,
-          radiusKm
-        ),
-      ]);
+    queryFn: () =>
+      fetchRiverConditions(
+        location!.latitude,
+        location!.longitude,
+        radiusKm,
+        label
+      ),
+    enabled: !!location,
+    staleTime: 300_000,
+    retry: 1,
+  });
 
-      return results.flatMap((result) =>
-        result.status === "fulfilled" ? result.value : []
-      );
-    },
+  const volcanoQuery = useQuery<SupplementalRiskSignal[]>({
+    queryKey: [
+      "usgs-volcanoes",
+      location?.latitude,
+      location?.longitude,
+      radiusKm,
+    ],
+    queryFn: () =>
+      fetchNearbyVolcanoes(
+        location!.latitude,
+        location!.longitude,
+        radiusKm
+      ),
     enabled: !!location,
     staleTime: 300_000,
     retry: 1,
@@ -348,12 +377,21 @@ export function useRiskFeeds(
   const gdacsEvents = gdacsQuery.data ?? [];
   const eonetEvents = eonetQuery.data ?? [];
   const currentWeather = weatherQuery.data ?? null;
-  const supplementalSignals = supplementalQuery.data ?? [];
+  const airQualitySignals = airQualityQuery.data ?? [];
+  const marineSignals = marineQuery.data ?? [];
+  const riverSignals = riverQuery.data ?? [];
+  const volcanoSignals = volcanoQuery.data ?? [];
+  const supplementalSignals = [
+    ...airQualitySignals,
+    ...marineSignals,
+    ...riverSignals,
+    ...volcanoSignals,
+  ];
   const supplementalEvents = supplementalSignals.map(supplementalToEvent);
   const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms, ...gdacsEvents, ...eonetEvents, ...supplementalEvents];
-  const isFetching = nwsQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || weatherQuery.isFetching || supplementalQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || weatherQuery.isLoading || supplementalQuery.isLoading;
-  const isError = nwsQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || weatherQuery.isError || supplementalQuery.isError;
+  const isFetching = nwsQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || riverQuery.isFetching || volcanoQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || riverQuery.isLoading || volcanoQuery.isLoading;
+  const isError = nwsQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || weatherQuery.isError || airQualityQuery.isError || marineQuery.isError || riverQuery.isError || volcanoQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
@@ -364,7 +402,187 @@ export function useRiskFeeds(
   if (nhcQuery.error) errors.push(`NHC: ${nhcQuery.error.message}`);
   if (gdacsQuery.error) errors.push(`GDACS: ${gdacsQuery.error.message}`);
   if (eonetQuery.error) errors.push(`EONET: ${eonetQuery.error.message}`);
-  if (supplementalQuery.error) errors.push(`Supplemental: ${supplementalQuery.error.message}`);
+  if (airQualityQuery.error) errors.push(`Open-Meteo Air Quality: ${airQualityQuery.error.message}`);
+  if (marineQuery.error) errors.push(`Open-Meteo Marine: ${marineQuery.error.message}`);
+  if (riverQuery.error) errors.push(`USGS Water: ${riverQuery.error.message}`);
+  if (volcanoQuery.error) errors.push(`USGS Volcanoes: ${volcanoQuery.error.message}`);
+
+  const locationEnabled = !!location;
+  const sourceHealth: SourceHealthItem[] = [
+    queryHealth({
+      id: "nws",
+      label: "NWS Alerts",
+      enabled: locationEnabled,
+      isLoading: nwsQuery.isLoading,
+      isFetching: nwsQuery.isFetching,
+      error: errorMessage(nwsQuery.error),
+      count: weatherAlerts.length,
+      liveDetail: `${weatherAlerts.length} active alert${weatherAlerts.length !== 1 ? "s" : ""}.`,
+      emptyDetail: "No active weather alerts for the selected state.",
+    }),
+    queryHealth({
+      id: "usgs",
+      label: "USGS Earthquakes",
+      enabled: locationEnabled,
+      isLoading: usgsQuery.isLoading,
+      isFetching: usgsQuery.isFetching,
+      error: errorMessage(usgsQuery.error),
+      count: earthquakes.length,
+      liveDetail: `${earthquakes.length} earthquake${earthquakes.length !== 1 ? "s" : ""} in range.`,
+      emptyDetail: "No earthquakes in the selected radius.",
+    }),
+    queryHealth({
+      id: "fema",
+      label: "FEMA Disasters",
+      enabled: locationEnabled,
+      isLoading: femaQuery.isLoading,
+      isFetching: femaQuery.isFetching,
+      error: errorMessage(femaQuery.error),
+      count: femaDeclarations.length,
+      liveDetail: `${femaDeclarations.length} declaration${femaDeclarations.length !== 1 ? "s" : ""} on record.`,
+      emptyDetail: "No FEMA declarations matched this location.",
+    }),
+    queryHealth({
+      id: "nifc",
+      label: "NIFC Wildfires",
+      enabled: locationEnabled,
+      isLoading: nifcQuery.isLoading,
+      isFetching: nifcQuery.isFetching,
+      error: errorMessage(nifcQuery.error),
+      count: wildfires.length,
+      liveDetail: `${wildfires.length} wildfire${wildfires.length !== 1 ? "s" : ""} in range.`,
+      emptyDetail: "No active wildfires in range.",
+    }),
+    queryHealth({
+      id: "spc",
+      label: "SPC Outlooks",
+      enabled: locationEnabled,
+      isLoading: spcQuery.isLoading,
+      isFetching: spcQuery.isFetching,
+      error: errorMessage(spcQuery.error),
+      count: spcOutlooks.length,
+      liveDetail: `${spcOutlooks.length} outlook polygon${spcOutlooks.length !== 1 ? "s" : ""} nearby.`,
+      emptyDetail: "No SPC outlook polygons nearby.",
+    }),
+    queryHealth({
+      id: "nhc",
+      label: "NHC Tropical",
+      enabled: locationEnabled,
+      isLoading: nhcQuery.isLoading,
+      isFetching: nhcQuery.isFetching,
+      error: errorMessage(nhcQuery.error),
+      count: nhcStorms.length,
+      liveDetail: `${nhcStorms.length} tropical cyclone signal${nhcStorms.length !== 1 ? "s" : ""} in range.`,
+      emptyDetail: "No active tropical cyclones in range.",
+    }),
+    queryHealth({
+      id: "gdacs",
+      label: "GDACS",
+      enabled: locationEnabled,
+      isLoading: gdacsQuery.isLoading,
+      isFetching: gdacsQuery.isFetching,
+      error: errorMessage(gdacsQuery.error),
+      count: gdacsEvents.length,
+      liveDetail: `${gdacsEvents.length} global disaster event${gdacsEvents.length !== 1 ? "s" : ""} nearby.`,
+      emptyDetail: "No GDACS events nearby.",
+    }),
+    queryHealth({
+      id: "eonet",
+      label: "NASA EONET",
+      enabled: locationEnabled,
+      isLoading: eonetQuery.isLoading,
+      isFetching: eonetQuery.isFetching,
+      error: errorMessage(eonetQuery.error),
+      count: eonetEvents.length,
+      liveDetail: `${eonetEvents.length} earth observation event${eonetEvents.length !== 1 ? "s" : ""} nearby.`,
+      emptyDetail: "No NASA EONET events nearby.",
+    }),
+    queryHealth({
+      id: "weather",
+      label: "Current Conditions",
+      enabled: locationEnabled,
+      isLoading: weatherQuery.isLoading,
+      isFetching: weatherQuery.isFetching,
+      error: errorMessage(weatherQuery.error),
+      count: currentWeather ? 1 : 0,
+      liveDetail: currentWeather ? `${currentWeather.source} observation available.` : "Observation available.",
+      emptyDetail: "No current observation returned.",
+    }),
+    queryHealth({
+      id: "openmeteo-air",
+      label: "Open-Meteo Air Quality",
+      enabled: locationEnabled,
+      isLoading: airQualityQuery.isLoading,
+      isFetching: airQualityQuery.isFetching,
+      error: errorMessage(airQualityQuery.error),
+      count: airQualitySignals.length,
+      liveDetail: `${airQualitySignals.length} air quality signal${airQualitySignals.length !== 1 ? "s" : ""}.`,
+      emptyDetail: "No elevated air quality signal.",
+    }),
+    queryHealth({
+      id: "openmeteo-marine",
+      label: "Open-Meteo Marine",
+      enabled: locationEnabled,
+      isLoading: marineQuery.isLoading,
+      isFetching: marineQuery.isFetching,
+      error: errorMessage(marineQuery.error),
+      count: marineSignals.length,
+      liveDetail: `${marineSignals.length} marine signal${marineSignals.length !== 1 ? "s" : ""}.`,
+      emptyDetail: "No coastal water signal for this location.",
+    }),
+    queryHealth({
+      id: "usgs-water",
+      label: "USGS Water",
+      enabled: locationEnabled,
+      isLoading: riverQuery.isLoading,
+      isFetching: riverQuery.isFetching,
+      error: errorMessage(riverQuery.error),
+      count: riverSignals.length,
+      liveDetail: `${riverSignals.length} river gauge signal${riverSignals.length !== 1 ? "s" : ""}.`,
+      emptyDetail: "No nearby river gauge signals.",
+    }),
+    queryHealth({
+      id: "usgs-volcanoes",
+      label: "USGS Volcanoes",
+      enabled: locationEnabled,
+      isLoading: volcanoQuery.isLoading,
+      isFetching: volcanoQuery.isFetching,
+      error: errorMessage(volcanoQuery.error),
+      count: volcanoSignals.length,
+      liveDetail: `${volcanoSignals.length} elevated volcano signal${volcanoSignals.length !== 1 ? "s" : ""}.`,
+      emptyDetail: "No elevated volcano status nearby.",
+    }),
+    {
+      id: "airnow",
+      label: "AirNow Current Observations",
+      status: import.meta.env.VITE_AIRNOW_API_KEY ? "unavailable" : "unavailable",
+      count: null,
+      detail: import.meta.env.VITE_AIRNOW_API_KEY
+        ? "Service exists but is not wired into this view yet."
+        : "Missing VITE_AIRNOW_API_KEY; Open-Meteo air quality remains active.",
+    },
+    {
+      id: "emsc",
+      label: "EMSC Earthquakes",
+      status: "unavailable",
+      count: null,
+      detail: "Service exists but is not wired into this view yet.",
+    },
+    {
+      id: "swpc",
+      label: "SWPC Space Weather",
+      status: "unavailable",
+      count: null,
+      detail: "Service exists but is not wired into this view yet.",
+    },
+    {
+      id: "drought",
+      label: "Drought Monitor",
+      status: "unavailable",
+      count: null,
+      detail: "Service exists but is not wired into this view yet.",
+    },
+  ];
 
   const lastUpdated = (() => {
     const dates = allEvents
@@ -386,6 +604,7 @@ export function useRiskFeeds(
     eonetEvents,
     currentWeather,
     supplementalSignals,
+    sourceHealth,
     allEvents,
     isLoading,
     isError,
@@ -400,7 +619,10 @@ export function useRiskFeeds(
       gdacsQuery.refetch();
       eonetQuery.refetch();
       weatherQuery.refetch();
-      supplementalQuery.refetch();
+      airQualityQuery.refetch();
+      marineQuery.refetch();
+      riverQuery.refetch();
+      volcanoQuery.refetch();
     },
     lastUpdated,
     isFetching,
