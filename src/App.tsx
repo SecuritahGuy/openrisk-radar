@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { SearchBar } from "./components/SearchBar";
 import { MapView } from "./components/MapView";
 import { UpdatePanel } from "./components/UpdatePanel";
@@ -20,6 +20,49 @@ import type { RadiusOption, Criticality, LocationType } from "./types/location";
 import type { EventSource, RiskEvent, Severity } from "./types/riskEvent";
 import type { WeatherLayerMode } from "./types/weatherLayer";
 
+const RADIUS_OPTIONS: RadiusOption[] = [10, 25, 50, 100];
+const WEATHER_LAYER_MODES: WeatherLayerMode[] = [
+  "temp",
+  "precip",
+  "thunder",
+  "heat",
+  "wind",
+  "stations",
+];
+const EXAMPLE_SEARCHES = [
+  "Chicago, IL",
+  "Miami, FL",
+  "San Francisco, CA",
+  "Nashville, TN",
+  "New Orleans, LA",
+];
+
+function readInitialQuery(): string {
+  if (typeof window === "undefined") return "";
+  return new URLSearchParams(window.location.search).get("q") ?? "";
+}
+
+function readInitialRadius(): RadiusOption {
+  if (typeof window === "undefined") return 50;
+  const value = Number(new URLSearchParams(window.location.search).get("radius"));
+  return RADIUS_OPTIONS.includes(value as RadiusOption)
+    ? (value as RadiusOption)
+    : 50;
+}
+
+function readInitialWeatherOverlay(): boolean {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("weather") === "1";
+}
+
+function readInitialWeatherLayerMode(): WeatherLayerMode {
+  if (typeof window === "undefined") return "temp";
+  const value = new URLSearchParams(window.location.search).get("layer");
+  return WEATHER_LAYER_MODES.includes(value as WeatherLayerMode)
+    ? (value as WeatherLayerMode)
+    : "temp";
+}
+
 function coordsMatch(
   a: { latitude: number; longitude: number } | null,
   b: { latitude: number; longitude: number } | null
@@ -31,7 +74,59 @@ function coordsMatch(
   );
 }
 
+function FirstRunPanel({
+  loading,
+  geoLoading,
+  geoError,
+  onExampleSearch,
+  onUseCurrentLocation,
+}: {
+  loading: boolean;
+  geoLoading: boolean;
+  geoError: string | null;
+  onExampleSearch: (query: string) => void;
+  onUseCurrentLocation: () => void;
+}) {
+  return (
+    <div className="first-run-panel" style={styles.firstRunPanel}>
+      <div style={styles.firstRunContent}>
+        <div style={styles.firstRunTitle}>Start with a location</div>
+        <div style={styles.firstRunText}>
+          Search a city or ZIP code to load live alerts, environmental signals,
+          river gauges, forecasts, and nearby hazards.
+        </div>
+        <div style={styles.exampleRow}>
+          {EXAMPLE_SEARCHES.map((example) => (
+            <button
+              key={example}
+              type="button"
+              style={styles.exampleButton}
+              disabled={loading || geoLoading}
+              onClick={() => onExampleSearch(example)}
+            >
+              {example}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={styles.firstRunAction}>
+        <button
+          type="button"
+          style={styles.locationButton}
+          disabled={loading || geoLoading}
+          onClick={onUseCurrentLocation}
+        >
+          {geoLoading ? "Locating..." : "Use my location"}
+        </button>
+        {geoError && <div style={styles.geoError}>{geoError}</div>}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  const [initialQuery] = useState(readInitialQuery);
+  const initialSearchStarted = useRef(false);
   const {
     query,
     setQuery,
@@ -39,18 +134,23 @@ export default function App() {
     error: locError,
     loading,
     search,
+    searchFor,
     searchCoordinates,
   } =
-    useResolvedLocation();
-  const [radius, setRadius] = useState<RadiusOption>(50);
-  const [showWeatherOverlay, setShowWeatherOverlay] = useState(false);
+    useResolvedLocation(initialQuery);
+  const [radius, setRadius] = useState<RadiusOption>(readInitialRadius);
+  const [showWeatherOverlay, setShowWeatherOverlay] = useState(
+    readInitialWeatherOverlay
+  );
   const [weatherLayerMode, setWeatherLayerMode] =
-    useState<WeatherLayerMode>("temp");
+    useState<WeatherLayerMode>(readInitialWeatherLayerMode);
   const [feedExplorerCollapsed, setFeedExplorerCollapsed] = useState(false);
   const [currentImpactOnly, setCurrentImpactOnly] = useState(false);
   const [sourceFilters, setSourceFilters] = useState(defaultSourceFilters);
   const [severityFilters, setSeverityFilters] = useState(defaultSeverityFilters);
   const [selectedEvent, setSelectedEvent] = useState<RiskEvent | null>(null);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
 
   const {
     weatherAlerts,
@@ -93,6 +193,39 @@ export default function App() {
     return visible.filter((event) => isCurrentImpact(event, result, radius));
   }, [allEvents, sourceFilters, severityFilters, currentImpactOnly, result, radius]);
 
+  useEffect(() => {
+    if (initialSearchStarted.current || !initialQuery.trim()) return;
+    initialSearchStarted.current = true;
+    searchFor(initialQuery);
+  }, [initialQuery, searchFor]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!result && !initialQuery.trim()) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (result) {
+      params.set("q", result.postalCode ?? `${result.city}, ${result.state}`);
+    }
+    params.set("radius", String(radius));
+    if (showWeatherOverlay) {
+      params.set("weather", "1");
+    } else {
+      params.delete("weather");
+    }
+    if (weatherLayerMode !== "temp") {
+      params.set("layer", weatherLayerMode);
+    } else {
+      params.delete("layer");
+    }
+
+    const nextQuery = params.toString();
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
+    if (nextUrl !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+      window.history.replaceState(null, "", nextUrl);
+    }
+  }, [initialQuery, radius, result, showWeatherOverlay, weatherLayerMode]);
+
   const handleToggleSource = useCallback((source: EventSource) => {
     setSourceFilters((current) => ({
       ...current,
@@ -134,11 +267,41 @@ export default function App() {
       const input = loc.postalCode
         ? loc.postalCode
         : `${loc.city}, ${loc.state}`;
-      setQuery(input);
-      setTimeout(() => search(), 0);
+      searchFor(input);
     },
-    [setQuery, search]
+    [searchFor]
   );
+
+  const handleExampleSearch = useCallback(
+    (example: string) => {
+      setGeoError(null);
+      searchFor(example);
+    },
+    [searchFor]
+  );
+
+  const handleUseCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setGeoError("Location access is not available in this browser.");
+      return;
+    }
+
+    setGeoLoading(true);
+    setGeoError(null);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setGeoLoading(false);
+        searchCoordinates(position.coords.latitude, position.coords.longitude);
+      },
+      (error) => {
+        setGeoLoading(false);
+        setGeoError(
+          error.message || "Could not get your current location."
+        );
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300_000 }
+    );
+  }, [searchCoordinates]);
 
   return (
     <div className="app-shell" style={styles.root}>
@@ -150,6 +313,15 @@ export default function App() {
           loading={loading}
           error={locError}
         />
+        {!result && (
+          <FirstRunPanel
+            loading={loading}
+            geoLoading={geoLoading}
+            geoError={geoError}
+            onExampleSearch={handleExampleSearch}
+            onUseCurrentLocation={handleUseCurrentLocation}
+          />
+        )}
         <SavedLocationList
           savedLocations={savedLocations}
           activeLocationId={activeSavedLocation?.id ?? null}
@@ -272,5 +444,65 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     flexDirection: "column",
     minWidth: 0,
+  },
+  firstRunPanel: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 16,
+    padding: "14px 16px",
+    background: "#f7f9fb",
+    borderBottom: "1px solid #dfe6ee",
+  },
+  firstRunContent: {
+    minWidth: 0,
+  },
+  firstRunTitle: {
+    fontSize: 15,
+    fontWeight: 800,
+    color: "#212121",
+    marginBottom: 4,
+  },
+  firstRunText: {
+    fontSize: 13,
+    color: "#616161",
+    lineHeight: 1.4,
+    maxWidth: 760,
+  },
+  exampleRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 7,
+    marginTop: 10,
+  },
+  exampleButton: {
+    border: "1px solid #cfd8dc",
+    borderRadius: 6,
+    background: "#fff",
+    color: "#1565c0",
+    fontSize: 12,
+    fontWeight: 800,
+    padding: "6px 9px",
+    cursor: "pointer",
+  },
+  firstRunAction: {
+    flex: "0 0 auto",
+    width: "min(180px, 100%)",
+  },
+  locationButton: {
+    width: "100%",
+    border: "1px solid #1565c0",
+    borderRadius: 6,
+    background: "#1565c0",
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: 800,
+    padding: "8px 10px",
+    cursor: "pointer",
+  },
+  geoError: {
+    marginTop: 6,
+    color: "#c62828",
+    fontSize: 12,
+    lineHeight: 1.3,
   },
 };

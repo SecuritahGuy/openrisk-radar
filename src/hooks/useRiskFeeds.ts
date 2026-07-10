@@ -18,6 +18,7 @@ import {
   fetchOpenMeteoWeather,
 } from "../services/openMeteo";
 import { fetchRiverConditions } from "../services/usgsWater";
+import { fetchNearbyVolcanoes } from "../services/usgsVolcanoes";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 
 interface UseRiskFeedsResult {
@@ -31,6 +32,7 @@ interface UseRiskFeedsResult {
   eonetEvents: RiskEvent[];
   currentWeather: CurrentWeather | null;
   supplementalSignals: SupplementalRiskSignal[];
+  sourceHealth: SourceHealthItem[];
   allEvents: RiskEvent[];
   isLoading: boolean;
   isError: boolean;
@@ -40,14 +42,95 @@ interface UseRiskFeedsResult {
   isFetching: boolean;
 }
 
+export type SourceHealthStatus =
+  | "disabled"
+  | "loading"
+  | "live"
+  | "empty"
+  | "error"
+  | "unavailable";
+
+export interface SourceHealthItem {
+  id: string;
+  label: string;
+  status: SourceHealthStatus;
+  count: number | null;
+  detail: string;
+}
+
 function toRadiusKm(miles: RadiusOption): number {
   return miles * 1.60934;
+}
+
+function errorMessage(error: Error | null): string | null {
+  return error?.message ?? null;
+}
+
+function queryHealth({
+  id,
+  label,
+  enabled,
+  isLoading,
+  isFetching,
+  error,
+  count,
+  liveDetail,
+  emptyDetail,
+}: {
+  id: string;
+  label: string;
+  enabled: boolean;
+  isLoading: boolean;
+  isFetching: boolean;
+  error: Error | null;
+  count: number;
+  liveDetail: string;
+  emptyDetail: string;
+}): SourceHealthItem {
+  if (!enabled) {
+    return {
+      id,
+      label,
+      status: "disabled",
+      count: null,
+      detail: "Waiting for a location search.",
+    };
+  }
+
+  if (error) {
+    return {
+      id,
+      label,
+      status: "error",
+      count,
+      detail: error.message,
+    };
+  }
+
+  if (isLoading || (isFetching && count === 0)) {
+    return {
+      id,
+      label,
+      status: "loading",
+      count,
+      detail: "Checking source.",
+    };
+  }
+
+  return {
+    id,
+    label,
+    status: count > 0 ? "live" : "empty",
+    count,
+    detail: count > 0 ? liveDetail : emptyDetail,
+  };
 }
 
 function supplementalCategory(signal: SupplementalRiskSignal): EventCategory {
   if (signal.category === "Air Quality") return "Air Quality";
   if (signal.category === "Coastal Water") return "Coastal Water";
   if (signal.category === "River Gauge") return "River Gauge";
+  if (signal.category === "Volcano") return "Volcanic";
   return "Weather";
 }
 
@@ -55,7 +138,8 @@ function supplementalSource(signal: SupplementalRiskSignal): EventSource {
   if (
     signal.source === "AIRNOW" ||
     signal.source === "COOPS" ||
-    signal.source === "USGS_WATER"
+    signal.source === "USGS_WATER" ||
+    signal.source === "VOLCANO"
   ) {
     return signal.source;
   }
@@ -238,6 +322,11 @@ export function useRiskFeeds(
           location!.longitude,
           radiusKm,
           label
+        ),
+        fetchNearbyVolcanoes(
+          location!.latitude,
+          location!.longitude,
+          radiusKm
         ),
       ]);
 

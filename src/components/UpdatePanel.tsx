@@ -88,8 +88,9 @@ export function UpdatePanel({
   const airQualitySignals = supplementalSignals.filter((s) => s.category === "Air Quality");
   const marineSignals = supplementalSignals.filter((s) => s.category === "Coastal Water");
   const riverSignals = supplementalSignals.filter((s) => s.category === "River Gauge");
+  const volcanoSignals = supplementalSignals.filter((s) => s.category === "Volcano");
   const shownSupplementalCount =
-    airQualitySignals.length + marineSignals.length + riverSignals.length;
+    airQualitySignals.length + marineSignals.length + riverSignals.length + volcanoSignals.length;
 
   const label = activeSavedLocation?.label ?? (location ? `${location.city}, ${location.state}` : "");
   const criticality = activeSavedLocation?.criticality ?? "Medium";
@@ -402,6 +403,19 @@ export function UpdatePanel({
                 ? `${eonetEvents.length} NASA EONET event${eonetEvents.length !== 1 ? "s" : ""} nearby`
                 : "No NASA EONET events nearby"}
             </div>
+            <div style={styles.signal}>
+              <span
+                style={{
+                  ...styles.signalDot,
+                  color: volcanoSignals.length > 0 ? "#8d6e63" : "#9e9e9e",
+                }}
+              >
+                &#9679;
+              </span>{" "}
+              {volcanoSignals.length > 0
+                ? `${volcanoSignals.length} elevated volcano status signal${volcanoSignals.length !== 1 ? "s" : ""} nearby`
+                : "No elevated volcano status nearby"}
+            </div>
           </div>
 
           {supplementalSignals.length > 0 && (
@@ -414,6 +428,9 @@ export function UpdatePanel({
                 <SupplementalSignalLine key={signal.id} signal={signal} />
               ))}
               {riverSignals.map((signal) => (
+                <SupplementalSignalLine key={signal.id} signal={signal} />
+              ))}
+              {volcanoSignals.map((signal) => (
                 <SupplementalSignalLine key={signal.id} signal={signal} />
               ))}
               {supplementalSignals.length > shownSupplementalCount && (

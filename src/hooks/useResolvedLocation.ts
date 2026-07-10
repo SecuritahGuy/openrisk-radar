@@ -9,11 +9,12 @@ export interface UseResolvedLocationReturn {
   error: string | null;
   loading: boolean;
   search: () => void;
+  searchFor: (q: string) => void;
   searchCoordinates: (lat: number, lng: number) => void;
 }
 
-export function useResolvedLocation(): UseResolvedLocationReturn {
-  const [query, setQuery] = useState("");
+export function useResolvedLocation(initialQuery = ""): UseResolvedLocationReturn {
+  const [query, setQuery] = useState(initialQuery);
   const [result, setResult] = useState<ResolvedLocation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,10 +25,11 @@ export function useResolvedLocation(): UseResolvedLocationReturn {
     setError(null);
   }, []);
 
-  const search = useCallback(() => {
-    const current = query.trim();
+  const searchFor = useCallback((q: string) => {
+    const current = q.trim();
     if (!current) return;
 
+    setQuery(current);
     setLoading(true);
     setError(null);
     resolve(current)
@@ -42,7 +44,11 @@ export function useResolvedLocation(): UseResolvedLocationReturn {
         setError(err instanceof Error ? err.message : "Location search failed.");
       })
       .finally(() => setLoading(false));
-  }, [applyResult, query]);
+  }, [applyResult]);
+
+  const search = useCallback(() => {
+    searchFor(query);
+  }, [query, searchFor]);
 
   const searchCoordinates = useCallback(
     (lat: number, lng: number) => {
@@ -76,6 +82,7 @@ export function useResolvedLocation(): UseResolvedLocationReturn {
     error,
     loading,
     search,
+    searchFor,
     searchCoordinates,
   };
 }
