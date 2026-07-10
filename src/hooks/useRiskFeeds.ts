@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { RiskEvent } from "../types/riskEvent";
 import type { EventCategory, EventSource, GeometryType } from "../types/riskEvent";
@@ -19,6 +20,7 @@ import {
 } from "../services/openMeteo";
 import { fetchRiverConditions } from "../services/usgsWater";
 import { fetchNearbyVolcanoes } from "../services/usgsVolcanoes";
+import { fetchDroughtAtPoint } from "../services/drought";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 
 interface UseRiskFeedsResult {
@@ -57,6 +59,9 @@ export interface SourceHealthItem {
   count: number | null;
   detail: string;
 }
+
+const EMPTY_EVENTS: RiskEvent[] = [];
+const EMPTY_SIGNALS: SupplementalRiskSignal[] = [];
 
 function toRadiusKm(miles: RadiusOption): number {
   return miles * 1.60934;
@@ -131,6 +136,7 @@ function supplementalCategory(signal: SupplementalRiskSignal): EventCategory {
   if (signal.category === "Coastal Water") return "Coastal Water";
   if (signal.category === "River Gauge") return "River Gauge";
   if (signal.category === "Volcano") return "Volcanic";
+  if (signal.category === "Drought") return "Drought";
   return "Weather";
 }
 
@@ -139,7 +145,8 @@ function supplementalSource(signal: SupplementalRiskSignal): EventSource {
     signal.source === "AIRNOW" ||
     signal.source === "COOPS" ||
     signal.source === "USGS_WATER" ||
-    signal.source === "VOLCANO"
+    signal.source === "VOLCANO" ||
+    signal.source === "DROUGHT"
   ) {
     return signal.source;
   }
@@ -368,30 +375,84 @@ export function useRiskFeeds(
     retry: 1,
   });
 
-  const weatherAlerts = nwsQuery.data ?? [];
-  const earthquakes = usgsQuery.data ?? [];
-  const femaDeclarations = femaQuery.data ?? [];
-  const wildfires = nifcQuery.data ?? [];
-  const spcOutlooks = spcQuery.data ?? [];
-  const nhcStorms = nhcQuery.data ?? [];
-  const gdacsEvents = gdacsQuery.data ?? [];
-  const eonetEvents = eonetQuery.data ?? [];
+  const droughtQuery = useQuery<SupplementalRiskSignal[]>({
+    queryKey: [
+      "drought-monitor",
+      location?.latitude,
+      location?.longitude,
+    ],
+    queryFn: () =>
+      fetchDroughtAtPoint(
+        location!.latitude,
+        location!.longitude,
+        label
+      ),
+    enabled: !!location,
+    staleTime: 6 * 60 * 60_000,
+    retry: 1,
+  });
+
+  const weatherAlerts = nwsQuery.data ?? EMPTY_EVENTS;
+  const earthquakes = usgsQuery.data ?? EMPTY_EVENTS;
+  const femaDeclarations = femaQuery.data ?? EMPTY_EVENTS;
+  const wildfires = nifcQuery.data ?? EMPTY_EVENTS;
+  const spcOutlooks = spcQuery.data ?? EMPTY_EVENTS;
+  const nhcStorms = nhcQuery.data ?? EMPTY_EVENTS;
+  const gdacsEvents = gdacsQuery.data ?? EMPTY_EVENTS;
+  const eonetEvents = eonetQuery.data ?? EMPTY_EVENTS;
   const currentWeather = weatherQuery.data ?? null;
-  const airQualitySignals = airQualityQuery.data ?? [];
-  const marineSignals = marineQuery.data ?? [];
-  const riverSignals = riverQuery.data ?? [];
-  const volcanoSignals = volcanoQuery.data ?? [];
-  const supplementalSignals = [
-    ...airQualitySignals,
-    ...marineSignals,
-    ...riverSignals,
-    ...volcanoSignals,
-  ];
-  const supplementalEvents = supplementalSignals.map(supplementalToEvent);
-  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms, ...gdacsEvents, ...eonetEvents, ...supplementalEvents];
-  const isFetching = nwsQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || riverQuery.isFetching || volcanoQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || riverQuery.isLoading || volcanoQuery.isLoading;
-  const isError = nwsQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || weatherQuery.isError || airQualityQuery.isError || marineQuery.isError || riverQuery.isError || volcanoQuery.isError;
+  const airQualitySignals = airQualityQuery.data ?? EMPTY_SIGNALS;
+  const marineSignals = marineQuery.data ?? EMPTY_SIGNALS;
+  const riverSignals = riverQuery.data ?? EMPTY_SIGNALS;
+  const volcanoSignals = volcanoQuery.data ?? EMPTY_SIGNALS;
+  const droughtSignals = droughtQuery.data ?? EMPTY_SIGNALS;
+  const supplementalSignals = useMemo(
+    () => [
+      ...airQualitySignals,
+      ...marineSignals,
+      ...riverSignals,
+      ...volcanoSignals,
+      ...droughtSignals,
+    ],
+    [
+      airQualitySignals,
+      marineSignals,
+      riverSignals,
+      volcanoSignals,
+      droughtSignals,
+    ]
+  );
+  const supplementalEvents = useMemo(
+    () => supplementalSignals.map(supplementalToEvent),
+    [supplementalSignals]
+  );
+  const allEvents = useMemo(
+    () => [
+      ...weatherAlerts,
+      ...earthquakes,
+      ...femaDeclarations,
+      ...wildfires,
+      ...spcOutlooks,
+      ...nhcStorms,
+      ...gdacsEvents,
+      ...eonetEvents,
+      ...supplementalEvents,
+    ],
+    [
+      weatherAlerts,
+      earthquakes,
+      femaDeclarations,
+      wildfires,
+      spcOutlooks,
+      nhcStorms,
+      gdacsEvents,
+      eonetEvents,
+      supplementalEvents,
+    ]
+  );
+  const isFetching = nwsQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || riverQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || riverQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading;
+  const isError = nwsQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || weatherQuery.isError || airQualityQuery.isError || marineQuery.isError || riverQuery.isError || volcanoQuery.isError || droughtQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
@@ -406,6 +467,7 @@ export function useRiskFeeds(
   if (marineQuery.error) errors.push(`Open-Meteo Marine: ${marineQuery.error.message}`);
   if (riverQuery.error) errors.push(`USGS Water: ${riverQuery.error.message}`);
   if (volcanoQuery.error) errors.push(`USGS Volcanoes: ${volcanoQuery.error.message}`);
+  if (droughtQuery.error) errors.push(`Drought Monitor: ${droughtQuery.error.message}`);
 
   const locationEnabled = !!location;
   const sourceHealth: SourceHealthItem[] = [
@@ -552,6 +614,17 @@ export function useRiskFeeds(
       liveDetail: `${volcanoSignals.length} elevated volcano signal${volcanoSignals.length !== 1 ? "s" : ""}.`,
       emptyDetail: "No elevated volcano status nearby.",
     }),
+    queryHealth({
+      id: "drought",
+      label: "Drought Monitor",
+      enabled: locationEnabled,
+      isLoading: droughtQuery.isLoading,
+      isFetching: droughtQuery.isFetching,
+      error: errorMessage(droughtQuery.error),
+      count: droughtSignals.length,
+      liveDetail: droughtSignals[0]?.headline ?? "Drought rating available.",
+      emptyDetail: "No drought classification at this location.",
+    }),
     {
       id: "airnow",
       label: "AirNow Current Observations",
@@ -571,13 +644,6 @@ export function useRiskFeeds(
     {
       id: "swpc",
       label: "SWPC Space Weather",
-      status: "unavailable",
-      count: null,
-      detail: "Service exists but is not wired into this view yet.",
-    },
-    {
-      id: "drought",
-      label: "Drought Monitor",
       status: "unavailable",
       count: null,
       detail: "Service exists but is not wired into this view yet.",
@@ -623,6 +689,7 @@ export function useRiskFeeds(
       marineQuery.refetch();
       riverQuery.refetch();
       volcanoQuery.refetch();
+      droughtQuery.refetch();
     },
     lastUpdated,
     isFetching,

@@ -92,8 +92,9 @@ export function UpdatePanel({
   const marineSignals = supplementalSignals.filter((s) => s.category === "Coastal Water");
   const riverSignals = supplementalSignals.filter((s) => s.category === "River Gauge");
   const volcanoSignals = supplementalSignals.filter((s) => s.category === "Volcano");
+  const droughtSignals = supplementalSignals.filter((s) => s.category === "Drought");
   const shownSupplementalCount =
-    airQualitySignals.length + marineSignals.length + riverSignals.length + volcanoSignals.length;
+    airQualitySignals.length + marineSignals.length + riverSignals.length + volcanoSignals.length + droughtSignals.length;
 
   const label = activeSavedLocation?.label ?? (location ? `${location.city}, ${location.state}` : "");
   const criticality = activeSavedLocation?.criticality ?? "Medium";
@@ -419,6 +420,19 @@ export function UpdatePanel({
                 ? `${volcanoSignals.length} elevated volcano status signal${volcanoSignals.length !== 1 ? "s" : ""} nearby`
                 : "No elevated volcano status nearby"}
             </div>
+            <div style={styles.signal}>
+              <span
+                style={{
+                  ...styles.signalDot,
+                  color: droughtSignals.length > 0 ? "#795548" : "#9e9e9e",
+                }}
+              >
+                &#9679;
+              </span>{" "}
+              {droughtSignals.length > 0
+                ? `${droughtSignals[0].headline}`
+                : "No drought classification at this location"}
+            </div>
           </div>
 
           {supplementalSignals.length > 0 && (
@@ -436,6 +450,9 @@ export function UpdatePanel({
               {volcanoSignals.map((signal) => (
                 <SupplementalSignalLine key={signal.id} signal={signal} />
               ))}
+              {droughtSignals.map((signal) => (
+                <SupplementalSignalLine key={signal.id} signal={signal} />
+              ))}
               {supplementalSignals.length > shownSupplementalCount && (
                 <div style={styles.detail}>
                   {supplementalSignals.length - shownSupplementalCount} additional supplemental signal
@@ -447,6 +464,7 @@ export function UpdatePanel({
                   airQualitySignals.length || marineSignals.length ? "Open-Meteo" : null,
                   riverSignals.length ? "USGS Water" : null,
                   volcanoSignals.length ? "USGS Volcanoes" : null,
+                  droughtSignals.length ? "Drought Monitor" : null,
                 ].filter(Boolean).join(", ")}
               </div>
             </div>
@@ -486,7 +504,7 @@ export function UpdatePanel({
 
           <SourceHealthPanel items={sourceHealth} />
 
-          <div style={styles.actionRow}>
+          <div className="update-action-row" style={styles.actionRow}>
             {isSaved ? (
               <button onClick={onDeleteLocation} style={styles.deleteBtn2}>
                 Remove saved location
@@ -503,7 +521,7 @@ export function UpdatePanel({
           </div>
         </>
       ) : (
-        <div style={styles.placeholder}>
+        <div className="placeholder" style={styles.placeholder}>
           Enter a ZIP code or city, state above to begin.
         </div>
       )}

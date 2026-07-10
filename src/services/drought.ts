@@ -42,21 +42,19 @@ const DM_SEVERITY: Record<number, Severity> = {
 
 function pointInMultiPolygon(
   point: [number, number],
-  multiPolygon: number[][][][]
+  multiPolygon: number[][][]
 ): boolean {
   const [lng, lat] = point;
   for (const polygon of multiPolygon) {
-    for (const ring of polygon) {
-      let inside = false;
-      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-        const xi = ring[i][0], yi = ring[i][1];
-        const xj = ring[j][0], yj = ring[j][1];
-        if ((yi > lat) !== (yj > lat) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
-          inside = !inside;
-        }
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = polygon[i][0], yi = polygon[i][1];
+      const xj = polygon[j][0], yj = polygon[j][1];
+      if ((yi > lat) !== (yj > lat) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+        inside = !inside;
       }
-      if (inside) return true;
     }
+    if (inside) return true;
   }
   return false;
 }
@@ -128,11 +126,48 @@ export function getDroughtLevelAtPoint(
     if (geom.type !== "MultiPolygon") continue;
 
     const dm = parseInt(signal.sourceEventId.split("-")[1] ?? "0");
-    if (pointInMultiPolygon([lng, lat], signal.raw as unknown as number[][][][])) {
+    if (pointInMultiPolygon([lng, lat], geom.polygons)) {
       return { level: dm, label: DM_LABELS[dm] ?? `D${dm}` };
     }
   }
   return null;
+}
+
+export async function fetchDroughtAtPoint(
+  lat: number,
+  lng: number,
+  locationName?: string
+): Promise<SupplementalRiskSignal[]> {
+  const signals = await fetchDroughtMonitor();
+  const matches = signals
+    .filter((signal) => {
+      if (signal.geometry.type !== "MultiPolygon") return false;
+      return pointInMultiPolygon([lng, lat], signal.geometry.polygons);
+    })
+    .sort((a, b) => {
+      const aLevel = parseInt(a.sourceEventId.split("-")[1] ?? "0", 10);
+      const bLevel = parseInt(b.sourceEventId.split("-")[1] ?? "0", 10);
+      return bLevel - aLevel;
+    });
+
+  const match = matches[0];
+  if (!match) return [];
+
+  const level = parseInt(match.sourceEventId.split("-")[1] ?? "0", 10);
+  return [
+    {
+      ...match,
+      id: newEventId(),
+      sourceEventId: `${match.sourceEventId}-${lat.toFixed(2)}-${lng.toFixed(2)}`,
+      headline: `${DM_LABELS[level] ?? match.headline}${locationName ? ` near ${locationName}` : ""}`,
+      description: `US Drought Monitor rating at ${locationName || `${lat.toFixed(2)}, ${lng.toFixed(2)}`}. Updated weekly.`,
+      geometry: { type: "Point", latitude: lat, longitude: lng },
+      raw: {
+        ...match.raw,
+        originalGeometry: match.geometry,
+      },
+    },
+  ];
 }
 
 export { DM_LABELS };

@@ -76,6 +76,7 @@ describe("riskInsights", () => {
       USGS: false,
       USGS_WATER: true,
       VOLCANO: true,
+      DROUGHT: true,
       EMSC: true,
       FEMA: true,
       NIFC: true,
@@ -100,6 +101,7 @@ describe("riskInsights", () => {
   it("supports environmental event sources", () => {
     expect(sourceColor("USGS_WATER")).toBe("#0288d1");
     expect(sourceColor("VOLCANO")).toBe("#8d6e63");
+    expect(sourceColor("DROUGHT")).toBe("#795548");
     expect(sourceColor("EMSC")).toBe("#43a047");
     expect(sourceColor("AIRNOW")).toBe("#455a64");
     expect(sourceColor("COOPS")).toBe("#0277bd");

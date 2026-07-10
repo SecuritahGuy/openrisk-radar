@@ -9,6 +9,7 @@ const ITEMS: LegendItem[] = [
   { label: "Earthquake", color: "#2e7d32", shape: "circle" },
   { label: "River gauge", color: "#0288d1", shape: "circle" },
   { label: "Volcano", color: "#8d6e63", shape: "circle" },
+  { label: "Drought", color: "#795548", shape: "circle" },
   { label: "FEMA record", color: "#7b1fa2", shape: "square" },
   { label: "Wildfire", color: "#d84315", shape: "circle" },
   { label: "Convective outlook", color: "#00897b", shape: "square" },

@@ -6,6 +6,7 @@ export const EVENT_SOURCES: EventSource[] = [
   "USGS",
   "USGS_WATER",
   "VOLCANO",
+  "DROUGHT",
   "EMSC",
   "FEMA",
   "NIFC",
@@ -43,6 +44,7 @@ export function defaultSourceFilters(): SourceFilters {
     USGS: true,
     USGS_WATER: true,
     VOLCANO: true,
+    DROUGHT: true,
     EMSC: true,
     FEMA: true,
     NIFC: true,
@@ -74,6 +76,8 @@ export function sourceColor(source: EventSource): string {
       return "#0288d1";
     case "VOLCANO":
       return "#8d6e63";
+    case "DROUGHT":
+      return "#795548";
     case "EMSC":
       return "#43a047";
     case "FEMA":

@@ -19,6 +19,8 @@ function sourceColor(source: string): string {
       return "#0288d1";
     case "VOLCANO":
       return "#8d6e63";
+    case "DROUGHT":
+      return "#795548";
     case "EMSC":
       return "#43a047";
     case "FEMA":
@@ -410,10 +412,14 @@ export function EventDetailPanel({
             <EonetFields raw={event.raw} />
           </div>
         )}
-        {(event.source === "AIRNOW" || event.source === "COOPS" || event.source === "VOLCANO") && (
+        {(event.source === "AIRNOW" || event.source === "COOPS" || event.source === "VOLCANO" || event.source === "DROUGHT") && (
           <div style={styles.section}>
             <div style={styles.sectionTitle}>
-              {event.source === "VOLCANO" ? "Volcano Details" : "Environmental Details"}
+              {event.source === "VOLCANO"
+                ? "Volcano Details"
+                : event.source === "DROUGHT"
+                  ? "Drought Details"
+                  : "Environmental Details"}
             </div>
             <SupplementalFields raw={event.raw} />
           </div>

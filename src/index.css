@@ -21,6 +21,63 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+@media (max-width: 1100px) {
+  html,
+  body,
+  #root {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .app-shell {
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 100dvh;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  .app-main {
+    flex: 0 0 auto !important;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .map-view {
+    flex: 0 0 auto !important;
+    height: clamp(480px, 58dvh, 680px);
+  }
+
+  .update-panel {
+    width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid #e0e0e0;
+    overflow: visible !important;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .update-panel > * {
+    min-width: 0;
+  }
+
+  .update-panel > div:first-child,
+  .update-panel > .update-action-row,
+  .update-panel > .placeholder {
+    grid-column: 1 / -1;
+  }
+
+  .map-control-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: start !important;
+    max-height: 36dvh;
+    overflow-y: auto;
+  }
+}
+
 @media (max-width: 760px) {
   html,
   body,
@@ -185,6 +242,7 @@ body {
     border-left: none !important;
     border-top: 1px solid #e0e0e0;
     overflow: visible !important;
+    display: block !important;
   }
 
   .event-detail-backdrop {
