@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import type { RiskEvent } from "../types/riskEvent";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
 import { assessImpact, impactColor } from "../lib/impactInsights";
@@ -297,6 +298,24 @@ function SupplementalFields({ raw }: { raw: Record<string, unknown> }) {
   );
 }
 
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(
+      [
+        "a[href]",
+        "button:not([disabled])",
+        "input:not([disabled])",
+        "select:not([disabled])",
+        "textarea:not([disabled])",
+        "[tabindex]:not([tabindex='-1'])",
+      ].join(",")
+    )
+  ).filter((element) => {
+    const style = window.getComputedStyle(element);
+    return style.display !== "none" && style.visibility !== "hidden";
+  });
+}
+
 export function EventDetailPanel({
   event,
   location,
@@ -309,10 +328,71 @@ export function EventDetailPanel({
       : "—";
   const impact = assessImpact(event, location, radius);
   const impactBadgeColor = impactColor(impact.level);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    previousFocusRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeButtonRef.current?.focus();
+
+    return () => {
+      previousFocusRef.current?.focus();
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(keyEvent: KeyboardEvent) {
+      if (keyEvent.key === "Escape") {
+        keyEvent.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (keyEvent.key !== "Tab" || !panelRef.current) return;
+
+      const focusable = getFocusableElements(panelRef.current);
+      if (focusable.length === 0) {
+        keyEvent.preventDefault();
+        panelRef.current.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (keyEvent.shiftKey && active === first) {
+        keyEvent.preventDefault();
+        last.focus();
+      } else if (!keyEvent.shiftKey && active === last) {
+        keyEvent.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   return (
-    <div className="event-detail-backdrop" style={styles.backdrop} onMouseDown={onClose}>
-      <div className="event-detail-panel" style={styles.panel} onMouseDown={(e) => e.stopPropagation()}>
+    <div
+      className="event-detail-backdrop"
+      style={styles.backdrop}
+      onMouseDown={onClose}
+      role="presentation"
+    >
+      <div
+        ref={panelRef}
+        className="event-detail-panel"
+        style={styles.panel}
+        onMouseDown={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="event-detail-title"
+        tabIndex={-1}
+      >
         <div className="event-detail-header" style={styles.header}>
           <div className="event-detail-header-left" style={styles.headerLeft}>
             <span
@@ -335,12 +415,17 @@ export function EventDetailPanel({
               {impact.label}
             </span>
           </div>
-          <button onClick={onClose} style={styles.closeBtn}>
+          <button
+            ref={closeButtonRef}
+            onClick={onClose}
+            style={styles.closeBtn}
+            aria-label="Close event details"
+          >
             &times;
           </button>
         </div>
 
-        <div style={styles.headline}>{event.headline}</div>
+        <div id="event-detail-title" style={styles.headline}>{event.headline}</div>
 
         {event.description && (
           <div style={styles.description}>{event.description}</div>

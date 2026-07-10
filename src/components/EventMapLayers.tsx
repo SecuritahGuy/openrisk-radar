@@ -1,8 +1,25 @@
-import { Polygon, CircleMarker, Popup, Tooltip } from "react-leaflet";
+import { useMemo, useState } from "react";
+import L from "leaflet";
+import {
+  CircleMarker,
+  Marker,
+  Polygon,
+  Popup,
+  Tooltip,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import type { RiskEvent } from "../types/riskEvent";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
-import { sourceColor } from "../lib/riskInsights";
-import { assessImpact, impactColor } from "../lib/impactInsights";
+import {
+  clusterPointEvents,
+  isEventCluster,
+  topClusterSeverity,
+  type EventCluster,
+} from "../lib/eventClustering";
+import { severityColor, severityRank, sourceColor } from "../lib/riskInsights";
+import { assessImpact } from "../lib/impactInsights";
+import { ClusterPopup, EventPopup } from "./map/EventPopup";
 
 interface EventMapLayersProps {
   events: RiskEvent[];
@@ -10,10 +27,6 @@ interface EventMapLayersProps {
   radius: RadiusOption;
   currentImpactOnly: boolean;
   onEventClick?: (event: RiskEvent) => void;
-}
-
-function eventColor(event: RiskEvent): string {
-  return sourceColor(event.source);
 }
 
 function eventRadius(event: RiskEvent): number {
@@ -43,29 +56,30 @@ function formatTime(iso: string): string {
   });
 }
 
-const detailLinkStyle: React.CSSProperties = {
-  display: "inline-block",
-  marginTop: 6,
-  fontSize: 11,
-  color: "#1565c0",
-  fontWeight: 600,
-  cursor: "pointer",
-  textDecoration: "underline",
-};
+function clusterIcon(cluster: EventCluster): L.DivIcon {
+  const severity = topClusterSeverity(cluster.events);
+  const color = severityColor(severity);
+  const size = Math.max(34, Math.min(58, 28 + cluster.events.length * 2));
 
-const impactBadgeStyle: React.CSSProperties = {
-  display: "inline-block",
-  fontSize: 10,
-  fontWeight: 800,
-  padding: "2px 6px",
-  borderRadius: 3,
-  marginTop: 6,
-};
-
-const impactDetailStyle: React.CSSProperties = {
-  color: "#616161",
-  fontSize: 11,
-};
+  return L.divIcon({
+    className: "event-cluster-marker",
+    html: `<div style="
+      width:${size}px;
+      height:${size}px;
+      border-radius:50%;
+      border:2px solid ${color};
+      background:${color};
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 2px 10px rgba(0,0,0,0.24);
+      font:800 12px system-ui,sans-serif;
+    ">${cluster.events.length}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+}
 
 export function EventMapLayers({
   events,
@@ -74,105 +88,123 @@ export function EventMapLayers({
   currentImpactOnly,
   onEventClick,
 }: EventMapLayersProps) {
+  const map = useMap();
+  const [zoom, setZoom] = useState(map.getZoom());
+
+  useMapEvents({
+    zoomend: () => setZoom(map.getZoom()),
+  });
+
+  const polygonEvents = useMemo(
+    () =>
+      events.filter(
+        (event) =>
+          event.geometryType === "Polygon" && event.polygon && event.polygon.length >= 3
+      ),
+    [events]
+  );
+  const pointLayers = useMemo(
+    () =>
+      clusterPointEvents(
+        events.filter(
+          (event) =>
+            event.geometryType === "Point" &&
+            event.latitude != null &&
+            event.longitude != null
+        ),
+        zoom
+      ),
+    [events, zoom]
+  );
+
   return (
     <>
-      {events.map((evt) => {
-        const impact = assessImpact(evt, location, radius);
+      {polygonEvents.map((event) => {
+        const impact = assessImpact(event, location, radius);
         const dimmed =
           !currentImpactOnly &&
           (impact.level === "monitor" || impact.level === "historical");
-        const color = eventColor(evt);
+        const color = sourceColor(event.source);
+        const coords = event.polygon!.map(
+          ([lng, lat]) => [lat, lng] as [number, number]
+        );
 
-        if (evt.geometryType === "Polygon" && evt.polygon && evt.polygon.length >= 3) {
-          const coords = evt.polygon.map(
-            ([lng, lat]) => [lat, lng] as [number, number]
-          );
+        return (
+          <Polygon
+            key={event.id}
+            positions={coords}
+            pathOptions={{
+              color,
+              fillColor: color,
+              fillOpacity: dimmed ? 0.035 : impact.level === "affects" ? 0.18 : 0.1,
+              opacity: dimmed ? 0.45 : 1,
+              weight: impact.level === "affects" ? 3 : 2,
+            }}
+          >
+            <Popup>
+              <EventPopup
+                event={event}
+                impact={impact}
+                timeLabel={`Updated ${formatTime(event.updatedAt)}`}
+                onEventClick={onEventClick}
+              />
+            </Popup>
+          </Polygon>
+        );
+      })}
+
+      {pointLayers.map((item) => {
+        if (isEventCluster(item)) {
+          const topEvents = [...item.events]
+            .sort((a, b) => severityRank(b.severity) - severityRank(a.severity))
+            .slice(0, 6);
+
           return (
-            <Polygon
-              key={evt.id}
-              positions={coords}
-              pathOptions={{
-                color,
-                fillColor: color,
-                fillOpacity: dimmed ? 0.035 : impact.level === "affects" ? 0.18 : 0.1,
-                opacity: dimmed ? 0.45 : 1,
-                weight: impact.level === "affects" ? 3 : 2,
-              }}
+            <Marker
+              key={`cluster-${item.id}`}
+              position={[item.latitude, item.longitude]}
+              icon={clusterIcon(item)}
             >
               <Popup>
-                <strong>{evt.headline}</strong>
-                <br />
-                <span
-                  style={{
-                    ...impactBadgeStyle,
-                    color: impactColor(impact.level),
-                    background: `${impactColor(impact.level)}16`,
-                  }}
-                >
-                  {impact.label}
-                </span>
-                {" "}
-                <span style={impactDetailStyle}>{impact.detail}</span>
-                <br />
-                {evt.description?.slice(0, 200)}
-                <br />
-                <em style={{ fontSize: 11 }}>
-                  {evt.source} · {evt.severity} · Updated {formatTime(evt.updatedAt)}
-                </em>
-                <br />
-                <span style={detailLinkStyle} onClick={() => onEventClick?.(evt)}>
-                  Details &rarr;
-                </span>
+                <ClusterPopup events={topEvents} onEventClick={onEventClick} />
               </Popup>
-            </Polygon>
+            </Marker>
           );
         }
-        if (evt.geometryType === "Point" && evt.latitude != null && evt.longitude != null) {
-          return (
-            <CircleMarker
-              key={evt.id}
-              center={[evt.latitude, evt.longitude]}
-              radius={eventRadius(evt)}
-              pathOptions={{
-                color,
-                fillColor: color,
-                fillOpacity: dimmed ? 0.2 : 0.58,
-                opacity: dimmed ? 0.5 : 1,
-                weight: impact.level === "nearby" ? 3 : 2,
-              }}
-            >
-              <Tooltip direction="top" offset={[0, -10]}>
-                {evt.headline}
-              </Tooltip>
-              <Popup>
-                <strong>{evt.headline}</strong>
-                <br />
-                <span
-                  style={{
-                    ...impactBadgeStyle,
-                    color: impactColor(impact.level),
-                    background: `${impactColor(impact.level)}16`,
-                  }}
-                >
-                  {impact.label}
-                </span>
-                {" "}
-                <span style={impactDetailStyle}>{impact.detail}</span>
-                <br />
-                {evt.description?.slice(0, 200)}
-                <br />
-                <em style={{ fontSize: 11 }}>
-                  {evt.source} · {evt.severity} · {formatTime(evt.startedAt)}
-                </em>
-                <br />
-                <span style={detailLinkStyle} onClick={() => onEventClick?.(evt)}>
-                  Details &rarr;
-                </span>
-              </Popup>
-            </CircleMarker>
-          );
-        }
-        return null;
+
+        const event = item;
+        const impact = assessImpact(event, location, radius);
+        const dimmed =
+          !currentImpactOnly &&
+          (impact.level === "monitor" || impact.level === "historical");
+        const color = sourceColor(event.source);
+
+        return (
+          <CircleMarker
+            key={event.id}
+            center={[event.latitude!, event.longitude!]}
+            radius={eventRadius(event)}
+            pathOptions={{
+              color,
+              fillColor: color,
+              fillOpacity: dimmed ? 0.2 : 0.58,
+              opacity: dimmed ? 0.5 : 1,
+              weight: impact.level === "nearby" ? 3 : 2,
+            }}
+          >
+            <Tooltip direction="top" offset={[0, -10]}>
+              {event.headline}
+            </Tooltip>
+            <Popup>
+              <EventPopup
+                event={event}
+                impact={impact}
+                timeLabel={formatTime(event.startedAt)}
+                onEventClick={onEventClick}
+              />
+            </Popup>
+          </CircleMarker>
+        );
       })}
     </>
   );
