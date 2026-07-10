@@ -97,7 +97,7 @@ export function RiskCommandBar({
 }: RiskCommandBarProps) {
   if (!location) {
     return (
-      <div style={styles.empty}>
+      <div className="risk-command-empty" style={styles.empty}>
         <div>
           <strong>Search a ZIP code or city</strong>
           <span style={styles.emptyDetail}> to build a live risk snapshot.</span>
@@ -119,14 +119,14 @@ export function RiskCommandBar({
   const color = levelColor(summary.level);
 
   return (
-    <div style={styles.container}>
-      <div style={styles.scoreBlock}>
+    <div className="risk-command-bar" style={styles.container}>
+      <div className="risk-score-block" style={styles.scoreBlock}>
         <div style={styles.scoreLabel}>Risk posture</div>
         <div style={{ ...styles.scoreValue, color }}>{summary.level}</div>
         <div style={styles.scoreDetail}>{summary.topDriver}</div>
       </div>
 
-      <div style={styles.metricGrid}>
+      <div className="risk-metric-grid" style={styles.metricGrid}>
         <button
           type="button"
           style={{
@@ -157,7 +157,7 @@ export function RiskCommandBar({
         </div>
       </div>
 
-      <div style={styles.weatherBlock}>
+      <div className="risk-weather-block" style={styles.weatherBlock}>
         <div style={styles.scoreLabel}>Conditions</div>
         {currentWeather ? (
           <>
@@ -174,7 +174,7 @@ export function RiskCommandBar({
         )}
       </div>
 
-      <div style={styles.attentionList}>
+      <div className="risk-attention-list" style={styles.attentionList}>
         <div style={styles.attentionHeader}>Needs attention</div>
         {topEvents.length > 0 ? (
           topEvents.map((event) => (

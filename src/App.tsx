@@ -141,8 +141,8 @@ export default function App() {
   );
 
   return (
-    <div style={styles.root}>
-      <div style={styles.leftCol}>
+    <div className="app-shell" style={styles.root}>
+      <div className="app-main" style={styles.leftCol}>
         <SearchBar
           query={query}
           onQueryChange={setQuery}

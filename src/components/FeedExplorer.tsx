@@ -175,8 +175,11 @@ export function FeedExplorer({
   })`;
 
   return (
-    <div style={collapsed ? styles.collapsedContainer : styles.container}>
-      <div style={styles.header}>
+    <div
+      className={collapsed ? "feed-explorer is-collapsed" : "feed-explorer"}
+      style={collapsed ? styles.collapsedContainer : styles.container}
+    >
+      <div className="feed-explorer-header" style={styles.header}>
         <span style={styles.headerTitle}>{title}</span>
         {collapsed && (
           <span style={styles.collapsedHint}>
@@ -224,8 +227,8 @@ export function FeedExplorer({
             : "No events found for this location."}
         </div>
       ) : (
-        <div style={styles.table}>
-          <div style={styles.tableHeader}>
+        <div className="feed-table" style={styles.table}>
+          <div className="feed-table-row feed-table-header" style={styles.tableHeader}>
             <ColumnHeader
               label="Source"
               sortKey="source"
@@ -294,6 +297,7 @@ export function FeedExplorer({
             <button
               key={evt.id}
               type="button"
+              className="feed-table-row"
               style={styles.row}
               onPointerDown={(event) => {
                 if (event.button !== 0) return;

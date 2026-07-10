@@ -227,30 +227,72 @@ function IpGeoController() {
 }
 
 function MapControlPanel({
+  collapsed,
   radius,
   sourceFilters,
   severityFilters,
   showWeatherOverlay,
   weatherLayerMode,
+  onCollapsedChange,
   onToggleSource,
   onToggleSeverity,
   onToggleWeatherOverlay,
   onWeatherLayerModeChange,
   onRadiusChange,
 }: {
+  collapsed: boolean;
   radius: RadiusOption;
   sourceFilters: SourceFilters;
   severityFilters: SeverityFilters;
   showWeatherOverlay: boolean;
   weatherLayerMode: WeatherLayerMode;
+  onCollapsedChange: (collapsed: boolean) => void;
   onToggleSource: (source: EventSource) => void;
   onToggleSeverity: (severity: Severity) => void;
   onToggleWeatherOverlay: (show: boolean) => void;
   onWeatherLayerModeChange: (mode: WeatherLayerMode) => void;
   onRadiusChange: (radius: RadiusOption) => void;
 }) {
+  const activeSourceCount = EVENT_SOURCES.filter(
+    (source) => sourceFilters[source]
+  ).length;
+
+  if (collapsed) {
+    return (
+      <button
+        type="button"
+        className="map-control-tab"
+        style={styles.controlTab}
+        onClick={() => onCollapsedChange(false)}
+        aria-expanded="false"
+        aria-controls="map-filter-panel"
+        title="Show map filters"
+      >
+        Filters
+        <span style={styles.controlTabMeta}>{activeSourceCount} sources</span>
+      </button>
+    );
+  }
+
   return (
-    <div style={styles.controlPanel}>
+    <div
+      id="map-filter-panel"
+      className="map-control-panel"
+      style={styles.controlPanel}
+    >
+      <div style={styles.controlHeader}>
+        <span style={styles.controlTitle}>Map filters</span>
+        <button
+          type="button"
+          style={styles.controlHideButton}
+          onClick={() => onCollapsedChange(true)}
+          aria-expanded="true"
+          aria-controls="map-filter-panel"
+          title="Hide map filters"
+        >
+          Hide
+        </button>
+      </div>
       <div style={styles.controlGroup}>
         <div style={styles.controlLabel}>Sources</div>
         <div style={styles.chipRow}>
@@ -381,6 +423,7 @@ export function MapView({
     lng: number;
   } | null>(null);
   const [pendingPoint, setPendingPoint] = useState<PendingMapPoint | null>(null);
+  const [controlsCollapsed, setControlsCollapsed] = useState(false);
 
   function handleClickPoint(lat: number, lng: number) {
     const nextPoint: PendingMapPoint = {
@@ -438,7 +481,7 @@ export function MapView({
     : [39.8283, -98.5795];
 
   return (
-    <div style={{ flex: 1, position: "relative" }}>
+    <div className="map-view" style={{ flex: 1, position: "relative" }}>
       <MapContainer
         center={center}
         zoom={4}
@@ -499,11 +542,13 @@ export function MapView({
         <MapLegend showWeatherOverlay={showWeatherOverlay} />
       </MapContainer>
       <MapControlPanel
+        collapsed={controlsCollapsed}
         radius={radius}
         sourceFilters={sourceFilters}
         severityFilters={severityFilters}
         showWeatherOverlay={showWeatherOverlay}
         weatherLayerMode={weatherLayerMode}
+        onCollapsedChange={setControlsCollapsed}
         onToggleSource={onToggleSource}
         onToggleSeverity={onToggleSeverity}
         onToggleWeatherOverlay={onToggleWeatherOverlay}
@@ -543,6 +588,55 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 8,
     boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
     fontFamily: "system-ui, sans-serif",
+  },
+  controlHeader: {
+    gridColumn: "1 / -1",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+    paddingBottom: 6,
+    borderBottom: "1px solid #e8eef5",
+  },
+  controlTitle: {
+    fontSize: 10,
+    color: "#616161",
+    fontWeight: 800,
+    textTransform: "uppercase",
+  },
+  controlHideButton: {
+    border: "1px solid #cfd8dc",
+    borderRadius: 5,
+    background: "#fff",
+    color: "#424242",
+    fontSize: 11,
+    fontWeight: 800,
+    padding: "4px 8px",
+    cursor: "pointer",
+  },
+  controlTab: {
+    position: "absolute",
+    top: 12,
+    left: 54,
+    zIndex: 1000,
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    border: "1px solid #1565c0",
+    borderRadius: 7,
+    background: "#1565c0",
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: 800,
+    padding: "7px 10px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.16)",
+    cursor: "pointer",
+    fontFamily: "system-ui, sans-serif",
+  },
+  controlTabMeta: {
+    color: "rgba(255,255,255,0.82)",
+    fontSize: 10,
+    fontWeight: 700,
   },
   controlGroup: {
     minWidth: 0,

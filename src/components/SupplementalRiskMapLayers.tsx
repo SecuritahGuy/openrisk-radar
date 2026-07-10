@@ -19,6 +19,14 @@ function sourceColor(source: SupplementalSource): string {
       return "#ad1457";
     case "AIRNOW":
       return "#6a1b9a";
+    case "SPACE_WEATHER":
+      return "#5e35b1";
+    case "DROUGHT":
+      return "#8d6e63";
+    case "VOLCANO":
+      return "#bf360c";
+    case "GVP":
+      return "#ef6c00";
   }
 }
 

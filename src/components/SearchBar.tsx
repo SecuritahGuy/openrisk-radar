@@ -27,8 +27,8 @@ export function SearchBar({
   }
 
   return (
-    <div style={styles.container}>
-      <form onSubmit={handleSubmit} style={styles.form}>
+    <div className="search-bar" style={styles.container}>
+      <form className="search-form" onSubmit={handleSubmit} style={styles.form}>
         <input
           ref={inputRef}
           type="text"

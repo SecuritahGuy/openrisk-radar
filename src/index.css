@@ -20,3 +20,220 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .app-shell {
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 100dvh;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  .app-main {
+    flex: 0 0 auto !important;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .search-bar {
+    padding: 10px !important;
+  }
+
+  .search-form {
+    flex-wrap: wrap;
+  }
+
+  .search-form input {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .search-form button {
+    width: 100%;
+  }
+
+  .risk-command-empty {
+    padding: 12px !important;
+  }
+
+  .risk-command-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    min-height: 0 !important;
+    padding: 10px !important;
+  }
+
+  .risk-score-block {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .risk-weather-block {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .risk-score-block,
+  .risk-weather-block {
+    padding: 9px 10px !important;
+  }
+
+  .risk-metric-grid {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .risk-attention-list {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+  }
+
+  .risk-attention-list > div:first-child {
+    align-self: auto !important;
+    padding: 0 !important;
+  }
+
+  .map-view {
+    flex: 0 0 auto !important;
+    height: 58dvh;
+    min-height: 430px;
+    max-height: 560px;
+  }
+
+  .map-control-panel {
+    left: 52px !important;
+    right: 8px !important;
+    top: 8px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+    max-height: 34dvh;
+    overflow-y: auto;
+    padding: 8px !important;
+  }
+
+  .map-control-tab {
+    left: 52px !important;
+    top: 8px !important;
+    padding: 7px 9px !important;
+  }
+
+  .map-control-panel button {
+    min-height: 28px;
+  }
+
+  .map-legend {
+    bottom: 8px !important;
+    right: 8px !important;
+    max-height: 128px;
+    overflow: hidden;
+    padding: 7px 9px !important;
+    font-size: 10px !important;
+  }
+
+  .saved-locations {
+    max-height: 150px !important;
+  }
+
+  .feed-explorer {
+    flex: 0 0 auto;
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+  }
+
+  .feed-explorer-header {
+    align-items: flex-start !important;
+    flex-wrap: wrap;
+    position: static !important;
+  }
+
+  .feed-explorer-header > span:first-child {
+    flex-basis: 100%;
+  }
+
+  .feed-table {
+    min-width: 920px;
+  }
+
+  .feed-table-row {
+    min-width: 920px;
+  }
+
+  .update-panel {
+    width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid #e0e0e0;
+    overflow: visible !important;
+  }
+
+  .event-detail-backdrop {
+    align-items: flex-end !important;
+  }
+
+  .event-detail-panel {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 88dvh !important;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 16px !important;
+  }
+
+  .event-detail-header {
+    align-items: flex-start !important;
+    gap: 12px;
+  }
+
+  .event-detail-header-left {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .event-detail-row {
+    display: block !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .map-view {
+    height: 62dvh;
+    min-height: 460px;
+  }
+
+  .map-control-panel {
+    max-height: 32dvh;
+  }
+
+  .map-legend {
+    display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .risk-command-bar {
+    grid-template-columns: 1fr !important;
+  }
+
+  .risk-score-block,
+  .risk-weather-block,
+  .risk-metric-grid,
+  .risk-attention-list {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+
+  .risk-metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -1,7 +1,20 @@
 import type { ResolvedLocation } from "../types/location";
 import type { EventSource, RiskEvent, Severity } from "../types/riskEvent";
 
-export const EVENT_SOURCES: EventSource[] = ["NWS", "USGS", "FEMA", "NIFC", "SPC", "NHC", "GDACS", "EONET"];
+export const EVENT_SOURCES: EventSource[] = [
+  "NWS",
+  "USGS",
+  "USGS_WATER",
+  "EMSC",
+  "FEMA",
+  "NIFC",
+  "SPC",
+  "NHC",
+  "GDACS",
+  "EONET",
+  "AIRNOW",
+  "COOPS",
+];
 export const EVENT_SEVERITIES: Severity[] = [
   "Extreme",
   "Severe",
@@ -27,12 +40,16 @@ export function defaultSourceFilters(): SourceFilters {
   return {
     NWS: true,
     USGS: true,
+    USGS_WATER: true,
+    EMSC: true,
     FEMA: true,
     NIFC: true,
     SPC: true,
     NHC: true,
     GDACS: true,
     EONET: true,
+    AIRNOW: true,
+    COOPS: true,
   };
 }
 
@@ -51,6 +68,10 @@ export function sourceColor(source: EventSource): string {
       return "#f57c00";
     case "USGS":
       return "#2e7d32";
+    case "USGS_WATER":
+      return "#0288d1";
+    case "EMSC":
+      return "#43a047";
     case "FEMA":
       return "#7b1fa2";
     case "NIFC":
@@ -63,6 +84,10 @@ export function sourceColor(source: EventSource): string {
       return "#1565c0";
     case "EONET":
       return "#6a1b9a";
+    case "AIRNOW":
+      return "#455a64";
+    case "COOPS":
+      return "#0277bd";
   }
 }
 

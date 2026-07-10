@@ -5,13 +5,20 @@ export type SupplementalSource =
   | "USGS_WATER"
   | "COOPS"
   | "NHC"
-  | "AIRNOW";
+  | "AIRNOW"
+  | "SPACE_WEATHER"
+  | "DROUGHT"
+  | "VOLCANO"
+  | "GVP";
 
 export type SupplementalCategory =
   | "Storm Outlook"
   | "River Gauge"
   | "Coastal Water"
-  | "Air Quality";
+  | "Air Quality"
+  | "Space Weather"
+  | "Drought"
+  | "Volcano";
 
 export type SupplementalGeometry =
   | {

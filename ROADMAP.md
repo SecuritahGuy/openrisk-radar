@@ -20,6 +20,13 @@ These sources are part of the current codebase. "Main dashboard" indicates that 
 | NASA EONET | Global | Earth observation natural events | Main dashboard |
 | Open-Meteo | Global | Weather fallback, air quality, marine conditions | Current conditions fallback and environmental signals panel |
 | Nominatim | Global | Geocoding/reverse geocoding | Location resolution fallback |
+| USGS Water Services | United States | River conditions — discharge, gauge height, water temperature | Environmental signals panel |
+| NOAA CO-OPS | U.S. coasts + Great Lakes | Coastal water levels, flood thresholds | Environmental signals panel |
+| NOAA SWPC | Global | Kp index, DST, X-ray flares, solar flux | Environmental signals panel |
+| US Drought Monitor | United States | D0-D4 drought severity polygons | Environmental signals panel |
+| EMSC | Global | Earthquakes by proximity (European complement) | Service ready, not yet in UI |
+| USGS Volcanoes | United States | Volcano alert levels (WATCH/ADVISORY/NORMAL) | Service ready, not yet in UI |
+| Smithsonian GVP | Global | Holocene volcano reference database | Service ready, not yet in UI |
 
 ## Next Up
 
@@ -29,20 +36,44 @@ These sources are part of the current codebase. "Main dashboard" indicates that 
 | Add focused tests around adapters | Normalization and severity mapping are high-value deterministic logic | Keep tests source-specific and stable |
 | Add real project imagery | README hero, Open Graph image, repository social preview | Required for polished public presentation |
 
-## Future / Research
+## Investigated / Confirmed — Next Integration Candidates
+
+These sources have been researched and confirmed as viable additions. They are organized by priority based on coverage breadth, integration effort, and the gap they fill.
+
+### Tier 1 — Highest Priority (No API Key, Broad Coverage, Clear Gap)
+
+| Source | Coverage | Data | Why It Matters | Status |
+|--------|----------|------|----------------|--------|
+| USGS Water Services | United States | Real-time streamflow, gauge height, water temperature from thousands of gauges | **Flood/river monitoring** — the single biggest gap. Instantaneous values API exposes flood conditions. | ✅ Done |
+| NOAA CO-OPS | U.S. coasts + Great Lakes | Water levels, tides, coastal flood thresholds, storm surge, meteorological obs | **Coastal flood risk** — complements river flooding. Storm surge and high tide flood data. | ✅ Done |
+| NOAA SWPC | Global | Solar flares, geomagnetic Kp index, solar wind, aurora, radio blackouts | **Space weather** — GPS disruption, power grid risk, radio blackout. Zero integration cost. | ✅ Done |
+| US Drought Monitor | United States | D0-D4 drought severity weekly polygons and county-level stats | **Drought** — widely referenced standard for dry conditions, wildfire fuel assessment. | ✅ Done |
+| SPC Storm Reports | United States | Observed tornado/hail/wind reports with lat/lon, size, fatalities | **Confirmed severe weather** — shows *actual* events vs. forecast outlooks already shown. | Ready for service |
+| Blitzortung Lightning | Global (community network) | Real-time cloud-to-ground lightning strikes, seconds latency | **Lightning** — entirely new hazard dimension not covered by any current source. | Ready for service (WebSocket) |
+
+### Tier 2 — High Value (May Need Free Key or More Integration)
+
+| Source | Coverage | Data | Why It Matters | Key | Status |
+|--------|----------|------|----------------|-----|--------|
+| NASA FIRMS | Global | VIIRS 375m satellite fire hotspots | Global wildfire visibility beyond US-only NIFC | Free key needed | Pending |
+| EPA AirNow / OpenAQ | U.S. / Global | Air quality AQI by ZIP/latlon, multi-pollutant | More granular than Open-Meteo for US; OpenAQ adds 200+ countries | Free key / No key | Pending |
+| EMSC | Europe-Mediterranean + global | Earthquake data, felt reports, community-sourced | Complements USGS with European focus and felt intensity reports | No | ✅ Done |
+| Smithsonian GVP | Global | Volcanic activity reports, weekly updates | Authoritative volcano data beyond GDACS alerts | No | ✅ Done |
+| ReliefWeb | Global | Curated humanitarian disaster reports, situation reports | Adds humanitarian context to natural hazard data | No | Pending |
+| JTWC | Indian Ocean + West Pacific | Tropical cyclone warnings beyond NHC basins | Covers basins NHC doesn't (Asia-Pacific) | No | Pending |
+
+### Tier 3 — Niche But Valuable
 
 | Source / Capability | Coverage | Notes |
 |---------------------|----------|-------|
-| USGS Water Services | United States | River gauges and hydrologic observations |
-| NOAA CO-OPS | U.S. coasts | Water levels, tides, coastal observations |
-| EPA AirNow / OpenAQ | U.S. / Global | Air quality observations; check keys, CORS, terms |
-| EMSC | Europe-Mediterranean + global | Earthquake complement to USGS |
-| ReliefWeb | Global | Curated humanitarian disaster reports |
-| GWIS / EFFIS | Global / Europe | Fire danger, burned areas, active fires |
-| Smithsonian GVP | Global | Volcano locations and eruption history |
-| JTWC | Global tropical cyclone basins outside NHC emphasis | Complements NHC but data formats are more complex |
+| NOAA NDFD | United States | National Digital Forecast Database — gridded 2.5km forecasts (temp, precip, wind, heat risk, visibility) |
+| NOAA Tsunami Warning (PTWC/NTWC) | Pacific/Atlantic/Caribbean | CAP/ATOM feeds for tsunami warnings |
+| GWIS / EFFIS | Global / Europe | Fire danger indices, burned area, active fires |
+| GloFAS / Copernicus | Global / Europe | Global flood awareness forecasts |
+| NOAA NCEI Climate Data | United States | Historical climate normals, severe weather data inventory |
+| HIFLD | United States | Critical infrastructure locations (hospitals, schools, power plants, etc.) |
+| GlobalBuildingAtlas | Global | Building footprint counts, heights, density — for impact exposure analysis |
 | IBTrACS | Global historical tropical cyclones | Historical context, not live risk feed |
-| GloFAS / Copernicus | Global flood forecasts | Likely not browser-only; may require backend workflow |
 | WMO CAP warning aggregation | Global by country | Valuable but source discovery and normalization are complex |
 
 ## Integration Pattern

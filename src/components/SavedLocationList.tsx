@@ -29,7 +29,7 @@ export function SavedLocationList({
   if (savedLocations.length === 0) return null;
 
   return (
-    <div style={styles.container}>
+    <div className="saved-locations" style={styles.container}>
       <div style={styles.header}>
         <span style={styles.headerTitle}>Saved Locations</span>
         <span style={styles.count}>{savedLocations.length}</span>

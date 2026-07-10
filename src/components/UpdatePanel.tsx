@@ -87,6 +87,9 @@ export function UpdatePanel({
   const moderateCount = countBySeverity(allEvents, "Moderate");
   const airQualitySignals = supplementalSignals.filter((s) => s.category === "Air Quality");
   const marineSignals = supplementalSignals.filter((s) => s.category === "Coastal Water");
+  const riverSignals = supplementalSignals.filter((s) => s.category === "River Gauge");
+  const shownSupplementalCount =
+    airQualitySignals.length + marineSignals.length + riverSignals.length;
 
   const label = activeSavedLocation?.label ?? (location ? `${location.city}, ${location.state}` : "");
   const criticality = activeSavedLocation?.criticality ?? "Medium";
@@ -106,7 +109,7 @@ export function UpdatePanel({
   }
 
   return (
-    <div style={styles.container}>
+    <aside className="update-panel" style={styles.container}>
       <div style={styles.titleRow}>
         <div>
           <h3 style={styles.title}>OpenRisk Radar</h3>
@@ -410,13 +413,18 @@ export function UpdatePanel({
               {marineSignals.map((signal) => (
                 <SupplementalSignalLine key={signal.id} signal={signal} />
               ))}
-              {supplementalSignals.length > airQualitySignals.length + marineSignals.length && (
+              {riverSignals.map((signal) => (
+                <SupplementalSignalLine key={signal.id} signal={signal} />
+              ))}
+              {supplementalSignals.length > shownSupplementalCount && (
                 <div style={styles.detail}>
-                  {supplementalSignals.length - airQualitySignals.length - marineSignals.length} additional supplemental signal
-                  {supplementalSignals.length - airQualitySignals.length - marineSignals.length !== 1 ? "s" : ""}
+                  {supplementalSignals.length - shownSupplementalCount} additional supplemental signal
+                  {supplementalSignals.length - shownSupplementalCount !== 1 ? "s" : ""}
                 </div>
               )}
-              <div style={styles.detail}>Source: Open-Meteo</div>
+              <div style={styles.detail}>
+                Sources: {[airQualitySignals.length || marineSignals.length ? "Open-Meteo" : null, riverSignals.length ? "USGS Water" : null].filter(Boolean).join(", ")}
+              </div>
             </div>
           )}
 
@@ -473,7 +481,7 @@ export function UpdatePanel({
           Enter a ZIP code or city, state above to begin.
         </div>
       )}
-    </div>
+    </aside>
   );
 }
 

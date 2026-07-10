@@ -7,12 +7,15 @@ interface LegendItem {
 const ITEMS: LegendItem[] = [
   { label: "Weather alert", color: "#f57c00", shape: "square" },
   { label: "Earthquake", color: "#2e7d32", shape: "circle" },
+  { label: "River gauge", color: "#0288d1", shape: "circle" },
   { label: "FEMA record", color: "#7b1fa2", shape: "square" },
   { label: "Wildfire", color: "#d84315", shape: "circle" },
   { label: "Convective outlook", color: "#00897b", shape: "square" },
   { label: "Tropical cyclone", color: "#c62828", shape: "circle" },
   { label: "Global disaster", color: "#1565c0", shape: "circle" },
   { label: "Earth observation", color: "#6a1b9a", shape: "circle" },
+  { label: "Air quality", color: "#455a64", shape: "circle" },
+  { label: "Coastal water", color: "#0277bd", shape: "circle" },
   { label: "Radius ring", color: "#1565c0", shape: "diamond" },
 ];
 
@@ -68,7 +71,7 @@ export function MapLegend({ showWeatherOverlay }: { showWeatherOverlay: boolean 
   const items = showWeatherOverlay ? [...ITEMS, ...WEATHER_ITEMS] : ITEMS;
 
   return (
-    <div style={styles.legend}>
+    <div className="map-legend" style={styles.legend}>
       <div style={styles.title}>Legend</div>
       {items.map((item) => (
         <div key={item.label} style={styles.row}>

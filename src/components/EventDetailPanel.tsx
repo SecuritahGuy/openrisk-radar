@@ -15,6 +15,10 @@ function sourceColor(source: string): string {
       return "#1565c0";
     case "USGS":
       return "#2e7d32";
+    case "USGS_WATER":
+      return "#0288d1";
+    case "EMSC":
+      return "#43a047";
     case "FEMA":
       return "#7b1fa2";
     case "NIFC":
@@ -27,6 +31,10 @@ function sourceColor(source: string): string {
       return "#1565c0";
     case "EONET":
       return "#6a1b9a";
+    case "AIRNOW":
+      return "#455a64";
+    case "COOPS":
+      return "#0277bd";
     default:
       return "#757575";
   }
@@ -69,7 +77,7 @@ function formatTime(iso: string): string {
 function DetailRow({ label, value }: { label: string; value: string }) {
   if (!value || value === "—") return null;
   return (
-    <div style={styles.detailRow}>
+    <div className="event-detail-row" style={styles.detailRow}>
       <span style={styles.detailLabel}>{label}</span>
       <span style={styles.detailValue}>{value}</span>
     </div>
@@ -105,6 +113,32 @@ function UsgsFields({ raw }: { raw: Record<string, unknown> }) {
       {geometry?.coordinates?.[2] != null && (
         <DetailRow label="Depth" value={`${geometry.coordinates[2]} km`} />
       )}
+    </>
+  );
+}
+
+function UsgsWaterFields({ raw }: { raw: Record<string, unknown> }) {
+  const metrics = raw.metrics as
+    | Array<{ label?: string; value?: string | number; unit?: string }>
+    | undefined;
+  const siteId = typeof raw.siteId === "string" ? raw.siteId : null;
+  const siteName = typeof raw.siteName === "string" ? raw.siteName : null;
+
+  return (
+    <>
+      {siteName && <DetailRow label="Gauge" value={siteName} />}
+      {siteId && <DetailRow label="Site ID" value={siteId} />}
+      {metrics?.map((metric) => {
+        if (!metric.label || metric.value == null) return null;
+        const value = `${metric.value}${metric.unit ? ` ${metric.unit}` : ""}`;
+        return (
+          <DetailRow
+            key={`${metric.label}-${value}`}
+            label={metric.label}
+            value={value}
+          />
+        );
+      })}
     </>
   );
 }
@@ -235,6 +269,30 @@ function EonetFields({ raw }: { raw: Record<string, unknown> }) {
   );
 }
 
+function SupplementalFields({ raw }: { raw: Record<string, unknown> }) {
+  const metrics = raw.metrics as
+    | Array<{ label?: string; value?: string | number; unit?: string }>
+    | undefined;
+
+  if (!metrics?.length) return null;
+
+  return (
+    <>
+      {metrics.map((metric) => {
+        if (!metric.label || metric.value == null) return null;
+        const value = `${metric.value}${metric.unit ? ` ${metric.unit}` : ""}`;
+        return (
+          <DetailRow
+            key={`${metric.label}-${value}`}
+            label={metric.label}
+            value={value}
+          />
+        );
+      })}
+    </>
+  );
+}
+
 export function EventDetailPanel({
   event,
   location,
@@ -249,10 +307,10 @@ export function EventDetailPanel({
   const impactBadgeColor = impactColor(impact.level);
 
   return (
-    <div style={styles.backdrop} onMouseDown={onClose}>
-      <div style={styles.panel} onMouseDown={(e) => e.stopPropagation()}>
-        <div style={styles.header}>
-          <div style={styles.headerLeft}>
+    <div className="event-detail-backdrop" style={styles.backdrop} onMouseDown={onClose}>
+      <div className="event-detail-panel" style={styles.panel} onMouseDown={(e) => e.stopPropagation()}>
+        <div className="event-detail-header" style={styles.header}>
+          <div className="event-detail-header-left" style={styles.headerLeft}>
             <span
               style={{
                 ...styles.sourceBadge,
@@ -308,6 +366,12 @@ export function EventDetailPanel({
             <UsgsFields raw={event.raw} />
           </div>
         )}
+        {event.source === "USGS_WATER" && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>River Gauge Details</div>
+            <UsgsWaterFields raw={event.raw} />
+          </div>
+        )}
         {event.source === "NIFC" && (
           <div style={styles.section}>
             <div style={styles.sectionTitle}>Wildfire Details</div>
@@ -342,6 +406,12 @@ export function EventDetailPanel({
           <div style={styles.section}>
             <div style={styles.sectionTitle}>Earth Observation Details</div>
             <EonetFields raw={event.raw} />
+          </div>
+        )}
+        {(event.source === "AIRNOW" || event.source === "COOPS") && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Environmental Details</div>
+            <SupplementalFields raw={event.raw} />
           </div>
         )}
 

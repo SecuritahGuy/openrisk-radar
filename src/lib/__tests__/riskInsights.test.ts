@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   distanceMiles,
   filterEvents,
+  sourceColor,
   severityRank,
   type SeverityFilters,
   type SourceFilters,
@@ -73,12 +74,16 @@ describe("riskInsights", () => {
     const sourceFilters: SourceFilters = {
       NWS: true,
       USGS: false,
+      USGS_WATER: true,
+      EMSC: true,
       FEMA: true,
       NIFC: true,
       SPC: true,
       NHC: true,
       GDACS: true,
       EONET: true,
+      AIRNOW: true,
+      COOPS: true,
     };
     const severityFilters: SeverityFilters = {
       Extreme: true,
@@ -89,5 +94,12 @@ describe("riskInsights", () => {
 
     expect(filterEvents(events, sourceFilters, severityFilters).map((e) => e.id))
       .toEqual(["nws"]);
+  });
+
+  it("supports environmental event sources", () => {
+    expect(sourceColor("USGS_WATER")).toBe("#0288d1");
+    expect(sourceColor("EMSC")).toBe("#43a047");
+    expect(sourceColor("AIRNOW")).toBe("#455a64");
+    expect(sourceColor("COOPS")).toBe("#0277bd");
   });
 });

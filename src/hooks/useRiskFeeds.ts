@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { RiskEvent } from "../types/riskEvent";
+import type { EventCategory, EventSource, GeometryType } from "../types/riskEvent";
 import type { ResolvedLocation, RadiusOption } from "../types/location";
 import { fetchNwsAlerts } from "../services/nws";
 import { fetchEarthquakes } from "../services/usgs";
@@ -16,6 +17,7 @@ import {
   fetchOpenMeteoMarine,
   fetchOpenMeteoWeather,
 } from "../services/openMeteo";
+import { fetchRiverConditions } from "../services/usgsWater";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 
 interface UseRiskFeedsResult {
@@ -40,6 +42,92 @@ interface UseRiskFeedsResult {
 
 function toRadiusKm(miles: RadiusOption): number {
   return miles * 1.60934;
+}
+
+function supplementalCategory(signal: SupplementalRiskSignal): EventCategory {
+  if (signal.category === "Air Quality") return "Air Quality";
+  if (signal.category === "Coastal Water") return "Coastal Water";
+  if (signal.category === "River Gauge") return "River Gauge";
+  return "Weather";
+}
+
+function supplementalSource(signal: SupplementalRiskSignal): EventSource {
+  if (
+    signal.source === "AIRNOW" ||
+    signal.source === "COOPS" ||
+    signal.source === "USGS_WATER"
+  ) {
+    return signal.source;
+  }
+  return "SPC";
+}
+
+function supplementalGeometry(signal: SupplementalRiskSignal): {
+  geometryType: GeometryType;
+  latitude: number | null;
+  longitude: number | null;
+  polygon: number[][] | null;
+} {
+  if (signal.geometry.type === "Point") {
+    return {
+      geometryType: "Point",
+      latitude: signal.geometry.latitude,
+      longitude: signal.geometry.longitude,
+      polygon: null,
+    };
+  }
+
+  if (signal.geometry.type === "Polygon") {
+    return {
+      geometryType: "Polygon",
+      latitude: null,
+      longitude: null,
+      polygon: signal.geometry.polygon,
+    };
+  }
+
+  if (signal.geometry.type === "MultiPolygon") {
+    const polygon = signal.geometry.polygons[0] ?? null;
+    return {
+      geometryType: polygon ? "Polygon" : "None",
+      latitude: null,
+      longitude: null,
+      polygon,
+    };
+  }
+
+  return {
+    geometryType: "None",
+    latitude: null,
+    longitude: null,
+    polygon: null,
+  };
+}
+
+function supplementalToEvent(signal: SupplementalRiskSignal): RiskEvent {
+  const geometry = supplementalGeometry(signal);
+  return {
+    id: `supplemental-${signal.id}`,
+    source: supplementalSource(signal),
+    sourceEventId: signal.sourceEventId,
+    type: signal.type,
+    category: supplementalCategory(signal),
+    severity: signal.severity,
+    headline: signal.headline,
+    description: signal.description,
+    ...geometry,
+    startedAt: signal.startedAt,
+    expiresAt: signal.expiresAt,
+    updatedAt: signal.updatedAt,
+    url: signal.url,
+    confidence: signal.confidence,
+    raw: {
+      supplemental: signal,
+      metrics: signal.metrics,
+      source: signal.source,
+      ...signal.raw,
+    },
+  };
 }
 
 export function useRiskFeeds(
@@ -136,6 +224,7 @@ export function useRiskFeeds(
       location?.longitude,
       location?.city,
       location?.state,
+      radiusKm,
     ],
     queryFn: async () => {
       const label = location
@@ -144,6 +233,12 @@ export function useRiskFeeds(
       const results = await Promise.allSettled([
         fetchOpenMeteoAirQuality(location!.latitude, location!.longitude, label),
         fetchOpenMeteoMarine(location!.latitude, location!.longitude, label),
+        fetchRiverConditions(
+          location!.latitude,
+          location!.longitude,
+          radiusKm,
+          label
+        ),
       ]);
 
       return results.flatMap((result) =>
@@ -165,7 +260,8 @@ export function useRiskFeeds(
   const eonetEvents = eonetQuery.data ?? [];
   const currentWeather = weatherQuery.data ?? null;
   const supplementalSignals = supplementalQuery.data ?? [];
-  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms, ...gdacsEvents, ...eonetEvents];
+  const supplementalEvents = supplementalSignals.map(supplementalToEvent);
+  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms, ...gdacsEvents, ...eonetEvents, ...supplementalEvents];
   const isFetching = nwsQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || weatherQuery.isFetching || supplementalQuery.isFetching;
   const isLoading = nwsQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || weatherQuery.isLoading || supplementalQuery.isLoading;
   const isError = nwsQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || weatherQuery.isError || supplementalQuery.isError;
@@ -179,7 +275,7 @@ export function useRiskFeeds(
   if (nhcQuery.error) errors.push(`NHC: ${nhcQuery.error.message}`);
   if (gdacsQuery.error) errors.push(`GDACS: ${gdacsQuery.error.message}`);
   if (eonetQuery.error) errors.push(`EONET: ${eonetQuery.error.message}`);
-  if (supplementalQuery.error) errors.push(`Open-Meteo: ${supplementalQuery.error.message}`);
+  if (supplementalQuery.error) errors.push(`Supplemental: ${supplementalQuery.error.message}`);
 
   const lastUpdated = (() => {
     const dates = allEvents
