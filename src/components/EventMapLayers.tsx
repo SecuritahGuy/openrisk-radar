@@ -26,6 +26,11 @@ function eventRadius(event: RiskEvent): number {
     const acres = (raw.CalculatedAcres as number) ?? 0;
     return Math.max(8, Math.min(30, Math.sqrt(acres) * 0.4));
   }
+  if (event.source === "NHC") {
+    const raw = event.raw as Record<string, unknown>;
+    const intensity = Number(raw.intensity ?? 0);
+    return Math.max(9, Math.min(28, 8 + intensity / 8));
+  }
   return 10;
 }
 

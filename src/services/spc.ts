@@ -1,18 +1,30 @@
 import { newEventId } from "../lib/ids";
-import type { Severity } from "../types/riskEvent";
-import type { SupplementalRiskSignal } from "../types/supplementalRisk";
+import type { RiskEvent, Severity } from "../types/riskEvent";
 
 const BASE =
   "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/SPC_wx_outlks/MapServer";
 
-const DAY_LAYER: Record<1 | 2 | 3, number> = {
-  1: 1,
-  2: 9,
-  3: 17,
-};
+const DAY_LAYERS = [
+  { day: 1, layer: 1 },
+  { day: 2, layer: 9 },
+  { day: 3, layer: 17 },
+] as const;
+
+interface SpcProperties {
+  objectid: number;
+  dn: number;
+  valid: string;
+  expire: string;
+  issue: string;
+  label: string;
+  label2: string;
+  idp_source: string;
+}
 
 interface SpcFeature {
   id?: string | number;
+  type: "Feature";
+  properties: SpcProperties;
   geometry:
     | {
         type: "Polygon";
@@ -23,39 +35,26 @@ interface SpcFeature {
         coordinates: number[][][][];
       }
     | null;
-  properties: {
-    objectid?: number;
-    valid?: string;
-    expire?: string;
-    issue?: string;
-    label?: string;
-    label2?: string;
-    dn?: number;
-    idp_source?: string;
-  };
 }
 
 interface SpcResponse {
-  features?: SpcFeature[];
+  features: SpcFeature[];
 }
 
-function parseSpcTimestamp(value: string | undefined): string | null {
-  if (!value || !/^\d{12}$/.test(value)) return null;
-  const year = Number(value.slice(0, 4));
-  const month = Number(value.slice(4, 6)) - 1;
-  const day = Number(value.slice(6, 8));
-  const hour = Number(value.slice(8, 10));
-  const minute = Number(value.slice(10, 12));
-  return new Date(Date.UTC(year, month, day, hour, minute)).toISOString();
+function ymdhmToIso(value: string): string {
+  const match = value.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/);
+  if (!match) return value;
+  const [, year, month, day, hour, minute] = match;
+  return `${year}-${month}-${day}T${hour}:${minute}:00Z`;
 }
 
-function mapSeverity(label: string | undefined): Severity {
-  switch (label) {
+function labelSeverity(label: string): Severity {
+  switch (label.toUpperCase()) {
     case "HIGH":
-      return "Extreme";
     case "MDT":
-      return "Severe";
+      return "Extreme";
     case "ENH":
+      return "Severe";
     case "SLGT":
       return "Moderate";
     default:
@@ -63,72 +62,151 @@ function mapSeverity(label: string | undefined): Severity {
   }
 }
 
-function normalizePolygon(feature: SpcFeature): SupplementalRiskSignal["geometry"] {
-  if (!feature.geometry) return { type: "None" };
-
-  if (feature.geometry.type === "Polygon") {
-    const outerRing = feature.geometry.coordinates[0] ?? [];
-    return { type: "Polygon", polygon: outerRing };
+function labelName(label: string): string {
+  switch (label.toUpperCase()) {
+    case "TSTM":
+      return "General Thunderstorms";
+    case "MRGL":
+      return "Marginal Risk";
+    case "SLGT":
+      return "Slight Risk";
+    case "ENH":
+      return "Enhanced Risk";
+    case "MDT":
+      return "Moderate Risk";
+    case "HIGH":
+      return "High Risk";
+    default:
+      return label;
   }
-
-  const polygons = feature.geometry.coordinates
-    .map((polygon) => polygon[0] ?? [])
-    .filter((ring) => ring.length >= 3);
-
-  return polygons.length > 0 ? { type: "MultiPolygon", polygons } : { type: "None" };
 }
 
-function normalize(feature: SpcFeature, day: 1 | 2 | 3): SupplementalRiskSignal {
+function pointInPolygon(lng: number, lat: number, polygon: number[][]): boolean {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    const intersects =
+      yi > lat !== yj > lat &&
+      lng < ((xj - xi) * (lat - yi)) / (yj - yi || Number.EPSILON) + xi;
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
+function milesBetween(latA: number, lngA: number, latB: number, lngB: number): number {
+  const toRad = (value: number) => (value * Math.PI) / 180;
+  const earthMiles = 3958.8;
+  const dLat = toRad(latB - latA);
+  const dLng = toRad(lngB - lngA);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(latA)) *
+      Math.cos(toRad(latB)) *
+      Math.sin(dLng / 2) ** 2;
+  return earthMiles * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function polygonNearLocation(
+  polygon: number[][],
+  lat: number,
+  lng: number,
+  radiusMiles: number
+): boolean {
+  return polygon.some(
+    ([polyLng, polyLat]) => milesBetween(lat, lng, polyLat, polyLng) <= radiusMiles
+  );
+}
+
+function polygonRings(feature: SpcFeature): number[][][] {
+  if (!feature.geometry) return [];
+  if (feature.geometry.type === "Polygon") {
+    const outerRing = feature.geometry.coordinates[0];
+    return outerRing ? [outerRing] : [];
+  }
+  return feature.geometry.coordinates
+    .map((polygon) => polygon[0])
+    .filter(Boolean);
+}
+
+function normalize(
+  feature: SpcFeature,
+  polygon: number[][],
+  day: number,
+  index: number
+): RiskEvent {
   const p = feature.properties;
-  const valid = parseSpcTimestamp(p.valid);
-  const expire = parseSpcTimestamp(p.expire);
-  const issue = parseSpcTimestamp(p.issue);
-  const label = p.label ?? "OUTLOOK";
-  const labelText = p.label2 ?? `${label} Risk`;
+  const riskName = labelName(p.label);
+  const valid = ymdhmToIso(p.valid);
+  const issue = ymdhmToIso(p.issue);
+  const expire = ymdhmToIso(p.expire);
 
   return {
     id: newEventId(),
     source: "SPC",
-    sourceEventId: String(p.objectid ?? feature.id ?? `${day}-${label}`),
-    category: "Storm Outlook",
+    sourceEventId: `${p.idp_source}-${p.objectid}-${index}`,
     type: `Day ${day} Convective Outlook`,
-    severity: mapSeverity(label),
-    headline: `SPC Day ${day}: ${labelText}`,
-    description: `Storm Prediction Center day ${day} convective outlook area: ${labelText}.`,
-    geometry: normalizePolygon(feature),
-    startedAt: valid ?? issue ?? new Date().toISOString(),
+    category: "Weather",
+    severity: labelSeverity(p.label),
+    headline: `SPC Day ${day} ${riskName}`,
+    description:
+      p.label2 ||
+      `${riskName} for severe convective weather in the Day ${day} outlook period.`,
+    geometryType: "Polygon",
+    latitude: null,
+    longitude: null,
+    polygon,
+    startedAt: valid,
     expiresAt: expire,
-    updatedAt: issue ?? valid ?? new Date().toISOString(),
+    updatedAt: issue,
     url: "https://www.spc.noaa.gov/products/outlook/",
     confidence: "Source reported",
-    metrics: [
-      { label: "Risk", value: labelText },
-      ...(p.dn != null ? [{ label: "SPC rank", value: p.dn }] : []),
-    ],
-    raw: feature as unknown as Record<string, unknown>,
+    raw: {
+      ...p,
+      day,
+    } as Record<string, unknown>,
   };
 }
 
-export async function fetchSpcConvectiveOutlooks(
-  days: Array<1 | 2 | 3> = [1, 2, 3]
-): Promise<SupplementalRiskSignal[]> {
-  const responses = await Promise.all(
-    days.map(async (day) => {
-      const params = new URLSearchParams({
-        where: "1=1",
-        outFields: "*",
-        f: "geojson",
-        returnGeometry: "true",
-      });
-      const url = `${BASE}/${DAY_LAYER[day]}/query?${params}`;
-      const res = await fetch(url, {
-        headers: { Accept: "application/geo+json, application/json" },
-      });
-      if (!res.ok) throw new Error(`SPC API returned ${res.status}`);
-      const data: SpcResponse = await res.json();
-      return (data.features ?? []).map((feature) => normalize(feature, day));
-    })
-  );
+async function fetchSpcLayer(
+  layer: number,
+  day: number,
+  lat: number,
+  lng: number,
+  radiusMiles: number
+): Promise<RiskEvent[]> {
+  const params = new URLSearchParams({
+    where: "1=1",
+    outFields: "*",
+    returnGeometry: "true",
+    f: "geojson",
+    outSR: "4326",
+  });
+  const res = await fetch(`${BASE}/${layer}/query?${params}`);
+  if (!res.ok) throw new Error(`SPC API returned ${res.status}`);
+  const data: SpcResponse = await res.json();
 
-  return responses.flat();
+  return (data.features ?? []).flatMap((feature) =>
+    polygonRings(feature)
+      .filter(
+        (polygon) =>
+          polygon.length >= 3 &&
+          (pointInPolygon(lng, lat, polygon) ||
+            polygonNearLocation(polygon, lat, lng, radiusMiles))
+      )
+      .map((polygon, index) => normalize(feature, polygon, day, index))
+  );
+}
+
+export async function fetchSpcOutlooks(
+  lat: number,
+  lng: number,
+  radiusMiles: number
+): Promise<RiskEvent[]> {
+  const results = await Promise.all(
+    DAY_LAYERS.map(({ layer, day }) =>
+      fetchSpcLayer(layer, day, lat, lng, radiusMiles)
+    )
+  );
+  return results.flat();
 }

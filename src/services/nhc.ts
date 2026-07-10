@@ -1,106 +1,139 @@
 import { newEventId } from "../lib/ids";
-import type { Severity } from "../types/riskEvent";
-import type { SupplementalMetric, SupplementalRiskSignal } from "../types/supplementalRisk";
+import type { RiskEvent, Severity } from "../types/riskEvent";
 
-const CURRENT_STORMS_URL = "https://www.nhc.noaa.gov/CurrentStorms.json";
+const URL = "https://www.nhc.noaa.gov/CurrentStorms.json";
+const MONITOR_RADIUS_FLOOR_MILES = 300;
 
-interface NhcCurrentStormsResponse {
-  activeStorms?: Array<Record<string, unknown>>;
+interface NhcProductLink {
+  advNum?: string;
+  issuance?: string;
+  fileUpdateTime?: string;
+  url?: string;
 }
 
-function stringValue(record: Record<string, unknown>, keys: string[]): string | null {
-  for (const key of keys) {
-    const value = record[key];
-    if (typeof value === "string" && value.trim()) return value;
-    if (typeof value === "number" && Number.isFinite(value)) return String(value);
-  }
-  return null;
+interface NhcStorm {
+  id: string;
+  binNumber: string;
+  name: string;
+  classification: string;
+  intensity: string;
+  pressure: string;
+  latitude: string;
+  longitude: string;
+  latitudeNumeric: number;
+  longitudeNumeric: number;
+  movementDir: number;
+  movementSpeed: number;
+  lastUpdate: string;
+  publicAdvisory: NhcProductLink | null;
+  forecastDiscussion: NhcProductLink | null;
+  forecastGraphics: NhcProductLink | null;
 }
 
-function numberValue(record: Record<string, unknown>, keys: string[]): number | null {
-  for (const key of keys) {
-    const value = record[key];
-    if (typeof value === "number" && Number.isFinite(value)) return value;
-    if (typeof value === "string" && value.trim()) {
-      const parsed = Number(value);
-      if (Number.isFinite(parsed)) return parsed;
-    }
-  }
-  return null;
+interface NhcResponse {
+  activeStorms: NhcStorm[];
 }
 
-function parseStormTime(value: string | null): string {
-  if (!value) return new Date().toISOString();
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+function classificationName(classification: string): string {
+  switch (classification.toUpperCase()) {
+    case "DB":
+      return "Disturbance";
+    case "LO":
+      return "Low";
+    case "TD":
+      return "Tropical Depression";
+    case "TS":
+      return "Tropical Storm";
+    case "HU":
+      return "Hurricane";
+    case "MH":
+      return "Major Hurricane";
+    case "SD":
+      return "Subtropical Depression";
+    case "SS":
+      return "Subtropical Storm";
+    case "PTC":
+      return "Post-Tropical Cyclone";
+    default:
+      return classification || "Tropical Cyclone";
+  }
 }
 
-function mapSeverity(classification: string | null, intensityKt: number | null): Severity {
-  const normalized = classification?.toLowerCase() ?? "";
-  if (normalized.includes("major") || (intensityKt != null && intensityKt >= 96)) {
-    return "Extreme";
-  }
-  if (normalized.includes("hurricane") || (intensityKt != null && intensityKt >= 64)) {
-    return "Severe";
-  }
-  if (normalized.includes("storm") || (intensityKt != null && intensityKt >= 34)) {
+function severityForStorm(storm: NhcStorm): Severity {
+  const intensity = Number(storm.intensity);
+  const classification = storm.classification.toUpperCase();
+  if (classification === "MH" || intensity >= 96) return "Extreme";
+  if (classification === "HU" || intensity >= 64) return "Severe";
+  if (classification === "TS" || classification === "SS" || intensity >= 34) {
     return "Moderate";
   }
   return "Minor";
 }
 
-function normalize(storm: Record<string, unknown>): SupplementalRiskSignal {
-  const id = stringValue(storm, ["id", "stormId", "stormid", "stormNumber"]) ?? newEventId();
-  const name = stringValue(storm, ["name", "stormName", "stormname"]) ?? "Tropical cyclone";
-  const classification = stringValue(storm, ["classification", "stormType", "type"]);
-  const basin = stringValue(storm, ["basin", "basinName"]);
-  const updatedAt = parseStormTime(
-    stringValue(storm, ["lastUpdate", "lastupdate", "lastUpdated", "advisoryDate"])
-  );
-  const intensityKt = numberValue(storm, ["intensity", "maxWind", "maxwind", "windSpeed"]);
-  const pressureMb = numberValue(storm, ["pressure", "minPressure"]);
-  const latitude = numberValue(storm, ["latitude", "lat"]);
-  const longitude = numberValue(storm, ["longitude", "lon", "lng"]);
-  const url =
-    stringValue(storm, ["publicAdvisory", "url", "link"]) ??
-    "https://www.nhc.noaa.gov/";
+function milesBetween(latA: number, lngA: number, latB: number, lngB: number): number {
+  const toRad = (value: number) => (value * Math.PI) / 180;
+  const earthMiles = 3958.8;
+  const dLat = toRad(latB - latA);
+  const dLng = toRad(lngB - lngA);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(latA)) *
+      Math.cos(toRad(latB)) *
+      Math.sin(dLng / 2) ** 2;
+  return earthMiles * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
-  const metrics: SupplementalMetric[] = [
-    ...(classification ? [{ label: "Classification", value: classification }] : []),
-    ...(basin ? [{ label: "Basin", value: basin }] : []),
-    ...(intensityKt != null ? [{ label: "Max wind", value: intensityKt, unit: "kt" }] : []),
-    ...(pressureMb != null ? [{ label: "Pressure", value: pressureMb, unit: "mb" }] : []),
-  ];
+function normalize(storm: NhcStorm): RiskEvent {
+  const classification = classificationName(storm.classification);
+  const intensity = Number(storm.intensity);
+  const pressure = Number(storm.pressure);
+  const advisory = storm.publicAdvisory ?? storm.forecastGraphics ?? storm.forecastDiscussion;
 
   return {
     id: newEventId(),
     source: "NHC",
-    sourceEventId: id,
-    category: "Tropical Cyclone",
-    type: classification ?? "Tropical Cyclone",
-    severity: mapSeverity(classification, intensityKt),
-    headline: classification ? `${name} - ${classification}` : name,
-    description: `National Hurricane Center active storm${basin ? ` in ${basin}` : ""}.`,
-    geometry:
-      latitude != null && longitude != null
-        ? { type: "Point", latitude, longitude }
-        : { type: "None" },
-    startedAt: updatedAt,
+    sourceEventId: storm.id,
+    type: classification,
+    category: "Tropical",
+    severity: severityForStorm(storm),
+    headline: `NHC ${classification} ${storm.name}`,
+    description: [
+      `${classification} ${storm.name} is at ${storm.latitude}, ${storm.longitude}.`,
+      Number.isFinite(intensity) ? `Maximum sustained winds are ${intensity} kt.` : "",
+      Number.isFinite(pressure) ? `Minimum central pressure is ${pressure} mb.` : "",
+      Number.isFinite(storm.movementDir) && Number.isFinite(storm.movementSpeed)
+        ? `Movement is ${storm.movementDir} degrees at ${storm.movementSpeed} kt.`
+        : "",
+    ].filter(Boolean).join(" "),
+    geometryType: "Point",
+    latitude: storm.latitudeNumeric,
+    longitude: storm.longitudeNumeric,
+    polygon: null,
+    startedAt: storm.lastUpdate,
     expiresAt: null,
-    updatedAt,
-    url,
+    updatedAt: advisory?.issuance ?? storm.lastUpdate,
+    url: advisory?.url ?? "https://www.nhc.noaa.gov/cyclones/",
     confidence: "Source reported",
-    metrics,
-    raw: storm,
+    raw: storm as unknown as Record<string, unknown>,
   };
 }
 
-export async function fetchNhcActiveStorms(): Promise<SupplementalRiskSignal[]> {
-  const res = await fetch(CURRENT_STORMS_URL, {
+export async function fetchNhcStorms(
+  lat: number,
+  lng: number,
+  radiusMiles: number
+): Promise<RiskEvent[]> {
+  const res = await fetch(URL, {
     headers: { Accept: "application/json" },
   });
-  if (!res.ok) throw new Error(`NHC current storms feed returned ${res.status}`);
+  if (!res.ok) throw new Error(`NHC API returned ${res.status}`);
+  const data: NhcResponse = await res.json();
+  const monitorRadius = Math.max(radiusMiles, MONITOR_RADIUS_FLOOR_MILES);
 
-  const data: NhcCurrentStormsResponse = await res.json();
-  return (data.activeStorms ?? []).map(normalize);
+  return (data.activeStorms ?? [])
+    .filter((storm) =>
+      milesBetween(lat, lng, storm.latitudeNumeric, storm.longitudeNumeric) <=
+      monitorRadius
+    )
+    .map(normalize);
 }

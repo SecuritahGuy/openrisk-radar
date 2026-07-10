@@ -17,7 +17,7 @@ export interface AircraftState {
 
 export interface OpenSkyStateVector {
   time: number;
-  states: (string | number | boolean | null)[] | null;
+  states: (string | number | boolean | null)[][] | null;
 }
 
 const API_BASE = "https://opensky-network.org/api";

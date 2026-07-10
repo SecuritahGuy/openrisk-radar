@@ -3,13 +3,41 @@ import { useQuery } from "@tanstack/react-query";
 import { milesToKm } from "../lib/geo";
 import { fetchAirNowCurrentObservations } from "../services/airnow";
 import { fetchCoopsWaterLevels } from "../services/coops";
-import { fetchNhcActiveStorms } from "../services/nhc";
-import { fetchSpcConvectiveOutlooks } from "../services/spc";
+import { fetchNhcStorms } from "../services/nhc";
+import { fetchSpcOutlooks } from "../services/spc";
+import type { RiskEvent } from "../types/riskEvent";
 import { fetchUsgsWaterObservations } from "../services/usgsWater";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 
 const EMPTY_SIGNALS: SupplementalRiskSignal[] = [];
+
+function toSupplementalSignal(event: RiskEvent): SupplementalRiskSignal {
+  const geometry: SupplementalRiskSignal["geometry"] =
+    event.geometryType === "Point" && event.latitude != null && event.longitude != null
+      ? { type: "Point", latitude: event.latitude, longitude: event.longitude }
+      : event.geometryType === "Polygon" && event.polygon
+        ? { type: "Polygon", polygon: event.polygon }
+        : { type: "None" };
+  return {
+    id: event.id,
+    source: event.source as SupplementalRiskSignal["source"],
+    sourceEventId: event.sourceEventId,
+    category: event.category as SupplementalRiskSignal["category"],
+    type: event.type,
+    severity: event.severity,
+    headline: event.headline,
+    description: event.description,
+    geometry,
+    startedAt: event.startedAt,
+    expiresAt: event.expiresAt,
+    updatedAt: event.updatedAt,
+    url: event.url,
+    confidence: event.confidence,
+    metrics: [],
+    raw: event.raw,
+  };
+}
 
 export interface SupplementalRiskFeedsOptions {
   enabled?: boolean;
@@ -48,7 +76,7 @@ export function useSupplementalRiskFeeds(
 
   const spcQuery = useQuery({
     queryKey: ["supplemental-risk", "spc"],
-    queryFn: () => fetchSpcConvectiveOutlooks(),
+    queryFn: () => location ? fetchSpcOutlooks(location.latitude, location.longitude, radius) : [],
     enabled,
     staleTime: 15 * 60_000,
     retry: 1,
@@ -98,7 +126,7 @@ export function useSupplementalRiskFeeds(
 
   const nhcQuery = useQuery({
     queryKey: ["supplemental-risk", "nhc"],
-    queryFn: () => fetchNhcActiveStorms(),
+    queryFn: () => location ? fetchNhcStorms(location.latitude, location.longitude, radius) : [],
     enabled,
     staleTime: 10 * 60_000,
     retry: 1,
@@ -124,10 +152,10 @@ export function useSupplementalRiskFeeds(
     retry: 1,
   });
 
-  const spcOutlooks = spcQuery.data ?? EMPTY_SIGNALS;
+  const spcOutlooks = spcQuery.data?.map(toSupplementalSignal) ?? EMPTY_SIGNALS;
   const waterGauges = waterQuery.data ?? EMPTY_SIGNALS;
   const coastalWaterLevels = coopsQuery.data ?? EMPTY_SIGNALS;
-  const tropicalCyclones = nhcQuery.data ?? EMPTY_SIGNALS;
+  const tropicalCyclones = nhcQuery.data?.map(toSupplementalSignal) ?? EMPTY_SIGNALS;
   const airQuality = airNowQuery.data ?? EMPTY_SIGNALS;
   const allSignals = useMemo(
     () => [

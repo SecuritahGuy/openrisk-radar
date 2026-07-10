@@ -5,7 +5,7 @@ export interface CurrentWeather {
   windSpeed: number;
   windDirection: number | null;
   weatherCode: number | string;
-  source: "NWS observation" | "NWS hourly forecast";
+  source: string;
   stationName: string | null;
   observedAt: string | null;
 }

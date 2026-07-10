@@ -11,7 +11,6 @@ export type SupplementalCategory =
   | "Storm Outlook"
   | "River Gauge"
   | "Coastal Water"
-  | "Tropical Cyclone"
   | "Air Quality";
 
 export type SupplementalGeometry =

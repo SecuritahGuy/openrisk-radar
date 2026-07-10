@@ -1,6 +1,8 @@
-# Cloudflare Pages Deployment
+# Static Deployment
 
 OpenRisk Radar is currently set up as a static Cloudflare Pages app. Keep it static while traffic is small so the project stays inside the free tier without Workers or storage bindings.
+
+Production URL: https://openriskradar.com
 
 ## Pages Settings
 
@@ -24,6 +26,11 @@ The app calls public feeds directly from the browser:
 - USGS earthquake events
 - FEMA disaster declarations
 - NIFC ArcGIS wildfire incidents
+- SPC convective outlook polygons
+- NHC active tropical cyclones
+- GDACS global disaster events
+- NASA EONET Earth observation events
+- Open-Meteo weather fallback, air quality, and marine conditions
 - Nominatim geocoding, with local ZIP/city fallback
 - OpenStreetMap map tiles
 
@@ -34,3 +41,8 @@ Saved locations live in browser IndexedDB. There is no backend database, schedul
 Add a small `/api/feeds` Pages Function only if direct browser calls become unreliable or provider policy requires server-side headers/caching. If that happens, keep the Function as a thin proxy with short cache TTLs because Pages Functions count against Workers free-plan quotas.
 
 NWS and Nominatim both document expectations around identifiable clients, but browser JavaScript cannot set a custom `User-Agent` header. Keep searches user-triggered, avoid autocomplete, cache where practical, prefer local ZIP/city resolution when possible, and add a narrow Pages Function proxy if either provider requires app-specific server-side headers.
+
+## Required Public Assets
+
+- `public/og-image.png` should be created before launch-quality social sharing.
+- `docs/assets/openrisk-radar-hero.png` should be added for the README hero screenshot.

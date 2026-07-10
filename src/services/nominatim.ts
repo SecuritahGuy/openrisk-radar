@@ -2,6 +2,7 @@ import type { ResolvedLocation } from "../types/location";
 import { stateAbbr } from "../data/state-abbr";
 
 const BASE = "https://nominatim.openstreetmap.org";
+const USER_AGENT = "OpenRiskRadar/1.0 (https://github.com/SecuritahGuy/openrisk-radar)";
 
 interface NominatimAddress {
   city?: string;
@@ -49,6 +50,7 @@ export async function geocode(query: string): Promise<ResolvedLocation | null> {
   const url = `${BASE}/search?${params}`;
   const res = await fetch(url, {
     headers: {
+      "User-Agent": USER_AGENT,
       Accept: "application/json",
     },
   });
@@ -92,6 +94,7 @@ export async function reverseGeocode(
   const url = `${BASE}/reverse?${params}`;
   const res = await fetch(url, {
     headers: {
+      "User-Agent": USER_AGENT,
       Accept: "application/json",
     },
   });

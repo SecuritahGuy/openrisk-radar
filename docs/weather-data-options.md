@@ -1,6 +1,6 @@
-# Weather Data Options
+# Weather and Environmental Data Options
 
-OpenRisk Radar now uses weather.gov/NWS as the primary weather source for the free Cloudflare Pages path.
+OpenRisk Radar uses weather.gov/NWS as the primary U.S. weather source in the main dashboard path. Open-Meteo provides global current-weather fallback plus air quality and marine supplemental signals in the side panel.
 
 ## Weather.gov/NWS
 
@@ -20,8 +20,8 @@ The current client-only implementation calls NWS directly from the browser. Brow
 
 Open-Meteo is excellent for compact model/weather values and broad variable coverage, including hourly temperature, humidity, apparent temperature, precipitation probability, weather code, cloud cover, visibility, UV, wind speed, wind direction, and gusts.
 
-For OpenRisk Radar, its limitation is that it is primarily point/model data. It does not provide the same official NWS alert/zoning/station geometry that can be placed directly on the operational risk map.
+The current codebase includes Open-Meteo adapters for weather observations, air quality, and marine conditions in `src/services/openMeteo.ts`. These are useful for global environmental context, but they are modeled as current or supplemental signals rather than authoritative alert polygons.
 
 ## Current Decision
 
-Use NWS for current conditions and the map overlay. Keep Open-Meteo out of the default Cloudflare Pages client until there is a specific non-U.S. coverage or model-variable requirement.
+Use NWS for U.S. current conditions and map overlays. Use Open-Meteo as a global fallback and as supplemental air-quality/marine context.

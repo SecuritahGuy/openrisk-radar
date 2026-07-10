@@ -5,15 +5,30 @@ import { fetchNwsAlerts } from "../services/nws";
 import { fetchEarthquakes } from "../services/usgs";
 import { fetchFemaDeclarations } from "../services/fema";
 import { fetchWildfires } from "../services/nifc";
+import { fetchSpcOutlooks } from "../services/spc";
+import { fetchNhcStorms } from "../services/nhc";
+import { fetchGdacsEvents } from "../services/gdacs";
+import { fetchEonetEvents } from "../services/eonet";
 import { fetchCurrentWeather } from "../services/weather";
 import type { CurrentWeather } from "../services/weather";
+import {
+  fetchOpenMeteoAirQuality,
+  fetchOpenMeteoMarine,
+  fetchOpenMeteoWeather,
+} from "../services/openMeteo";
+import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 
 interface UseRiskFeedsResult {
   weatherAlerts: RiskEvent[];
   earthquakes: RiskEvent[];
   femaDeclarations: RiskEvent[];
   wildfires: RiskEvent[];
+  spcOutlooks: RiskEvent[];
+  nhcStorms: RiskEvent[];
+  gdacsEvents: RiskEvent[];
+  eonetEvents: RiskEvent[];
   currentWeather: CurrentWeather | null;
+  supplementalSignals: SupplementalRiskSignal[];
   allEvents: RiskEvent[];
   isLoading: boolean;
   isError: boolean;
@@ -67,12 +82,76 @@ export function useRiskFeeds(
     retry: 2,
   });
 
+  const spcQuery = useQuery<RiskEvent[]>({
+    queryKey: ["spc-outlooks", location?.latitude, location?.longitude, radius],
+    queryFn: () =>
+      fetchSpcOutlooks(location!.latitude, location!.longitude, radius),
+    enabled: !!location,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
+  const nhcQuery = useQuery<RiskEvent[]>({
+    queryKey: ["nhc-storms", location?.latitude, location?.longitude, radius],
+    queryFn: () =>
+      fetchNhcStorms(location!.latitude, location!.longitude, radius),
+    enabled: !!location,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
+  const gdacsQuery = useQuery<RiskEvent[]>({
+    queryKey: ["gdacs-events", location?.latitude, location?.longitude, radiusKm],
+    queryFn: () =>
+      fetchGdacsEvents(location!.latitude, location!.longitude, radiusKm),
+    enabled: !!location,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
+  const eonetQuery = useQuery<RiskEvent[]>({
+    queryKey: ["eonet-events", location?.latitude, location?.longitude, radiusKm],
+    queryFn: () =>
+      fetchEonetEvents(location!.latitude, location!.longitude, radiusKm),
+    enabled: !!location,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
   const weatherQuery = useQuery<CurrentWeather>({
     queryKey: ["current-weather", location?.latitude, location?.longitude],
     queryFn: () =>
-      fetchCurrentWeather(location!.latitude, location!.longitude),
+      fetchCurrentWeather(location!.latitude, location!.longitude).catch(() =>
+        fetchOpenMeteoWeather(location!.latitude, location!.longitude)
+      ),
     enabled: !!location,
     staleTime: 120_000,
+    retry: 1,
+  });
+
+  const supplementalQuery = useQuery<SupplementalRiskSignal[]>({
+    queryKey: [
+      "openmeteo-supplemental",
+      location?.latitude,
+      location?.longitude,
+      location?.city,
+      location?.state,
+    ],
+    queryFn: async () => {
+      const label = location
+        ? `${location.city}, ${location.state}`
+        : undefined;
+      const results = await Promise.allSettled([
+        fetchOpenMeteoAirQuality(location!.latitude, location!.longitude, label),
+        fetchOpenMeteoMarine(location!.latitude, location!.longitude, label),
+      ]);
+
+      return results.flatMap((result) =>
+        result.status === "fulfilled" ? result.value : []
+      );
+    },
+    enabled: !!location,
+    staleTime: 300_000,
     retry: 1,
   });
 
@@ -80,17 +159,27 @@ export function useRiskFeeds(
   const earthquakes = usgsQuery.data ?? [];
   const femaDeclarations = femaQuery.data ?? [];
   const wildfires = nifcQuery.data ?? [];
+  const spcOutlooks = spcQuery.data ?? [];
+  const nhcStorms = nhcQuery.data ?? [];
+  const gdacsEvents = gdacsQuery.data ?? [];
+  const eonetEvents = eonetQuery.data ?? [];
   const currentWeather = weatherQuery.data ?? null;
-  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires];
-  const isFetching = nwsQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || weatherQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || weatherQuery.isLoading;
-  const isError = nwsQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || weatherQuery.isError;
+  const supplementalSignals = supplementalQuery.data ?? [];
+  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms, ...gdacsEvents, ...eonetEvents];
+  const isFetching = nwsQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || weatherQuery.isFetching || supplementalQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || weatherQuery.isLoading || supplementalQuery.isLoading;
+  const isError = nwsQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || weatherQuery.isError || supplementalQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
   if (usgsQuery.error) errors.push(`USGS: ${usgsQuery.error.message}`);
   if (femaQuery.error) errors.push(`FEMA: ${femaQuery.error.message}`);
   if (nifcQuery.error) errors.push(`NIFC: ${nifcQuery.error.message}`);
+  if (spcQuery.error) errors.push(`SPC: ${spcQuery.error.message}`);
+  if (nhcQuery.error) errors.push(`NHC: ${nhcQuery.error.message}`);
+  if (gdacsQuery.error) errors.push(`GDACS: ${gdacsQuery.error.message}`);
+  if (eonetQuery.error) errors.push(`EONET: ${eonetQuery.error.message}`);
+  if (supplementalQuery.error) errors.push(`Open-Meteo: ${supplementalQuery.error.message}`);
 
   const lastUpdated = (() => {
     const dates = allEvents
@@ -106,7 +195,12 @@ export function useRiskFeeds(
     earthquakes,
     femaDeclarations,
     wildfires,
+    spcOutlooks,
+    nhcStorms,
+    gdacsEvents,
+    eonetEvents,
     currentWeather,
+    supplementalSignals,
     allEvents,
     isLoading,
     isError,
@@ -116,7 +210,12 @@ export function useRiskFeeds(
       usgsQuery.refetch();
       femaQuery.refetch();
       nifcQuery.refetch();
+      spcQuery.refetch();
+      nhcQuery.refetch();
+      gdacsQuery.refetch();
+      eonetQuery.refetch();
       weatherQuery.refetch();
+      supplementalQuery.refetch();
     },
     lastUpdated,
     isFetching,

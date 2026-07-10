@@ -19,6 +19,14 @@ function sourceColor(source: string): string {
       return "#7b1fa2";
     case "NIFC":
       return "#d84315";
+    case "SPC":
+      return "#00897b";
+    case "NHC":
+      return "#c62828";
+    case "GDACS":
+      return "#1565c0";
+    case "EONET":
+      return "#6a1b9a";
     default:
       return "#757575";
   }
@@ -153,6 +161,80 @@ function FemaFields({ raw }: { raw: Record<string, unknown> }) {
   );
 }
 
+function SpcFields({ raw }: { raw: Record<string, unknown> }) {
+  return (
+    <>
+      <DetailRow label="Outlook Day" value={raw.day != null ? `Day ${raw.day}` : "—"} />
+      <DetailRow label="Risk Label" value={String(raw.label ?? "—")} />
+      <DetailRow label="Risk Detail" value={String(raw.label2 ?? "—")} />
+      <DetailRow label="Valid" value={raw.valid ? String(raw.valid) : "—"} />
+      <DetailRow label="Expires" value={raw.expire ? String(raw.expire) : "—"} />
+    </>
+  );
+}
+
+function NhcFields({ raw }: { raw: Record<string, unknown> }) {
+  const publicAdvisory = raw.publicAdvisory as { advNum?: string } | null;
+  return (
+    <>
+      <DetailRow label="Classification" value={String(raw.classification ?? "—")} />
+      <DetailRow label="Advisory" value={publicAdvisory?.advNum ?? "—"} />
+      <DetailRow label="Wind" value={raw.intensity ? `${raw.intensity} kt` : "—"} />
+      <DetailRow label="Pressure" value={raw.pressure ? `${raw.pressure} mb` : "—"} />
+      <DetailRow label="Movement" value={
+        raw.movementDir != null && raw.movementSpeed != null
+          ? `${raw.movementDir} deg at ${raw.movementSpeed} kt`
+          : "—"
+      } />
+    </>
+  );
+}
+
+function GdacsFields({ raw }: { raw: Record<string, unknown> }) {
+  const p = ((raw.properties as Record<string, string | null> | undefined) ??
+    raw) as Record<string, string | null>;
+  return (
+    <>
+      <DetailRow label="Alert Level" value={p.alertlevel ?? "—"} />
+      <DetailRow label="Alert Score" value={p.alertscore ?? "—"} />
+      <DetailRow label="Country" value={p.country ?? p.countrylist ?? "—"} />
+      <DetailRow label="Event ID" value={p.eventid ?? "—"} />
+      <DetailRow label="Episode" value={p.episodeid ?? "—"} />
+      <DetailRow label="Severity" value={p.severity ?? "—"} />
+    </>
+  );
+}
+
+function EonetFields({ raw }: { raw: Record<string, unknown> }) {
+  const p = ((raw.properties as Record<string, unknown> | undefined) ??
+    raw) as Record<string, unknown>;
+  const categories = p.categories as Array<{ title?: string }> | undefined;
+  const sources = p.sources as Array<{ id?: string }> | undefined;
+  const magnitudeValue = p.magnitudeValue;
+  const magnitudeUnit = p.magnitudeUnit;
+  return (
+    <>
+      <DetailRow
+        label="Categories"
+        value={categories?.map((c) => c.title).filter(Boolean).join(", ") ?? "—"}
+      />
+      <DetailRow
+        label="Magnitude"
+        value={
+          magnitudeValue != null
+            ? `${magnitudeValue}${magnitudeUnit ? ` ${magnitudeUnit}` : ""}`
+            : "—"
+        }
+      />
+      <DetailRow
+        label="Sources"
+        value={sources?.map((s) => s.id).filter(Boolean).join(", ") ?? "—"}
+      />
+      <DetailRow label="Closed" value={p.closed ? formatTime(String(p.closed)) : "—"} />
+    </>
+  );
+}
+
 export function EventDetailPanel({
   event,
   location,
@@ -236,6 +318,30 @@ export function EventDetailPanel({
           <div style={styles.section}>
             <div style={styles.sectionTitle}>Disaster Declaration Details</div>
             <FemaFields raw={event.raw} />
+          </div>
+        )}
+        {event.source === "SPC" && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Convective Outlook Details</div>
+            <SpcFields raw={event.raw} />
+          </div>
+        )}
+        {event.source === "NHC" && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Tropical Cyclone Details</div>
+            <NhcFields raw={event.raw} />
+          </div>
+        )}
+        {event.source === "GDACS" && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Global Disaster Details</div>
+            <GdacsFields raw={event.raw} />
+          </div>
+        )}
+        {event.source === "EONET" && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Earth Observation Details</div>
+            <EonetFields raw={event.raw} />
           </div>
         )}
 

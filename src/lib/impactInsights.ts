@@ -96,7 +96,10 @@ export function assessImpact(
       return {
         level: "affects",
         label: "Affects area",
-        detail: "Alert polygon includes this location",
+        detail:
+          event.source === "SPC"
+            ? "Outlook polygon includes this location"
+            : "Alert polygon includes this location",
         sortRank: 4,
       };
     }
@@ -105,7 +108,10 @@ export function assessImpact(
       return {
         level: "nearby",
         label: "Nearby",
-        detail: `Alert boundary is within ${radius} mi`,
+        detail:
+          event.source === "SPC"
+            ? `Outlook boundary is within ${radius} mi`
+            : `Alert boundary is within ${radius} mi`,
         sortRank: 3,
       };
     }
