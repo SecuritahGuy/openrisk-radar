@@ -16,6 +16,7 @@ export const EVENT_SOURCES: EventSource[] = [
   "EONET",
   "AIRNOW",
   "COOPS",
+  "SPACE_WEATHER",
 ];
 export const EVENT_SEVERITIES: Severity[] = [
   "Extreme",
@@ -54,6 +55,7 @@ export function defaultSourceFilters(): SourceFilters {
     EONET: true,
     AIRNOW: true,
     COOPS: true,
+    SPACE_WEATHER: true,
   };
 }
 
@@ -96,6 +98,8 @@ export function sourceColor(source: EventSource): string {
       return "#455a64";
     case "COOPS":
       return "#0277bd";
+    case "SPACE_WEATHER":
+      return "#5e35b1";
   }
 }
 

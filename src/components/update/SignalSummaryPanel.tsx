@@ -11,6 +11,7 @@ interface SignalSummaryPanelProps {
   nhcStorms: RiskEvent[];
   gdacsEvents: RiskEvent[];
   eonetEvents: RiskEvent[];
+  emscEvents: RiskEvent[];
   supplementalSignals: SupplementalRiskSignal[];
   isFetching: boolean;
 }
@@ -70,6 +71,7 @@ export function SignalSummaryPanel({
   nhcStorms,
   gdacsEvents,
   eonetEvents,
+  emscEvents,
   supplementalSignals,
   isFetching,
 }: SignalSummaryPanelProps) {
@@ -78,8 +80,14 @@ export function SignalSummaryPanel({
   const riverSignals = supplementalSignals.filter((s) => s.category === "River Gauge");
   const volcanoSignals = supplementalSignals.filter((s) => s.category === "Volcano");
   const droughtSignals = supplementalSignals.filter((s) => s.category === "Drought");
+  const spaceWeatherSignals = supplementalSignals.filter((s) => s.category === "Space Weather");
   const shownSupplementalCount =
-    airQualitySignals.length + marineSignals.length + riverSignals.length + volcanoSignals.length + droughtSignals.length;
+    airQualitySignals.length +
+    marineSignals.length +
+    riverSignals.length +
+    volcanoSignals.length +
+    droughtSignals.length +
+    spaceWeatherSignals.length;
 
   return (
     <>
@@ -97,6 +105,11 @@ export function SignalSummaryPanel({
           {earthquakes.length > 0
             ? `${earthquakes.length} earthquake${earthquakes.length !== 1 ? "s" : ""} nearby`
             : "No earthquakes nearby"}
+        </SignalLine>
+        <SignalLine active={emscEvents.length > 0} color="#43a047">
+          {emscEvents.length > 0
+            ? `${emscEvents.length} EMSC earthquake${emscEvents.length !== 1 ? "s" : ""} nearby`
+            : "No EMSC earthquakes nearby"}
         </SignalLine>
         <SignalLine active={femaDeclarations.length > 0} color="#7b1fa2">
           {femaDeclarations.length > 0
@@ -143,6 +156,11 @@ export function SignalSummaryPanel({
             ? `${droughtSignals[0].headline}`
             : "No drought classification at this location"}
         </SignalLine>
+        <SignalLine active={spaceWeatherSignals.length > 0} color="#5e35b1">
+          {spaceWeatherSignals.length > 0
+            ? `${spaceWeatherSignals.length} SWPC space weather signal${spaceWeatherSignals.length !== 1 ? "s" : ""}`
+            : "No elevated space weather signal"}
+        </SignalLine>
       </div>
 
       {supplementalSignals.length > 0 && (
@@ -163,6 +181,9 @@ export function SignalSummaryPanel({
           {droughtSignals.map((signal) => (
             <SupplementalSignalLine key={signal.id} signal={signal} />
           ))}
+          {spaceWeatherSignals.map((signal) => (
+            <SupplementalSignalLine key={signal.id} signal={signal} />
+          ))}
           {supplementalSignals.length > shownSupplementalCount && (
             <div style={styles.detail}>
               {supplementalSignals.length - shownSupplementalCount} additional supplemental signal
@@ -175,6 +196,7 @@ export function SignalSummaryPanel({
               riverSignals.length ? "USGS Water" : null,
               volcanoSignals.length ? "USGS Volcanoes" : null,
               droughtSignals.length ? "Drought Monitor" : null,
+              spaceWeatherSignals.length ? "SWPC" : null,
             ].filter(Boolean).join(", ")}
           </div>
         </div>

@@ -86,6 +86,7 @@ describe("riskInsights", () => {
       EONET: true,
       AIRNOW: true,
       COOPS: true,
+      SPACE_WEATHER: true,
     };
     const severityFilters: SeverityFilters = {
       Extreme: true,
@@ -105,5 +106,6 @@ describe("riskInsights", () => {
     expect(sourceColor("EMSC")).toBe("#43a047");
     expect(sourceColor("AIRNOW")).toBe("#455a64");
     expect(sourceColor("COOPS")).toBe("#0277bd");
+    expect(sourceColor("SPACE_WEATHER")).toBe("#5e35b1");
   });
 });

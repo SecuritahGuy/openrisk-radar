@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="OpenRisk Radar preview">
+  <defs>
+    <radialGradient id="pulse" cx="50%" cy="48%" r="45%">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.5"/>
+      <stop offset="0.55" stop-color="#38bdf8" stop-opacity="0.13"/>
+      <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#102033"/>
+  <circle cx="780" cy="315" r="250" fill="url(#pulse)"/>
+  <circle cx="780" cy="315" r="210" fill="none" stroke="#38bdf8" stroke-width="7" opacity="0.55"/>
+  <circle cx="780" cy="315" r="135" fill="none" stroke="#22c55e" stroke-width="6" opacity="0.6"/>
+  <circle cx="780" cy="315" r="62" fill="none" stroke="#f59e0b" stroke-width="5" opacity="0.7"/>
+  <path d="M780 315 974 196" stroke="#f59e0b" stroke-width="10" stroke-linecap="round"/>
+  <path d="M642 405h285v80H642z" fill="#e2e8f0"/>
+  <path d="M680 405V294l78-58 78 58v111" fill="#f8fafc"/>
+  <path d="M836 405V283h77v122" fill="#cbd5e1"/>
+  <path d="M718 405v-74h58v74" fill="#0f172a"/>
+  <circle cx="780" cy="315" r="26" fill="#ef4444"/>
+  <path d="M94 185h310v34H94zM94 246h440v19H94zM94 292h368v16H94z" fill="#f8fafc"/>
+  <path d="M94 363h58v18H94zM172 363h82v18h-82zM274 363h70v18h-70zM364 363h54v18h-54zM438 363h130v18H438z" fill="#93c5fd"/>
+</svg>

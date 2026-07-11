@@ -40,6 +40,8 @@ function sourceColor(source: string): string {
       return "#455a64";
     case "COOPS":
       return "#0277bd";
+    case "SPACE_WEATHER":
+      return "#5e35b1";
     default:
       return "#757575";
   }

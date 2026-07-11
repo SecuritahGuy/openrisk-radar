@@ -18,6 +18,7 @@ const ITEMS: LegendItem[] = [
   { label: "Earth observation", color: "#6a1b9a", shape: "circle" },
   { label: "Air quality", color: "#455a64", shape: "circle" },
   { label: "Coastal water", color: "#0277bd", shape: "circle" },
+  { label: "Space weather", color: "#5e35b1", shape: "circle" },
   { label: "Radius ring", color: "#1565c0", shape: "diamond" },
 ];
 

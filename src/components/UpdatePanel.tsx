@@ -26,6 +26,7 @@ interface UpdatePanelProps {
   nhcStorms: RiskEvent[];
   gdacsEvents: RiskEvent[];
   eonetEvents: RiskEvent[];
+  emscEvents: RiskEvent[];
   currentWeather: CurrentWeather | null;
   supplementalSignals: SupplementalRiskSignal[];
   sourceHealth: SourceHealthItem[];
@@ -59,6 +60,7 @@ export function UpdatePanel({
   nhcStorms,
   gdacsEvents,
   eonetEvents,
+  emscEvents,
   currentWeather,
   supplementalSignals,
   sourceHealth,
@@ -79,7 +81,7 @@ export function UpdatePanel({
   onDeleteLocation,
   isSaving,
 }: UpdatePanelProps) {
-  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms, ...gdacsEvents, ...eonetEvents];
+  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms, ...gdacsEvents, ...eonetEvents, ...emscEvents];
   const isSaved = !!activeSavedLocation;
 
   return (
@@ -125,6 +127,7 @@ export function UpdatePanel({
             nhcStorms={nhcStorms}
             gdacsEvents={gdacsEvents}
             eonetEvents={eonetEvents}
+            emscEvents={emscEvents}
             supplementalSignals={supplementalSignals}
             isFetching={isFetching}
           />

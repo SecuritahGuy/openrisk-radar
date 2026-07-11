@@ -161,6 +161,7 @@ export default function App() {
     nhcStorms,
     gdacsEvents,
     eonetEvents,
+    emscEvents,
     currentWeather,
     supplementalSignals,
     sourceHealth,
@@ -381,6 +382,7 @@ export default function App() {
         nhcStorms={nhcStorms}
         gdacsEvents={gdacsEvents}
         eonetEvents={eonetEvents}
+        emscEvents={emscEvents}
         currentWeather={currentWeather}
         supplementalSignals={supplementalSignals}
         sourceHealth={sourceHealth}
