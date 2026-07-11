@@ -1,12 +1,18 @@
 import type { RadiusOption } from "../../types/location";
 import type { NwsWeatherOverlay } from "../../services/nwsWeatherOverlay";
+import {
+  WEATHER_LAYER_OPTIONS,
+  type WeatherLayerMode,
+} from "../../types/weatherLayer";
 
 interface MapLayerControlsProps {
   radius: RadiusOption;
   onRadiusChange: (radius: RadiusOption) => void;
   weatherOverlay: NwsWeatherOverlay | null;
   showWeatherOverlay: boolean;
+  weatherLayerMode: WeatherLayerMode;
   onToggleWeatherOverlay: (show: boolean) => void;
+  onWeatherLayerModeChange: (mode: WeatherLayerMode) => void;
   weatherOverlayLoading: boolean;
   weatherOverlayError: string | null;
 }
@@ -16,7 +22,9 @@ export function MapLayerControls({
   onRadiusChange,
   weatherOverlay,
   showWeatherOverlay,
+  weatherLayerMode,
   onToggleWeatherOverlay,
+  onWeatherLayerModeChange,
   weatherOverlayLoading,
   weatherOverlayError,
 }: MapLayerControlsProps) {
@@ -60,6 +68,28 @@ export function MapLayerControls({
               : weatherOverlay
                 ? `${weatherOverlay.stations.length} station observation${weatherOverlay.stations.length !== 1 ? "s" : ""} plus forecast and fire weather zones`
                 : "Waiting for NWS map layer"}
+          </div>
+        )}
+        {showWeatherOverlay && (
+          <div style={styles.modeRow} aria-label="NWS map layer mode">
+            {WEATHER_LAYER_OPTIONS.map((option) => {
+              const active = option.mode === weatherLayerMode;
+              return (
+                <button
+                  key={option.mode}
+                  type="button"
+                  style={{
+                    ...styles.modeBtn,
+                    ...(active ? styles.modeBtnActive : {}),
+                  }}
+                  onClick={() => onWeatherLayerModeChange(option.mode)}
+                  aria-pressed={active}
+                  title={`Show NWS ${option.label.toLowerCase()} layer`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
           </div>
         )}
         {showWeatherOverlay && weatherOverlayError && (
@@ -108,6 +138,28 @@ const styles: Record<string, React.CSSProperties> = {
     width: 16,
     height: 16,
     accentColor: "#1565c0",
+  },
+  modeRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 5,
+    marginTop: 8,
+  },
+  modeBtn: {
+    border: "1px solid #cfd8dc",
+    borderRadius: 5,
+    background: "#fff",
+    color: "#424242",
+    cursor: "pointer",
+    fontSize: 11,
+    fontWeight: 800,
+    lineHeight: 1,
+    padding: "5px 7px",
+  },
+  modeBtnActive: {
+    border: "1px solid #00897b",
+    background: "#00897b",
+    color: "#fff",
   },
   layerError: {
     fontSize: 12,

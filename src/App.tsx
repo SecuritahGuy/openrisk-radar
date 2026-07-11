@@ -390,7 +390,9 @@ export default function App() {
         sourceHealth={sourceHealth}
         weatherOverlay={weatherOverlay}
         showWeatherOverlay={showWeatherOverlay}
+        weatherLayerMode={weatherLayerMode}
         onToggleWeatherOverlay={setShowWeatherOverlay}
+        onWeatherLayerModeChange={setWeatherLayerMode}
         weatherOverlayLoading={weatherOverlayLoading}
         weatherOverlayError={weatherOverlayError}
         isFetching={isFetching}

@@ -4,6 +4,7 @@ import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 import type { CurrentWeather } from "../services/weather";
 import type { NwsWeatherOverlay } from "../services/nwsWeatherOverlay";
 import type { SourceHealthItem } from "../hooks/useRiskFeeds";
+import type { WeatherLayerMode } from "../types/weatherLayer";
 import { CurrentConditionsPanel } from "./update/CurrentConditionsPanel";
 import { DataCoveragePanel } from "./update/DataCoveragePanel";
 import { FeedErrorPanel, LastCheckedPanel } from "./update/FeedStatusPanels";
@@ -32,7 +33,9 @@ interface UpdatePanelProps {
   sourceHealth: SourceHealthItem[];
   weatherOverlay: NwsWeatherOverlay | null;
   showWeatherOverlay: boolean;
+  weatherLayerMode: WeatherLayerMode;
   onToggleWeatherOverlay: (show: boolean) => void;
+  onWeatherLayerModeChange: (mode: WeatherLayerMode) => void;
   weatherOverlayLoading: boolean;
   weatherOverlayError: string | null;
   isFetching: boolean;
@@ -66,7 +69,9 @@ export function UpdatePanel({
   sourceHealth,
   weatherOverlay,
   showWeatherOverlay,
+  weatherLayerMode,
   onToggleWeatherOverlay,
+  onWeatherLayerModeChange,
   weatherOverlayLoading,
   weatherOverlayError,
   isFetching,
@@ -111,7 +116,9 @@ export function UpdatePanel({
             onRadiusChange={onRadiusChange}
             weatherOverlay={weatherOverlay}
             showWeatherOverlay={showWeatherOverlay}
+            weatherLayerMode={weatherLayerMode}
             onToggleWeatherOverlay={onToggleWeatherOverlay}
+            onWeatherLayerModeChange={onWeatherLayerModeChange}
             weatherOverlayLoading={weatherOverlayLoading}
             weatherOverlayError={weatherOverlayError}
           />
