@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Location, Criticality } from "../types/location";
 
 interface SavedLocationListProps {
@@ -26,63 +27,86 @@ export function SavedLocationList({
   onDelete,
   onUpdateLabel,
 }: SavedLocationListProps) {
+  const [collapsed, setCollapsed] = useState(false);
+
   if (savedLocations.length === 0) return null;
+
+  const activeLocation =
+    savedLocations.find((location) => location.id === activeLocationId) ?? null;
 
   return (
     <div className="saved-locations" style={styles.container}>
-      <div style={styles.header}>
+      <button
+        type="button"
+        style={styles.header}
+        onClick={() => setCollapsed((current) => !current)}
+        aria-expanded={!collapsed}
+        title={collapsed ? "Show saved locations" : "Hide saved locations"}
+      >
         <span style={styles.headerTitle}>Saved Locations</span>
+        {collapsed && activeLocation && (
+          <span style={styles.activeHint}>{activeLocation.label}</span>
+        )}
         <span style={styles.count}>{savedLocations.length}</span>
-      </div>
-      <div style={styles.list}>
-        {savedLocations.map((loc) => {
-          const isActive = loc.id === activeLocationId;
-          return (
-            <div
-              key={loc.id}
-              style={{
-                ...styles.item,
-                ...(isActive ? styles.itemActive : {}),
-              }}
-            >
-              <div style={styles.itemMain} onClick={() => onSelect(loc)}>
+        <span style={styles.chevron}>{collapsed ? "Show" : "Hide"}</span>
+      </button>
+      {!collapsed && (
+        <div style={styles.list}>
+          {savedLocations.map((loc) => {
+            const isActive = loc.id === activeLocationId;
+            return (
+              <div
+                key={loc.id}
+                style={{
+                  ...styles.item,
+                  ...(isActive ? styles.itemActive : {}),
+                }}
+              >
                 <div style={styles.itemTop}>
                   <input
                     style={styles.labelInput}
                     value={loc.label}
-                    onClick={(e) => e.stopPropagation()}
                     onChange={(e) => onUpdateLabel(loc.id, e.target.value)}
+                    aria-label={`Label for ${loc.city}, ${loc.state}`}
                   />
                   <button
+                    type="button"
                     style={styles.deleteBtn}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(loc.id);
-                    }}
-                    title="Delete"
+                    onClick={() => onDelete(loc.id)}
+                    title={`Delete ${loc.label}`}
+                    aria-label={`Delete ${loc.label}`}
                   >
                     &times;
                   </button>
                 </div>
-                <div style={styles.itemMeta}>
-                  {loc.city}, {loc.state}
-                </div>
-                <div style={styles.itemBadges}>
-                  <span
-                    style={{
-                      ...styles.badge,
-                      background: criticalityColor(loc.criticality),
-                    }}
-                  >
-                    {loc.criticality}
+                <button
+                  type="button"
+                  style={styles.itemMain}
+                  onClick={() => onSelect(loc)}
+                  aria-pressed={isActive}
+                  title={`Load ${loc.label}`}
+                >
+                  <span style={styles.itemMeta}>
+                    {loc.city}, {loc.state}
+                    {isActive ? " · Selected" : ""}
                   </span>
-                  <span style={styles.badgeOutline}>{loc.locationType}</span>
-                </div>
+                  <span style={styles.itemBadges}>
+                    <span
+                      style={{
+                        ...styles.badge,
+                        background: criticalityColor(loc.criticality),
+                      }}
+                    >
+                      {loc.criticality}
+                    </span>
+                    <span style={styles.badgeOutline}>{loc.locationType}</span>
+                  </span>
+                </button>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -95,17 +119,30 @@ const styles: Record<string, React.CSSProperties> = {
     overflowY: "auto",
   },
   header: {
+    width: "100%",
     padding: "6px 12px",
     fontSize: 11,
     fontWeight: 600,
     textTransform: "uppercase",
     color: "#757575",
+    border: "none",
     borderBottom: "1px solid #e0e0e0",
     display: "flex",
     alignItems: "center",
     gap: 8,
+    background: "#f5f7fa",
+    cursor: "pointer",
+    textAlign: "left" as const,
   },
   headerTitle: { flex: 1 },
+  activeHint: {
+    color: "#1565c0",
+    fontWeight: 800,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    textTransform: "none" as const,
+    whiteSpace: "nowrap",
+  },
   count: {
     fontSize: 11,
     background: "#e0e0e0",
@@ -114,10 +151,14 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 8,
     lineHeight: "18px",
   },
+  chevron: {
+    color: "#1565c0",
+    fontSize: 10,
+    fontWeight: 800,
+  },
   list: {},
   item: {
     padding: "6px 12px",
-    cursor: "pointer",
     borderBottom: "1px solid #f0f0f0",
     transition: "background 0.1s",
   },
@@ -125,7 +166,17 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#e3f2fd",
     borderLeft: "3px solid #1565c0",
   },
-  itemMain: {},
+  itemMain: {
+    width: "100%",
+    border: "none",
+    background: "transparent",
+    cursor: "pointer",
+    display: "grid",
+    gap: 3,
+    padding: 0,
+    textAlign: "left" as const,
+    font: "inherit",
+  },
   itemTop: {
     display: "flex",
     alignItems: "center",
