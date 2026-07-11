@@ -124,6 +124,18 @@ export function assessImpact(
     };
   }
 
+  const scope = event.raw.openRiskScope as
+    | { nwsPointMatch?: boolean }
+    | undefined;
+  if (event.source === "NWS" && scope?.nwsPointMatch) {
+    return {
+      level: "affects",
+      label: "Affects area",
+      detail: "NWS point alert includes this location",
+      sortRank: 4,
+    };
+  }
+
   const miles = distanceMiles(location, event);
   if (miles != null && miles <= radius) {
     return {

@@ -55,7 +55,7 @@ interface NwsResponse {
   features: NwsFeature[];
 }
 
-function normalize(feature: NwsFeature): RiskEvent {
+function normalize(feature: NwsFeature, pointMatch = false): RiskEvent {
   const p = feature.properties;
   const poly = parsePolygon(p.polygon);
   const [lng, lat] = poly && poly.length > 0
@@ -80,7 +80,10 @@ function normalize(feature: NwsFeature): RiskEvent {
     updatedAt: p.sent,
     url: feature.id,
     confidence: "Source reported",
-    raw: feature as unknown as Record<string, unknown>,
+    raw: {
+      ...feature,
+      openRiskScope: { nwsPointMatch: pointMatch },
+    } as unknown as Record<string, unknown>,
   };
 }
 
@@ -91,5 +94,18 @@ export async function fetchNwsAlerts(state: string): Promise<RiskEvent[]> {
   });
   if (!res.ok) throw new Error(`NWS API returned ${res.status}`);
   const data: NwsResponse = await res.json();
-  return (data.features ?? []).map(normalize);
+  return (data.features ?? []).map((feature) => normalize(feature));
+}
+
+export async function fetchNwsAlertsForPoint(
+  latitude: number,
+  longitude: number
+): Promise<RiskEvent[]> {
+  const url = `${BASE}/alerts/active?point=${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+  const res = await fetch(url, {
+    headers: { Accept: "application/geo+json" },
+  });
+  if (!res.ok) throw new Error(`NWS point API returned ${res.status}`);
+  const data: NwsResponse = await res.json();
+  return (data.features ?? []).map((feature) => normalize(feature, true));
 }

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { RiskEvent } from "../types/riskEvent";
 import type { EventCategory, EventSource, GeometryType } from "../types/riskEvent";
 import type { ResolvedLocation, RadiusOption } from "../types/location";
-import { fetchNwsAlerts } from "../services/nws";
+import { fetchNwsAlerts, fetchNwsAlertsForPoint } from "../services/nws";
 import { fetchEarthquakes } from "../services/usgs";
 import { fetchFemaDeclarations } from "../services/fema";
 import { fetchWildfires } from "../services/nifc";
@@ -25,6 +25,7 @@ import { fetchNearbyVolcanoes } from "../services/usgsVolcanoes";
 import { fetchDroughtAtPoint } from "../services/drought";
 import { fetchSwpcConditions } from "../services/swpc";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
+import { isCurrentImpact } from "../lib/impactInsights";
 
 interface UseRiskFeedsResult {
   weatherAlerts: RiskEvent[];
@@ -239,6 +240,15 @@ export function useRiskFeeds(
     retry: 2,
   });
 
+  const nwsPointQuery = useQuery<RiskEvent[]>({
+    queryKey: ["nws-alerts-point", location?.latitude, location?.longitude],
+    queryFn: () =>
+      fetchNwsAlertsForPoint(location!.latitude, location!.longitude),
+    enabled: !!location,
+    staleTime: 60_000,
+    retry: 2,
+  });
+
   const radiusKm = toRadiusKm(radius);
   const usgsQuery = useQuery<RiskEvent[]>({
     queryKey: ["usgs-quakes", location?.latitude, location?.longitude, radiusKm],
@@ -434,7 +444,23 @@ export function useRiskFeeds(
     retry: 1,
   });
 
-  const weatherAlerts = nwsQuery.data ?? EMPTY_EVENTS;
+  const statewideWeatherAlerts = nwsQuery.data ?? EMPTY_EVENTS;
+  const pointWeatherAlerts = nwsPointQuery.data ?? EMPTY_EVENTS;
+  const weatherAlerts = useMemo(
+    () => {
+      const scoped = new Map<string, RiskEvent>();
+      for (const event of pointWeatherAlerts) {
+        scoped.set(event.sourceEventId, event);
+      }
+      for (const event of statewideWeatherAlerts) {
+        if (isCurrentImpact(event, location, radius)) {
+          scoped.set(event.sourceEventId, event);
+        }
+      }
+      return [...scoped.values()];
+    },
+    [location, pointWeatherAlerts, radius, statewideWeatherAlerts]
+  );
   const earthquakes = usgsQuery.data ?? EMPTY_EVENTS;
   const femaDeclarations = femaQuery.data ?? EMPTY_EVENTS;
   const wildfires = nifcQuery.data ?? EMPTY_EVENTS;
@@ -501,12 +527,13 @@ export function useRiskFeeds(
       supplementalEvents,
     ]
   );
-  const isFetching = nwsQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || airNowQuery.isFetching || marineQuery.isFetching || riverQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || airNowQuery.isLoading || marineQuery.isLoading || riverQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
-  const isError = nwsQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || weatherQuery.isError || airQualityQuery.isError || airNowQuery.isError || marineQuery.isError || riverQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
+  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || airNowQuery.isFetching || marineQuery.isFetching || riverQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || airNowQuery.isLoading || marineQuery.isLoading || riverQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
+  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || weatherQuery.isError || airQualityQuery.isError || airNowQuery.isError || marineQuery.isError || riverQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
+  if (nwsPointQuery.error) errors.push(`NWS Point: ${nwsPointQuery.error.message}`);
   if (usgsQuery.error) errors.push(`USGS: ${usgsQuery.error.message}`);
   if (femaQuery.error) errors.push(`FEMA: ${femaQuery.error.message}`);
   if (nifcQuery.error) errors.push(`NIFC: ${nifcQuery.error.message}`);
@@ -529,12 +556,14 @@ export function useRiskFeeds(
       id: "nws",
       label: "NWS Alerts",
       enabled: locationEnabled,
-      isLoading: nwsQuery.isLoading,
-      isFetching: nwsQuery.isFetching,
-      error: errorMessage(nwsQuery.error),
+      isLoading: nwsQuery.isLoading || nwsPointQuery.isLoading,
+      isFetching: nwsQuery.isFetching || nwsPointQuery.isFetching,
+      error: [errorMessage(nwsQuery.error), errorMessage(nwsPointQuery.error)]
+        .filter((message): message is string => message != null)
+        .join("; ") || null,
       count: weatherAlerts.length,
-      liveDetail: `${weatherAlerts.length} active alert${weatherAlerts.length !== 1 ? "s" : ""}.`,
-      emptyDetail: "No active weather alerts for the selected state.",
+      liveDetail: `${weatherAlerts.length} active alert${weatherAlerts.length !== 1 ? "s" : ""} affecting or near this location.`,
+      emptyDetail: "No active weather alerts matched this location and radius.",
     }),
     queryHealth({
       id: "usgs",
@@ -750,6 +779,7 @@ export function useRiskFeeds(
     error: errors.length > 0 ? errors.join("; ") : null,
     refetch: () => {
       nwsQuery.refetch();
+      nwsPointQuery.refetch();
       usgsQuery.refetch();
       femaQuery.refetch();
       nifcQuery.refetch();
