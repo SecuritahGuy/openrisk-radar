@@ -44,6 +44,8 @@ interface MapViewProps {
   weatherOverlay: NwsWeatherOverlay | null;
   showWeatherOverlay: boolean;
   weatherLayerMode: WeatherLayerMode;
+  weatherOverlayLoading: boolean;
+  weatherOverlayError: string | null;
   sourceFilters: SourceFilters;
   severityFilters: SeverityFilters;
   currentImpactOnly: boolean;
@@ -399,6 +401,83 @@ function MapControlPanel({
   );
 }
 
+function weatherModeLabel(mode: WeatherLayerMode): string {
+  return (
+    WEATHER_LAYER_OPTIONS.find((option) => option.mode === mode)?.label ?? "Weather"
+  );
+}
+
+function weatherOverlaySummary(
+  overlay: NwsWeatherOverlay | null,
+  mode: WeatherLayerMode
+): string {
+  if (!overlay) return "Waiting for NWS grid data";
+  const grid = overlay.gridCell;
+  if (mode === "precip") {
+    return `Precip ${grid.precipitationChance ?? "n/a"}% · ${grid.shortForecast}`;
+  }
+  if (mode === "thunder") {
+    return `Thunder ${grid.thunderChance ?? "n/a"}% · ${grid.shortForecast}`;
+  }
+  if (mode === "heat") {
+    return `Heat risk ${grid.heatRisk ?? "n/a"} · ${grid.temperature}F`;
+  }
+  if (mode === "wind") {
+    return `Wind ${grid.windSpeed} ${grid.windDirection} · ${overlay.stations.length} stations`;
+  }
+  if (mode === "stations") {
+    return `${overlay.stations.length} nearby station observation${overlay.stations.length !== 1 ? "s" : ""}`;
+  }
+  return `${grid.shortForecast} · ${grid.temperature}F · ${overlay.stations.length} stations`;
+}
+
+function WeatherOverlayStatus({
+  visible,
+  overlay,
+  mode,
+  loading,
+  error,
+  onClose,
+}: {
+  visible: boolean;
+  overlay: NwsWeatherOverlay | null;
+  mode: WeatherLayerMode;
+  loading: boolean;
+  error: string | null;
+  onClose: () => void;
+}) {
+  if (!visible) return null;
+
+  return (
+    <div className="weather-overlay-status" style={styles.weatherStatus}>
+      <div style={styles.weatherStatusTop}>
+        <span style={styles.weatherStatusLabel}>NWS {weatherModeLabel(mode)}</span>
+        <button
+          type="button"
+          style={styles.weatherStatusClose}
+          onClick={onClose}
+          aria-label="Hide NWS weather overlay"
+          title="Hide NWS weather overlay"
+        >
+          &times;
+        </button>
+      </div>
+      <div style={error ? styles.weatherStatusError : styles.weatherStatusDetail}>
+        {error
+          ? error
+          : loading
+            ? "Loading NWS weather overlay..."
+            : weatherOverlaySummary(overlay, mode)}
+      </div>
+      {overlay && !error && (
+        <div style={styles.weatherStatusMeta}>
+          Grid {overlay.gridCell.gridId} {overlay.gridCell.gridX},{overlay.gridCell.gridY}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function MapView({
   location,
   radius,
@@ -406,6 +485,8 @@ export function MapView({
   weatherOverlay,
   showWeatherOverlay,
   weatherLayerMode,
+  weatherOverlayLoading,
+  weatherOverlayError,
   sourceFilters,
   severityFilters,
   currentImpactOnly,
@@ -567,6 +648,14 @@ export function MapView({
           {mapSearchLoading ? "Searching area..." : "Search this area"}
         </button>
       )}
+      <WeatherOverlayStatus
+        visible={showWeatherOverlay}
+        overlay={weatherOverlay}
+        mode={weatherLayerMode}
+        loading={weatherOverlayLoading}
+        error={weatherOverlayError}
+        onClose={() => onToggleWeatherOverlay(false)}
+      />
     </div>
   );
 }
@@ -727,6 +816,60 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "8px 14px",
     boxShadow: "0 3px 12px rgba(0,0,0,0.18)",
     cursor: "pointer",
+  },
+  weatherStatus: {
+    position: "absolute",
+    left: 12,
+    bottom: 14,
+    zIndex: 1000,
+    width: 290,
+    border: "1px solid #d7e3ec",
+    borderRadius: 8,
+    background: "rgba(255,255,255,0.94)",
+    boxShadow: "0 2px 10px rgba(15,23,42,0.16)",
+    padding: "9px 10px",
+    fontFamily: "system-ui, sans-serif",
+  },
+  weatherStatusTop: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  weatherStatusLabel: {
+    color: "#1565c0",
+    fontSize: 11,
+    fontWeight: 900,
+    textTransform: "uppercase",
+  },
+  weatherStatusClose: {
+    border: "none",
+    background: "transparent",
+    color: "#607d8b",
+    cursor: "pointer",
+    fontSize: 18,
+    fontWeight: 800,
+    lineHeight: 1,
+    padding: 0,
+  },
+  weatherStatusDetail: {
+    color: "#263238",
+    fontSize: 12,
+    fontWeight: 700,
+    lineHeight: 1.35,
+    marginTop: 4,
+  },
+  weatherStatusError: {
+    color: "#c62828",
+    fontSize: 12,
+    fontWeight: 700,
+    lineHeight: 1.35,
+    marginTop: 4,
+  },
+  weatherStatusMeta: {
+    color: "#607d8b",
+    fontSize: 11,
+    marginTop: 4,
   },
   clickPopup: {
     minWidth: 180,

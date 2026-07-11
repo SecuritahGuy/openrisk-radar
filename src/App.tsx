@@ -347,6 +347,8 @@ export default function App() {
           weatherOverlay={weatherOverlay}
           showWeatherOverlay={showWeatherOverlay}
           weatherLayerMode={weatherLayerMode}
+          weatherOverlayLoading={weatherOverlayLoading}
+          weatherOverlayError={weatherOverlayError}
           sourceFilters={sourceFilters}
           severityFilters={severityFilters}
           currentImpactOnly={currentImpactOnly}

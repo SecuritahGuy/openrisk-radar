@@ -208,6 +208,14 @@ body {
     font-size: 10px !important;
   }
 
+  .weather-overlay-status {
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+
   .saved-locations {
     max-height: 150px !important;
   }
