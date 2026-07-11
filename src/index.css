@@ -215,7 +215,7 @@ body {
   .feed-explorer {
     flex: 0 0 auto;
     max-height: none !important;
-    overflow-x: auto !important;
+    overflow-x: hidden !important;
     overflow-y: auto !important;
   }
 
@@ -230,11 +230,11 @@ body {
   }
 
   .feed-table {
-    min-width: 920px;
+    display: none !important;
   }
 
-  .feed-table-row {
-    min-width: 920px;
+  .feed-card-list {
+    display: grid !important;
   }
 
   .update-panel {

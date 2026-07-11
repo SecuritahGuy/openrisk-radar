@@ -91,7 +91,7 @@ export function FeedExplorer({
   onEventClick,
 }: FeedExplorerProps) {
   const [sortState, setSortState] = useState<SortState>({
-    key: "priority",
+    key: "updated",
     direction: "desc",
   });
 
@@ -227,112 +227,155 @@ export function FeedExplorer({
             : "No events found for this location."}
         </div>
       ) : (
-        <div className="feed-table" style={styles.table}>
-          <div className="feed-table-row feed-table-header" style={styles.tableHeader}>
-            <ColumnHeader
-              label="Source"
-              sortKey="source"
-              sortState={sortState}
-              style={styles.colSource}
-              onSort={updateSort}
-            />
-            <ColumnHeader
-              label="Type"
-              sortKey="type"
-              sortState={sortState}
-              style={styles.colType}
-              onSort={updateSort}
-            />
-            <ColumnHeader
-              label="Category"
-              sortKey="category"
-              sortState={sortState}
-              style={styles.colCategory}
-              onSort={updateSort}
-            />
-            <ColumnHeader
-              label="Severity"
-              sortKey="severity"
-              sortState={sortState}
-              style={styles.colSeverity}
-              onSort={updateSort}
-            />
-            <ColumnHeader
-              label="Impact"
-              sortKey="impact"
-              sortState={sortState}
-              style={styles.colImpact}
-              onSort={updateSort}
-            />
-            <ColumnHeader
-              label="Headline"
-              sortKey="headline"
-              sortState={sortState}
-              style={styles.colHeadline}
-              onSort={updateSort}
-            />
-            <ColumnHeader
-              label="Distance"
-              sortKey="distance"
-              sortState={sortState}
-              style={styles.colDistance}
-              onSort={updateSort}
-            />
-            <ColumnHeader
-              label="Expires"
-              sortKey="expires"
-              sortState={sortState}
-              style={styles.colExpires}
-              onSort={updateSort}
-            />
-            <ColumnHeader
-              label="Updated"
-              sortKey="updated"
-              sortState={sortState}
-              style={styles.colTime}
-              onSort={updateSort}
-            />
-          </div>
-          {sortedEvents.map((evt) => (
-            <button
-              key={evt.id}
-              type="button"
-              className="feed-table-row"
-              style={styles.row}
-              onPointerDown={(event) => {
-                if (event.button !== 0) return;
-                onEventClick?.(evt);
-              }}
-              onClick={() => onEventClick?.(evt)}
-              title="Click for details"
+        <>
+          <div className="feed-table" style={styles.table}>
+            <div
+              className="feed-table-row feed-table-header"
+              style={styles.tableHeader}
             >
-              <span style={styles.colSource}>
-                <span
-                  style={{
-                    ...styles.badge,
-                    background: sourceColor(evt.source),
-                  }}
-                >
-                  {evt.source}
+              <ColumnHeader
+                label="Source"
+                sortKey="source"
+                sortState={sortState}
+                style={styles.colSource}
+                onSort={updateSort}
+              />
+              <ColumnHeader
+                label="Type"
+                sortKey="type"
+                sortState={sortState}
+                style={styles.colType}
+                onSort={updateSort}
+              />
+              <ColumnHeader
+                label="Category"
+                sortKey="category"
+                sortState={sortState}
+                style={styles.colCategory}
+                onSort={updateSort}
+              />
+              <ColumnHeader
+                label="Severity"
+                sortKey="severity"
+                sortState={sortState}
+                style={styles.colSeverity}
+                onSort={updateSort}
+              />
+              <ColumnHeader
+                label="Impact"
+                sortKey="impact"
+                sortState={sortState}
+                style={styles.colImpact}
+                onSort={updateSort}
+              />
+              <ColumnHeader
+                label="Headline"
+                sortKey="headline"
+                sortState={sortState}
+                style={styles.colHeadline}
+                onSort={updateSort}
+              />
+              <ColumnHeader
+                label="Distance"
+                sortKey="distance"
+                sortState={sortState}
+                style={styles.colDistance}
+                onSort={updateSort}
+              />
+              <ColumnHeader
+                label="Expires"
+                sortKey="expires"
+                sortState={sortState}
+                style={styles.colExpires}
+                onSort={updateSort}
+              />
+              <ColumnHeader
+                label="Updated"
+                sortKey="updated"
+                sortState={sortState}
+                style={styles.colTime}
+                onSort={updateSort}
+              />
+            </div>
+            {sortedEvents.map((evt) => (
+              <button
+                key={evt.id}
+                type="button"
+                className="feed-table-row"
+                style={styles.row}
+                onPointerDown={(event) => {
+                  if (event.button !== 0) return;
+                  onEventClick?.(evt);
+                }}
+                onClick={() => onEventClick?.(evt)}
+                title="Click for details"
+              >
+                <span style={styles.colSource}>
+                  <span
+                    style={{
+                      ...styles.badge,
+                      background: sourceColor(evt.source),
+                    }}
+                  >
+                    {evt.source}
+                  </span>
                 </span>
-              </span>
-              <span style={styles.colType}>{evt.type}</span>
-              <span style={styles.colCategory}>{evt.category}</span>
-              <span style={styles.colSeverity}>
-                <SeverityBadge severity={evt.severity} />
-              </span>
-              <span style={styles.colImpact}>
-                <ImpactBadge event={evt} location={location} radius={radius} />
-              </span>
-              <span style={styles.colHeadline}>{evt.headline}</span>
-              <span style={styles.colDistance}>
-                {formatDistance(distanceMiles(location, evt))}
-              </span>
-              <span style={styles.colExpires}>{expiresLabel(evt)}</span>
-              <span style={styles.colTime}>{timeAgo(evt.updatedAt)}</span>
-            </button>
-          ))}
-        </div>
+                <span style={styles.colType}>{evt.type}</span>
+                <span style={styles.colCategory}>{evt.category}</span>
+                <span style={styles.colSeverity}>
+                  <SeverityBadge severity={evt.severity} />
+                </span>
+                <span style={styles.colImpact}>
+                  <ImpactBadge
+                    event={evt}
+                    location={location}
+                    radius={radius}
+                  />
+                </span>
+                <span style={styles.colHeadline}>{evt.headline}</span>
+                <span style={styles.colDistance}>
+                  {formatDistance(distanceMiles(location, evt))}
+                </span>
+                <span style={styles.colExpires}>{expiresLabel(evt)}</span>
+                <span style={styles.colTime}>{timeAgo(evt.updatedAt)}</span>
+              </button>
+            ))}
+          </div>
+          <div className="feed-card-list" style={styles.cardList}>
+            {sortedEvents.map((evt) => (
+              <button
+                key={`card-${evt.id}`}
+                type="button"
+                className="feed-card"
+                style={styles.card}
+                onClick={() => onEventClick?.(evt)}
+                title="Click for details"
+              >
+                <span style={styles.cardTop}>
+                  <span
+                    style={{
+                      ...styles.badge,
+                      background: sourceColor(evt.source),
+                    }}
+                  >
+                    {evt.source}
+                  </span>
+                  <SeverityBadge severity={evt.severity} />
+                  <ImpactBadge event={evt} location={location} radius={radius} />
+                </span>
+                <span style={styles.cardTitle}>{evt.headline}</span>
+                <span style={styles.cardMeta}>
+                  {evt.type} / {evt.category}
+                </span>
+                <span style={styles.cardFooter}>
+                  <span>{formatDistance(distanceMiles(location, evt))}</span>
+                  <span>{expiresLabel(evt)}</span>
+                  <span>{timeAgo(evt.updatedAt)}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
@@ -527,6 +570,53 @@ const styles: Record<string, React.CSSProperties> = {
     transition: "background 0.1s",
     font: "inherit",
     textAlign: "left" as const,
+  },
+  cardList: {
+    display: "none",
+    gap: 8,
+    padding: 10,
+  },
+  card: {
+    border: "1px solid #dfe7ef",
+    borderRadius: 8,
+    background: "#fff",
+    boxShadow: "0 1px 4px rgba(15, 23, 42, 0.06)",
+    color: "#374151",
+    cursor: "pointer",
+    display: "grid",
+    gap: 6,
+    padding: 10,
+    textAlign: "left" as const,
+    width: "100%",
+    font: "inherit",
+  },
+  cardTop: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap" as const,
+    gap: 6,
+    minWidth: 0,
+  },
+  cardTitle: {
+    color: "#263238",
+    fontSize: 13,
+    fontWeight: 700,
+    lineHeight: 1.3,
+    overflowWrap: "anywhere" as const,
+  },
+  cardMeta: {
+    color: "#607d8b",
+    fontSize: 11,
+    fontWeight: 700,
+    textTransform: "uppercase" as const,
+  },
+  cardFooter: {
+    color: "#64748b",
+    display: "flex",
+    flexWrap: "wrap" as const,
+    fontSize: 11,
+    fontWeight: 600,
+    gap: 8,
   },
   colSource: { width: 60 },
   colType: { width: 120 },
