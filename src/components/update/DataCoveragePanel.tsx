@@ -1,4 +1,8 @@
-import type { SourceHealthItem, SourceHealthStatus } from "../../hooks/useRiskFeeds";
+import { useState } from "react";
+import type {
+  SourceHealthItem,
+  SourceHealthStatus,
+} from "../../hooks/useRiskFeeds";
 
 interface DataCoveragePanelProps {
   items: SourceHealthItem[];
@@ -38,11 +42,48 @@ function statusColor(status: SourceHealthStatus): string {
   }
 }
 
+function statusRank(status: SourceHealthStatus): number {
+  switch (status) {
+    case "error":
+      return 0;
+    case "unavailable":
+      return 1;
+    case "loading":
+      return 2;
+    case "disabled":
+      return 3;
+    case "live":
+      return 4;
+    case "empty":
+      return 5;
+  }
+}
+
 export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
+  const [showAll, setShowAll] = useState(false);
   const liveCount = items.filter((item) => item.status === "live").length;
+  const loadingCount = items.filter((item) => item.status === "loading").length;
+  const unavailableCount = items.filter(
+    (item) => item.status === "unavailable"
+  ).length;
+  const errorCount = items.filter((item) => item.status === "error").length;
   const issueCount = items.filter(
     (item) => item.status === "error" || item.status === "unavailable"
   ).length;
+  const sortedItems = [...items].sort((a, b) => {
+    const statusDelta = statusRank(a.status) - statusRank(b.status);
+    if (statusDelta !== 0) return statusDelta;
+    return a.label.localeCompare(b.label);
+  });
+  const priorityItems = sortedItems.filter(
+    (item) =>
+      item.status === "error" ||
+      item.status === "unavailable" ||
+      item.status === "loading"
+  );
+  const visibleItems =
+    showAll || priorityItems.length === 0 ? sortedItems : priorityItems;
+  const hiddenCount = sortedItems.length - visibleItems.length;
 
   return (
     <div style={styles.section}>
@@ -54,9 +95,26 @@ export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
             {issueCount > 0 ? ` · ${issueCount} unavailable or errored` : ""}
           </div>
         </div>
+        <div style={styles.summaryPills} aria-label="Source health summary">
+          {errorCount > 0 && (
+            <span style={{ ...styles.summaryPill, color: "#c62828" }}>
+              {errorCount} error{errorCount !== 1 ? "s" : ""}
+            </span>
+          )}
+          {unavailableCount > 0 && (
+            <span style={{ ...styles.summaryPill, color: "#8d6e63" }}>
+              {unavailableCount} unwired
+            </span>
+          )}
+          {loadingCount > 0 && (
+            <span style={{ ...styles.summaryPill, color: "#1565c0" }}>
+              {loadingCount} checking
+            </span>
+          )}
+        </div>
       </div>
       <div style={styles.list}>
-        {items.map((item) => {
+        {visibleItems.map((item) => {
           const color = statusColor(item.status);
           return (
             <div key={item.id} style={styles.row}>
@@ -82,6 +140,27 @@ export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
             </div>
           );
         })}
+        {hiddenCount > 0 && (
+          <button
+            type="button"
+            style={styles.showAllButton}
+            onClick={() => setShowAll(true)}
+            aria-expanded={showAll}
+          >
+            Show {hiddenCount} healthy or quiet source
+            {hiddenCount !== 1 ? "s" : ""}
+          </button>
+        )}
+        {showAll && priorityItems.length > 0 && (
+          <button
+            type="button"
+            style={styles.showAllButton}
+            onClick={() => setShowAll(false)}
+            aria-expanded={showAll}
+          >
+            Show attention sources only
+          </button>
+        )}
       </div>
     </div>
   );
@@ -102,6 +181,22 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "space-between",
     gap: 8,
     alignItems: "flex-start",
+  },
+  summaryPills: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    gap: 5,
+    justifyContent: "flex-end",
+    maxWidth: 150,
+  },
+  summaryPill: {
+    background: "#f7f9fb",
+    border: "1px solid #e0e7ef",
+    borderRadius: 999,
+    fontSize: 10,
+    fontWeight: 800,
+    padding: "2px 6px",
+    whiteSpace: "nowrap",
   },
   list: {
     marginTop: 8,
@@ -146,5 +241,17 @@ const styles: Record<string, React.CSSProperties> = {
     marginRight: 5,
     color: "#263238",
     fontWeight: 800,
+  },
+  showAllButton: {
+    width: "100%",
+    border: "none",
+    borderTop: "1px solid #eceff1",
+    background: "#f7f9fb",
+    color: "#1565c0",
+    cursor: "pointer",
+    fontSize: 12,
+    fontWeight: 800,
+    padding: "9px",
+    textAlign: "center" as const,
   },
 };
