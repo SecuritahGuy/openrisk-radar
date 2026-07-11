@@ -36,12 +36,44 @@ export function SearchBar({
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder='e.g. 60543 or Chicago, IL'
           style={styles.input}
+          aria-label="Search by ZIP code or city"
+          aria-describedby={error || loading ? "search-status" : undefined}
         />
-        <button type="submit" style={styles.button} disabled={loading || !query.trim()}>
+        {query.trim() && (
+          <button
+            type="button"
+            style={styles.clearButton}
+            onClick={() => {
+              onQueryChange("");
+              inputRef.current?.focus();
+            }}
+            disabled={loading}
+            aria-label="Clear search"
+            title="Clear search"
+          >
+            &times;
+          </button>
+        )}
+        <button
+          type="submit"
+          style={{
+            ...styles.button,
+            ...(loading || !query.trim() ? styles.buttonDisabled : {}),
+          }}
+          disabled={loading || !query.trim()}
+        >
           {loading ? "Searching..." : "Search"}
         </button>
       </form>
-      {error && <div style={styles.error}>{error}</div>}
+      {(loading || error) && (
+        <div
+          id="search-status"
+          style={error ? styles.error : styles.status}
+          role={error ? "alert" : "status"}
+        >
+          {error ?? "Resolving location and loading nearby feeds..."}
+        </div>
+      )}
     </div>
   );
 }
@@ -55,6 +87,7 @@ const styles: Record<string, React.CSSProperties> = {
   form: {
     display: "flex",
     gap: 8,
+    alignItems: "stretch",
   },
   input: {
     flex: 1,
@@ -63,6 +96,18 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #ccc",
     borderRadius: 6,
     outline: "none",
+    minWidth: 0,
+  },
+  clearButton: {
+    width: 36,
+    border: "1px solid #cfd8dc",
+    borderRadius: 6,
+    background: "#fff",
+    color: "#607d8b",
+    cursor: "pointer",
+    fontSize: 18,
+    fontWeight: 700,
+    lineHeight: 1,
   },
   button: {
     padding: "8px 16px",
@@ -73,6 +118,15 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 6,
     cursor: "pointer",
     fontWeight: 600,
+  },
+  buttonDisabled: {
+    background: "#90a4ae",
+    cursor: "not-allowed",
+  },
+  status: {
+    marginTop: 6,
+    color: "#1565c0",
+    fontSize: 13,
   },
   error: {
     marginTop: 6,

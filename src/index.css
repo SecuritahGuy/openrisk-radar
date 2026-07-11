@@ -111,11 +111,11 @@ body {
   }
 
   .search-form input {
-    flex-basis: 100%;
+    flex: 1 1 calc(100% - 44px) !important;
     min-width: 0;
   }
 
-  .search-form button {
+  .search-form button[type="submit"] {
     width: 100%;
   }
 
