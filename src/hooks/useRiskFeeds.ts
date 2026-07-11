@@ -25,7 +25,7 @@ import { fetchNearbyVolcanoes } from "../services/usgsVolcanoes";
 import { fetchDroughtAtPoint } from "../services/drought";
 import { fetchSwpcConditions } from "../services/swpc";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
-import { isCurrentImpact } from "../lib/impactInsights";
+import { scopedNwsAlerts } from "../lib/nwsAlertScope";
 
 interface UseRiskFeedsResult {
   weatherAlerts: RiskEvent[];
@@ -447,18 +447,13 @@ export function useRiskFeeds(
   const statewideWeatherAlerts = nwsQuery.data ?? EMPTY_EVENTS;
   const pointWeatherAlerts = nwsPointQuery.data ?? EMPTY_EVENTS;
   const weatherAlerts = useMemo(
-    () => {
-      const scoped = new Map<string, RiskEvent>();
-      for (const event of pointWeatherAlerts) {
-        scoped.set(event.sourceEventId, event);
-      }
-      for (const event of statewideWeatherAlerts) {
-        if (isCurrentImpact(event, location, radius)) {
-          scoped.set(event.sourceEventId, event);
-        }
-      }
-      return [...scoped.values()];
-    },
+    () =>
+      scopedNwsAlerts({
+        pointAlerts: pointWeatherAlerts,
+        statewideAlerts: statewideWeatherAlerts,
+        location,
+        radius,
+      }),
     [location, pointWeatherAlerts, radius, statewideWeatherAlerts]
   );
   const earthquakes = usgsQuery.data ?? EMPTY_EVENTS;
