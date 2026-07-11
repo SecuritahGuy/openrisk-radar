@@ -1,3 +1,5 @@
+import type { WeatherLayerMode } from "../types/weatherLayer";
+
 interface LegendItem {
   label: string;
   color: string;
@@ -22,12 +24,55 @@ const ITEMS: LegendItem[] = [
   { label: "Radius ring", color: "#1565c0", shape: "diamond" },
 ];
 
-const WEATHER_ITEMS: LegendItem[] = [
-  { label: "NWS grid", color: "#00897b", shape: "square" },
+const WEATHER_ZONE_ITEMS: LegendItem[] = [
   { label: "Forecast zone", color: "#6a1b9a", shape: "diamond" },
   { label: "Fire weather zone", color: "#d84315", shape: "diamond" },
-  { label: "Station observation", color: "#2e7d32", shape: "circle" },
 ];
+
+function weatherModeItems(mode: WeatherLayerMode): LegendItem[] {
+  if (mode === "precip") {
+    return [
+      { label: "Precip >=80%", color: "#0d47a1", shape: "square" },
+      { label: "Precip 40-79%", color: "#0288d1", shape: "square" },
+      { label: "Precip <40%", color: "#4fc3f7", shape: "square" },
+    ];
+  }
+  if (mode === "thunder") {
+    return [
+      { label: "Thunder >=80%", color: "#6a1b9a", shape: "square" },
+      { label: "Thunder 40-79%", color: "#ab47bc", shape: "square" },
+      { label: "Thunder <40%", color: "#ce93d8", shape: "square" },
+    ];
+  }
+  if (mode === "heat") {
+    return [
+      { label: "Heat risk 4+", color: "#7f0000", shape: "square" },
+      { label: "Heat risk 2-3", color: "#ef6c00", shape: "square" },
+      { label: "Heat risk 0-1", color: "#2e7d32", shape: "square" },
+    ];
+  }
+  if (mode === "wind") {
+    return [
+      { label: "Wind >=25 mph", color: "#c62828", shape: "square" },
+      { label: "Wind 8-24 mph", color: "#0277bd", shape: "square" },
+      { label: "Wind <8 mph", color: "#2e7d32", shape: "square" },
+      { label: "Station wind", color: "#0277bd", shape: "circle" },
+    ];
+  }
+  if (mode === "stations") {
+    return [
+      { label: "NWS station", color: "#2e7d32", shape: "circle" },
+      { label: "Cool station", color: "#1565c0", shape: "circle" },
+      { label: "Hot station", color: "#d84315", shape: "circle" },
+    ];
+  }
+  return [
+    { label: "Temp >=90F", color: "#d84315", shape: "square" },
+    { label: "Temp 50-89F", color: "#2e7d32", shape: "square" },
+    { label: "Temp <50F", color: "#1565c0", shape: "square" },
+    { label: "Station temp", color: "#2e7d32", shape: "circle" },
+  ];
+}
 
 function Shape({ item }: { item: LegendItem }) {
   const style: React.CSSProperties = {
@@ -70,8 +115,16 @@ function Shape({ item }: { item: LegendItem }) {
   );
 }
 
-export function MapLegend({ showWeatherOverlay }: { showWeatherOverlay: boolean }) {
-  const items = showWeatherOverlay ? [...ITEMS, ...WEATHER_ITEMS] : ITEMS;
+export function MapLegend({
+  showWeatherOverlay,
+  weatherLayerMode,
+}: {
+  showWeatherOverlay: boolean;
+  weatherLayerMode: WeatherLayerMode;
+}) {
+  const items = showWeatherOverlay
+    ? [...ITEMS, ...weatherModeItems(weatherLayerMode), ...WEATHER_ZONE_ITEMS]
+    : ITEMS;
 
   return (
     <div className="map-legend" style={styles.legend}>

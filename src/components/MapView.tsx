@@ -642,7 +642,10 @@ export function MapView({
           visible={showWeatherOverlay}
           mode={weatherLayerMode}
         />
-        <MapLegend showWeatherOverlay={showWeatherOverlay} />
+        <MapLegend
+          showWeatherOverlay={showWeatherOverlay}
+          weatherLayerMode={weatherLayerMode}
+        />
       </MapContainer>
       <MapControlPanel
         collapsed={controlsCollapsed}
