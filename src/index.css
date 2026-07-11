@@ -247,6 +247,15 @@ body {
     flex-basis: 100%;
   }
 
+  .feed-summary-bar {
+    grid-template-columns: 1fr 1fr !important;
+    align-items: start !important;
+  }
+
+  .feed-summary-bar > div:nth-child(n + 3) {
+    grid-column: 1 / -1;
+  }
+
   .feed-table {
     display: none !important;
   }

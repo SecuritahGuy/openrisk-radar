@@ -3,6 +3,8 @@ import type { ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import {
   distanceMiles,
+  EVENT_SEVERITIES,
+  EVENT_SOURCES,
   expiresLabel,
   formatDistance,
   severityColor,
@@ -50,6 +52,12 @@ type SortState = {
   direction: SortDirection;
 };
 
+interface CountChip {
+  label: string;
+  count: number;
+  color: string;
+}
+
 function expiryMinutes(event: RiskEvent): number {
   if (!event.expiresAt) return Number.POSITIVE_INFINITY;
   const value = new Date(event.expiresAt).getTime();
@@ -78,6 +86,34 @@ function compareText(a: string, b: string): number {
 
 function applyDirection(value: number, direction: SortDirection): number {
   return direction === "asc" ? value : -value;
+}
+
+function topSourceChips(events: RiskEvent[], limit = 4): CountChip[] {
+  return EVENT_SOURCES.map((source) => ({
+    label: source,
+    count: events.filter((event) => event.source === source).length,
+    color: sourceColor(source),
+  }))
+    .filter((item) => item.count > 0)
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    .slice(0, limit);
+}
+
+function severityChips(events: RiskEvent[]): CountChip[] {
+  return EVENT_SEVERITIES.map((severity) => ({
+    label: severity,
+    count: events.filter((event) => event.severity === severity).length,
+    color: severityColor(severity),
+  })).filter((item) => item.count > 0);
+}
+
+function latestUpdateLabel(events: RiskEvent[]): string {
+  const latest = events.reduce((current, event) => {
+    const value = new Date(event.updatedAt).getTime();
+    return Number.isNaN(value) ? current : Math.max(current, value);
+  }, 0);
+
+  return latest > 0 ? timeAgo(new Date(latest).toISOString()) : "unknown";
 }
 
 export function FeedExplorer({
@@ -173,6 +209,9 @@ export function FeedExplorer({
   const title = `Feed Explorer (${events.length}${
     totalEvents !== events.length ? ` of ${totalEvents}` : ""
   })`;
+  const topSources = topSourceChips(events);
+  const severities = severityChips(events);
+  const latestUpdate = latestUpdateLabel(events);
 
   return (
     <div
@@ -228,6 +267,13 @@ export function FeedExplorer({
         </div>
       ) : (
         <>
+          <FeedSummaryBar
+            eventCount={events.length}
+            totalEvents={totalEvents}
+            latestUpdate={latestUpdate}
+            topSources={topSources}
+            severities={severities}
+          />
           <div className="feed-table" style={styles.table}>
             <div
               className="feed-table-row feed-table-header"
@@ -381,6 +427,60 @@ export function FeedExplorer({
   );
 }
 
+function FeedSummaryBar({
+  eventCount,
+  totalEvents,
+  latestUpdate,
+  topSources,
+  severities,
+}: {
+  eventCount: number;
+  totalEvents: number;
+  latestUpdate: string;
+  topSources: CountChip[];
+  severities: CountChip[];
+}) {
+  return (
+    <div className="feed-summary-bar" style={styles.summaryBar}>
+      <div style={styles.summaryMetric}>
+        <span style={styles.summaryValue}>{eventCount}</span>
+        <span style={styles.summaryLabel}>
+          visible{totalEvents !== eventCount ? ` of ${totalEvents}` : ""}
+        </span>
+      </div>
+      <div style={styles.summaryMetric}>
+        <span style={styles.summaryValue}>{latestUpdate}</span>
+        <span style={styles.summaryLabel}>latest update</span>
+      </div>
+      <div style={styles.summaryChipGroup} aria-label="Visible source counts">
+        {topSources.map((item) => (
+          <CountBadge key={item.label} item={item} />
+        ))}
+      </div>
+      <div style={styles.summaryChipGroup} aria-label="Visible severity counts">
+        {severities.map((item) => (
+          <CountBadge key={item.label} item={item} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CountBadge({ item }: { item: CountChip }) {
+  return (
+    <span
+      style={{
+        ...styles.summaryChip,
+        color: item.color,
+        borderColor: `${item.color}55`,
+        background: `${item.color}12`,
+      }}
+    >
+      {item.label} {item.count}
+    </span>
+  );
+}
+
 function ColumnHeader({
   label,
   sortKey,
@@ -527,6 +627,49 @@ const styles: Record<string, React.CSSProperties> = {
     whiteSpace: "nowrap",
   },
   spinner: { fontSize: 16 },
+  summaryBar: {
+    alignItems: "center",
+    background: "#f7fafc",
+    borderBottom: "1px solid #e3e9ef",
+    color: "#455a64",
+    display: "grid",
+    gap: 8,
+    gridTemplateColumns: "auto auto minmax(160px, 1fr) minmax(150px, auto)",
+    padding: "8px 12px",
+  },
+  summaryMetric: {
+    alignItems: "baseline",
+    display: "flex",
+    gap: 5,
+    minWidth: 0,
+    whiteSpace: "nowrap",
+  },
+  summaryValue: {
+    color: "#263238",
+    fontSize: 13,
+    fontWeight: 800,
+  },
+  summaryLabel: {
+    color: "#607d8b",
+    fontSize: 11,
+    fontWeight: 700,
+    textTransform: "uppercase" as const,
+  },
+  summaryChipGroup: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    gap: 5,
+    minWidth: 0,
+  },
+  summaryChip: {
+    border: "1px solid",
+    borderRadius: 999,
+    fontSize: 10,
+    fontWeight: 800,
+    lineHeight: 1,
+    padding: "4px 7px",
+    whiteSpace: "nowrap",
+  },
   table: { fontSize: 12 },
   tableHeader: {
     display: "flex",
