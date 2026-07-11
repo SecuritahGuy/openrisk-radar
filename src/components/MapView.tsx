@@ -438,6 +438,7 @@ function WeatherOverlayStatus({
   loading,
   error,
   onClose,
+  onModeChange,
 }: {
   visible: boolean;
   overlay: NwsWeatherOverlay | null;
@@ -445,6 +446,7 @@ function WeatherOverlayStatus({
   loading: boolean;
   error: string | null;
   onClose: () => void;
+  onModeChange: (mode: WeatherLayerMode) => void;
 }) {
   if (!visible) return null;
 
@@ -474,6 +476,26 @@ function WeatherOverlayStatus({
           Grid {overlay.gridCell.gridId} {overlay.gridCell.gridX},{overlay.gridCell.gridY}
         </div>
       )}
+      <div style={styles.weatherStatusModes} aria-label="NWS overlay mode">
+        {WEATHER_LAYER_OPTIONS.map((option) => {
+          const active = option.mode === mode;
+          return (
+            <button
+              key={option.mode}
+              type="button"
+              style={{
+                ...styles.weatherStatusMode,
+                ...(active ? styles.weatherStatusModeActive : {}),
+              }}
+              onClick={() => onModeChange(option.mode)}
+              aria-pressed={active}
+              title={`Show NWS ${option.label.toLowerCase()} layer`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -655,6 +677,7 @@ export function MapView({
         loading={weatherOverlayLoading}
         error={weatherOverlayError}
         onClose={() => onToggleWeatherOverlay(false)}
+        onModeChange={onWeatherLayerModeChange}
       />
     </div>
   );
@@ -870,6 +893,28 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#607d8b",
     fontSize: 11,
     marginTop: 4,
+  },
+  weatherStatusModes: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 5,
+    marginTop: 8,
+  },
+  weatherStatusMode: {
+    border: "1px solid #cfd8dc",
+    borderRadius: 5,
+    background: "#fff",
+    color: "#424242",
+    cursor: "pointer",
+    fontSize: 11,
+    fontWeight: 800,
+    lineHeight: 1,
+    padding: "5px 7px",
+  },
+  weatherStatusModeActive: {
+    border: "1px solid #00897b",
+    background: "#00897b",
+    color: "#fff",
   },
   clickPopup: {
     minWidth: 180,
