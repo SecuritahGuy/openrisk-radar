@@ -208,6 +208,16 @@ body {
     font-size: 10px !important;
   }
 
+  .map-legend[data-expanded="true"] {
+    max-height: min(46dvh, 260px);
+    overflow-y: auto;
+  }
+
+  .map-legend-toggle {
+    max-height: none;
+    overflow: visible;
+  }
+
   .weather-overlay-status {
     left: 8px !important;
     right: 8px !important;
@@ -291,7 +301,8 @@ body {
   }
 
   .map-legend {
-    display: none;
+    bottom: 6px !important;
+    right: 6px !important;
   }
 }
 

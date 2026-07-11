@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { WeatherLayerMode } from "../types/weatherLayer";
 
 interface LegendItem {
@@ -122,19 +123,59 @@ export function MapLegend({
   showWeatherOverlay: boolean;
   weatherLayerMode: WeatherLayerMode;
 }) {
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 760px)").matches;
+  });
   const items = showWeatherOverlay
     ? [...ITEMS, ...weatherModeItems(weatherLayerMode), ...WEATHER_ZONE_ITEMS]
     : ITEMS;
 
+  if (collapsed) {
+    return (
+      <button
+        type="button"
+        className="map-legend map-legend-toggle"
+        style={{ ...styles.legend, ...styles.collapsedButton }}
+        onClick={() => setCollapsed(false)}
+        aria-expanded="false"
+        aria-controls="map-legend-list"
+        title="Show map legend"
+      >
+        Legend
+        <span style={styles.count}>{items.length}</span>
+      </button>
+    );
+  }
+
   return (
-    <div className="map-legend" style={styles.legend}>
-      <div style={styles.title}>Legend</div>
-      {items.map((item) => (
-        <div key={item.label} style={styles.row}>
-          <Shape item={item} />
-          <span style={styles.label}>{item.label}</span>
-        </div>
-      ))}
+    <div
+      className="map-legend"
+      style={styles.legend}
+      data-expanded="true"
+      id="map-legend-list"
+    >
+      <div style={styles.header}>
+        <div style={styles.title}>Legend</div>
+        <button
+          type="button"
+          style={styles.hideButton}
+          onClick={() => setCollapsed(true)}
+          aria-expanded="true"
+          aria-controls="map-legend-list"
+          title="Hide map legend"
+        >
+          Hide
+        </button>
+      </div>
+      <div style={styles.itemList}>
+        {items.map((item) => (
+          <div key={item.label} style={styles.row}>
+            <Shape item={item} />
+            <span style={styles.label}>{item.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -146,6 +187,7 @@ const styles: Record<string, React.CSSProperties> = {
     right: 12,
     zIndex: 1000,
     background: "rgba(255,255,255,0.92)",
+    border: "1px solid rgba(189, 189, 189, 0.72)",
     borderRadius: 8,
     padding: "8px 12px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
@@ -153,13 +195,54 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     lineHeight: 1.6,
   },
+  collapsedButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    color: "#424242",
+    cursor: "pointer",
+    fontWeight: 800,
+    lineHeight: 1,
+  },
+  count: {
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#e8f0fe",
+    color: "#1565c0",
+    fontSize: 10,
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 4,
+  },
   title: {
     fontWeight: 700,
     color: "#616161",
-    marginBottom: 4,
     fontSize: 10,
     textTransform: "uppercase",
     letterSpacing: 0.5,
+  },
+  hideButton: {
+    border: "1px solid #d8e0e7",
+    borderRadius: 5,
+    background: "#fff",
+    color: "#455a64",
+    cursor: "pointer",
+    fontSize: 10,
+    fontWeight: 800,
+    lineHeight: 1,
+    padding: "4px 6px",
+  },
+  itemList: {
+    display: "grid",
+    gap: 2,
   },
   row: {
     display: "flex",
