@@ -51,6 +51,8 @@ interface MapViewProps {
   currentImpactOnly: boolean;
   onToggleSource: (source: EventSource) => void;
   onToggleSeverity: (severity: Severity) => void;
+  onResetSourceFilters: () => void;
+  onResetSeverityFilters: () => void;
   onToggleWeatherOverlay: (show: boolean) => void;
   onWeatherLayerModeChange: (mode: WeatherLayerMode) => void;
   onRadiusChange: (radius: RadiusOption) => void;
@@ -238,6 +240,8 @@ function MapControlPanel({
   onCollapsedChange,
   onToggleSource,
   onToggleSeverity,
+  onResetSourceFilters,
+  onResetSeverityFilters,
   onToggleWeatherOverlay,
   onWeatherLayerModeChange,
   onRadiusChange,
@@ -251,12 +255,17 @@ function MapControlPanel({
   onCollapsedChange: (collapsed: boolean) => void;
   onToggleSource: (source: EventSource) => void;
   onToggleSeverity: (severity: Severity) => void;
+  onResetSourceFilters: () => void;
+  onResetSeverityFilters: () => void;
   onToggleWeatherOverlay: (show: boolean) => void;
   onWeatherLayerModeChange: (mode: WeatherLayerMode) => void;
   onRadiusChange: (radius: RadiusOption) => void;
 }) {
   const activeSourceCount = EVENT_SOURCES.filter(
     (source) => sourceFilters[source]
+  ).length;
+  const activeSeverityCount = EVENT_SEVERITIES.filter(
+    (severity) => severityFilters[severity]
   ).length;
 
   if (collapsed) {
@@ -271,7 +280,9 @@ function MapControlPanel({
         title="Show map filters"
       >
         Filters
-        <span style={styles.controlTabMeta}>{activeSourceCount} sources</span>
+        <span style={styles.controlTabMeta}>
+          {activeSourceCount} sources · {activeSeverityCount} severities
+        </span>
       </button>
     );
   }
@@ -296,7 +307,18 @@ function MapControlPanel({
         </button>
       </div>
       <div style={styles.controlGroup}>
-        <div style={styles.controlLabel}>Sources</div>
+        <div style={styles.controlGroupHeader}>
+          <div style={styles.controlLabel}>Sources</div>
+          <button
+            type="button"
+            style={styles.resetButton}
+            onClick={onResetSourceFilters}
+            disabled={activeSourceCount === EVENT_SOURCES.length}
+            title="Show all event sources"
+          >
+            All
+          </button>
+        </div>
         <div style={styles.chipRow}>
           {EVENT_SOURCES.map((source) => {
             const active = sourceFilters[source];
@@ -322,7 +344,18 @@ function MapControlPanel({
         </div>
       </div>
       <div style={styles.controlGroup}>
-        <div style={styles.controlLabel}>Severity</div>
+        <div style={styles.controlGroupHeader}>
+          <div style={styles.controlLabel}>Severity</div>
+          <button
+            type="button"
+            style={styles.resetButton}
+            onClick={onResetSeverityFilters}
+            disabled={activeSeverityCount === EVENT_SEVERITIES.length}
+            title="Show all severities"
+          >
+            All
+          </button>
+        </div>
         <div style={styles.chipRow}>
           {EVENT_SEVERITIES.map((severity) => {
             const active = severityFilters[severity];
@@ -514,6 +547,8 @@ export function MapView({
   currentImpactOnly,
   onToggleSource,
   onToggleSeverity,
+  onResetSourceFilters,
+  onResetSeverityFilters,
   onToggleWeatherOverlay,
   onWeatherLayerModeChange,
   onRadiusChange,
@@ -657,6 +692,8 @@ export function MapView({
         onCollapsedChange={setControlsCollapsed}
         onToggleSource={onToggleSource}
         onToggleSeverity={onToggleSeverity}
+        onResetSourceFilters={onResetSourceFilters}
+        onResetSeverityFilters={onResetSeverityFilters}
         onToggleWeatherOverlay={onToggleWeatherOverlay}
         onWeatherLayerModeChange={onWeatherLayerModeChange}
         onRadiusChange={onRadiusChange}
@@ -761,7 +798,24 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#757575",
     fontWeight: 800,
     textTransform: "uppercase",
+  },
+  controlGroupHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
     marginBottom: 4,
+  },
+  resetButton: {
+    border: "1px solid #d8e0e7",
+    borderRadius: 5,
+    background: "#fff",
+    color: "#1565c0",
+    cursor: "pointer",
+    fontSize: 10,
+    fontWeight: 900,
+    lineHeight: 1,
+    padding: "3px 6px",
   },
   chipRow: {
     display: "flex",

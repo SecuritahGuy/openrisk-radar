@@ -242,6 +242,14 @@ export default function App() {
     }));
   }, []);
 
+  const handleResetSourceFilters = useCallback(() => {
+    setSourceFilters(defaultSourceFilters());
+  }, []);
+
+  const handleResetSeverityFilters = useCallback(() => {
+    setSeverityFilters(defaultSeverityFilters());
+  }, []);
+
   const handleSelectEvent = useCallback((event: RiskEvent) => {
     setSelectedEvent(event);
   }, []);
@@ -354,6 +362,8 @@ export default function App() {
           currentImpactOnly={currentImpactOnly}
           onToggleSource={handleToggleSource}
           onToggleSeverity={handleToggleSeverity}
+          onResetSourceFilters={handleResetSourceFilters}
+          onResetSeverityFilters={handleResetSeverityFilters}
           onToggleWeatherOverlay={setShowWeatherOverlay}
           onWeatherLayerModeChange={setWeatherLayerMode}
           onRadiusChange={setRadius}
