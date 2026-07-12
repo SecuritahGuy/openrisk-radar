@@ -13,6 +13,7 @@ import { LocationActionPanel } from "./update/LocationActionPanel";
 import { LocationDetailsPanel } from "./update/LocationDetailsPanel";
 import { MapLayerControls } from "./update/MapLayerControls";
 import { SignalSummaryPanel } from "./update/SignalSummaryPanel";
+import { SituationBriefPanel } from "./update/SituationBriefPanel";
 import { UpdatePanelHeader, UpdatePanelPlaceholder } from "./update/UpdatePanelHeader";
 
 interface UpdatePanelProps {
@@ -110,6 +111,14 @@ export function UpdatePanel({
           />
 
           <CurrentConditionsPanel currentWeather={currentWeather} />
+
+          <SituationBriefPanel
+            location={location}
+            radius={radius}
+            events={allEvents}
+            currentWeather={currentWeather}
+            sourceHealth={sourceHealth}
+          />
 
           <MapLayerControls
             radius={radius}
