@@ -9,6 +9,7 @@ import {
   distanceMiles,
   expiresLabel,
   formatDistance,
+  severityColor,
   sourceColor,
 } from "../../lib/riskInsights";
 import { assessImpact } from "../../lib/impactInsights";
@@ -19,6 +20,7 @@ interface SituationBriefPanelProps {
   events: RiskEvent[];
   currentWeather: CurrentWeather | null;
   sourceHealth: SourceHealthItem[];
+  onEventClick: (event: RiskEvent) => void;
 }
 
 function timeAgo(iso: string): string {
@@ -99,13 +101,15 @@ export function SituationBriefPanel({
   events,
   currentWeather,
   sourceHealth,
+  onEventClick,
 }: SituationBriefPanelProps) {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">(
     "idle"
   );
   const risk = buildRiskSummary(events);
   const latest = latestEvent(events);
-  const topEvent = attentionEvents(events, location, 1)[0] ?? null;
+  const topEvents = attentionEvents(events, location, 3);
+  const topEvent = topEvents[0] ?? null;
   const nowDetail =
     events.length > 0
       ? `${events.length} active signal${events.length !== 1 ? "s" : ""}; ${risk.topDriver}.`
@@ -177,6 +181,40 @@ export function SituationBriefPanel({
         <BriefItem title="Confidence" detail={confidenceDetail} />
         <BriefItem title="Watch next" detail={watchDetail} />
       </div>
+
+      {topEvents.length > 0 && (
+        <div style={styles.priorityList}>
+          <div style={styles.priorityTitle}>Priority signals</div>
+          {topEvents.map((event) => (
+            <button
+              key={event.id}
+              type="button"
+              style={styles.priorityButton}
+              onClick={() => onEventClick(event)}
+              title="Open event details"
+            >
+              <span
+                style={{
+                  ...styles.sourcePill,
+                  background: sourceColor(event.source),
+                }}
+              >
+                {event.source}
+              </span>
+              <span style={styles.priorityText}>{event.headline}</span>
+              <span
+                style={{
+                  ...styles.severityPill,
+                  color: severityColor(event.severity),
+                  background: `${severityColor(event.severity)}14`,
+                }}
+              >
+                {event.severity}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {topEvent?.url && (
         <a
@@ -280,6 +318,55 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
     lineHeight: 1.35,
     marginTop: 3,
+  },
+  priorityList: {
+    background: "#fff",
+    borderTop: "1px solid #e3ebf2",
+    padding: "9px 10px",
+  },
+  priorityTitle: {
+    color: "#607d8b",
+    fontSize: 10,
+    fontWeight: 900,
+    marginBottom: 6,
+    textTransform: "uppercase",
+  },
+  priorityButton: {
+    alignItems: "center",
+    background: "#fff",
+    border: "1px solid #e3ebf2",
+    borderRadius: 6,
+    color: "#263238",
+    cursor: "pointer",
+    display: "grid",
+    gap: 7,
+    gridTemplateColumns: "auto minmax(0, 1fr) auto",
+    marginTop: 6,
+    padding: "7px",
+    textAlign: "left",
+    width: "100%",
+  },
+  sourcePill: {
+    borderRadius: 4,
+    color: "#fff",
+    fontSize: 9,
+    fontWeight: 900,
+    lineHeight: 1,
+    padding: "4px 5px",
+  },
+  priorityText: {
+    fontSize: 12,
+    fontWeight: 700,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  severityPill: {
+    borderRadius: 4,
+    fontSize: 10,
+    fontWeight: 900,
+    lineHeight: 1,
+    padding: "4px 5px",
   },
   sourceLink: {
     display: "block",

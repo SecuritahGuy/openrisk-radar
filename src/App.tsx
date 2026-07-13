@@ -469,6 +469,7 @@ export default function App() {
           }
         }}
         isSaving={isSaving}
+        onEventClick={handleSelectEvent}
       />
       {selectedEvent && (
         <EventDetailPanel

@@ -51,6 +51,7 @@ interface UpdatePanelProps {
   onUpdateType: (t: LocationType) => void;
   onDeleteLocation: () => void;
   isSaving: boolean;
+  onEventClick: (event: RiskEvent) => void;
 }
 
 export function UpdatePanel({
@@ -88,6 +89,7 @@ export function UpdatePanel({
   onUpdateType,
   onDeleteLocation,
   isSaving,
+  onEventClick,
 }: UpdatePanelProps) {
   const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms, ...gdacsEvents, ...eonetEvents, ...emscEvents];
   const isSaved = !!activeSavedLocation;
@@ -120,6 +122,7 @@ export function UpdatePanel({
             events={allEvents}
             currentWeather={currentWeather}
             sourceHealth={sourceHealth}
+            onEventClick={onEventClick}
           />
 
           <MapLayerControls
