@@ -25,13 +25,13 @@ interface OpenMeteoForecastResponse {
   longitude: number;
   current_units: Record<string, string>;
   current: OpenMeteoCurrent;
-  hourly?: {
+  daily?: {
     time: string[];
-    temperature_2m: number[];
-    relative_humidity_2m: number[];
+    temperature_2m_max: number[];
+    temperature_2m_min: number[];
     weather_code: number[];
-    wind_speed_10m: number[];
-    wind_direction_10m: number[];
+    wind_speed_10m_max: number[];
+    wind_direction_10m_dominant: number[];
   };
 }
 
@@ -117,14 +117,14 @@ export async function fetchOpenMeteoWeather(
       "cloud_cover",
       "pressure_msl",
     ].join(","),
-    hourly: [
-      "temperature_2m",
-      "relative_humidity_2m",
+    daily: [
       "weather_code",
-      "wind_speed_10m",
-      "wind_direction_10m",
+      "temperature_2m_max",
+      "temperature_2m_min",
+      "wind_speed_10m_max",
+      "wind_direction_10m_dominant",
     ].join(","),
-    forecast_days: "2",
+    forecast_days: "5",
     timezone: "auto",
   });
 
@@ -134,15 +134,19 @@ export async function fetchOpenMeteoWeather(
 
   const json: OpenMeteoForecastResponse = await res.json();
   const c = json.current;
-  const forecast: WeatherForecastPeriod[] = (json.hourly?.time ?? [])
-    .slice(0, 12)
+  const forecast: WeatherForecastPeriod[] = (json.daily?.time ?? [])
+    .slice(0, 5)
     .map((time, index) => ({
       startTime: time,
-      temperature: Math.round((json.hourly?.temperature_2m[index] ?? 0) * 9 / 5 + 32),
-      humidity: json.hourly?.relative_humidity_2m[index] ?? null,
-      windSpeed: Math.round((json.hourly?.wind_speed_10m[index] ?? 0) * 0.621371),
-      windDirection: json.hourly?.wind_direction_10m[index] ?? null,
-      shortForecast: openMeteoWeatherLabel(json.hourly?.weather_code[index] ?? -1),
+      temperature: Math.round((json.daily?.temperature_2m_max[index] ?? 0) * 9 / 5 + 32),
+      temperatureLow:
+        json.daily?.temperature_2m_min[index] != null
+          ? Math.round(json.daily.temperature_2m_min[index] * 9 / 5 + 32)
+          : null,
+      humidity: null,
+      windSpeed: Math.round((json.daily?.wind_speed_10m_max[index] ?? 0) * 0.621371),
+      windDirection: json.daily?.wind_direction_10m_dominant[index] ?? null,
+      shortForecast: openMeteoWeatherLabel(json.daily?.weather_code[index] ?? -1),
     }));
 
   return {

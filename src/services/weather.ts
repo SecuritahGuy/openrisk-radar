@@ -1,6 +1,7 @@
 export interface WeatherForecastPeriod {
   startTime: string;
   temperature: number;
+  temperatureLow: number | null;
   humidity: number | null;
   windSpeed: number;
   windDirection: number | null;
@@ -65,14 +66,16 @@ interface QuantitativeValue {
 
 interface NwsPointResponse {
   properties: {
-    forecastHourly: string;
+    forecast: string;
     observationStations: string;
   };
 }
 
-interface NwsHourlyResponse {
+interface NwsForecastResponse {
   properties: {
     periods: Array<{
+      name?: string;
+      isDaytime?: boolean;
       temperature: number;
       relativeHumidity?: QuantitativeValue;
       windSpeed: string;
@@ -191,8 +194,8 @@ async function fetchNearestObservation(
   return null;
 }
 
-function fromHourlyForecast(hourly: NwsHourlyResponse): CurrentWeather {
-  const first = hourly.properties.periods[0];
+function fromForecast(forecast: NwsForecastResponse): CurrentWeather {
+  const first = forecast.properties.periods[0];
   return {
     temperature: first.temperature,
     feelsLike: first.temperature,
@@ -200,22 +203,55 @@ function fromHourlyForecast(hourly: NwsHourlyResponse): CurrentWeather {
     windSpeed: parseWindMph(first.windSpeed),
     windDirection: windDirectionLabelToDegrees(first.windDirection),
     weatherCode: first.shortForecast || "Forecast conditions",
-    source: "NWS hourly forecast",
+    source: "NWS forecast",
     stationName: null,
     observedAt: first.startTime,
-    forecast: hourlyForecastPeriods(hourly),
+    forecast: dailyForecastPeriods(forecast),
   };
 }
 
-function hourlyForecastPeriods(hourly: NwsHourlyResponse): WeatherForecastPeriod[] {
-  return hourly.properties.periods.slice(0, 12).map((period) => ({
-    startTime: period.startTime,
-    temperature: period.temperature,
-    humidity: period.relativeHumidity?.value ?? null,
-    windSpeed: parseWindMph(period.windSpeed),
-    windDirection: windDirectionLabelToDegrees(period.windDirection),
-    shortForecast: period.shortForecast || "Forecast conditions",
-  }));
+function dateKey(iso: string): string {
+  return iso.slice(0, 10);
+}
+
+function dailyForecastPeriods(forecast: NwsForecastResponse): WeatherForecastPeriod[] {
+  const days: WeatherForecastPeriod[] = [];
+  const periods = forecast.properties.periods;
+
+  for (let index = 0; index < periods.length && days.length < 5; index += 1) {
+    const period = periods[index];
+    const isDaytime = period.isDaytime !== false;
+    if (!isDaytime) continue;
+
+    const overnight = periods
+      .slice(index + 1)
+      .find(
+        (candidate) =>
+          candidate.isDaytime === false &&
+          dateKey(candidate.startTime) === dateKey(period.startTime)
+      );
+    days.push({
+      startTime: period.startTime,
+      temperature: period.temperature,
+      temperatureLow: overnight?.temperature ?? null,
+      humidity: period.relativeHumidity?.value ?? null,
+      windSpeed: parseWindMph(period.windSpeed),
+      windDirection: windDirectionLabelToDegrees(period.windDirection),
+      shortForecast: period.shortForecast || "Forecast conditions",
+    });
+  }
+
+  return days.length > 0
+    ? days
+    : periods.slice(0, 5).map((period) => ({
+        startTime: period.startTime,
+        temperature: period.temperature,
+        temperatureLow: null,
+        humidity: period.relativeHumidity?.value ?? null,
+        windSpeed: parseWindMph(period.windSpeed),
+        windDirection: windDirectionLabelToDegrees(period.windDirection),
+        shortForecast: period.shortForecast || "Forecast conditions",
+      }));
 }
 
 export async function fetchCurrentWeather(
@@ -223,11 +259,11 @@ export async function fetchCurrentWeather(
   lng: number
 ): Promise<CurrentWeather> {
   const point = await fetchJson<NwsPointResponse>(`${BASE}/points/${lat},${lng}`);
-  const [observation, hourly] = await Promise.all([
+  const [observation, forecast] = await Promise.all([
     fetchNearestObservation(point.properties.observationStations).catch(() => null),
-    fetchJson<NwsHourlyResponse>(point.properties.forecastHourly),
+    fetchJson<NwsForecastResponse>(point.properties.forecast),
   ]);
 
-  const forecast = hourlyForecastPeriods(hourly);
-  return observation ? { ...observation, forecast } : fromHourlyForecast(hourly);
+  const dailyForecast = dailyForecastPeriods(forecast);
+  return observation ? { ...observation, forecast: dailyForecast } : fromForecast(forecast);
 }

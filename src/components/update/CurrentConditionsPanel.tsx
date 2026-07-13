@@ -23,7 +23,7 @@ export function CurrentConditionsPanel({
         onClick={() => setShowForecast((value) => !value)}
         aria-expanded={showForecast}
         disabled={forecast.length === 0}
-        title={forecast.length > 0 ? "Show forecast" : "Forecast unavailable"}
+        title={forecast.length > 0 ? "Show 5-day forecast" : "Forecast unavailable"}
       >
         <span style={styles.weatherTemp}>
           {Math.round(currentWeather.temperature)}&deg;F
@@ -33,7 +33,7 @@ export function CurrentConditionsPanel({
         </span>
         {forecast.length > 0 && (
           <span style={styles.forecastToggle}>
-            {showForecast ? "Hide forecast" : "Forecast"}
+            {showForecast ? "Hide forecast" : "5-day forecast"}
           </span>
         )}
       </button>
@@ -51,16 +51,20 @@ export function CurrentConditionsPanel({
       </div>
       {showForecast && forecast.length > 0 && (
         <div style={styles.forecastList}>
-          {forecast.slice(0, 8).map((period) => (
+          {forecast.slice(0, 5).map((period) => (
             <div key={period.startTime} style={styles.forecastRow}>
-              <div style={styles.forecastTime}>{forecastTime(period.startTime)}</div>
+              <div style={styles.forecastTime}>{forecastDay(period.startTime)}</div>
               <div style={styles.forecastMain}>
-                <strong>{Math.round(period.temperature)}&deg;F</strong>
+                <strong>
+                  {Math.round(period.temperature)}&deg;
+                  {period.temperatureLow != null
+                    ? ` / ${Math.round(period.temperatureLow)}&deg;`
+                    : ""}
+                </strong>
                 <span>{period.shortForecast}</span>
               </div>
               <div style={styles.forecastMeta}>
-                {period.humidity != null ? `${Math.round(period.humidity)}% humidity` : "Humidity n/a"}
-                {" · "}
+                {period.humidity != null ? `${Math.round(period.humidity)}% humidity · ` : ""}
                 {Math.round(period.windSpeed)} mph wind
               </div>
             </div>
@@ -71,13 +75,13 @@ export function CurrentConditionsPanel({
   );
 }
 
-function forecastTime(iso: string): string {
+function forecastDay(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString("en-US", {
+  return date.toLocaleDateString("en-US", {
     weekday: "short",
-    hour: "numeric",
-    hour12: true,
+    month: "short",
+    day: "numeric",
   });
 }
 
