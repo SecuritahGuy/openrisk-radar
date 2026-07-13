@@ -8,6 +8,7 @@ import type { WeatherLayerMode } from "../types/weatherLayer";
 import { CurrentConditionsPanel } from "./update/CurrentConditionsPanel";
 import { DataCoveragePanel } from "./update/DataCoveragePanel";
 import { FeedErrorPanel, LastCheckedPanel } from "./update/FeedStatusPanels";
+import { HistoricalContextPanel } from "./update/HistoricalContextPanel";
 import { ImpactSummaryPanel } from "./update/ImpactSummaryPanel";
 import { LocationActionPanel } from "./update/LocationActionPanel";
 import { LocationDetailsPanel } from "./update/LocationDetailsPanel";
@@ -139,10 +140,14 @@ export function UpdatePanel({
 
           <LastCheckedPanel lastUpdated={lastUpdated} />
 
+          <HistoricalContextPanel
+            femaDeclarations={femaDeclarations}
+            onEventClick={onEventClick}
+          />
+
           <SignalSummaryPanel
             weatherAlerts={weatherAlerts}
             earthquakes={earthquakes}
-            femaDeclarations={femaDeclarations}
             wildfires={wildfires}
             spcOutlooks={spcOutlooks}
             nhcStorms={nhcStorms}

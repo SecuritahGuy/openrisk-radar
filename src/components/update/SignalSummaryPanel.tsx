@@ -5,7 +5,6 @@ import { severityColor } from "../../lib/riskInsights";
 interface SignalSummaryPanelProps {
   weatherAlerts: RiskEvent[];
   earthquakes: RiskEvent[];
-  femaDeclarations: RiskEvent[];
   wildfires: RiskEvent[];
   spcOutlooks: RiskEvent[];
   nhcStorms: RiskEvent[];
@@ -65,7 +64,6 @@ function SupplementalSignalLine({ signal }: { signal: SupplementalRiskSignal }) 
 export function SignalSummaryPanel({
   weatherAlerts,
   earthquakes,
-  femaDeclarations,
   wildfires,
   spcOutlooks,
   nhcStorms,
@@ -110,16 +108,6 @@ export function SignalSummaryPanel({
           {emscEvents.length > 0
             ? `${emscEvents.length} EMSC earthquake${emscEvents.length !== 1 ? "s" : ""} nearby`
             : "No EMSC earthquakes nearby"}
-        </SignalLine>
-        <SignalLine active={femaDeclarations.length > 0} color="#7b1fa2">
-          {femaDeclarations.length > 0
-            ? `${femaDeclarations.length} FEMA disaster declaration${femaDeclarations.length !== 1 ? "s" : ""} on record`
-            : "No FEMA disaster declarations on record"}
-          {femaDeclarations.length > 0 && (
-            <span style={styles.historicalNote}>
-              (historical data)
-            </span>
-          )}
         </SignalLine>
         <SignalLine active={wildfires.length > 0} color="#d84315">
           {wildfires.length > 0
@@ -239,9 +227,4 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 2,
   },
   spinner: { fontSize: 13 },
-  historicalNote: {
-    fontSize: 10,
-    color: "#9e9e9e",
-    marginLeft: 4,
-  },
 };
