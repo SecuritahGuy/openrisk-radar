@@ -172,8 +172,17 @@ body {
     gap: 8px !important;
   }
 
-  .risk-source-agreement > div:last-child {
+  .source-agreement-list {
     grid-template-columns: 1fr !important;
+  }
+
+  .source-agreement-event-list > button {
+    grid-template-columns: 56px minmax(0, 1fr) 64px !important;
+  }
+
+  .source-agreement-event-list > button > span:last-child {
+    grid-column: 2 / -1;
+    text-align: left !important;
   }
 
   .risk-attention-list > div:first-child {

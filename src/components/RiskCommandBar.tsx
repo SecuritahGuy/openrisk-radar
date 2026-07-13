@@ -104,6 +104,41 @@ function AttentionCard({
   );
 }
 
+function AgreementEventRow({
+  event,
+  location,
+  onClick,
+}: {
+  event: RiskEvent;
+  location: ResolvedLocation | null;
+  onClick: () => void;
+}) {
+  return (
+    <button type="button" style={styles.agreementEventRow} onClick={onClick}>
+      <span
+        style={{
+          ...styles.sourcePill,
+          background: sourceColor(event.source),
+        }}
+      >
+        {event.source}
+      </span>
+      <span style={styles.agreementEventText}>{event.headline}</span>
+      <span
+        style={{
+          ...styles.agreementEventSeverity,
+          color: severityColor(event.severity),
+        }}
+      >
+        {event.severity}
+      </span>
+      <span style={styles.agreementEventMeta}>
+        {formatDistance(distanceMiles(location, event))} · {timeAgo(event.updatedAt)}
+      </span>
+    </button>
+  );
+}
+
 export function RiskCommandBar({
   location,
   radius,
@@ -114,6 +149,9 @@ export function RiskCommandBar({
   onEventClick,
 }: RiskCommandBarProps) {
   const [showScoreDetails, setShowScoreDetails] = useState(false);
+  const [selectedAgreementId, setSelectedAgreementId] = useState<string | null>(
+    null
+  );
 
   if (!location) {
     return (
@@ -140,6 +178,8 @@ export function RiskCommandBar({
     2
   );
   const correlations = buildSignalCorrelations(concernEvents).slice(0, 3);
+  const selectedAgreement =
+    correlations.find((signal) => signal.id === selectedAgreementId) ?? null;
   const color = levelColor(summary.level);
 
   return (
@@ -257,12 +297,27 @@ export function RiskCommandBar({
             Correlates related signals across feeds
           </span>
         </div>
-        <div style={styles.agreementList}>
+        <div className="source-agreement-list" style={styles.agreementList}>
           {correlations.length > 0 ? (
             correlations.map((signal) => {
               const signalColor = agreementColor(signal.agreement);
+              const active = selectedAgreement?.id === signal.id;
               return (
-                <div key={signal.id} style={styles.agreementItem}>
+                <button
+                  key={signal.id}
+                  type="button"
+                  style={{
+                    ...styles.agreementItem,
+                    ...(active ? styles.agreementItemActive : {}),
+                  }}
+                  aria-expanded={active}
+                  aria-controls="source-agreement-detail"
+                  onClick={() =>
+                    setSelectedAgreementId((current) =>
+                      current === signal.id ? null : signal.id
+                    )
+                  }
+                >
                   <span
                     style={{
                       ...styles.agreementBadge,
@@ -280,7 +335,7 @@ export function RiskCommandBar({
                       ? ` · updated ${timeAgo(signal.latestUpdatedAt)}`
                       : ""}
                   </span>
-                </div>
+                </button>
               );
             })
           ) : (
@@ -289,6 +344,42 @@ export function RiskCommandBar({
             </div>
           )}
         </div>
+        {selectedAgreement && (
+          <div
+            id="source-agreement-detail"
+            className="source-agreement-detail"
+            style={styles.agreementDetail}
+          >
+            <div style={styles.agreementDetailHeader}>
+              <div>
+                <div style={styles.agreementDetailTitle}>
+                  {selectedAgreement.label}
+                </div>
+                <div style={styles.agreementDetailSummary}>
+                  {selectedAgreement.summary}
+                </div>
+              </div>
+              <button
+                type="button"
+                style={styles.agreementCloseButton}
+                onClick={() => setSelectedAgreementId(null)}
+                aria-label="Close source agreement detail"
+              >
+                Close
+              </button>
+            </div>
+            <div className="source-agreement-event-list" style={styles.agreementEventList}>
+              {selectedAgreement.events.map((event) => (
+                <AgreementEventRow
+                  key={event.id}
+                  event={event}
+                  location={location}
+                  onClick={() => onEventClick(event)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -470,8 +561,16 @@ const styles: Record<string, React.CSSProperties> = {
   agreementItem: {
     border: "1px solid #edf1f5",
     borderRadius: 7,
+    background: "#fff",
+    cursor: "pointer",
+    font: "inherit",
     padding: "7px 8px",
     minWidth: 0,
+    textAlign: "left",
+  },
+  agreementItemActive: {
+    border: "1px solid #1565c0",
+    boxShadow: "inset 0 0 0 1px #1565c0",
   },
   agreementBadge: {
     display: "inline-block",
@@ -506,6 +605,80 @@ const styles: Record<string, React.CSSProperties> = {
     gridColumn: "1 / -1",
     color: "#757575",
     fontSize: 12,
+  },
+  agreementDetail: {
+    gridColumn: "1 / -1",
+    borderTop: "1px solid #edf1f5",
+    marginTop: 2,
+    paddingTop: 9,
+  },
+  agreementDetailHeader: {
+    alignItems: "flex-start",
+    display: "flex",
+    gap: 10,
+    justifyContent: "space-between",
+  },
+  agreementDetailTitle: {
+    color: "#263238",
+    fontSize: 13,
+    fontWeight: 800,
+  },
+  agreementDetailSummary: {
+    color: "#607d8b",
+    fontSize: 11,
+    lineHeight: 1.35,
+    marginTop: 2,
+  },
+  agreementCloseButton: {
+    border: "1px solid #cfd8dc",
+    borderRadius: 5,
+    background: "#fff",
+    color: "#546e7a",
+    cursor: "pointer",
+    font: "inherit",
+    fontSize: 11,
+    fontWeight: 800,
+    padding: "3px 7px",
+  },
+  agreementEventList: {
+    display: "grid",
+    gap: 6,
+    marginTop: 8,
+  },
+  agreementEventRow: {
+    alignItems: "center",
+    background: "#f8fbfd",
+    border: "1px solid #e3e9ef",
+    borderRadius: 7,
+    color: "#263238",
+    cursor: "pointer",
+    display: "grid",
+    font: "inherit",
+    gap: 7,
+    gridTemplateColumns: "64px minmax(0, 1fr) 76px 96px",
+    padding: "7px 8px",
+    textAlign: "left",
+  },
+  agreementEventText: {
+    fontSize: 12,
+    fontWeight: 700,
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  agreementEventSeverity: {
+    fontSize: 10,
+    fontWeight: 800,
+    textAlign: "right",
+  },
+  agreementEventMeta: {
+    color: "#757575",
+    fontSize: 10,
+    overflow: "hidden",
+    textAlign: "right",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   attentionHeader: {
     alignSelf: "center",
