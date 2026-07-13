@@ -11,6 +11,7 @@ import { useResolvedLocation } from "./hooks/useResolvedLocation";
 import { useNwsWeatherOverlay } from "./hooks/useNwsWeatherOverlay";
 import { useRiskFeeds } from "./hooks/useRiskFeeds";
 import { useSavedLocations } from "./hooks/useSavedLocations";
+import { useSavedLocationRiskSummaries } from "./hooks/useSavedLocationRiskSummaries";
 import {
   defaultSeverityFilters,
   defaultSourceFilters,
@@ -186,6 +187,8 @@ export default function App() {
     updateLocation,
     isSaving,
   } = useSavedLocations();
+  const savedLocationSummaries =
+    useSavedLocationRiskSummaries(savedLocations);
 
   const activeSavedLocation =
     savedLocations.find((l) => coordsMatch(l, result)) ?? null;
@@ -375,6 +378,7 @@ export default function App() {
         <SavedLocationOverview
           savedLocations={savedLocations}
           activeLocation={activeSavedLocation}
+          summaries={savedLocationSummaries}
           events={allEvents}
           radius={radius}
           currentWeather={currentWeather}

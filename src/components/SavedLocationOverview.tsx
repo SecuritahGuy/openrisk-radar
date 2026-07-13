@@ -2,6 +2,7 @@ import type { CurrentWeather } from "../services/weather";
 import type { Location, RadiusOption } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import type { SourceHealthItem } from "../hooks/useRiskFeeds";
+import type { SavedLocationRiskSummary } from "../hooks/useSavedLocationRiskSummaries";
 import {
   attentionEvents,
   buildRiskSummary,
@@ -12,6 +13,7 @@ import { buildImpactSummary } from "../lib/impactInsights";
 interface SavedLocationOverviewProps {
   savedLocations: Location[];
   activeLocation: Location | null;
+  summaries: SavedLocationRiskSummary[];
   events: RiskEvent[];
   radius: RadiusOption;
   currentWeather: CurrentWeather | null;
@@ -57,6 +59,7 @@ function criticalityColor(criticality: Location["criticality"]): string {
 export function SavedLocationOverview({
   savedLocations,
   activeLocation,
+  summaries,
   events,
   radius,
   currentWeather,
@@ -102,6 +105,16 @@ export function SavedLocationOverview({
   const sourceIssues = sourceHealth.filter(
     (item) => item.status === "error" || item.status === "unavailable"
   ).length;
+  const summaryByLocationId = new Map(
+    summaries.map((summary) => [summary.locationId, summary])
+  );
+  const sortedLocations = [...savedLocations].sort((a, b) => {
+    const aSummary = summaryByLocationId.get(a.id);
+    const bSummary = summaryByLocationId.get(b.id);
+    const aScore = aSummary?.risk.score ?? -1;
+    const bScore = bSummary?.risk.score ?? -1;
+    return bScore - aScore || a.label.localeCompare(b.label);
+  });
 
   return (
     <section className="saved-location-overview" style={styles.container}>
@@ -124,9 +137,20 @@ export function SavedLocationOverview({
         )}
       </div>
       <div style={styles.cardRow}>
-        {savedLocations.map((loc) => {
+        {sortedLocations.map((loc) => {
           const active = loc.id === activeLocation?.id;
-          const postureColor = active ? levelColor(risk.level) : "#607d8b";
+          const summary = summaryByLocationId.get(loc.id);
+          const cardRisk = active ? risk : summary?.risk;
+          const cardImpact = active ? impact : summary?.impact;
+          const cardWeather = active ? currentWeather : summary?.currentWeather;
+          const cardTopEvent = active ? topEvent : summary?.topEvent;
+          const cardLiveSources = active
+            ? liveSources
+            : summary?.liveSourceCount ?? 0;
+          const cardSourceIssues = active
+            ? sourceIssues
+            : summary?.errorCount ?? 0;
+          const postureColor = cardRisk ? levelColor(cardRisk.level) : "#607d8b";
           return (
             <button
               key={loc.id}
@@ -155,43 +179,55 @@ export function SavedLocationOverview({
               </div>
               <div style={styles.metricRow}>
                 <span style={{ ...styles.posture, color: postureColor }}>
-                  {active ? risk.level : "Open to assess"}
+                  {summary?.isLoading
+                    ? "Checking"
+                    : cardRisk
+                      ? cardRisk.level
+                      : "Open to assess"}
                 </span>
-                {active && (
+                {cardImpact && (
                   <span style={styles.metric}>
-                    {impact?.currentImpactCount ?? 0} impact
+                    {cardImpact.currentImpactCount} impact
                   </span>
                 )}
               </div>
-              {active ? (
+              {cardRisk ? (
                 <>
                   <div style={styles.detail}>
-                    {isFetching ? "Refreshing..." : risk.topDriver}
+                    {active && isFetching
+                      ? "Refreshing..."
+                      : summary?.isFetching && !active
+                        ? "Refreshing..."
+                        : cardRisk.topDriver}
                   </div>
-                  {topEvent && (
+                  {cardTopEvent && (
                     <div style={styles.topSignal}>
                       <span
                         style={{
                           ...styles.sourcePill,
-                          background: sourceColor(topEvent.source),
+                          background: sourceColor(cardTopEvent.source),
                         }}
                       >
-                        {topEvent.source}
+                        {cardTopEvent.source}
                       </span>
-                      <span style={styles.signalText}>{topEvent.headline}</span>
+                      <span style={styles.signalText}>
+                        {cardTopEvent.headline}
+                      </span>
                     </div>
                   )}
                   <div style={styles.footer}>
-                    {currentWeather
-                      ? `${Math.round(currentWeather.temperature)}F · ${Math.round(
-                          currentWeather.windSpeed
+                    {cardWeather
+                      ? `${Math.round(cardWeather.temperature)}F · ${Math.round(
+                          cardWeather.windSpeed
                         )} mph`
                       : "Weather pending"}
                     {" · "}
-                    {liveSources} live
-                    {sourceIssues > 0 ? `, ${sourceIssues} issues` : ""}
+                    {cardLiveSources} live
+                    {cardSourceIssues > 0 ? `, ${cardSourceIssues} issues` : ""}
                   </div>
                 </>
+              ) : summary?.error ? (
+                <div style={styles.detail}>Summary unavailable</div>
               ) : (
                 <div style={styles.detail}>
                   Last saved check {timeAgo(loc.lastCheckedAt)}
