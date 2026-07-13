@@ -324,7 +324,8 @@ export function FeedExplorer({
             topSources={topSources}
             severities={severities}
           />
-          <div className="feed-table" style={styles.table}>
+          <div className="feed-table" style={styles.tableScroller}>
+            <div style={styles.table}>
             <div
               className="feed-table-row feed-table-header"
               style={styles.tableHeader}
@@ -439,6 +440,7 @@ export function FeedExplorer({
                 <span style={styles.colTime}>{timeAgo(evt.updatedAt)}</span>
               </button>
             ))}
+            </div>
           </div>
           <div className="feed-card-list" style={styles.cardList}>
             {sortedEvents.map((evt) => (
@@ -752,7 +754,13 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "4px 7px",
     whiteSpace: "nowrap",
   },
-  table: { fontSize: 12 },
+  tableScroller: {
+    overflowX: "auto",
+  },
+  table: {
+    fontSize: 12,
+    minWidth: 1110,
+  },
   tableHeader: {
     display: "flex",
     padding: "6px 12px",
@@ -843,11 +851,28 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     gap: 8,
   },
-  colSource: { width: 60 },
-  colType: { width: 120 },
-  colCategory: { width: 80, color: "#616161" },
-  colSeverity: { width: 80 },
-  colImpact: { width: 104 },
+  colSource: {
+    flex: "0 0 126px",
+    minWidth: 0,
+    paddingRight: 10,
+  },
+  colType: {
+    flex: "0 0 150px",
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  colCategory: {
+    flex: "0 0 116px",
+    minWidth: 0,
+    color: "#616161",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  colSeverity: { flex: "0 0 82px", minWidth: 0 },
+  colImpact: { flex: "0 0 112px", minWidth: 0 },
   colHeadline: {
     flex: 1,
     minWidth: 220,
@@ -857,16 +882,27 @@ const styles: Record<string, React.CSSProperties> = {
     whiteSpace: "nowrap",
     paddingRight: 12,
   },
-  colDistance: { width: 70, color: "#616161" },
-  colExpires: { width: 70, color: "#616161" },
-  colTime: { flex: 1, textAlign: "right" as const, color: "#9e9e9e" },
+  colDistance: { flex: "0 0 72px", minWidth: 0, color: "#616161" },
+  colExpires: { flex: "0 0 72px", minWidth: 0, color: "#616161" },
+  colTime: {
+    flex: "0 0 78px",
+    minWidth: 0,
+    textAlign: "right" as const,
+    color: "#9e9e9e",
+  },
   badge: {
+    display: "inline-block",
     fontSize: 10,
     fontWeight: 700,
     color: "#fff",
+    maxWidth: "100%",
+    overflow: "hidden",
     padding: "2px 6px",
     borderRadius: 3,
+    textOverflow: "ellipsis",
     textTransform: "uppercase" as const,
+    verticalAlign: "middle",
+    whiteSpace: "nowrap",
   },
   contextBadge: {
     background: "#eceff1",
