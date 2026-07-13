@@ -159,6 +159,7 @@ export default function App() {
     weatherAlerts,
     earthquakes,
     femaDeclarations,
+    stormEvents,
     wildfires,
     spcOutlooks,
     nhcStorms,
@@ -449,6 +450,7 @@ export default function App() {
         weatherAlerts={weatherAlerts}
         earthquakes={earthquakes}
         femaDeclarations={femaDeclarations}
+        stormEvents={stormEvents}
         wildfires={wildfires}
         spcOutlooks={spcOutlooks}
         nhcStorms={nhcStorms}

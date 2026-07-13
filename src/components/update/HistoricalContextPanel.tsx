@@ -3,6 +3,7 @@ import type { RiskEvent } from "../../types/riskEvent";
 
 interface HistoricalContextPanelProps {
   femaDeclarations: RiskEvent[];
+  stormEvents: RiskEvent[];
   onEventClick: (event: RiskEvent) => void;
 }
 
@@ -21,6 +22,8 @@ function eventDate(event: RiskEvent): number {
   const rawDate =
     typeof event.raw.declarationDate === "string"
       ? event.raw.declarationDate
+      : typeof event.raw.BEGIN_DATE === "string"
+        ? event.startedAt
       : event.updatedAt;
   const value = new Date(rawDate).getTime();
   return Number.isNaN(value) ? 0 : value;
@@ -33,10 +36,12 @@ function field(event: RiskEvent, key: string): string | null {
 
 export function HistoricalContextPanel({
   femaDeclarations,
+  stormEvents,
   onEventClick,
 }: HistoricalContextPanelProps) {
   const [showAll, setShowAll] = useState(false);
-  const sortedDeclarations = [...femaDeclarations].sort(
+  const historicalEvents = [...femaDeclarations, ...stormEvents];
+  const sortedDeclarations = historicalEvents.sort(
     (a, b) => eventDate(b) - eventDate(a)
   );
   const visibleDeclarations = showAll
@@ -50,21 +55,26 @@ export function HistoricalContextPanel({
         <div>
           <div style={styles.label}>Historical context</div>
           <div style={styles.title}>
-            {femaDeclarations.length > 0
-              ? `${femaDeclarations.length} FEMA record${femaDeclarations.length !== 1 ? "s" : ""}`
-              : "No FEMA disaster history"}
+            {historicalEvents.length > 0
+              ? `${historicalEvents.length} historical record${historicalEvents.length !== 1 ? "s" : ""}`
+              : "No disaster or storm history"}
           </div>
+          {historicalEvents.length > 0 && (
+            <div style={styles.sourceSummary}>
+              FEMA {femaDeclarations.length} · NOAA {stormEvents.length}
+            </div>
+          )}
         </div>
         <span style={styles.badge}>Not active</span>
       </div>
 
       {latest ? (
         <div style={styles.summary}>
-          Latest record: {latest.type} declared {formatDate(latest.updatedAt)}.
+          Latest record: {latest.type} from {latest.source} on {formatDate(latest.startedAt)}.
         </div>
       ) : (
         <div style={styles.empty}>
-          No county-level FEMA disaster declarations matched this location.
+          No county-level FEMA declarations or NOAA storm events matched this location.
         </div>
       )}
 
@@ -76,6 +86,22 @@ export function HistoricalContextPanel({
             const state = field(event, "state");
             const incidentEndDate = field(event, "incidentEndDate");
             const closeOutDate = field(event, "disasterCloseOutDate");
+            const stormLocation = field(event, "BEGIN_LOCATION");
+            const deaths = typeof event.raw.totalDeaths === "number" ? event.raw.totalDeaths : 0;
+            const injuries = typeof event.raw.totalInjuries === "number" ? event.raw.totalInjuries : 0;
+            const damage = typeof event.raw.totalDamage === "number" ? event.raw.totalDamage : 0;
+            const footer =
+              event.source === "NOAA"
+                ? [
+                    deaths > 0 ? `${deaths} death${deaths !== 1 ? "s" : ""}` : null,
+                    injuries > 0 ? `${injuries} injur${injuries !== 1 ? "ies" : "y"}` : null,
+                    damage > 0 ? `$${Math.round(damage).toLocaleString()} damage` : null,
+                  ].filter(Boolean).join(" · ") || "No damage, injury, or fatality reported"
+                : closeOutDate
+                  ? `Closed ${formatDate(closeOutDate)}`
+                  : incidentEndDate
+                    ? `Incident ended ${formatDate(incidentEndDate)}`
+                    : "No closeout date reported";
 
             return (
               <button
@@ -88,20 +114,18 @@ export function HistoricalContextPanel({
                 <span style={styles.itemTop}>
                   <span style={styles.itemTitle}>{event.headline}</span>
                   <span style={styles.typePill}>
-                    {declarationType ?? event.severity}
+                    {event.source === "NOAA" ? "NOAA" : declarationType ?? event.severity}
                   </span>
                 </span>
                 <span style={styles.itemMeta}>
                   {event.type} · {formatDate(event.startedAt)}
-                  {county || state ? ` · ${[county, state].filter(Boolean).join(", ")}` : ""}
+                  {event.source === "NOAA" && stormLocation
+                    ? ` · ${stormLocation}`
+                    : county || state
+                      ? ` · ${[county, state].filter(Boolean).join(", ")}`
+                      : ""}
                 </span>
-                <span style={styles.itemFooter}>
-                  {closeOutDate
-                    ? `Closed ${formatDate(closeOutDate)}`
-                    : incidentEndDate
-                      ? `Incident ended ${formatDate(incidentEndDate)}`
-                      : "No closeout date reported"}
-                </span>
+                <span style={styles.itemFooter}>{footer}</span>
               </button>
             );
           })}
@@ -148,6 +172,12 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#263238",
     fontSize: 14,
     fontWeight: 800,
+    marginTop: 2,
+  },
+  sourceSummary: {
+    color: "#78909c",
+    fontSize: 11,
+    fontWeight: 700,
     marginTop: 2,
   },
   badge: {

@@ -90,6 +90,10 @@ export async function fetchEmscEvents(
   radiusKm: number,
   minMag = 2.5
 ): Promise<RiskEvent[]> {
+  if (!isFinite(lat) || !isFinite(lng)) {
+    return [];
+  }
+
   const kmPerDeg = 111.32;
   const latDelta = radiusKm / kmPerDeg;
   const lngDelta = radiusKm / (kmPerDeg * Math.cos((lat * Math.PI) / 180));
@@ -106,7 +110,10 @@ export async function fetchEmscEvents(
 
   const url = `${BASE}?${params}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`EMSC API returned ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => "(no body)");
+    throw new Error(`EMSC API returned ${res.status}: ${body}`);
+  }
 
   const data: EmscResponse = await res.json();
   if (!data.features || data.features.length === 0) return [];

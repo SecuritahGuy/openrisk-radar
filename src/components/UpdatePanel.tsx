@@ -26,6 +26,7 @@ interface UpdatePanelProps {
   weatherAlerts: RiskEvent[];
   earthquakes: RiskEvent[];
   femaDeclarations: RiskEvent[];
+  stormEvents: RiskEvent[];
   wildfires: RiskEvent[];
   spcOutlooks: RiskEvent[];
   nhcStorms: RiskEvent[];
@@ -65,6 +66,7 @@ export function UpdatePanel({
   weatherAlerts,
   earthquakes,
   femaDeclarations,
+  stormEvents,
   wildfires,
   spcOutlooks,
   nhcStorms,
@@ -148,6 +150,7 @@ export function UpdatePanel({
 
           <HistoricalContextPanel
             femaDeclarations={femaDeclarations}
+            stormEvents={stormEvents}
             onEventClick={onEventClick}
           />
 

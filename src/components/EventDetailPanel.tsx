@@ -15,6 +15,8 @@ function sourceColor(source: string): string {
   switch (source) {
     case "NWS":
       return "#1565c0";
+    case "NOAA":
+      return "#0065a8";
     case "USGS":
       return "#2e7d32";
     case "USGS_WATER":
@@ -199,6 +201,33 @@ function FemaFields({ raw }: { raw: Record<string, unknown> }) {
       <DetailRow label="Incident Start" value={p.incidentBeginDate ? formatTime(p.incidentBeginDate) : "—"} />
       <DetailRow label="Incident End" value={p.incidentEndDate ? formatTime(p.incidentEndDate) : "—"} />
       <DetailRow label="Close Out" value={p.disasterCloseOutDate ? formatTime(p.disasterCloseOutDate) : "—"} />
+    </>
+  );
+}
+
+function NoaaStormFields({ raw }: { raw: Record<string, unknown> }) {
+  const p = raw as Record<string, string | number | null>;
+  const damage = typeof p.totalDamage === "number" ? p.totalDamage : 0;
+  const deaths = typeof p.totalDeaths === "number" ? p.totalDeaths : 0;
+  const injuries = typeof p.totalInjuries === "number" ? p.totalInjuries : 0;
+  return (
+    <>
+      <DetailRow label="Event ID" value={String(p.EVENT_ID ?? "—")} />
+      <DetailRow label="Episode ID" value={String(p.EPISODE_ID ?? "—")} />
+      <DetailRow label="County/Zone" value={String(p.CZ_NAME_STR ?? "—")} />
+      <DetailRow label="Location" value={String(p.BEGIN_LOCATION ?? p.CZ_NAME_STR ?? "—")} />
+      <DetailRow label="Weather Office" value={String(p.WFO ?? "—")} />
+      <DetailRow label="Source" value={String(p.SOURCE ?? "—")} />
+      {p.MAGNITUDE != null && String(p.MAGNITUDE).trim() && (
+        <DetailRow
+          label="Magnitude"
+          value={`${p.MAGNITUDE}${p.MAGNITUDE_TYPE ? ` ${p.MAGNITUDE_TYPE}` : ""}`}
+        />
+      )}
+      {p.TOR_F_SCALE && <DetailRow label="Tornado Scale" value={String(p.TOR_F_SCALE)} />}
+      {damage > 0 && <DetailRow label="Reported Damage" value={`$${Math.round(damage).toLocaleString()}`} />}
+      {deaths > 0 && <DetailRow label="Fatalities" value={String(deaths)} />}
+      {injuries > 0 && <DetailRow label="Injuries" value={String(injuries)} />}
     </>
   );
 }
@@ -512,6 +541,12 @@ export function EventDetailPanel({
           <div style={styles.section}>
             <div style={styles.sectionTitle}>Disaster Declaration Details</div>
             <FemaFields raw={event.raw} />
+          </div>
+        )}
+        {event.source === "NOAA" && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Storm Event Details</div>
+            <NoaaStormFields raw={event.raw} />
           </div>
         )}
         {event.source === "SPC" && (

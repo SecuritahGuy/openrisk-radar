@@ -10,6 +10,7 @@ import {
   fetchFemaRiskIndexCounty,
   type FemaRiskIndexCounty,
 } from "../services/femaRiskIndex";
+import { fetchStormEvents } from "../services/stormEvents";
 import { fetchWildfires } from "../services/nifc";
 import { fetchSpcOutlooks } from "../services/spc";
 import { fetchNhcStorms } from "../services/nhc";
@@ -35,6 +36,7 @@ interface UseRiskFeedsResult {
   weatherAlerts: RiskEvent[];
   earthquakes: RiskEvent[];
   femaDeclarations: RiskEvent[];
+  stormEvents: RiskEvent[];
   wildfires: RiskEvent[];
   spcOutlooks: RiskEvent[];
   nhcStorms: RiskEvent[];
@@ -279,6 +281,26 @@ export function useRiskFeeds(
   });
   const locationStateCountyFips = stateCountyFips(location);
 
+  const stormEventsQuery = useQuery<RiskEvent[]>({
+    queryKey: [
+      "noaa-storm-events",
+      location?.state,
+      location?.stateFips,
+      location?.county,
+      location?.countyFips,
+    ],
+    queryFn: () =>
+      fetchStormEvents(
+        location!.state,
+        location!.stateFips,
+        location!.county,
+        location!.countyFips
+      ),
+    enabled: !!location?.stateFips && !!location.countyFips && !!location.county,
+    staleTime: 24 * 60 * 60 * 1000,
+    retry: 1,
+  });
+
   const femaRiskIndexQuery = useQuery<FemaRiskIndexCounty | null>({
     queryKey: ["fema-risk-index", locationStateCountyFips],
     queryFn: () => fetchFemaRiskIndexCounty(locationStateCountyFips),
@@ -477,6 +499,7 @@ export function useRiskFeeds(
   );
   const earthquakes = usgsQuery.data ?? EMPTY_EVENTS;
   const femaDeclarations = femaQuery.data ?? EMPTY_EVENTS;
+  const stormEvents = stormEventsQuery.data ?? EMPTY_EVENTS;
   const wildfires = nifcQuery.data ?? EMPTY_EVENTS;
   const spcOutlooks = spcQuery.data ?? EMPTY_EVENTS;
   const nhcStorms = nhcQuery.data ?? EMPTY_EVENTS;
@@ -520,6 +543,7 @@ export function useRiskFeeds(
       ...weatherAlerts,
       ...earthquakes,
       ...femaDeclarations,
+      ...stormEvents,
       ...wildfires,
       ...spcOutlooks,
       ...nhcStorms,
@@ -532,6 +556,7 @@ export function useRiskFeeds(
       weatherAlerts,
       earthquakes,
       femaDeclarations,
+      stormEvents,
       wildfires,
       spcOutlooks,
       nhcStorms,
@@ -541,15 +566,18 @@ export function useRiskFeeds(
       supplementalEvents,
     ]
   );
-  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || airNowQuery.isFetching || marineQuery.isFetching || riverQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || airNowQuery.isLoading || marineQuery.isLoading || riverQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
-  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || weatherQuery.isError || airQualityQuery.isError || airNowQuery.isError || marineQuery.isError || riverQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
+  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || airNowQuery.isFetching || marineQuery.isFetching || riverQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || airNowQuery.isLoading || marineQuery.isLoading || riverQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
+  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || weatherQuery.isError || airQualityQuery.isError || airNowQuery.isError || marineQuery.isError || riverQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
   if (nwsPointQuery.error) errors.push(`NWS Point: ${nwsPointQuery.error.message}`);
   if (usgsQuery.error) errors.push(`USGS: ${usgsQuery.error.message}`);
   if (femaQuery.error) errors.push(`FEMA: ${femaQuery.error.message}`);
+  if (stormEventsQuery.error) {
+    errors.push(`NOAA Storm Events: ${stormEventsQuery.error.message}`);
+  }
   if (femaRiskIndexQuery.error) {
     errors.push(`FEMA NRI: ${femaRiskIndexQuery.error.message}`);
   }
@@ -616,6 +644,17 @@ export function useRiskFeeds(
         ? `${femaRiskIndexQuery.data.riskRating} baseline county risk.`
         : "Baseline risk available.",
       emptyDetail: "No FEMA NRI county record matched this location.",
+    }),
+    queryHealth({
+      id: "noaa-storm-events",
+      label: "NOAA Storm Events",
+      enabled: locationEnabled && !!location?.stateFips && !!location.countyFips && !!location.county,
+      isLoading: stormEventsQuery.isLoading,
+      isFetching: stormEventsQuery.isFetching,
+      error: errorMessage(stormEventsQuery.error),
+      count: stormEvents.length,
+      liveDetail: `${stormEvents.length} notable storm event${stormEvents.length !== 1 ? "s" : ""} from the last 10 years.`,
+      emptyDetail: "No NOAA storm events matched this county in the last 10 years.",
     }),
     queryHealth({
       id: "nifc",
@@ -794,6 +833,7 @@ export function useRiskFeeds(
     weatherAlerts,
     earthquakes,
     femaDeclarations,
+    stormEvents,
     wildfires,
     spcOutlooks,
     nhcStorms,
@@ -813,6 +853,7 @@ export function useRiskFeeds(
       nwsPointQuery.refetch();
       usgsQuery.refetch();
       femaQuery.refetch();
+      stormEventsQuery.refetch();
       femaRiskIndexQuery.refetch();
       nifcQuery.refetch();
       spcQuery.refetch();

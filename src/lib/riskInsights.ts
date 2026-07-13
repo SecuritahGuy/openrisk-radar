@@ -3,6 +3,7 @@ import type { EventSource, RiskEvent, Severity } from "../types/riskEvent";
 
 export const EVENT_SOURCES: EventSource[] = [
   "NWS",
+  "NOAA",
   "USGS",
   "USGS_WATER",
   "VOLCANO",
@@ -66,6 +67,7 @@ const STALE_CONCERN_MS = 90 * 24 * 60 * 60 * 1000;
 export function defaultSourceFilters(): SourceFilters {
   return {
     NWS: true,
+    NOAA: true,
     USGS: true,
     USGS_WATER: true,
     VOLCANO: true,
@@ -96,6 +98,8 @@ export function sourceColor(source: EventSource): string {
   switch (source) {
     case "NWS":
       return "#f57c00";
+    case "NOAA":
+      return "#0065a8";
     case "USGS":
       return "#2e7d32";
     case "USGS_WATER":
@@ -208,7 +212,7 @@ export function isExpiringSoon(event: RiskEvent): boolean {
 }
 
 export function isHistoricalContextEvent(event: RiskEvent): boolean {
-  return event.source === "FEMA";
+  return event.source === "FEMA" || event.source === "NOAA";
 }
 
 export function isStaleConcernEvent(

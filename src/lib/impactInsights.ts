@@ -68,11 +68,11 @@ export function assessImpact(
   location: ResolvedLocation | null,
   radius: RadiusOption
 ): ImpactAssessment {
-  if (event.source === "FEMA") {
+  if (event.source === "FEMA" || event.source === "NOAA") {
     return {
       level: "historical",
       label: "Historical",
-      detail: "County disaster history",
+      detail: event.source === "NOAA" ? "County storm history" : "County disaster history",
       sortRank: 1,
     };
   }
