@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { SourceHealthItem } from "../../hooks/useRiskFeeds";
 import type { CurrentWeather } from "../../services/weather";
 import type { RadiusOption, ResolvedLocation } from "../../types/location";
@@ -99,9 +100,49 @@ export function SituationBriefPanel({
   currentWeather,
   sourceHealth,
 }: SituationBriefPanelProps) {
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">(
+    "idle"
+  );
   const risk = buildRiskSummary(events);
   const latest = latestEvent(events);
   const topEvent = attentionEvents(events, location, 1)[0] ?? null;
+  const nowDetail =
+    events.length > 0
+      ? `${events.length} active signal${events.length !== 1 ? "s" : ""}; ${risk.topDriver}.`
+      : "No active signals found in the selected radius.";
+  const changedDetail = latest
+    ? `${latest.source} updated ${timeAgo(latest.updatedAt)}: ${latest.headline}`
+    : "No recent event updates available.";
+  const concernDetail = eventSummary(topEvent, location, radius);
+  const confidenceDetail = `${sourceAgreement(events)} ${sourceCoverage(sourceHealth)}`;
+  const watchDetail = watchNext(events, currentWeather);
+
+  async function handleCopyBrief() {
+    if (!navigator.clipboard?.writeText) {
+      setCopyStatus("failed");
+      window.setTimeout(() => setCopyStatus("idle"), 2200);
+      return;
+    }
+
+    const lines = [
+      `OpenRisk Radar Situation Brief`,
+      `${location.city}, ${location.state} · ${radius} mi · ${risk.level}`,
+      `Now: ${nowDetail}`,
+      `Changed: ${changedDetail}`,
+      `Concern: ${concernDetail}`,
+      `Confidence: ${confidenceDetail}`,
+      `Watch next: ${watchDetail}`,
+      topEvent?.url ? `Top source: ${topEvent.url}` : null,
+    ].filter(Boolean);
+
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("failed");
+    }
+    window.setTimeout(() => setCopyStatus("idle"), 2200);
+  }
 
   return (
     <section style={styles.section}>
@@ -112,38 +153,29 @@ export function SituationBriefPanel({
             {location.city}, {location.state} · {radius} mi
           </div>
         </div>
-        <span style={styles.posture}>{risk.level}</span>
+        <div style={styles.headerActions}>
+          <button
+            type="button"
+            style={styles.copyButton}
+            onClick={handleCopyBrief}
+            title="Copy situation brief"
+          >
+            {copyStatus === "copied"
+              ? "Copied"
+              : copyStatus === "failed"
+                ? "Copy failed"
+                : "Copy brief"}
+          </button>
+          <span style={styles.posture}>{risk.level}</span>
+        </div>
       </div>
 
       <div style={styles.briefGrid}>
-        <BriefItem
-          title="Now"
-          detail={
-            events.length > 0
-              ? `${events.length} active signal${events.length !== 1 ? "s" : ""}; ${risk.topDriver}.`
-              : "No active signals found in the selected radius."
-          }
-        />
-        <BriefItem
-          title="Changed"
-          detail={
-            latest
-              ? `${latest.source} updated ${timeAgo(latest.updatedAt)}: ${latest.headline}`
-              : "No recent event updates available."
-          }
-        />
-        <BriefItem
-          title="Concern"
-          detail={eventSummary(topEvent, location, radius)}
-        />
-        <BriefItem
-          title="Confidence"
-          detail={`${sourceAgreement(events)} ${sourceCoverage(sourceHealth)}`}
-        />
-        <BriefItem
-          title="Watch next"
-          detail={watchNext(events, currentWeather)}
-        />
+        <BriefItem title="Now" detail={nowDetail} />
+        <BriefItem title="Changed" detail={changedDetail} />
+        <BriefItem title="Concern" detail={concernDetail} />
+        <BriefItem title="Confidence" detail={confidenceDetail} />
+        <BriefItem title="Watch next" detail={watchDetail} />
       </div>
 
       {topEvent?.url && (
@@ -185,6 +217,25 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "10px 11px",
     borderBottom: "1px solid #e3ebf2",
     background: "#fff",
+  },
+  headerActions: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 6,
+    justifyContent: "flex-end",
+  },
+  copyButton: {
+    border: "1px solid #bbdefb",
+    borderRadius: 5,
+    background: "#fff",
+    color: "#1565c0",
+    cursor: "pointer",
+    fontSize: 10,
+    fontWeight: 900,
+    lineHeight: 1,
+    padding: "5px 7px",
+    whiteSpace: "nowrap",
   },
   label: {
     fontSize: 11,
