@@ -20,6 +20,19 @@ function criticalityColor(c: Criticality): string {
   }
 }
 
+function criticalityRank(c: Criticality): number {
+  switch (c) {
+    case "High":
+      return 3;
+    case "Medium":
+      return 2;
+    case "Low":
+      return 1;
+  }
+}
+
+type SortMode = "recent" | "criticality" | "label";
+
 export function SavedLocationList({
   savedLocations,
   activeLocationId,
@@ -28,11 +41,44 @@ export function SavedLocationList({
   onUpdateLabel,
 }: SavedLocationListProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const [filterText, setFilterText] = useState("");
+  const [sortMode, setSortMode] = useState<SortMode>("recent");
 
   if (savedLocations.length === 0) return null;
 
   const activeLocation =
     savedLocations.find((location) => location.id === activeLocationId) ?? null;
+  const normalizedFilter = filterText.trim().toLowerCase();
+  const visibleLocations = savedLocations
+    .filter((loc) => {
+      if (!normalizedFilter) return true;
+      return [
+        loc.label,
+        loc.city,
+        loc.state,
+        loc.postalCode ?? "",
+        loc.county ?? "",
+        loc.criticality,
+        loc.locationType,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedFilter);
+    })
+    .sort((a, b) => {
+      if (sortMode === "criticality") {
+        return (
+          criticalityRank(b.criticality) - criticalityRank(a.criticality) ||
+          a.label.localeCompare(b.label)
+        );
+      }
+      if (sortMode === "label") {
+        return a.label.localeCompare(b.label);
+      }
+      return (
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    });
 
   return (
     <div className="saved-locations" style={styles.container}>
@@ -51,60 +97,86 @@ export function SavedLocationList({
         <span style={styles.chevron}>{collapsed ? "Show" : "Hide"}</span>
       </button>
       {!collapsed && (
-        <div style={styles.list}>
-          {savedLocations.map((loc) => {
-            const isActive = loc.id === activeLocationId;
-            return (
-              <div
-                key={loc.id}
-                style={{
-                  ...styles.item,
-                  ...(isActive ? styles.itemActive : {}),
-                }}
-              >
-                <div style={styles.itemTop}>
-                  <input
-                    style={styles.labelInput}
-                    value={loc.label}
-                    onChange={(e) => onUpdateLabel(loc.id, e.target.value)}
-                    aria-label={`Label for ${loc.city}, ${loc.state}`}
-                  />
+        <div>
+          <div style={styles.toolbar}>
+            <input
+              value={filterText}
+              onChange={(event) => setFilterText(event.target.value)}
+              style={styles.filterInput}
+              placeholder="Filter saved locations"
+              aria-label="Filter saved locations"
+            />
+            <select
+              value={sortMode}
+              onChange={(event) => setSortMode(event.target.value as SortMode)}
+              style={styles.sortSelect}
+              aria-label="Sort saved locations"
+            >
+              <option value="recent">Recent</option>
+              <option value="criticality">Criticality</option>
+              <option value="label">Label</option>
+            </select>
+          </div>
+          <div style={styles.list}>
+            {visibleLocations.length === 0 && (
+              <div style={styles.empty}>No saved locations match.</div>
+            )}
+            {visibleLocations.map((loc) => {
+              const isActive = loc.id === activeLocationId;
+              return (
+                <div
+                  key={loc.id}
+                  style={{
+                    ...styles.item,
+                    ...(isActive ? styles.itemActive : {}),
+                  }}
+                >
+                  <div style={styles.itemTop}>
+                    <input
+                      style={styles.labelInput}
+                      value={loc.label}
+                      onChange={(e) => onUpdateLabel(loc.id, e.target.value)}
+                      aria-label={`Label for ${loc.city}, ${loc.state}`}
+                    />
+                    <button
+                      type="button"
+                      style={styles.deleteBtn}
+                      onClick={() => onDelete(loc.id)}
+                      title={`Delete ${loc.label}`}
+                      aria-label={`Delete ${loc.label}`}
+                    >
+                      &times;
+                    </button>
+                  </div>
                   <button
                     type="button"
-                    style={styles.deleteBtn}
-                    onClick={() => onDelete(loc.id)}
-                    title={`Delete ${loc.label}`}
-                    aria-label={`Delete ${loc.label}`}
+                    style={styles.itemMain}
+                    onClick={() => onSelect(loc)}
+                    aria-pressed={isActive}
+                    title={`Load ${loc.label}`}
                   >
-                    &times;
+                    <span style={styles.itemMeta}>
+                      {loc.city}, {loc.state}
+                      {isActive ? " · Selected" : ""}
+                    </span>
+                    <span style={styles.itemBadges}>
+                      <span
+                        style={{
+                          ...styles.badge,
+                          background: criticalityColor(loc.criticality),
+                        }}
+                      >
+                        {loc.criticality}
+                      </span>
+                      <span style={styles.badgeOutline}>
+                        {loc.locationType}
+                      </span>
+                    </span>
                   </button>
                 </div>
-                <button
-                  type="button"
-                  style={styles.itemMain}
-                  onClick={() => onSelect(loc)}
-                  aria-pressed={isActive}
-                  title={`Load ${loc.label}`}
-                >
-                  <span style={styles.itemMeta}>
-                    {loc.city}, {loc.state}
-                    {isActive ? " · Selected" : ""}
-                  </span>
-                  <span style={styles.itemBadges}>
-                    <span
-                      style={{
-                        ...styles.badge,
-                        background: criticalityColor(loc.criticality),
-                      }}
-                    >
-                      {loc.criticality}
-                    </span>
-                    <span style={styles.badgeOutline}>{loc.locationType}</span>
-                  </span>
-                </button>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
@@ -156,7 +228,38 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 10,
     fontWeight: 800,
   },
+  toolbar: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) auto",
+    gap: 6,
+    padding: "7px 12px",
+    borderBottom: "1px solid #eceff1",
+    background: "#fff",
+  },
+  filterInput: {
+    border: "1px solid #cfd8dc",
+    borderRadius: 5,
+    color: "#263238",
+    fontSize: 12,
+    minWidth: 0,
+    padding: "5px 7px",
+  },
+  sortSelect: {
+    border: "1px solid #cfd8dc",
+    borderRadius: 5,
+    background: "#fff",
+    color: "#424242",
+    fontSize: 12,
+    fontWeight: 700,
+    padding: "5px 6px",
+  },
   list: {},
+  empty: {
+    color: "#78909c",
+    fontSize: 12,
+    fontWeight: 700,
+    padding: "10px 12px",
+  },
   item: {
     padding: "6px 12px",
     borderBottom: "1px solid #f0f0f0",
