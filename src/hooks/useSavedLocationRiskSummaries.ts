@@ -9,6 +9,7 @@ import { fetchSpcOutlooks } from "../services/spc";
 import type { Location, RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import {
+  activeConcernEvents,
   attentionEvents,
   buildRiskSummary,
   type RiskSummary,
@@ -162,18 +163,19 @@ export function useSavedLocationRiskSummaries(
     const query = queries[index];
     const payload = query.data;
     const events = payload?.events ?? [];
+    const concernEvents = activeConcernEvents(events);
     const resolvedLocation = toResolvedLocation(location);
     const radius = toRadiusOption(location.radiusMiles || 50);
-    const risk = buildRiskSummary(events);
+    const risk = buildRiskSummary(concernEvents);
     const impact = buildImpactSummary(events, resolvedLocation, radius);
 
     return {
       locationId: location.id,
       risk,
       impact,
-      topEvent: attentionEvents(events, resolvedLocation, 1)[0] ?? null,
+      topEvent: attentionEvents(concernEvents, resolvedLocation, 1)[0] ?? null,
       currentWeather: payload?.currentWeather ?? null,
-      eventCount: events.length,
+      eventCount: concernEvents.length,
       liveSourceCount: payload?.liveSourceCount ?? 0,
       errorCount: payload?.errorCount ?? 0,
       isLoading: query.isLoading,

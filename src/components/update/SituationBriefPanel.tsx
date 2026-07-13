@@ -4,6 +4,7 @@ import type { CurrentWeather } from "../../services/weather";
 import type { RadiusOption, ResolvedLocation } from "../../types/location";
 import type { RiskEvent } from "../../types/riskEvent";
 import {
+  activeConcernEvents,
   attentionEvents,
   buildRiskSummary,
   distanceMiles,
@@ -98,19 +99,20 @@ export function SituationBriefPanel({
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">(
     "idle"
   );
-  const risk = buildRiskSummary(events);
-  const latest = latestEvent(events);
-  const topEvents = attentionEvents(events, location, 3);
+  const concernEvents = activeConcernEvents(events);
+  const risk = buildRiskSummary(concernEvents);
+  const latest = latestEvent(concernEvents);
+  const topEvents = attentionEvents(concernEvents, location, 3);
   const topEvent = topEvents[0] ?? null;
   const nowDetail =
-    events.length > 0
-      ? `${events.length} active signal${events.length !== 1 ? "s" : ""}; ${risk.topDriver}.`
+    concernEvents.length > 0
+      ? `${concernEvents.length} active signal${concernEvents.length !== 1 ? "s" : ""}; ${risk.topDriver}.`
       : "No active signals found in the selected radius.";
   const changedDetail = latest
     ? `${latest.source} updated ${timeAgo(latest.updatedAt)}: ${latest.headline}`
     : "No recent event updates available.";
   const concernDetail = eventSummary(topEvent, location, radius);
-  const confidenceDetail = `${summarizeSourceAgreement(events)} ${sourceCoverage(sourceHealth)}`;
+  const confidenceDetail = `${summarizeSourceAgreement(concernEvents)} ${sourceCoverage(sourceHealth)}`;
   const watchDetail = watchNext(events, currentWeather);
 
   async function handleCopyBrief() {

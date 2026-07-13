@@ -3,6 +3,7 @@ import type { CurrentWeather } from "../services/weather";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import {
+  activeConcernEvents,
   attentionEvents,
   buildRiskSummary,
   distanceMiles,
@@ -125,18 +126,20 @@ export function RiskCommandBar({
     );
   }
 
-  const summary = buildRiskSummary(events);
-  const scoreExplanation = explainRiskScore(events);
+  const concernEvents = activeConcernEvents(events);
+  const summary = buildRiskSummary(concernEvents);
+  const scoreExplanation = explainRiskScore(concernEvents);
   const impactSummary = buildImpactSummary(events, location, radius);
   const currentImpactEvents = events.filter((event) =>
     isCurrentImpact(event, location, radius)
   );
+  const currentImpactConcernEvents = activeConcernEvents(currentImpactEvents);
   const topEvents = attentionEvents(
-    currentImpactEvents.length > 0 ? currentImpactEvents : events,
+    currentImpactConcernEvents.length > 0 ? currentImpactConcernEvents : concernEvents,
     location,
     2
   );
-  const correlations = buildSignalCorrelations(events).slice(0, 3);
+  const correlations = buildSignalCorrelations(concernEvents).slice(0, 3);
   const color = levelColor(summary.level);
 
   return (

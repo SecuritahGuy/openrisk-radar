@@ -4,6 +4,7 @@ import type { RiskEvent } from "../types/riskEvent";
 import type { SourceHealthItem } from "../hooks/useRiskFeeds";
 import type { SavedLocationRiskSummary } from "../hooks/useSavedLocationRiskSummaries";
 import {
+  activeConcernEvents,
   attentionEvents,
   buildRiskSummary,
   sourceColor,
@@ -70,7 +71,8 @@ export function SavedLocationOverview({
 }: SavedLocationOverviewProps) {
   if (savedLocations.length === 0) return null;
 
-  const risk = buildRiskSummary(events);
+  const concernEvents = activeConcernEvents(events);
+  const risk = buildRiskSummary(concernEvents);
   const impact = activeLocation
     ? buildImpactSummary(
         events,
@@ -89,17 +91,21 @@ export function SavedLocationOverview({
       )
     : null;
   const topEvent = activeLocation
-    ? attentionEvents(events, {
-        city: activeLocation.city,
-        state: activeLocation.state,
-        postalCode: activeLocation.postalCode,
-        country: activeLocation.country,
-        latitude: activeLocation.latitude,
-        longitude: activeLocation.longitude,
-        county: activeLocation.county,
-        stateFips: activeLocation.stateFips,
-        countyFips: activeLocation.countyFips,
-      }, 1)[0] ?? null
+    ? attentionEvents(
+        concernEvents,
+        {
+          city: activeLocation.city,
+          state: activeLocation.state,
+          postalCode: activeLocation.postalCode,
+          country: activeLocation.country,
+          latitude: activeLocation.latitude,
+          longitude: activeLocation.longitude,
+          county: activeLocation.county,
+          stateFips: activeLocation.stateFips,
+          countyFips: activeLocation.countyFips,
+        },
+        1
+      )[0] ?? null
     : null;
   const liveSources = sourceHealth.filter((item) => item.status === "live").length;
   const sourceIssues = sourceHealth.filter(

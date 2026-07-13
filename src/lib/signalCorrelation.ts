@@ -4,7 +4,7 @@ import type {
   RiskEvent,
   Severity,
 } from "../types/riskEvent";
-import { severityRank } from "./riskInsights";
+import { activeConcernEvents, severityRank } from "./riskInsights";
 
 export type SignalAgreement = "corroborated" | "single-source" | "stale";
 
@@ -114,7 +114,7 @@ export function buildSignalCorrelations(
 ): CorrelatedSignal[] {
   const groups = new Map<string, RiskEvent[]>();
 
-  for (const event of events) {
+  for (const event of activeConcernEvents(events, nowMs)) {
     const key = signalKey(event);
     groups.set(key, [...(groups.get(key) ?? []), event]);
   }

@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  activeConcernEvents,
+  buildRiskSummary,
   distanceMiles,
   explainRiskScore,
   filterEvents,
+  isStaleConcernEvent,
   sourceColor,
   severityRank,
   type SeverityFilters,
@@ -36,6 +39,8 @@ function event(overrides: Partial<RiskEvent>): RiskEvent {
 }
 
 describe("riskInsights", () => {
+  const now = new Date("2026-07-13T12:00:00Z").getTime();
+
   it("ranks severity from minor to extreme", () => {
     expect(severityRank("Minor")).toBeLessThan(severityRank("Moderate"));
     expect(severityRank("Moderate")).toBeLessThan(severityRank("Severe"));
@@ -162,5 +167,53 @@ describe("riskInsights", () => {
       { source: "SPC", count: 2 },
       { source: "NWS", count: 1 },
     ]);
+  });
+
+  it("excludes FEMA history from active concern scoring", () => {
+    const femaHistory = event({
+      id: "covid-disaster",
+      source: "FEMA",
+      sourceEventId: "DR-4489-IL",
+      type: "COVID-19",
+      category: "Disaster",
+      severity: "Severe",
+      headline: "COVID-19 Pandemic",
+      startedAt: "2020-01-20T00:00:00Z",
+      updatedAt: "2020-03-26T00:00:00Z",
+      expiresAt: "2023-05-11T00:00:00Z",
+    });
+
+    expect(activeConcernEvents([femaHistory], now)).toEqual([]);
+    expect(buildRiskSummary(activeConcernEvents([femaHistory], now))).toMatchObject({
+      level: "Clear",
+      score: 0,
+      topDriver: "No active signals",
+    });
+  });
+
+  it("excludes expired and very old non-expiring records from active concerns", () => {
+    const expired = event({
+      id: "expired",
+      severity: "Severe",
+      updatedAt: "2026-07-13T10:00:00Z",
+      expiresAt: "2026-07-13T11:00:00Z",
+    });
+    const veryOld = event({
+      id: "old",
+      severity: "Severe",
+      updatedAt: "2026-01-01T00:00:00Z",
+      expiresAt: null,
+    });
+    const current = event({
+      id: "current",
+      severity: "Severe",
+      updatedAt: "2026-07-13T11:00:00Z",
+      expiresAt: null,
+    });
+
+    expect(isStaleConcernEvent(expired, now)).toBe(true);
+    expect(isStaleConcernEvent(veryOld, now)).toBe(true);
+    expect(activeConcernEvents([expired, veryOld, current], now).map((e) => e.id))
+      .toEqual(["current"]);
   });
 });

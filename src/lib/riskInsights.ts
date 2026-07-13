@@ -61,6 +61,8 @@ export interface RiskScoreExplanation {
   sourceCounts: RiskSourceCount[];
 }
 
+const STALE_CONCERN_MS = 90 * 24 * 60 * 60 * 1000;
+
 export function defaultSourceFilters(): SourceFilters {
   return {
     NWS: true,
@@ -203,6 +205,33 @@ export function isExpiringSoon(event: RiskEvent): boolean {
   if (Number.isNaN(expires)) return false;
   const diffMs = expires - Date.now();
   return diffMs > 0 && diffMs <= 12 * 60 * 60 * 1000;
+}
+
+export function isHistoricalContextEvent(event: RiskEvent): boolean {
+  return event.source === "FEMA";
+}
+
+export function isStaleConcernEvent(
+  event: RiskEvent,
+  nowMs = Date.now()
+): boolean {
+  if (isHistoricalContextEvent(event)) return true;
+
+  if (event.expiresAt) {
+    const expires = new Date(event.expiresAt).getTime();
+    if (!Number.isNaN(expires) && expires <= nowMs) return true;
+    return false;
+  }
+
+  const updated = new Date(event.updatedAt).getTime();
+  return !Number.isNaN(updated) && nowMs - updated > STALE_CONCERN_MS;
+}
+
+export function activeConcernEvents(
+  events: RiskEvent[],
+  nowMs = Date.now()
+): RiskEvent[] {
+  return events.filter((event) => !isStaleConcernEvent(event, nowMs));
 }
 
 export function filterEvents(

@@ -111,4 +111,24 @@ describe("signalCorrelation", () => {
       )
     ).toContain("appear stale");
   });
+
+  it("does not treat FEMA history as source agreement concern", () => {
+    const femaHistory = event({
+      id: "covid-disaster",
+      source: "FEMA",
+      sourceEventId: "DR-4489-IL",
+      type: "COVID-19",
+      category: "Disaster",
+      severity: "Severe",
+      headline: "COVID-19 Pandemic",
+      startedAt: "2020-01-20T00:00:00Z",
+      updatedAt: "2020-03-26T00:00:00Z",
+      expiresAt: "2023-05-11T00:00:00Z",
+    });
+
+    expect(buildSignalCorrelations([femaHistory], NOW)).toEqual([]);
+    expect(summarizeSourceAgreement([femaHistory], NOW)).toBe(
+      "No active hazard feeds are reporting in this radius."
+    );
+  });
 });

@@ -13,6 +13,7 @@ import { useRiskFeeds } from "./hooks/useRiskFeeds";
 import { useSavedLocations } from "./hooks/useSavedLocations";
 import { useSavedLocationRiskSummaries } from "./hooks/useSavedLocationRiskSummaries";
 import {
+  activeConcernEvents,
   defaultSeverityFilters,
   defaultSourceFilters,
   filterEvents,
@@ -198,6 +199,14 @@ export default function App() {
     if (!currentImpactOnly) return visible;
     return visible.filter((event) => isCurrentImpact(event, result, radius));
   }, [allEvents, sourceFilters, severityFilters, currentImpactOnly, result, radius]);
+  const allConcernEvents = useMemo(
+    () => activeConcernEvents(allEvents),
+    [allEvents]
+  );
+  const filteredConcernEvents = useMemo(
+    () => activeConcernEvents(filteredEvents),
+    [filteredEvents]
+  );
 
   useEffect(() => {
     if (initialSearchStarted.current || !initialQuery.trim()) return;
@@ -420,8 +429,8 @@ export default function App() {
           onEventClick={handleSelectEvent}
         />
         <FeedExplorer
-          events={filteredEvents}
-          totalEvents={allEvents.length}
+          events={filteredConcernEvents}
+          totalEvents={allConcernEvents.length}
           location={result}
           radius={radius}
           isFetching={isFetching}
