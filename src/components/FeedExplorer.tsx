@@ -206,6 +206,16 @@ export function FeedExplorer({
   }, [events, location, radius, sortState]);
 
   const hasNoEvents = events.length === 0 && !isFetching;
+  const emptyMessage = !location
+    ? "Search a location to load live feed events."
+    : totalEvents > 0
+      ? "No events match the active filters."
+      : "No events found for this location.";
+  const collapsedEmptyMessage = !location
+    ? "Search a location"
+    : totalEvents > 0
+      ? "No matching events"
+      : "No events found";
   const title = `Feed Explorer (${events.length}${
     totalEvents !== events.length ? ` of ${totalEvents}` : ""
   })`;
@@ -223,9 +233,7 @@ export function FeedExplorer({
         {collapsed && (
           <span style={styles.collapsedHint}>
             {hasNoEvents
-              ? totalEvents > 0
-                ? "No matching events"
-                : "No events found"
+              ? collapsedEmptyMessage
               : `${sortedEvents.length} visible rows hidden`}
           </span>
         )}
@@ -260,11 +268,7 @@ export function FeedExplorer({
         )}
       </div>
       {collapsed ? null : hasNoEvents ? (
-        <div style={styles.empty}>
-          {totalEvents > 0
-            ? "No events match the active filters."
-            : "No events found for this location."}
-        </div>
+        <div style={styles.empty}>{emptyMessage}</div>
       ) : (
         <>
           <FeedSummaryBar

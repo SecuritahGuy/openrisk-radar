@@ -561,7 +561,11 @@ export function MapView({
     lng: number;
   } | null>(null);
   const [pendingPoint, setPendingPoint] = useState<PendingMapPoint | null>(null);
-  const [controlsCollapsed, setControlsCollapsed] = useState(false);
+  const [controlsCollapsed, setControlsCollapsed] = useState(true);
+
+  useEffect(() => {
+    if (!location) setControlsCollapsed(true);
+  }, [location]);
 
   function handleClickPoint(lat: number, lng: number) {
     const nextPoint: PendingMapPoint = {
