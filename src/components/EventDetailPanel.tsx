@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { RiskEvent } from "../types/riskEvent";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
 import { assessImpact, impactColor } from "../lib/impactInsights";
@@ -324,6 +324,9 @@ export function EventDetailPanel({
   radius,
   onClose,
 }: EventDetailPanelProps) {
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">(
+    "idle"
+  );
   const coords =
     event.latitude != null && event.longitude != null
       ? `${event.latitude.toFixed(4)}, ${event.longitude.toFixed(4)}`
@@ -333,6 +336,36 @@ export function EventDetailPanel({
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  async function handleCopyEvent() {
+    if (!navigator.clipboard?.writeText) {
+      setCopyStatus("failed");
+      window.setTimeout(() => setCopyStatus("idle"), 2200);
+      return;
+    }
+
+    const lines = [
+      `OpenRisk Radar Event Detail`,
+      `${event.source} · ${event.type} · ${event.severity} · ${impact.label}`,
+      event.headline,
+      event.description ? `Description: ${event.description}` : null,
+      `Impact: ${impact.detail}`,
+      `Started: ${formatTime(event.startedAt)}`,
+      `Updated: ${formatTime(event.updatedAt)}`,
+      event.expiresAt ? `Expires: ${formatTime(event.expiresAt)}` : null,
+      coords !== "—" ? `Coordinates: ${coords}` : null,
+      `Confidence: ${event.confidence}`,
+      event.url ? `Source: ${event.url}` : null,
+    ].filter(Boolean);
+
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("failed");
+    }
+    window.setTimeout(() => setCopyStatus("idle"), 2200);
+  }
 
   useEffect(() => {
     previousFocusRef.current =
@@ -512,8 +545,20 @@ export function EventDetailPanel({
           </div>
         )}
 
-        {event.url && (
-          <div style={styles.actionRow}>
+        <div style={styles.actionRow}>
+          <button
+            type="button"
+            style={styles.copyBtn}
+            onClick={handleCopyEvent}
+            title="Copy event details"
+          >
+            {copyStatus === "copied"
+              ? "Copied"
+              : copyStatus === "failed"
+                ? "Copy failed"
+                : "Copy event"}
+          </button>
+          {event.url && (
             <a
               href={event.url}
               target="_blank"
@@ -522,8 +567,8 @@ export function EventDetailPanel({
             >
               View source &rarr;
             </a>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
@@ -635,9 +680,24 @@ const styles: Record<string, React.CSSProperties> = {
     flex: 1,
   },
   actionRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    gap: 10,
     borderTop: "1px solid #eee",
     paddingTop: 12,
     textAlign: "center" as const,
+  },
+  copyBtn: {
+    border: "1px solid #bbdefb",
+    borderRadius: 6,
+    background: "#fff",
+    color: "#1565c0",
+    cursor: "pointer",
+    fontSize: 13,
+    fontWeight: 700,
+    padding: "7px 10px",
   },
   extLink: {
     fontSize: 13,
