@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Marker as LeafletMarker } from "leaflet";
+import L, { type Marker as LeafletMarker } from "leaflet";
 import {
   MapContainer,
   TileLayer,
@@ -59,6 +59,50 @@ interface MapViewProps {
   onSearchMapArea: (lat: number, lng: number) => void;
   mapSearchLoading: boolean;
   onEventClick?: (event: RiskEvent) => void;
+}
+
+function pinMarkerIcon(color: string): L.DivIcon {
+  return L.divIcon({
+    className: "openrisk-location-marker",
+    html: `<div style="
+      position:relative;
+      width:28px;
+      height:34px;
+    ">
+      <div style="
+        position:absolute;
+        left:4px;
+        top:0;
+        width:20px;
+        height:20px;
+        border-radius:50% 50% 50% 0;
+        transform:rotate(-45deg);
+        background:${color};
+        border:3px solid #fff;
+        box-shadow:0 2px 8px rgba(0,0,0,0.28);
+      "></div>
+      <div style="
+        position:absolute;
+        left:10px;
+        top:6px;
+        width:8px;
+        height:8px;
+        border-radius:50%;
+        background:#fff;
+      "></div>
+    </div>`,
+    iconSize: [28, 34],
+    iconAnchor: [14, 28],
+    popupAnchor: [0, -28],
+  });
+}
+
+const searchedLocationIcon = pinMarkerIcon("#1565c0");
+
+function pendingPointIcon(status: PendingMapPoint["status"]): L.DivIcon {
+  if (status === "error") return pinMarkerIcon("#c62828");
+  if (status === "loading") return pinMarkerIcon("#f57c00");
+  return pinMarkerIcon("#2e7d32");
 }
 
 function MapController({ location }: { location: ResolvedLocation }) {
@@ -158,6 +202,7 @@ function ClickSearchMarker({
     <Marker
       ref={markerRef}
       position={[point.latitude, point.longitude]}
+      icon={pendingPointIcon(point.status)}
       zIndexOffset={1200}
     >
       <Popup closeButton={false}>
@@ -650,7 +695,10 @@ export function MapView({
                 dashArray: "6 4",
               }}
             />
-            <Marker position={[location.latitude, location.longitude]}>
+            <Marker
+              position={[location.latitude, location.longitude]}
+              icon={searchedLocationIcon}
+            >
               <Popup>
                 {location.city}, {location.state}
                 <br />
