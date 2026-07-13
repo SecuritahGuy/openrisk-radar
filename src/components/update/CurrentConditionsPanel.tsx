@@ -57,9 +57,9 @@ export function CurrentConditionsPanel({
               <div style={styles.forecastMain}>
                 <strong>
                   {Math.round(period.temperature)}&deg;
-                  {period.temperatureLow != null
-                    ? ` / ${Math.round(period.temperatureLow)}&deg;`
-                    : ""}
+                  {period.temperatureLow != null && (
+                    <> / {Math.round(period.temperatureLow)}&deg;</>
+                  )}
                 </strong>
                 <span>{period.shortForecast}</span>
               </div>
