@@ -45,6 +45,7 @@ interface UpdatePanelProps {
   onRefresh: () => void;
   activeSavedLocation: Location | null;
   onSaveLocation: () => void;
+  onShareView: () => Promise<"shared" | "copied" | "unavailable">;
   onUpdateLabel: (label: string) => void;
   onUpdateCriticality: (c: Criticality) => void;
   onUpdateType: (t: LocationType) => void;
@@ -81,6 +82,7 @@ export function UpdatePanel({
   onRefresh,
   activeSavedLocation,
   onSaveLocation,
+  onShareView,
   onUpdateLabel,
   onUpdateCriticality,
   onUpdateType,
@@ -158,6 +160,7 @@ export function UpdatePanel({
             isSaved={isSaved}
             isSaving={isSaving}
             onSaveLocation={onSaveLocation}
+            onShareView={onShareView}
             onDeleteLocation={onDeleteLocation}
           />
         </>

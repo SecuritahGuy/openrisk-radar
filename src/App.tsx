@@ -272,6 +272,38 @@ export default function App() {
     });
   }, [result, query, saveLocation]);
 
+  const handleShareView = useCallback(async () => {
+    if (typeof window === "undefined") return "unavailable";
+    const label = result
+      ? `${result.city}, ${result.state}`
+      : "OpenRisk Radar view";
+    const shareData = {
+      title: `OpenRisk Radar: ${label}`,
+      text: `Risk snapshot for ${label}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return "shared";
+      } catch {
+        // Fall back to clipboard when native sharing is cancelled or blocked.
+      }
+    }
+
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        return "copied";
+      } catch {
+        return "unavailable";
+      }
+    }
+
+    return "unavailable";
+  }, [result]);
+
   const handleSelectSaved = useCallback(
     (loc: (typeof savedLocations)[number]) => {
       const input = loc.postalCode
@@ -411,6 +443,7 @@ export default function App() {
         onRefresh={refetch}
         activeSavedLocation={activeSavedLocation}
         onSaveLocation={handleSaveLocation}
+        onShareView={handleShareView}
         onUpdateLabel={(label) => {
           if (activeSavedLocation) {
             updateLocation(activeSavedLocation.id, { label });

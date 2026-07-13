@@ -1,8 +1,11 @@
+import { useState } from "react";
+
 interface LocationActionPanelProps {
   isSaved: boolean;
   isSaving: boolean;
   onSaveLocation: () => void;
   onDeleteLocation: () => void;
+  onShareView: () => Promise<"shared" | "copied" | "unavailable">;
 }
 
 export function LocationActionPanel({
@@ -10,9 +13,32 @@ export function LocationActionPanel({
   isSaving,
   onSaveLocation,
   onDeleteLocation,
+  onShareView,
 }: LocationActionPanelProps) {
+  const [shareStatus, setShareStatus] = useState<
+    "idle" | "shared" | "copied" | "unavailable"
+  >("idle");
+
+  async function handleShare() {
+    const result = await onShareView();
+    setShareStatus(result);
+    window.setTimeout(() => setShareStatus("idle"), 2200);
+  }
+
+  const shareLabel =
+    shareStatus === "shared"
+      ? "Shared"
+      : shareStatus === "copied"
+        ? "Link copied"
+        : shareStatus === "unavailable"
+          ? "Copy unavailable"
+          : "Share view";
+
   return (
     <div className="update-action-row" style={styles.actionRow}>
+      <button onClick={handleShare} style={styles.shareBtn}>
+        {shareLabel}
+      </button>
       {isSaved ? (
         <button onClick={onDeleteLocation} style={styles.deleteBtn}>
           Remove saved location
@@ -31,7 +57,24 @@ export function LocationActionPanel({
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  actionRow: { marginTop: 16, borderTop: "1px solid #e0e0e0", paddingTop: 12 },
+  actionRow: {
+    display: "grid",
+    gap: 8,
+    marginTop: 16,
+    borderTop: "1px solid #e0e0e0",
+    paddingTop: 12,
+  },
+  shareBtn: {
+    width: "100%",
+    padding: "8px 16px",
+    fontSize: 14,
+    fontWeight: 700,
+    background: "#fff",
+    color: "#1565c0",
+    border: "1px solid #bbdefb",
+    borderRadius: 6,
+    cursor: "pointer",
+  },
   saveBtn: {
     width: "100%",
     padding: "8px 16px",
