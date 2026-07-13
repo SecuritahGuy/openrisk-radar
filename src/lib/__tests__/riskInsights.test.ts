@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   distanceMiles,
+  explainRiskScore,
   filterEvents,
   sourceColor,
   severityRank,
@@ -107,5 +108,59 @@ describe("riskInsights", () => {
     expect(sourceColor("AIRNOW")).toBe("#455a64");
     expect(sourceColor("COOPS")).toBe("#0277bd");
     expect(sourceColor("SPACE_WEATHER")).toBe("#5e35b1");
+  });
+
+  it("explains risk score contributions and source counts", () => {
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    const explanation = explainRiskScore([
+      event({ id: "extreme", source: "NWS", severity: "Extreme", expiresAt }),
+      event({ id: "severe", source: "SPC", severity: "Severe" }),
+      event({ id: "moderate", source: "SPC", severity: "Moderate" }),
+    ]);
+
+    expect(explanation.score).toBe(76);
+    expect(explanation.level).toBe("Critical");
+    expect(explanation.rule).toContain("extreme signal");
+    expect(explanation.contributions).toEqual([
+      {
+        id: "extreme",
+        label: "Extreme signals",
+        count: 1,
+        points: 40,
+        detail: "+40 each",
+      },
+      {
+        id: "severe",
+        label: "Severe signals",
+        count: 1,
+        points: 18,
+        detail: "+18 each",
+      },
+      {
+        id: "moderate",
+        label: "Moderate signals",
+        count: 1,
+        points: 7,
+        detail: "+7 each",
+      },
+      {
+        id: "expiring",
+        label: "Expiring soon",
+        count: 1,
+        points: 8,
+        detail: "+8 each",
+      },
+      {
+        id: "active",
+        label: "Active signals",
+        count: 3,
+        points: 3,
+        detail: "+1 each",
+      },
+    ]);
+    expect(explanation.sourceCounts).toEqual([
+      { source: "SPC", count: 2 },
+      { source: "NWS", count: 1 },
+    ]);
   });
 });

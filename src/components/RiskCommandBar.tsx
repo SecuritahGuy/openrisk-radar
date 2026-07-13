@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { CurrentWeather } from "../services/weather";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
@@ -5,6 +6,7 @@ import {
   attentionEvents,
   buildRiskSummary,
   distanceMiles,
+  explainRiskScore,
   expiresLabel,
   formatDistance,
   severityColor,
@@ -95,6 +97,8 @@ export function RiskCommandBar({
   onToggleCurrentImpact,
   onEventClick,
 }: RiskCommandBarProps) {
+  const [showScoreDetails, setShowScoreDetails] = useState(false);
+
   if (!location) {
     return (
       <div className="risk-command-empty" style={styles.empty}>
@@ -107,6 +111,7 @@ export function RiskCommandBar({
   }
 
   const summary = buildRiskSummary(events);
+  const scoreExplanation = explainRiskScore(events);
   const impactSummary = buildImpactSummary(events, location, radius);
   const currentImpactEvents = events.filter((event) =>
     isCurrentImpact(event, location, radius)
@@ -121,9 +126,45 @@ export function RiskCommandBar({
   return (
     <div className="risk-command-bar" style={styles.container}>
       <div className="risk-score-block" style={styles.scoreBlock}>
-        <div style={styles.scoreLabel}>Risk posture</div>
+        <div style={styles.scoreHeaderRow}>
+          <div style={styles.scoreLabel}>Risk posture</div>
+          <button
+            type="button"
+            aria-expanded={showScoreDetails}
+            aria-controls="risk-score-explanation"
+            style={styles.explainButton}
+            onClick={() => setShowScoreDetails((value) => !value)}
+          >
+            {showScoreDetails ? "Hide" : "Explain"}
+          </button>
+        </div>
         <div style={{ ...styles.scoreValue, color }}>{summary.level}</div>
         <div style={styles.scoreDetail}>{summary.topDriver}</div>
+        {showScoreDetails ? (
+          <div id="risk-score-explanation" style={styles.scoreExplanation}>
+            <div style={styles.scoreRule}>
+              {scoreExplanation.score} points. {scoreExplanation.rule}
+            </div>
+            <div style={styles.contributionList}>
+              {scoreExplanation.contributions.map((item) => (
+                <div key={item.id} style={styles.contributionRow}>
+                  <span>{item.label}</span>
+                  <strong>
+                    {item.count} / {item.points} pts
+                  </strong>
+                </div>
+              ))}
+            </div>
+            {scoreExplanation.sourceCounts.length > 0 ? (
+              <div style={styles.sourceSummary}>
+                Sources:{" "}
+                {scoreExplanation.sourceCounts
+                  .map((item) => `${item.source} ${item.count}`)
+                  .join(" · ")}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="risk-metric-grid" style={styles.metricGrid}>
@@ -220,6 +261,13 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #dfe6ee",
     borderRadius: 8,
     padding: "10px 12px",
+    minWidth: 0,
+  },
+  scoreHeaderRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
   },
   scoreLabel: {
     fontSize: 10,
@@ -238,6 +286,48 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#616161",
     marginTop: 4,
     lineHeight: 1.35,
+  },
+  explainButton: {
+    border: "1px solid #cfd8dc",
+    background: "#fff",
+    borderRadius: 6,
+    color: "#1565c0",
+    cursor: "pointer",
+    font: "inherit",
+    fontSize: 11,
+    fontWeight: 700,
+    padding: "2px 7px",
+  },
+  scoreExplanation: {
+    borderTop: "1px solid #eef2f5",
+    marginTop: 8,
+    paddingTop: 8,
+    maxHeight: 168,
+    overflowY: "auto",
+  },
+  scoreRule: {
+    color: "#424242",
+    fontSize: 11,
+    lineHeight: 1.35,
+  },
+  contributionList: {
+    display: "grid",
+    gap: 4,
+    marginTop: 8,
+  },
+  contributionRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 8,
+    color: "#616161",
+    fontSize: 11,
+    lineHeight: 1.25,
+  },
+  sourceSummary: {
+    color: "#757575",
+    fontSize: 10,
+    lineHeight: 1.35,
+    marginTop: 8,
   },
   metricGrid: {
     display: "grid",

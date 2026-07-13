@@ -39,6 +39,28 @@ export interface RiskSummary {
   expiringCount: number;
 }
 
+export interface RiskScoreContribution {
+  id: "extreme" | "severe" | "moderate" | "expiring" | "active";
+  label: string;
+  count: number;
+  points: number;
+  detail: string;
+}
+
+export interface RiskSourceCount {
+  source: EventSource;
+  count: number;
+}
+
+export interface RiskScoreExplanation {
+  score: number;
+  level: RiskSummary["level"];
+  topDriver: string;
+  rule: string;
+  contributions: RiskScoreContribution[];
+  sourceCounts: RiskSourceCount[];
+}
+
 export function defaultSourceFilters(): SourceFilters {
   return {
     NWS: true,
@@ -262,5 +284,79 @@ export function buildRiskSummary(events: RiskEvent[]): RiskSummary {
     moderateCount,
     activeCount: events.length,
     expiringCount,
+  };
+}
+
+function levelRule(level: RiskSummary["level"]): string {
+  switch (level) {
+    case "Critical":
+      return "Critical when any extreme signal exists or the score reaches 90+.";
+    case "High":
+      return "High when there are 3+ severe signals or the score reaches 55+.";
+    case "Elevated":
+      return "Elevated when severe signals, 3+ moderate signals, or a 25+ score are present.";
+    case "Guarded":
+      return "Guarded when active signals are present below elevated thresholds.";
+    case "Clear":
+      return "Clear when no active signals are in scope.";
+  }
+}
+
+export function explainRiskScore(events: RiskEvent[]): RiskScoreExplanation {
+  const summary = buildRiskSummary(events);
+  const sourceCounts = EVENT_SOURCES.map((source) => ({
+    source,
+    count: events.filter((event) => event.source === source).length,
+  }))
+    .filter((item) => item.count > 0)
+    .sort((a, b) => b.count - a.count);
+  const rawContributions: RiskScoreContribution[] = [
+    {
+      id: "extreme",
+      label: "Extreme signals",
+      count: summary.criticalCount,
+      points: summary.criticalCount * 40,
+      detail: "+40 each",
+    },
+    {
+      id: "severe",
+      label: "Severe signals",
+      count: summary.severeCount,
+      points: summary.severeCount * 18,
+      detail: "+18 each",
+    },
+    {
+      id: "moderate",
+      label: "Moderate signals",
+      count: summary.moderateCount,
+      points: summary.moderateCount * 7,
+      detail: "+7 each",
+    },
+    {
+      id: "expiring",
+      label: "Expiring soon",
+      count: summary.expiringCount,
+      points: summary.expiringCount * 8,
+      detail: "+8 each",
+    },
+    {
+      id: "active",
+      label: "Active signals",
+      count: summary.activeCount,
+      points: summary.activeCount,
+      detail: "+1 each",
+    },
+  ];
+  const contributions = rawContributions.filter(
+    (item) => item.count > 0 || item.id === "active"
+  );
+
+  return {
+    score: summary.score,
+    level: summary.level,
+    topDriver: summary.topDriver,
+    rule: levelRule(summary.level),
+    contributions,
+    sourceCounts,
   };
 }
