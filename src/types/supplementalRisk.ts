@@ -2,6 +2,7 @@ import type { Confidence, Severity } from "./riskEvent";
 
 export type SupplementalSource =
   | "SPC"
+  | "NWPS"
   | "USGS_WATER"
   | "COOPS"
   | "NHC"

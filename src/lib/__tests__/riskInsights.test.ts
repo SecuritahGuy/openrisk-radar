@@ -81,6 +81,7 @@ describe("riskInsights", () => {
     const sourceFilters: SourceFilters = {
       NWS: true,
       NOAA: true,
+      NWPS: true,
       USGS: false,
       USGS_WATER: true,
       VOLCANO: true,
@@ -110,6 +111,7 @@ describe("riskInsights", () => {
   it("supports environmental event sources", () => {
     expect(sourceColor("USGS_WATER")).toBe("#0288d1");
     expect(sourceColor("NOAA")).toBe("#0065a8");
+    expect(sourceColor("NWPS")).toBe("#01579b");
     expect(sourceColor("VOLCANO")).toBe("#8d6e63");
     expect(sourceColor("DROUGHT")).toBe("#795548");
     expect(sourceColor("EMSC")).toBe("#43a047");

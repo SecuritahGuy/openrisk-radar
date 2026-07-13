@@ -11,6 +11,8 @@ function sourceColor(source: SupplementalSource): string {
   switch (source) {
     case "SPC":
       return "#1565c0";
+    case "NWPS":
+      return "#01579b";
     case "USGS_WATER":
       return "#0277bd";
     case "COOPS":

@@ -51,7 +51,7 @@ function signalKey(event: RiskEvent): string {
     return "fire-air-drought";
   }
   if (event.source === "USGS" || event.source === "EMSC") return "seismic";
-  if (event.source === "USGS_WATER" || event.source === "COOPS") return "water";
+  if (event.source === "USGS_WATER" || event.source === "NWPS" || event.source === "COOPS") return "water";
   if (event.source === "VOLCANO") return "volcano";
   if (event.source === "SPACE_WEATHER") return "space-weather";
   return event.category;

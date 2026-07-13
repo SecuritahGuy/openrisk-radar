@@ -17,6 +17,8 @@ function sourceColor(source: string): string {
       return "#1565c0";
     case "NOAA":
       return "#0065a8";
+    case "NWPS":
+      return "#01579b";
     case "USGS":
       return "#2e7d32";
     case "USGS_WATER":
@@ -525,9 +527,11 @@ export function EventDetailPanel({
             <UsgsFields raw={event.raw} />
           </div>
         )}
-        {event.source === "USGS_WATER" && (
+        {(event.source === "USGS_WATER" || event.source === "NWPS") && (
           <div style={styles.section}>
-            <div style={styles.sectionTitle}>River Gauge Details</div>
+            <div style={styles.sectionTitle}>
+              {event.source === "NWPS" ? "River Forecast Details" : "River Gauge Details"}
+            </div>
             <UsgsWaterFields raw={event.raw} />
           </div>
         )}

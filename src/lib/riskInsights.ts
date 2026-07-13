@@ -4,6 +4,7 @@ import type { EventSource, RiskEvent, Severity } from "../types/riskEvent";
 export const EVENT_SOURCES: EventSource[] = [
   "NWS",
   "NOAA",
+  "NWPS",
   "USGS",
   "USGS_WATER",
   "VOLCANO",
@@ -68,6 +69,7 @@ export function defaultSourceFilters(): SourceFilters {
   return {
     NWS: true,
     NOAA: true,
+    NWPS: true,
     USGS: true,
     USGS_WATER: true,
     VOLCANO: true,
@@ -100,6 +102,8 @@ export function sourceColor(source: EventSource): string {
       return "#f57c00";
     case "NOAA":
       return "#0065a8";
+    case "NWPS":
+      return "#01579b";
     case "USGS":
       return "#2e7d32";
     case "USGS_WATER":

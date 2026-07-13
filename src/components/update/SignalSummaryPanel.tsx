@@ -181,7 +181,8 @@ export function SignalSummaryPanel({
           <div style={styles.detail}>
             Sources: {[
               airQualitySignals.length || marineSignals.length ? "Open-Meteo" : null,
-              riverSignals.length ? "USGS Water" : null,
+              riverSignals.some((signal) => signal.source === "USGS_WATER") ? "USGS Water" : null,
+              riverSignals.some((signal) => signal.source === "NWPS") ? "NOAA River Forecasts" : null,
               volcanoSignals.length ? "USGS Volcanoes" : null,
               droughtSignals.length ? "Drought Monitor" : null,
               spaceWeatherSignals.length ? "SWPC" : null,

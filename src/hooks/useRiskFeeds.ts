@@ -26,6 +26,7 @@ import {
   fetchOpenMeteoWeather,
 } from "../services/openMeteo";
 import { fetchRiverConditions } from "../services/usgsWater";
+import { fetchNwpsRiverForecasts } from "../services/nwps";
 import { fetchNearbyVolcanoes } from "../services/usgsVolcanoes";
 import { fetchDroughtAtPoint } from "../services/drought";
 import { fetchSwpcConditions } from "../services/swpc";
@@ -162,6 +163,7 @@ function supplementalSource(signal: SupplementalRiskSignal): EventSource {
   if (
     signal.source === "AIRNOW" ||
     signal.source === "COOPS" ||
+    signal.source === "NWPS" ||
     signal.source === "USGS_WATER" ||
     signal.source === "VOLCANO" ||
     signal.source === "DROUGHT" ||
@@ -442,6 +444,25 @@ export function useRiskFeeds(
     retry: 1,
   });
 
+  const nwpsQuery = useQuery<SupplementalRiskSignal[]>({
+    queryKey: [
+      "nwps-river-forecasts",
+      location?.latitude,
+      location?.longitude,
+      radiusKm,
+    ],
+    queryFn: () =>
+      fetchNwpsRiverForecasts(
+        location!.latitude,
+        location!.longitude,
+        radiusKm,
+        label
+      ),
+    enabled: !!location,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
   const volcanoQuery = useQuery<SupplementalRiskSignal[]>({
     queryKey: [
       "usgs-volcanoes",
@@ -511,6 +532,7 @@ export function useRiskFeeds(
   const airNowSignals = airNowQuery.data ?? EMPTY_SIGNALS;
   const marineSignals = marineQuery.data ?? EMPTY_SIGNALS;
   const riverSignals = riverQuery.data ?? EMPTY_SIGNALS;
+  const nwpsSignals = nwpsQuery.data ?? EMPTY_SIGNALS;
   const volcanoSignals = volcanoQuery.data ?? EMPTY_SIGNALS;
   const droughtSignals = droughtQuery.data ?? EMPTY_SIGNALS;
   const swpcSignals = swpcQuery.data ?? EMPTY_SIGNALS;
@@ -520,6 +542,7 @@ export function useRiskFeeds(
       ...airNowSignals,
       ...marineSignals,
       ...riverSignals,
+      ...nwpsSignals,
       ...volcanoSignals,
       ...droughtSignals,
       ...swpcSignals,
@@ -529,6 +552,7 @@ export function useRiskFeeds(
       airNowSignals,
       marineSignals,
       riverSignals,
+      nwpsSignals,
       volcanoSignals,
       droughtSignals,
       swpcSignals,
@@ -566,9 +590,9 @@ export function useRiskFeeds(
       supplementalEvents,
     ]
   );
-  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || airNowQuery.isFetching || marineQuery.isFetching || riverQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || airNowQuery.isLoading || marineQuery.isLoading || riverQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
-  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || weatherQuery.isError || airQualityQuery.isError || airNowQuery.isError || marineQuery.isError || riverQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
+  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || airNowQuery.isFetching || marineQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || airNowQuery.isLoading || marineQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
+  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || weatherQuery.isError || airQualityQuery.isError || airNowQuery.isError || marineQuery.isError || riverQuery.isError || nwpsQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
@@ -591,6 +615,7 @@ export function useRiskFeeds(
   if (airNowQuery.error) errors.push(`AirNow: ${airNowQuery.error.message}`);
   if (marineQuery.error) errors.push(`Open-Meteo Marine: ${marineQuery.error.message}`);
   if (riverQuery.error) errors.push(`USGS Water: ${riverQuery.error.message}`);
+  if (nwpsQuery.error) errors.push(`NWPS River Forecasts: ${nwpsQuery.error.message}`);
   if (volcanoQuery.error) errors.push(`USGS Volcanoes: ${volcanoQuery.error.message}`);
   if (droughtQuery.error) errors.push(`Drought Monitor: ${droughtQuery.error.message}`);
   if (swpcQuery.error) errors.push(`SWPC Space Weather: ${swpcQuery.error.message}`);
@@ -786,6 +811,17 @@ export function useRiskFeeds(
       emptyDetail: "No nearby river gauge signals.",
     }),
     queryHealth({
+      id: "nwps-river-forecasts",
+      label: "NOAA River Forecasts",
+      enabled: locationEnabled,
+      isLoading: nwpsQuery.isLoading,
+      isFetching: nwpsQuery.isFetching,
+      error: errorMessage(nwpsQuery.error),
+      count: nwpsSignals.length,
+      liveDetail: `${nwpsSignals.length} elevated river forecast${nwpsSignals.length !== 1 ? "s" : ""}.`,
+      emptyDetail: "No NWPS action-stage or flood forecast signals in range.",
+    }),
+    queryHealth({
       id: "usgs-volcanoes",
       label: "USGS Volcanoes",
       enabled: locationEnabled,
@@ -866,6 +902,7 @@ export function useRiskFeeds(
       airNowQuery.refetch();
       marineQuery.refetch();
       riverQuery.refetch();
+      nwpsQuery.refetch();
       volcanoQuery.refetch();
       droughtQuery.refetch();
       swpcQuery.refetch();
