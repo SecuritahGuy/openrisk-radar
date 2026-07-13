@@ -4,6 +4,7 @@ import { MapView } from "./components/MapView";
 import { UpdatePanel } from "./components/UpdatePanel";
 import { FeedExplorer } from "./components/FeedExplorer";
 import { SavedLocationList } from "./components/SavedLocationList";
+import { SavedLocationOverview } from "./components/SavedLocationOverview";
 import { EventDetailPanel } from "./components/EventDetailPanel";
 import { RiskCommandBar } from "./components/RiskCommandBar";
 import { useResolvedLocation } from "./hooks/useResolvedLocation";
@@ -370,6 +371,17 @@ export default function App() {
           onSelect={handleSelectSaved}
           onDelete={deleteLocation}
           onUpdateLabel={(id, label) => updateLocation(id, { label })}
+        />
+        <SavedLocationOverview
+          savedLocations={savedLocations}
+          activeLocation={activeSavedLocation}
+          events={allEvents}
+          radius={radius}
+          currentWeather={currentWeather}
+          sourceHealth={sourceHealth}
+          isFetching={isFetching}
+          onSelect={handleSelectSaved}
+          onShareActiveView={handleShareView}
         />
         <RiskCommandBar
           location={result}
