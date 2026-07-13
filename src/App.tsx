@@ -166,6 +166,7 @@ export default function App() {
     eonetEvents,
     emscEvents,
     currentWeather,
+    femaRiskIndex,
     supplementalSignals,
     sourceHealth,
     allEvents,
@@ -455,6 +456,7 @@ export default function App() {
         eonetEvents={eonetEvents}
         emscEvents={emscEvents}
         currentWeather={currentWeather}
+        femaRiskIndex={femaRiskIndex}
         supplementalSignals={supplementalSignals}
         sourceHealth={sourceHealth}
         weatherOverlay={weatherOverlay}

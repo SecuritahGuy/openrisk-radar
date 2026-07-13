@@ -2,9 +2,11 @@ import type { ResolvedLocation, RadiusOption, Criticality, LocationType, Locatio
 import type { RiskEvent } from "../types/riskEvent";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 import type { CurrentWeather } from "../services/weather";
+import type { FemaRiskIndexCounty } from "../services/femaRiskIndex";
 import type { NwsWeatherOverlay } from "../services/nwsWeatherOverlay";
 import type { SourceHealthItem } from "../hooks/useRiskFeeds";
 import type { WeatherLayerMode } from "../types/weatherLayer";
+import { BaselineRiskPanel } from "./update/BaselineRiskPanel";
 import { CurrentConditionsPanel } from "./update/CurrentConditionsPanel";
 import { DataCoveragePanel } from "./update/DataCoveragePanel";
 import { FeedErrorPanel, LastCheckedPanel } from "./update/FeedStatusPanels";
@@ -31,6 +33,7 @@ interface UpdatePanelProps {
   eonetEvents: RiskEvent[];
   emscEvents: RiskEvent[];
   currentWeather: CurrentWeather | null;
+  femaRiskIndex: FemaRiskIndexCounty | null;
   supplementalSignals: SupplementalRiskSignal[];
   sourceHealth: SourceHealthItem[];
   weatherOverlay: NwsWeatherOverlay | null;
@@ -69,6 +72,7 @@ export function UpdatePanel({
   eonetEvents,
   emscEvents,
   currentWeather,
+  femaRiskIndex,
   supplementalSignals,
   sourceHealth,
   weatherOverlay,
@@ -139,6 +143,8 @@ export function UpdatePanel({
           />
 
           <LastCheckedPanel lastUpdated={lastUpdated} />
+
+          <BaselineRiskPanel riskIndex={femaRiskIndex} />
 
           <HistoricalContextPanel
             femaDeclarations={femaDeclarations}
