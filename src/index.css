@@ -166,6 +166,16 @@ body {
     gap: 7px !important;
   }
 
+  .risk-source-agreement {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .risk-source-agreement > div:last-child {
+    grid-template-columns: 1fr !important;
+  }
+
   .risk-attention-list > div:first-child {
     align-self: auto !important;
     padding: 0 !important;
@@ -323,7 +333,8 @@ body {
   .risk-score-block,
   .risk-weather-block,
   .risk-metric-grid,
-  .risk-attention-list {
+  .risk-attention-list,
+  .risk-source-agreement {
     grid-column: 1 !important;
     grid-row: auto !important;
   }

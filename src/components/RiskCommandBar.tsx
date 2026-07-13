@@ -13,6 +13,10 @@ import {
   sourceColor,
 } from "../lib/riskInsights";
 import { buildImpactSummary, isCurrentImpact } from "../lib/impactInsights";
+import {
+  buildSignalCorrelations,
+  type SignalAgreement,
+} from "../lib/signalCorrelation";
 
 interface RiskCommandBarProps {
   location: ResolvedLocation | null;
@@ -47,6 +51,17 @@ function timeAgo(iso: string): string {
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
   return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function agreementColor(agreement: SignalAgreement): string {
+  switch (agreement) {
+    case "corroborated":
+      return "#2e7d32";
+    case "single-source":
+      return "#ef6c00";
+    case "stale":
+      return "#757575";
+  }
 }
 
 function AttentionCard({
@@ -121,6 +136,7 @@ export function RiskCommandBar({
     location,
     2
   );
+  const correlations = buildSignalCorrelations(events).slice(0, 3);
   const color = levelColor(summary.level);
 
   return (
@@ -229,6 +245,47 @@ export function RiskCommandBar({
         ) : (
           <div style={styles.noAttention}>No active signals in scope.</div>
         )}
+      </div>
+
+      <div className="risk-source-agreement" style={styles.agreementStrip}>
+        <div style={styles.agreementHeader}>
+          <span style={styles.scoreLabel}>Source agreement</span>
+          <span style={styles.agreementHint}>
+            Correlates related signals across feeds
+          </span>
+        </div>
+        <div style={styles.agreementList}>
+          {correlations.length > 0 ? (
+            correlations.map((signal) => {
+              const signalColor = agreementColor(signal.agreement);
+              return (
+                <div key={signal.id} style={styles.agreementItem}>
+                  <span
+                    style={{
+                      ...styles.agreementBadge,
+                      color: signalColor,
+                      background: `${signalColor}14`,
+                    }}
+                  >
+                    {signal.agreementLabel}
+                  </span>
+                  <span style={styles.agreementTitle}>{signal.label}</span>
+                  <span style={styles.agreementMeta}>
+                    {signal.sources.join(" + ")} · {signal.eventCount} signal
+                    {signal.eventCount !== 1 ? "s" : ""}
+                    {signal.latestUpdatedAt
+                      ? ` · updated ${timeAgo(signal.latestUpdatedAt)}`
+                      : ""}
+                  </span>
+                </div>
+              );
+            })
+          ) : (
+            <div style={styles.agreementEmpty}>
+              No active signals to correlate yet.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -380,6 +437,72 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 8,
     alignItems: "stretch",
     minWidth: 0,
+  },
+  agreementStrip: {
+    gridColumn: "1 / -1",
+    display: "grid",
+    gridTemplateColumns: "170px minmax(0, 1fr)",
+    gap: 10,
+    alignItems: "center",
+    background: "#fff",
+    border: "1px solid #dfe6ee",
+    borderRadius: 8,
+    padding: "9px 10px",
+  },
+  agreementHeader: {
+    display: "grid",
+    gap: 3,
+  },
+  agreementHint: {
+    color: "#757575",
+    fontSize: 11,
+    lineHeight: 1.25,
+  },
+  agreementList: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: 8,
+    minWidth: 0,
+  },
+  agreementItem: {
+    border: "1px solid #edf1f5",
+    borderRadius: 7,
+    padding: "7px 8px",
+    minWidth: 0,
+  },
+  agreementBadge: {
+    display: "inline-block",
+    borderRadius: 3,
+    fontSize: 9,
+    fontWeight: 800,
+    lineHeight: 1,
+    marginBottom: 5,
+    padding: "3px 5px",
+    textTransform: "uppercase",
+  },
+  agreementTitle: {
+    display: "block",
+    color: "#212121",
+    fontSize: 12,
+    fontWeight: 800,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  agreementMeta: {
+    display: "block",
+    color: "#757575",
+    fontSize: 10,
+    lineHeight: 1.3,
+    marginTop: 3,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  agreementEmpty: {
+    gridColumn: "1 / -1",
+    color: "#757575",
+    fontSize: 12,
   },
   attentionHeader: {
     alignSelf: "center",

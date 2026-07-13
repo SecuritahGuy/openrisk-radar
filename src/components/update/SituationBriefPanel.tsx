@@ -13,6 +13,7 @@ import {
   sourceColor,
 } from "../../lib/riskInsights";
 import { assessImpact } from "../../lib/impactInsights";
+import { summarizeSourceAgreement } from "../../lib/signalCorrelation";
 
 interface SituationBriefPanelProps {
   location: ResolvedLocation;
@@ -41,15 +42,6 @@ function latestEvent(events: RiskEvent[]): RiskEvent | null {
       ? event
       : latest;
   }, null);
-}
-
-function sourceAgreement(events: RiskEvent[]): string {
-  const activeSources = new Set(events.map((event) => event.source));
-  if (activeSources.size === 0) return "No active hazard feeds are reporting in this radius.";
-  if (activeSources.size === 1) {
-    return `${Array.from(activeSources)[0]} is the only active source in scope.`;
-  }
-  return `${activeSources.size} sources are reporting signals in scope.`;
 }
 
 function sourceCoverage(sourceHealth: SourceHealthItem[]): string {
@@ -118,7 +110,7 @@ export function SituationBriefPanel({
     ? `${latest.source} updated ${timeAgo(latest.updatedAt)}: ${latest.headline}`
     : "No recent event updates available.";
   const concernDetail = eventSummary(topEvent, location, radius);
-  const confidenceDetail = `${sourceAgreement(events)} ${sourceCoverage(sourceHealth)}`;
+  const confidenceDetail = `${summarizeSourceAgreement(events)} ${sourceCoverage(sourceHealth)}`;
   const watchDetail = watchNext(events, currentWeather);
 
   async function handleCopyBrief() {
