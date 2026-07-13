@@ -430,7 +430,9 @@ export default function App() {
         />
         <FeedExplorer
           events={filteredConcernEvents}
+          allEvents={filteredEvents}
           totalEvents={allConcernEvents.length}
+          totalAllEvents={allEvents.length}
           location={result}
           radius={radius}
           isFetching={isFetching}

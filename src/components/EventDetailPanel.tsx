@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { RiskEvent } from "../types/riskEvent";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
 import { assessImpact, impactColor } from "../lib/impactInsights";
+import { concernContextLabel } from "../lib/riskInsights";
 
 interface EventDetailPanelProps {
   event: RiskEvent;
@@ -333,6 +334,7 @@ export function EventDetailPanel({
       : "—";
   const impact = assessImpact(event, location, radius);
   const impactBadgeColor = impactColor(impact.level);
+  const contextLabel = concernContextLabel(event);
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -449,6 +451,9 @@ export function EventDetailPanel({
             >
               {impact.label}
             </span>
+            {contextLabel && (
+              <span style={styles.contextBadge}>{contextLabel}</span>
+            )}
           </div>
           <button
             ref={closeButtonRef}
@@ -469,6 +474,7 @@ export function EventDetailPanel({
         <div style={styles.section}>
           <div style={styles.sectionTitle}>Impact, Timing & Location</div>
           <DetailRow label="Impact" value={impact.detail} />
+          {contextLabel && <DetailRow label="Context" value={contextLabel} />}
           <DetailRow label="Started" value={formatTime(event.startedAt)} />
           <DetailRow label="Updated" value={formatTime(event.updatedAt)} />
           {event.expiresAt && (
@@ -625,6 +631,15 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     padding: "2px 8px",
     borderRadius: 3,
+  },
+  contextBadge: {
+    fontSize: 11,
+    fontWeight: 800,
+    padding: "2px 8px",
+    borderRadius: 3,
+    color: "#607d8b",
+    background: "#eceff1",
+    textTransform: "uppercase" as const,
   },
   closeBtn: {
     border: "none",

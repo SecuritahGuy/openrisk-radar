@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import type { ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import {
+  activeConcernEvents,
+  concernContextLabel,
   distanceMiles,
   EVENT_SEVERITIES,
   EVENT_SOURCES,
@@ -16,7 +18,9 @@ import type { RadiusOption } from "../types/location";
 
 interface FeedExplorerProps {
   events: RiskEvent[];
+  allEvents: RiskEvent[];
   totalEvents: number;
+  totalAllEvents: number;
   location: ResolvedLocation | null;
   radius: RadiusOption;
   isFetching: boolean;
@@ -51,6 +55,7 @@ type SortState = {
   key: SortKey;
   direction: SortDirection;
 };
+type FeedMode = "active" | "historical" | "all";
 
 interface CountChip {
   label: string;
@@ -118,7 +123,9 @@ function latestUpdateLabel(events: RiskEvent[]): string {
 
 export function FeedExplorer({
   events,
+  allEvents,
   totalEvents,
+  totalAllEvents,
   location,
   radius,
   isFetching,
@@ -130,6 +137,19 @@ export function FeedExplorer({
     key: "updated",
     direction: "desc",
   });
+  const [mode, setMode] = useState<FeedMode>("active");
+  const historicalEvents = useMemo(
+    () => allEvents.filter((event) => !activeConcernEvents([event]).length),
+    [allEvents]
+  );
+  const visibleEvents =
+    mode === "active" ? events : mode === "historical" ? historicalEvents : allEvents;
+  const visibleTotal =
+    mode === "active"
+      ? totalEvents
+      : mode === "historical"
+        ? totalAllEvents - totalEvents
+        : totalAllEvents;
 
   function updateSort(key: SortKey) {
     setSortState((current) => {
@@ -150,7 +170,7 @@ export function FeedExplorer({
   const sortedEvents = useMemo(() => {
     const { key, direction } = sortState;
 
-    return [...events].sort((a, b) => {
+    return [...visibleEvents].sort((a, b) => {
       if (key === "source") {
         return applyDirection(compareText(a.source, b.source), direction);
       }
@@ -203,25 +223,31 @@ export function FeedExplorer({
       if (aDistance !== bDistance) return aDistance - bDistance;
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-  }, [events, location, radius, sortState]);
+  }, [visibleEvents, location, radius, sortState]);
 
-  const hasNoEvents = events.length === 0 && !isFetching;
+  const hasNoEvents = visibleEvents.length === 0 && !isFetching;
   const emptyMessage = !location
     ? "Search a location to load live feed events."
-    : totalEvents > 0
-      ? "No events match the active filters."
-      : "No events found for this location.";
+    : mode === "active"
+      ? totalEvents > 0
+        ? "No active concerns match the active filters."
+        : "No active concerns found for this location."
+      : mode === "historical"
+        ? "No historical or stale context rows match the active filters."
+        : "No feed rows match the active filters.";
   const collapsedEmptyMessage = !location
     ? "Search a location"
-    : totalEvents > 0
-      ? "No matching events"
-      : "No events found";
-  const title = `Feed Explorer (${events.length}${
-    totalEvents !== events.length ? ` of ${totalEvents}` : ""
+    : mode === "active"
+      ? "No active concerns"
+      : mode === "historical"
+        ? "No context rows"
+        : "No feed rows";
+  const title = `Feed Explorer (${visibleEvents.length}${
+    visibleTotal !== visibleEvents.length ? ` of ${visibleTotal}` : ""
   })`;
-  const topSources = topSourceChips(events);
-  const severities = severityChips(events);
-  const latestUpdate = latestUpdateLabel(events);
+  const topSources = topSourceChips(visibleEvents);
+  const severities = severityChips(visibleEvents);
+  const latestUpdate = latestUpdateLabel(visibleEvents);
 
   return (
     <div
@@ -237,6 +263,26 @@ export function FeedExplorer({
               : `${sortedEvents.length} visible rows hidden`}
           </span>
         )}
+        <div style={styles.modeTabs} aria-label="Feed explorer mode">
+          {[
+            { value: "active", label: "Active" },
+            { value: "historical", label: "History" },
+            { value: "all", label: "All" },
+          ].map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              style={{
+                ...styles.modeButton,
+                ...(mode === item.value ? styles.modeButtonActive : {}),
+              }}
+              aria-pressed={mode === item.value}
+              onClick={() => setMode(item.value as FeedMode)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
         <select
           value={sortState.key}
           onChange={(event) => updateSort(event.target.value as SortKey)}
@@ -272,8 +318,8 @@ export function FeedExplorer({
       ) : (
         <>
           <FeedSummaryBar
-            eventCount={events.length}
-            totalEvents={totalEvents}
+            eventCount={visibleEvents.length}
+            totalEvents={visibleTotal}
             latestUpdate={latestUpdate}
             topSources={topSources}
             severities={severities}
@@ -381,6 +427,9 @@ export function FeedExplorer({
                     location={location}
                     radius={radius}
                   />
+                  {mode !== "active" && (
+                    <ContextBadge event={evt} />
+                  )}
                 </span>
                 <span style={styles.colHeadline}>{evt.headline}</span>
                 <span style={styles.colDistance}>
@@ -412,6 +461,7 @@ export function FeedExplorer({
                   </span>
                   <SeverityBadge severity={evt.severity} />
                   <ImpactBadge event={evt} location={location} radius={radius} />
+                  {mode !== "active" && <ContextBadge event={evt} />}
                 </span>
                 <span style={styles.cardTitle}>{evt.headline}</span>
                 <span style={styles.cardMeta}>
@@ -573,6 +623,13 @@ function ImpactBadge({
   );
 }
 
+function ContextBadge({ event }: { event: RiskEvent }) {
+  const label = concernContextLabel(event);
+  if (!label) return null;
+
+  return <span style={styles.contextBadge}>{label}</span>;
+}
+
 const styles: Record<string, React.CSSProperties> = {
   container: {
     borderTop: "1px solid #e0e0e0",
@@ -618,6 +675,27 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     fontWeight: 700,
     padding: "3px 6px",
+  },
+  modeTabs: {
+    border: "1px solid #cfd8dc",
+    borderRadius: 6,
+    display: "inline-flex",
+    overflow: "hidden",
+  },
+  modeButton: {
+    background: "#fff",
+    border: "none",
+    borderRight: "1px solid #dfe6ee",
+    color: "#546e7a",
+    cursor: "pointer",
+    font: "inherit",
+    fontSize: 11,
+    fontWeight: 800,
+    padding: "4px 7px",
+  },
+  modeButtonActive: {
+    background: "#1565c0",
+    color: "#fff",
   },
   collapseButton: {
     border: "1px solid #1565c0",
@@ -789,6 +867,19 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "2px 6px",
     borderRadius: 3,
     textTransform: "uppercase" as const,
+  },
+  contextBadge: {
+    background: "#eceff1",
+    borderRadius: 3,
+    color: "#607d8b",
+    display: "inline-block",
+    fontSize: 9,
+    fontWeight: 800,
+    lineHeight: 1,
+    marginLeft: 4,
+    padding: "3px 5px",
+    textTransform: "uppercase" as const,
+    verticalAlign: "middle",
   },
   empty: {
     padding: 24,

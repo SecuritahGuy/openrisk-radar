@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   activeConcernEvents,
   buildRiskSummary,
+  concernContextLabel,
   distanceMiles,
   explainRiskScore,
   filterEvents,
@@ -184,6 +185,7 @@ describe("riskInsights", () => {
     });
 
     expect(activeConcernEvents([femaHistory], now)).toEqual([]);
+    expect(concernContextLabel(femaHistory)).toBe("Historical");
     expect(buildRiskSummary(activeConcernEvents([femaHistory], now))).toMatchObject({
       level: "Clear",
       score: 0,
@@ -213,6 +215,7 @@ describe("riskInsights", () => {
 
     expect(isStaleConcernEvent(expired, now)).toBe(true);
     expect(isStaleConcernEvent(veryOld, now)).toBe(true);
+    expect(concernContextLabel(expired)).toBe("Expired");
     expect(activeConcernEvents([expired, veryOld, current], now).map((e) => e.id))
       .toEqual(["current"]);
   });

@@ -234,6 +234,13 @@ export function activeConcernEvents(
   return events.filter((event) => !isStaleConcernEvent(event, nowMs));
 }
 
+export function concernContextLabel(event: RiskEvent): string | null {
+  if (isHistoricalContextEvent(event)) return "Historical";
+  if (!isStaleConcernEvent(event)) return null;
+  if (event.expiresAt) return "Expired";
+  return "Older";
+}
+
 export function filterEvents(
   events: RiskEvent[],
   sourceFilters: SourceFilters,

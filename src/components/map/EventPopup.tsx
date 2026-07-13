@@ -1,7 +1,7 @@
 import type { RiskEvent } from "../../types/riskEvent";
 import type { ImpactAssessment } from "../../lib/impactInsights";
 import { impactColor } from "../../lib/impactInsights";
-import { severityColor } from "../../lib/riskInsights";
+import { concernContextLabel, severityColor } from "../../lib/riskInsights";
 
 interface EventPopupProps {
   event: RiskEvent;
@@ -22,6 +22,7 @@ export function EventPopup({
   onEventClick,
 }: EventPopupProps) {
   const color = impactColor(impact.level);
+  const contextLabel = concernContextLabel(event);
 
   return (
     <>
@@ -36,6 +37,12 @@ export function EventPopup({
       >
         {impact.label}
       </span>
+      {contextLabel && (
+        <>
+          {" "}
+          <span style={contextBadgeStyle}>{contextLabel}</span>
+        </>
+      )}
       {" "}
       <span style={impactDetailStyle}>{impact.detail}</span>
       <br />
@@ -106,6 +113,18 @@ const impactBadgeStyle: React.CSSProperties = {
   padding: "2px 6px",
   borderRadius: 3,
   marginTop: 6,
+};
+
+const contextBadgeStyle: React.CSSProperties = {
+  display: "inline-block",
+  fontSize: 10,
+  fontWeight: 800,
+  padding: "2px 6px",
+  borderRadius: 3,
+  color: "#607d8b",
+  background: "#eceff1",
+  marginTop: 6,
+  textTransform: "uppercase",
 };
 
 const impactDetailStyle: React.CSSProperties = {
