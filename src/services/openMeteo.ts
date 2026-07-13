@@ -1,5 +1,5 @@
 import { newEventId } from "../lib/ids";
-import type { CurrentWeather } from "./weather";
+import type { CurrentWeather, WeatherForecastPeriod } from "./weather";
 import type { Severity } from "../types/riskEvent";
 import type { SupplementalRiskSignal, SupplementalMetric } from "../types/supplementalRisk";
 
@@ -25,6 +25,14 @@ interface OpenMeteoForecastResponse {
   longitude: number;
   current_units: Record<string, string>;
   current: OpenMeteoCurrent;
+  hourly?: {
+    time: string[];
+    temperature_2m: number[];
+    relative_humidity_2m: number[];
+    weather_code: number[];
+    wind_speed_10m: number[];
+    wind_direction_10m: number[];
+  };
 }
 
 interface OpenMeteoAirQualityCurrent {
@@ -109,6 +117,14 @@ export async function fetchOpenMeteoWeather(
       "cloud_cover",
       "pressure_msl",
     ].join(","),
+    hourly: [
+      "temperature_2m",
+      "relative_humidity_2m",
+      "weather_code",
+      "wind_speed_10m",
+      "wind_direction_10m",
+    ].join(","),
+    forecast_days: "2",
     timezone: "auto",
   });
 
@@ -118,6 +134,16 @@ export async function fetchOpenMeteoWeather(
 
   const json: OpenMeteoForecastResponse = await res.json();
   const c = json.current;
+  const forecast: WeatherForecastPeriod[] = (json.hourly?.time ?? [])
+    .slice(0, 12)
+    .map((time, index) => ({
+      startTime: time,
+      temperature: Math.round((json.hourly?.temperature_2m[index] ?? 0) * 9 / 5 + 32),
+      humidity: json.hourly?.relative_humidity_2m[index] ?? null,
+      windSpeed: Math.round((json.hourly?.wind_speed_10m[index] ?? 0) * 0.621371),
+      windDirection: json.hourly?.wind_direction_10m[index] ?? null,
+      shortForecast: openMeteoWeatherLabel(json.hourly?.weather_code[index] ?? -1),
+    }));
 
   return {
     temperature: Math.round(c.temperature_2m * 9 / 5 + 32),
@@ -129,6 +155,7 @@ export async function fetchOpenMeteoWeather(
     source: "Open-Meteo observation",
     stationName: null,
     observedAt: c.time,
+    forecast,
   };
 }
 

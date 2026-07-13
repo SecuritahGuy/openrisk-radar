@@ -1,3 +1,12 @@
+export interface WeatherForecastPeriod {
+  startTime: string;
+  temperature: number;
+  humidity: number | null;
+  windSpeed: number;
+  windDirection: number | null;
+  shortForecast: string;
+}
+
 export interface CurrentWeather {
   temperature: number;
   feelsLike: number;
@@ -8,6 +17,7 @@ export interface CurrentWeather {
   source: string;
   stationName: string | null;
   observedAt: string | null;
+  forecast: WeatherForecastPeriod[];
 }
 
 const BASE = "https://api.weather.gov";
@@ -171,6 +181,7 @@ async function fetchNearestObservation(
         source: "NWS observation",
         stationName: p.stationName || station.properties.name,
         observedAt: p.timestamp,
+        forecast: [],
       };
     } catch {
       // Try the next nearest station when one observation endpoint is missing.
@@ -192,7 +203,19 @@ function fromHourlyForecast(hourly: NwsHourlyResponse): CurrentWeather {
     source: "NWS hourly forecast",
     stationName: null,
     observedAt: first.startTime,
+    forecast: hourlyForecastPeriods(hourly),
   };
+}
+
+function hourlyForecastPeriods(hourly: NwsHourlyResponse): WeatherForecastPeriod[] {
+  return hourly.properties.periods.slice(0, 12).map((period) => ({
+    startTime: period.startTime,
+    temperature: period.temperature,
+    humidity: period.relativeHumidity?.value ?? null,
+    windSpeed: parseWindMph(period.windSpeed),
+    windDirection: windDirectionLabelToDegrees(period.windDirection),
+    shortForecast: period.shortForecast || "Forecast conditions",
+  }));
 }
 
 export async function fetchCurrentWeather(
@@ -205,5 +228,6 @@ export async function fetchCurrentWeather(
     fetchJson<NwsHourlyResponse>(point.properties.forecastHourly),
   ]);
 
-  return observation ?? fromHourlyForecast(hourly);
+  const forecast = hourlyForecastPeriods(hourly);
+  return observation ? { ...observation, forecast } : fromHourlyForecast(hourly);
 }
