@@ -14,3 +14,11 @@ createRoot(document.getElementById("root")!).render(
     </QueryClientProvider>
   </StrictMode>
 );
+
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js").catch(() => {
+      // Offline support is optional; the live application remains usable.
+    });
+  });
+}

@@ -12,6 +12,7 @@ import { DataCoveragePanel } from "./update/DataCoveragePanel";
 import { FeedErrorPanel, LastCheckedPanel } from "./update/FeedStatusPanels";
 import { HistoricalContextPanel } from "./update/HistoricalContextPanel";
 import { ImpactSummaryPanel } from "./update/ImpactSummaryPanel";
+import { ActionGuidancePanel } from "./update/ActionGuidancePanel";
 import { LocationActionPanel } from "./update/LocationActionPanel";
 import { LocationDetailsPanel } from "./update/LocationDetailsPanel";
 import { MapLayerControls } from "./update/MapLayerControls";
@@ -132,6 +133,13 @@ export function UpdatePanel({
             onEventClick={onEventClick}
           />
 
+          <ActionGuidancePanel
+            events={allEvents}
+            location={location}
+            radius={radius}
+            onEventClick={onEventClick}
+          />
+
           <MapLayerControls
             radius={radius}
             onRadiusChange={onRadiusChange}
@@ -167,7 +175,7 @@ export function UpdatePanel({
             isFetching={isFetching}
           />
 
-          <ImpactSummaryPanel events={allEvents} radius={radius} />
+          <ImpactSummaryPanel events={allEvents} location={location} radius={radius} />
 
           <FeedErrorPanel error={error} />
 

@@ -1,6 +1,6 @@
 import type { ResolvedLocation, RadiusOption } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
-import { distanceMiles } from "./riskInsights";
+import { activeConcernEvents, distanceMiles } from "./riskInsights";
 
 export type ImpactLevel = "affects" | "nearby" | "historical" | "monitor";
 
@@ -17,6 +17,12 @@ export interface ImpactSummary {
   historicalCount: number;
   monitorCount: number;
   currentImpactCount: number;
+}
+
+export interface ImpactSeveritySummary {
+  criticalCount: number;
+  moderateCount: number;
+  events: RiskEvent[];
 }
 
 function pointInPolygon(
@@ -186,6 +192,27 @@ export function buildImpactSummary(
 
   summary.currentImpactCount = summary.affectsCount + summary.nearbyCount;
   return summary;
+}
+
+export function buildImpactSeveritySummary(
+  events: RiskEvent[],
+  location: ResolvedLocation | null,
+  radius: RadiusOption,
+  now = Date.now()
+): ImpactSeveritySummary {
+  const currentEvents = activeConcernEvents(events, now).filter((event) =>
+    isCurrentImpact(event, location, radius)
+  );
+
+  return {
+    criticalCount: currentEvents.filter(
+      (event) => event.severity === "Extreme" || event.severity === "Severe"
+    ).length,
+    moderateCount: currentEvents.filter(
+      (event) => event.severity === "Moderate"
+    ).length,
+    events: currentEvents,
+  };
 }
 
 export function impactColor(level: ImpactLevel): string {

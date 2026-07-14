@@ -3,6 +3,7 @@ import type { Severity } from "../types/riskEvent";
 import type { SupplementalMetric, SupplementalRiskSignal } from "../types/supplementalRisk";
 
 const NWPS_BASE = "https://api.water.noaa.gov/nwps/v1";
+const NWPS_PROXY = "/api/noaa/nwps";
 
 interface NwpsGaugeStatus {
   primary: number;
@@ -129,7 +130,10 @@ function isElevatedForecast(category: string): boolean {
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const res = await fetch(url, {
+  const endpoint = import.meta.env.PROD
+    ? `${NWPS_PROXY}?path=${encodeURIComponent(url.slice(NWPS_BASE.length))}`
+    : url;
+  const res = await fetch(endpoint, {
     headers: { Accept: "application/json" },
   });
   if (!res.ok) throw new Error(`NWPS API returned ${res.status}`);
