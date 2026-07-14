@@ -2,8 +2,11 @@ import type { Confidence, Severity } from "./riskEvent";
 
 export type SupplementalSource =
   | "SPC"
+  | "NOAA_TSUNAMI"
   | "NWPS"
+  | "USGS_SHAKEMAP"
   | "USGS_WATER"
+  | "UK_EA"
   | "COOPS"
   | "NHC"
   | "AIRNOW"
@@ -21,7 +24,8 @@ export type SupplementalCategory =
   | "Drought"
   | "Volcano"
   | "Pollen"
-  | "UV Index";
+  | "UV Index"
+  | "Seismic";
 
 export type SupplementalGeometry =
   | {

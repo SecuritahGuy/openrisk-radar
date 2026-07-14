@@ -81,6 +81,7 @@ export function SignalSummaryPanel({
   const spaceWeatherSignals = supplementalSignals.filter((s) => s.category === "Space Weather");
   const pollenSignals = supplementalSignals.filter((s) => s.category === "Pollen");
   const uvSignals = supplementalSignals.filter((s) => s.category === "UV Index");
+  const seismicSignals = supplementalSignals.filter((s) => s.category === "Seismic");
   const shownSupplementalCount =
     airQualitySignals.length +
     marineSignals.length +
@@ -89,7 +90,8 @@ export function SignalSummaryPanel({
     droughtSignals.length +
     spaceWeatherSignals.length +
     pollenSignals.length +
-    uvSignals.length;
+    uvSignals.length +
+    seismicSignals.length;
 
   return (
     <>
@@ -153,6 +155,11 @@ export function SignalSummaryPanel({
             ? `${spaceWeatherSignals.length} SWPC space weather signal${spaceWeatherSignals.length !== 1 ? "s" : ""}`
             : "No elevated space weather signal"}
         </SignalLine>
+        <SignalLine active={seismicSignals.length > 0} color="#2e7d32">
+          {seismicSignals.length > 0
+            ? `${seismicSignals[0].headline}`
+            : "No ShakeMap intensity data"}
+        </SignalLine>
       </div>
 
       {supplementalSignals.length > 0 && (
@@ -182,6 +189,9 @@ export function SignalSummaryPanel({
           {spaceWeatherSignals.map((signal) => (
             <SupplementalSignalLine key={signal.id} signal={signal} />
           ))}
+          {seismicSignals.map((signal) => (
+            <SupplementalSignalLine key={signal.id} signal={signal} />
+          ))}
           {supplementalSignals.length > shownSupplementalCount && (
             <div style={styles.detail}>
               {supplementalSignals.length - shownSupplementalCount} additional supplemental signal
@@ -191,11 +201,14 @@ export function SignalSummaryPanel({
           <div style={styles.detail}>
             Sources: {[
               airQualitySignals.length || marineSignals.length || pollenSignals.length || uvSignals.length ? "Open-Meteo" : null,
+              marineSignals.some((s) => s.source === "NOAA_TSUNAMI") ? "NOAA Tsunami" : null,
               riverSignals.some((signal) => signal.source === "USGS_WATER") ? "USGS Water" : null,
               riverSignals.some((signal) => signal.source === "NWPS") ? "NOAA River Forecasts" : null,
+              riverSignals.some((s) => s.source === "UK_EA") ? "UK Environment Agency" : null,
               volcanoSignals.length ? "USGS Volcanoes" : null,
               droughtSignals.length ? "Drought Monitor" : null,
               spaceWeatherSignals.length ? "SWPC" : null,
+              seismicSignals.length ? "USGS ShakeMap" : null,
             ].filter(Boolean).join(", ")}
           </div>
         </div>

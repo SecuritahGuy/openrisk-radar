@@ -82,9 +82,12 @@ describe("riskInsights", () => {
     const sourceFilters: SourceFilters = {
       NWS: true,
       NOAA: true,
+      NOAA_TSUNAMI: true,
       NWPS: true,
       USGS: false,
+      USGS_SHAKEMAP: true,
       USGS_WATER: true,
+      UK_EA: true,
       VOLCANO: true,
       DROUGHT: true,
       EMSC: true,
