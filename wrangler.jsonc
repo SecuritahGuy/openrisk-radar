@@ -1,7 +1,13 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "openradar-risk",
-  "pages_build_output_dir": "./dist",
+  "main": "./worker/index.ts",
   "compatibility_date": "2026-07-14",
-  "send_metrics": false
+  "send_metrics": false,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  }
 }

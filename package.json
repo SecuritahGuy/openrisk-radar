@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "deploy": "npm run build && wrangler pages deploy",
+    "deploy": "npm run build && wrangler deploy",
     "lint": "eslint .",
-    "pages:check": "wrangler pages functions build functions --outfile .wrangler/tmp/pages-worker.js",
-    "pages:dev": "npm run build && wrangler pages dev",
+    "worker:check": "wrangler deploy --dry-run --outdir .wrangler/tmp/worker",
+    "worker:dev": "npm run build && wrangler dev",
     "preview": "vite preview",
     "smoke:production": "node scripts/smoke-production.mjs",
     "test": "vitest run"
