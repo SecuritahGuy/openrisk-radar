@@ -40,10 +40,10 @@ interface NwsHourlyResponse {
 
 interface NwsGridResponse {
   properties: {
-    hazards?: { values: Array<{ value: Array<{ phenomenon: string; significance: string }> }> };
-    heatRisk?: { values: Array<{ value: number | null }> };
-    skyCover?: { values: Array<{ value: number | null }> };
-    probabilityOfThunder?: { values: Array<{ value: number | null }> };
+    hazards?: { values: Array<{ validTime: string; value: Array<{ phenomenon: string; significance: string }> }> };
+    heatRisk?: { values: Array<{ validTime: string; value: number | null }> };
+    skyCover?: { values: Array<{ validTime: string; value: number | null }> };
+    probabilityOfThunder?: { values: Array<{ validTime: string; value: number | null }> };
   };
 }
 
@@ -161,15 +161,34 @@ function polygonFromGeometry(geometry: GeoJsonPolygon | null): number[][] | null
   return geometry?.coordinates?.[0] ?? null;
 }
 
-function firstGridValue<T>(values?: Array<{ value: T | null }>): T | null {
-  return values?.[0]?.value ?? null;
+function durationMs(duration: string): number {
+  const match = duration.match(/^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?)?$/);
+  if (!match) return 0;
+  return ((Number(match[1] ?? 0) * 24 + Number(match[2] ?? 0)) * 60 + Number(match[3] ?? 0)) * 60_000;
+}
+
+export function gridValueAtTime<T>(
+  values: Array<{ validTime: string; value: T | null }> | undefined,
+  nowMs = Date.now()
+): T | null {
+  if (!values?.length) return null;
+  const active = values.find((entry) => {
+    const [startText, duration = "PT1H"] = entry.validTime.split("/");
+    const start = new Date(startText).getTime();
+    const end = start + durationMs(duration);
+    return Number.isFinite(start) && nowMs >= start && nowMs < end;
+  });
+  if (active) return active.value;
+  const future = values.find((entry) => new Date(entry.validTime.split("/")[0]).getTime() > nowMs);
+  return future?.value ?? values[values.length - 1]?.value ?? null;
 }
 
 function normalizeHazards(
-  values?: Array<{ value: Array<{ phenomenon: string; significance: string }> }>
+  values?: Array<{ validTime: string; value: Array<{ phenomenon: string; significance: string }> }>,
+  nowMs = Date.now()
 ): string[] {
-  const first = values?.[0]?.value ?? [];
-  return first
+  const current = gridValueAtTime(values, nowMs) ?? [];
+  return current
     .filter((h) => h.phenomenon || h.significance)
     .map((h) => `${h.phenomenon}${h.significance}`);
 }
@@ -258,9 +277,9 @@ export async function fetchNwsWeatherOverlay(
       windDirection: first.windDirection,
       shortForecast: first.shortForecast,
       hazards: normalizeHazards(grid.properties.hazards?.values),
-      heatRisk: firstGridValue(grid.properties.heatRisk?.values),
-      skyCover: firstGridValue(grid.properties.skyCover?.values),
-      thunderChance: firstGridValue(grid.properties.probabilityOfThunder?.values),
+      heatRisk: gridValueAtTime(grid.properties.heatRisk?.values),
+      skyCover: gridValueAtTime(grid.properties.skyCover?.values),
+      thunderChance: gridValueAtTime(grid.properties.probabilityOfThunder?.values),
     },
     forecastZone,
     fireWeatherZone,

@@ -1,5 +1,5 @@
 import { newEventId } from "../lib/ids";
-import type { CurrentWeather, WeatherForecastPeriod } from "./weather";
+import type { CurrentWeather, HourlyWeatherPeriod, WeatherForecastPeriod } from "./weather";
 import type { Severity } from "../types/riskEvent";
 import type { SupplementalRiskSignal, SupplementalMetric } from "../types/supplementalRisk";
 
@@ -16,6 +16,7 @@ interface OpenMeteoCurrent {
   weather_code: number;
   wind_speed_10m: number;
   wind_direction_10m: number;
+  wind_gusts_10m: number;
   precipitation: number;
   cloud_cover: number;
   pressure_msl: number;
@@ -33,6 +34,18 @@ interface OpenMeteoForecastResponse {
     weather_code: number[];
     wind_speed_10m_max: number[];
     wind_direction_10m_dominant: number[];
+    wind_gusts_10m_max: number[];
+    precipitation_probability_max: number[];
+  };
+  hourly?: {
+    time: string[];
+    temperature_2m: number[];
+    relative_humidity_2m: number[];
+    precipitation_probability: number[];
+    precipitation: number[];
+    weather_code: number[];
+    wind_speed_10m: number[];
+    wind_gusts_10m: number[];
   };
 }
 
@@ -122,6 +135,7 @@ export async function fetchOpenMeteoWeather(
       "weather_code",
       "wind_speed_10m",
       "wind_direction_10m",
+      "wind_gusts_10m",
       "precipitation",
       "cloud_cover",
       "pressure_msl",
@@ -132,7 +146,19 @@ export async function fetchOpenMeteoWeather(
       "temperature_2m_min",
       "wind_speed_10m_max",
       "wind_direction_10m_dominant",
+      "wind_gusts_10m_max",
+      "precipitation_probability_max",
     ].join(","),
+    hourly: [
+      "temperature_2m",
+      "relative_humidity_2m",
+      "precipitation_probability",
+      "precipitation",
+      "weather_code",
+      "wind_speed_10m",
+      "wind_gusts_10m",
+    ].join(","),
+    forecast_hours: "24",
     forecast_days: "5",
     timezone: "auto",
   });
@@ -155,7 +181,27 @@ export async function fetchOpenMeteoWeather(
       humidity: null,
       windSpeed: Math.round((json.daily?.wind_speed_10m_max[index] ?? 0) * 0.621371),
       windDirection: json.daily?.wind_direction_10m_dominant[index] ?? null,
+      windGust: json.daily?.wind_gusts_10m_max[index] != null
+        ? Math.round(json.daily.wind_gusts_10m_max[index] * 0.621371)
+        : null,
+      precipitationChance: json.daily?.precipitation_probability_max[index] ?? null,
       shortForecast: openMeteoWeatherLabel(json.daily?.weather_code[index] ?? -1),
+    }));
+  const hourlyForecast: HourlyWeatherPeriod[] = (json.hourly?.time ?? [])
+    .slice(0, 24)
+    .map((time, index) => ({
+      startTime: time,
+      temperature: Math.round((json.hourly?.temperature_2m[index] ?? 0) * 9 / 5 + 32),
+      humidity: json.hourly?.relative_humidity_2m[index] ?? null,
+      precipitationChance: json.hourly?.precipitation_probability[index] ?? null,
+      precipitationAmount: json.hourly?.precipitation[index] != null
+        ? Math.round(json.hourly.precipitation[index] * 0.0393701 * 100) / 100
+        : null,
+      windSpeed: Math.round((json.hourly?.wind_speed_10m[index] ?? 0) * 0.621371),
+      windGust: json.hourly?.wind_gusts_10m[index] != null
+        ? Math.round(json.hourly.wind_gusts_10m[index] * 0.621371)
+        : null,
+      shortForecast: openMeteoWeatherLabel(json.hourly?.weather_code[index] ?? -1),
     }));
 
   return {
@@ -164,11 +210,16 @@ export async function fetchOpenMeteoWeather(
     humidity: c.relative_humidity_2m,
     windSpeed: Math.round(c.wind_speed_10m * 0.621371),
     windDirection: c.wind_direction_10m,
+    windGust: Math.round(c.wind_gusts_10m * 0.621371),
+    dewPoint: null,
+    visibility: null,
+    precipitation: Math.round(c.precipitation * 0.0393701 * 100) / 100,
     weatherCode: c.weather_code,
     source: "Open-Meteo observation",
     stationName: null,
     observedAt: c.time,
     forecast,
+    hourlyForecast,
   };
 }
 

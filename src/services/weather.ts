@@ -5,6 +5,19 @@ export interface WeatherForecastPeriod {
   humidity: number | null;
   windSpeed: number;
   windDirection: number | null;
+  windGust: number | null;
+  precipitationChance: number | null;
+  shortForecast: string;
+}
+
+export interface HourlyWeatherPeriod {
+  startTime: string;
+  temperature: number;
+  humidity: number | null;
+  precipitationChance: number | null;
+  precipitationAmount: number | null;
+  windSpeed: number;
+  windGust: number | null;
   shortForecast: string;
 }
 
@@ -14,11 +27,16 @@ export interface CurrentWeather {
   humidity: number;
   windSpeed: number;
   windDirection: number | null;
+  windGust: number | null;
+  dewPoint: number | null;
+  visibility: number | null;
+  precipitation: number | null;
   weatherCode: number | string;
   source: string;
   stationName: string | null;
   observedAt: string | null;
   forecast: WeatherForecastPeriod[];
+  hourlyForecast: HourlyWeatherPeriod[];
 }
 
 const BASE = "https://api.weather.gov";
@@ -67,6 +85,7 @@ interface QuantitativeValue {
 interface NwsPointResponse {
   properties: {
     forecast: string;
+    forecastHourly: string;
     observationStations: string;
   };
 }
@@ -80,6 +99,7 @@ interface NwsForecastResponse {
       relativeHumidity?: QuantitativeValue;
       windSpeed: string;
       windDirection: string;
+      probabilityOfPrecipitation?: QuantitativeValue;
       shortForecast: string;
       startTime: string;
     }>;
@@ -104,6 +124,9 @@ interface NwsObservationResponse {
     relativeHumidity: QuantitativeValue;
     windSpeed: QuantitativeValue;
     windDirection: QuantitativeValue;
+    windGust: QuantitativeValue;
+    dewpoint: QuantitativeValue;
+    visibility: QuantitativeValue;
     heatIndex: QuantitativeValue;
     windChill: QuantitativeValue;
   };
@@ -129,9 +152,14 @@ function kmhToMph(value: number | null | undefined): number | null {
   return value * 0.621371;
 }
 
-function parseWindMph(raw: string): number {
-  const match = raw.match(/(\d+(?:\.\d+)?)/);
-  return match ? Number(match[1]) : 0;
+function metersToMiles(value: number | null | undefined): number | null {
+  if (value == null) return null;
+  return value / 1609.344;
+}
+
+export function parseWindMph(raw: string): number {
+  const values = Array.from(raw.matchAll(/\d+(?:\.\d+)?/g), (match) => Number(match[0]));
+  return values.length > 0 ? Math.max(...values) : 0;
 }
 
 function windDirectionLabelToDegrees(label: string): number | null {
@@ -180,11 +208,16 @@ async function fetchNearestObservation(
         humidity: Math.round(p.relativeHumidity?.value ?? 0),
         windSpeed: kmhToMph(p.windSpeed?.value) ?? 0,
         windDirection: p.windDirection?.value ?? null,
+        windGust: kmhToMph(p.windGust?.value),
+        dewPoint: cToF(p.dewpoint?.value),
+        visibility: metersToMiles(p.visibility?.value),
+        precipitation: null,
         weatherCode: p.textDescription || "Observed conditions",
         source: "NWS observation",
         stationName: p.stationName || station.properties.name,
         observedAt: p.timestamp,
         forecast: [],
+        hourlyForecast: [],
       };
     } catch {
       // Try the next nearest station when one observation endpoint is missing.
@@ -202,11 +235,16 @@ function fromForecast(forecast: NwsForecastResponse): CurrentWeather {
     humidity: Math.round(first.relativeHumidity?.value ?? 0),
     windSpeed: parseWindMph(first.windSpeed),
     windDirection: windDirectionLabelToDegrees(first.windDirection),
+    windGust: null,
+    dewPoint: null,
+    visibility: null,
+    precipitation: null,
     weatherCode: first.shortForecast || "Forecast conditions",
     source: "NWS forecast",
     stationName: null,
     observedAt: first.startTime,
     forecast: dailyForecastPeriods(forecast),
+    hourlyForecast: [],
   };
 }
 
@@ -237,6 +275,8 @@ function dailyForecastPeriods(forecast: NwsForecastResponse): WeatherForecastPer
       humidity: period.relativeHumidity?.value ?? null,
       windSpeed: parseWindMph(period.windSpeed),
       windDirection: windDirectionLabelToDegrees(period.windDirection),
+      windGust: null,
+      precipitationChance: period.probabilityOfPrecipitation?.value ?? null,
       shortForecast: period.shortForecast || "Forecast conditions",
     });
   }
@@ -250,8 +290,23 @@ function dailyForecastPeriods(forecast: NwsForecastResponse): WeatherForecastPer
         humidity: period.relativeHumidity?.value ?? null,
         windSpeed: parseWindMph(period.windSpeed),
         windDirection: windDirectionLabelToDegrees(period.windDirection),
+        windGust: null,
+        precipitationChance: period.probabilityOfPrecipitation?.value ?? null,
         shortForecast: period.shortForecast || "Forecast conditions",
       }));
+}
+
+function hourlyForecastPeriods(forecast: NwsForecastResponse): HourlyWeatherPeriod[] {
+  return forecast.properties.periods.slice(0, 24).map((period) => ({
+    startTime: period.startTime,
+    temperature: period.temperature,
+    humidity: period.relativeHumidity?.value ?? null,
+    precipitationChance: period.probabilityOfPrecipitation?.value ?? null,
+    precipitationAmount: null,
+    windSpeed: parseWindMph(period.windSpeed),
+    windGust: null,
+    shortForecast: period.shortForecast || "Forecast conditions",
+  }));
 }
 
 export async function fetchCurrentWeather(
@@ -259,11 +314,15 @@ export async function fetchCurrentWeather(
   lng: number
 ): Promise<CurrentWeather> {
   const point = await fetchJson<NwsPointResponse>(`${BASE}/points/${lat},${lng}`);
-  const [observation, forecast] = await Promise.all([
+  const [observation, forecast, hourly] = await Promise.all([
     fetchNearestObservation(point.properties.observationStations).catch(() => null),
     fetchJson<NwsForecastResponse>(point.properties.forecast),
+    fetchJson<NwsForecastResponse>(point.properties.forecastHourly),
   ]);
 
   const dailyForecast = dailyForecastPeriods(forecast);
-  return observation ? { ...observation, forecast: dailyForecast } : fromForecast(forecast);
+  const hourlyForecast = hourlyForecastPeriods(hourly);
+  return observation
+    ? { ...observation, forecast: dailyForecast, hourlyForecast }
+    : { ...fromForecast(forecast), hourlyForecast };
 }
