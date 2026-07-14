@@ -79,13 +79,17 @@ export function SignalSummaryPanel({
   const volcanoSignals = supplementalSignals.filter((s) => s.category === "Volcano");
   const droughtSignals = supplementalSignals.filter((s) => s.category === "Drought");
   const spaceWeatherSignals = supplementalSignals.filter((s) => s.category === "Space Weather");
+  const pollenSignals = supplementalSignals.filter((s) => s.category === "Pollen");
+  const uvSignals = supplementalSignals.filter((s) => s.category === "UV Index");
   const shownSupplementalCount =
     airQualitySignals.length +
     marineSignals.length +
     riverSignals.length +
     volcanoSignals.length +
     droughtSignals.length +
-    spaceWeatherSignals.length;
+    spaceWeatherSignals.length +
+    pollenSignals.length +
+    uvSignals.length;
 
   return (
     <>
@@ -169,6 +173,12 @@ export function SignalSummaryPanel({
           {droughtSignals.map((signal) => (
             <SupplementalSignalLine key={signal.id} signal={signal} />
           ))}
+          {pollenSignals.map((signal) => (
+            <SupplementalSignalLine key={signal.id} signal={signal} />
+          ))}
+          {uvSignals.map((signal) => (
+            <SupplementalSignalLine key={signal.id} signal={signal} />
+          ))}
           {spaceWeatherSignals.map((signal) => (
             <SupplementalSignalLine key={signal.id} signal={signal} />
           ))}
@@ -180,7 +190,7 @@ export function SignalSummaryPanel({
           )}
           <div style={styles.detail}>
             Sources: {[
-              airQualitySignals.length || marineSignals.length ? "Open-Meteo" : null,
+              airQualitySignals.length || marineSignals.length || pollenSignals.length || uvSignals.length ? "Open-Meteo" : null,
               riverSignals.some((signal) => signal.source === "USGS_WATER") ? "USGS Water" : null,
               riverSignals.some((signal) => signal.source === "NWPS") ? "NOAA River Forecasts" : null,
               volcanoSignals.length ? "USGS Volcanoes" : null,

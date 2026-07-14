@@ -38,6 +38,8 @@ const CATEGORY_LABELS: Record<EventCategory, string> = {
   "Air Quality": "Air quality",
   "Coastal Water": "Coastal water",
   "Space Weather": "Space weather",
+  Pollen: "Pollen levels",
+  "UV Index": "UV exposure",
 };
 
 function signalKey(event: RiskEvent): string {

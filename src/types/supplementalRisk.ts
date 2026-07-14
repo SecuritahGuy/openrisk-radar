@@ -19,7 +19,9 @@ export type SupplementalCategory =
   | "Air Quality"
   | "Space Weather"
   | "Drought"
-  | "Volcano";
+  | "Volcano"
+  | "Pollen"
+  | "UV Index";
 
 export type SupplementalGeometry =
   | {

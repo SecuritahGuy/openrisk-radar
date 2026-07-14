@@ -6,6 +6,7 @@ import type { SupplementalRiskSignal, SupplementalMetric } from "../types/supple
 const WEATHER_BASE = "https://api.open-meteo.com/v1";
 const AIR_QUALITY_BASE = "https://air-quality-api.open-meteo.com/v1";
 const MARINE_BASE = "https://marine-api.open-meteo.com/v1";
+const FLOOD_BASE = "https://flood-api.open-meteo.com/v1";
 
 interface OpenMeteoCurrent {
   time: string;
@@ -47,6 +48,14 @@ interface OpenMeteoAirQualityCurrent {
   carbon_monoxide: number | null;
   dust: number | null;
   ammonia: number | null;
+  alder_pollen: number | null;
+  birch_pollen: number | null;
+  grass_pollen: number | null;
+  mugwort_pollen: number | null;
+  olive_pollen: number | null;
+  ragweed_pollen: number | null;
+  uv_index: number | null;
+  uv_index_clear_sky: number | null;
 }
 
 interface OpenMeteoAirQualityResponse {
@@ -182,6 +191,14 @@ export async function fetchOpenMeteoAirQuality(
       "carbon_monoxide",
       "dust",
       "ammonia",
+      "alder_pollen",
+      "birch_pollen",
+      "grass_pollen",
+      "mugwort_pollen",
+      "olive_pollen",
+      "ragweed_pollen",
+      "uv_index",
+      "uv_index_clear_sky",
     ].join(","),
   });
 
@@ -191,25 +208,31 @@ export async function fetchOpenMeteoAirQuality(
 
   const json: OpenMeteoAirQualityResponse = await res.json();
   const c = json.current;
+
+  const aqiMetrics: SupplementalMetric[] = [];
+  if (c.european_aqi != null) aqiMetrics.push({ label: "European AQI", value: c.european_aqi });
+  if (c.us_aqi != null) aqiMetrics.push({ label: "US AQI", value: c.us_aqi });
+  if (c.pm2_5 != null) aqiMetrics.push({ label: "PM2.5", value: c.pm2_5, unit: "µg/m³" });
+  if (c.pm10 != null) aqiMetrics.push({ label: "PM10", value: c.pm10, unit: "µg/m³" });
+  if (c.ozone != null) aqiMetrics.push({ label: "Ozone", value: c.ozone, unit: "µg/m³" });
+  if (c.nitrogen_dioxide != null) aqiMetrics.push({ label: "NO2", value: c.nitrogen_dioxide, unit: "µg/m³" });
+  if (c.sulphur_dioxide != null) aqiMetrics.push({ label: "SO2", value: c.sulphur_dioxide, unit: "µg/m³" });
+  if (c.carbon_monoxide != null) aqiMetrics.push({ label: "CO", value: c.carbon_monoxide, unit: "µg/m³" });
+  if (c.dust != null) aqiMetrics.push({ label: "Dust", value: c.dust, unit: "µg/m³" });
+  if (c.ammonia != null) aqiMetrics.push({ label: "NH3", value: c.ammonia, unit: "µg/m³" });
+
   const aqi = c.european_aqi ?? c.us_aqi ?? 0;
-  const sev = aqiSeverity(c.european_aqi, c.us_aqi);
+  const aqiSev = aqiSeverity(c.european_aqi, c.us_aqi);
 
-  const metrics: SupplementalMetric[] = [];
-  if (c.european_aqi != null) metrics.push({ label: "European AQI", value: c.european_aqi });
-  if (c.us_aqi != null) metrics.push({ label: "US AQI", value: c.us_aqi });
-  if (c.pm2_5 != null) metrics.push({ label: "PM2.5", value: c.pm2_5, unit: "µg/m³" });
-  if (c.pm10 != null) metrics.push({ label: "PM10", value: c.pm10, unit: "µg/m³" });
-  if (c.ozone != null) metrics.push({ label: "Ozone", value: c.ozone, unit: "µg/m³" });
-  if (c.nitrogen_dioxide != null) metrics.push({ label: "NO2", value: c.nitrogen_dioxide, unit: "µg/m³" });
-  if (c.sulphur_dioxide != null) metrics.push({ label: "SO2", value: c.sulphur_dioxide, unit: "µg/m³" });
+  const signals: SupplementalRiskSignal[] = [];
 
-  const signal: SupplementalRiskSignal = {
+  signals.push({
     id: newEventId(),
     source: "AIRNOW",
     sourceEventId: `openmeteo-aq-${lat.toFixed(2)}-${lng.toFixed(2)}`,
     category: "Air Quality",
     type: "Air Quality",
-    severity: sev,
+    severity: aqiSev,
     headline: `Air Quality Index: ${aqi}${c.european_aqi != null ? ` (EAQI: ${c.european_aqi})` : ""}`,
     description: `Air quality near ${locationName || `${lat.toFixed(2)}, ${lng.toFixed(2)}`}.`,
     geometry: { type: "Point", latitude: lat, longitude: lng },
@@ -218,11 +241,71 @@ export async function fetchOpenMeteoAirQuality(
     updatedAt: new Date().toISOString(),
     url: "https://open-meteo.com/en/docs/air-quality-api",
     confidence: "Source reported",
-    metrics,
+    metrics: aqiMetrics,
     raw: c as unknown as Record<string, unknown>,
-  };
+  });
 
-  return [signal];
+  const pollenValues = [c.alder_pollen, c.birch_pollen, c.grass_pollen, c.mugwort_pollen, c.olive_pollen, c.ragweed_pollen]
+    .filter((v): v is number => v != null);
+  if (pollenValues.length > 0) {
+    const maxPollen = Math.max(...pollenValues);
+    const pollenSev: Severity = maxPollen >= 200 ? "Extreme" : maxPollen >= 100 ? "Severe" : maxPollen >= 50 ? "Moderate" : "Minor";
+
+    const pollenMetrics: SupplementalMetric[] = [];
+    if (c.alder_pollen != null) pollenMetrics.push({ label: "Alder", value: c.alder_pollen, unit: "grains/m³" });
+    if (c.birch_pollen != null) pollenMetrics.push({ label: "Birch", value: c.birch_pollen, unit: "grains/m³" });
+    if (c.grass_pollen != null) pollenMetrics.push({ label: "Grass", value: c.grass_pollen, unit: "grains/m³" });
+    if (c.mugwort_pollen != null) pollenMetrics.push({ label: "Mugwort", value: c.mugwort_pollen, unit: "grains/m³" });
+    if (c.olive_pollen != null) pollenMetrics.push({ label: "Olive", value: c.olive_pollen, unit: "grains/m³" });
+    if (c.ragweed_pollen != null) pollenMetrics.push({ label: "Ragweed", value: c.ragweed_pollen, unit: "grains/m³" });
+
+    signals.push({
+      id: newEventId(),
+      source: "AIRNOW",
+      sourceEventId: `openmeteo-pollen-${lat.toFixed(2)}-${lng.toFixed(2)}`,
+      category: "Pollen",
+      type: "Pollen",
+      severity: pollenSev,
+      headline: `Pollen: ${maxPollen.toFixed(0)} grains/m³ peak`,
+      description: `Pollen levels near ${locationName || `${lat.toFixed(2)}, ${lng.toFixed(2)}`}.`,
+      geometry: { type: "Point", latitude: lat, longitude: lng },
+      startedAt: new Date().toISOString(),
+      expiresAt: null,
+      updatedAt: new Date().toISOString(),
+      url: "https://open-meteo.com/en/docs/air-quality-api",
+      confidence: "Source reported",
+      metrics: pollenMetrics,
+      raw: c as unknown as Record<string, unknown>,
+    });
+  }
+
+  if (c.uv_index != null) {
+    const uvSev: Severity = c.uv_index >= 11 ? "Extreme" : c.uv_index >= 8 ? "Severe" : c.uv_index >= 6 ? "Moderate" : "Minor";
+
+    const uvMetrics: SupplementalMetric[] = [{ label: "UV Index", value: c.uv_index }];
+    if (c.uv_index_clear_sky != null) uvMetrics.push({ label: "UV Index (Clear Sky)", value: c.uv_index_clear_sky });
+
+    signals.push({
+      id: newEventId(),
+      source: "AIRNOW",
+      sourceEventId: `openmeteo-uv-${lat.toFixed(2)}-${lng.toFixed(2)}`,
+      category: "UV Index",
+      type: "UV Index",
+      severity: uvSev,
+      headline: `UV Index: ${c.uv_index}`,
+      description: `UV index near ${locationName || `${lat.toFixed(2)}, ${lng.toFixed(2)}`}.`,
+      geometry: { type: "Point", latitude: lat, longitude: lng },
+      startedAt: new Date().toISOString(),
+      expiresAt: null,
+      updatedAt: new Date().toISOString(),
+      url: "https://open-meteo.com/en/docs/air-quality-api",
+      confidence: "Source reported",
+      metrics: uvMetrics,
+      raw: c as unknown as Record<string, unknown>,
+    });
+  }
+
+  return signals;
 }
 
 export async function fetchOpenMeteoMarine(
@@ -285,4 +368,105 @@ export async function fetchOpenMeteoMarine(
   };
 
   return [signal];
+}
+
+interface OpenMeteoFloodDaily {
+  time: string[];
+  river_discharge: (number | null)[];
+  river_discharge_mean: (number | null)[];
+  river_discharge_median: (number | null)[];
+  river_discharge_max: (number | null)[];
+  river_discharge_min: (number | null)[];
+}
+
+interface OpenMeteoFloodResponse {
+  latitude: number;
+  longitude: number;
+  daily_units: Record<string, string>;
+  daily: OpenMeteoFloodDaily;
+}
+
+export async function fetchOpenMeteoFlood(
+  lat: number,
+  lng: number,
+  locationName?: string
+): Promise<SupplementalRiskSignal[]> {
+  const params = new URLSearchParams({
+    latitude: lat.toString(),
+    longitude: lng.toString(),
+    daily: [
+      "river_discharge",
+      "river_discharge_mean",
+      "river_discharge_median",
+      "river_discharge_max",
+      "river_discharge_min",
+    ].join(","),
+    forecast_days: "10",
+  });
+
+  const url = `${FLOOD_BASE}/flood?${params}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Open-Meteo flood API returned ${res.status}`);
+
+  const json: OpenMeteoFloodResponse = await res.json();
+  const d = json.daily;
+  if (!d?.time?.length) return [];
+
+  let peakDischarge = 0;
+  let peakIndex = -1;
+  for (let i = 0; i < d.time.length; i++) {
+    const val = d.river_discharge[i];
+    if (val != null && val > peakDischarge) {
+      peakDischarge = val;
+      peakIndex = i;
+    }
+  }
+
+  if (peakDischarge <= 0) return [];
+
+  const meanAtPeak = peakIndex >= 0 ? (d.river_discharge_mean[peakIndex] ?? null) : null;
+  const ratio = meanAtPeak != null && meanAtPeak > 0.1 ? peakDischarge / meanAtPeak : null;
+
+  let sev: Severity;
+  if (ratio != null) {
+    sev = ratio >= 5 ? "Extreme" : ratio >= 3 ? "Severe" : ratio >= 2 ? "Moderate" : "Minor";
+  } else {
+    sev = peakDischarge >= 2000 ? "Extreme" : peakDischarge >= 500 ? "Severe" : peakDischarge >= 100 ? "Moderate" : "Minor";
+  }
+
+  const metrics: SupplementalMetric[] = [
+    { label: "River Discharge", value: Math.round(peakDischarge * 10) / 10, unit: "m³/s" },
+  ];
+  if (meanAtPeak != null) {
+    metrics.push({ label: "Ensemble Mean", value: Math.round(meanAtPeak * 10) / 10, unit: "m³/s" });
+  }
+  if (ratio != null) {
+    metrics.push({ label: "Peak/Mean Ratio", value: Math.round(ratio * 10) / 10 });
+  }
+  if (d.river_discharge_max[peakIndex] != null) {
+    metrics.push({ label: "Ensemble Max", value: Math.round(d.river_discharge_max[peakIndex]! * 10) / 10, unit: "m³/s" });
+  }
+
+  const peakTime = d.time[peakIndex];
+
+  return [{
+    id: newEventId(),
+    source: "USGS_WATER",
+    sourceEventId: `openmeteo-flood-${lat.toFixed(2)}-${lng.toFixed(2)}`,
+    category: "River Gauge",
+    type: "Flood Risk",
+    severity: sev,
+    headline: ratio != null
+      ? `River discharge ${ratio >= 2 ? "elevated" : "normal"}: ${Math.round(peakDischarge)} m³/s peak`
+      : `River discharge: ${Math.round(peakDischarge)} m³/s`,
+    description: `Flood forecast near ${locationName || `${lat.toFixed(2)}, ${lng.toFixed(2)}`} peaks at ${Math.round(peakDischarge)} m³/s on ${peakTime}.`,
+    geometry: { type: "Point", latitude: lat, longitude: lng },
+    startedAt: new Date().toISOString(),
+    expiresAt: null,
+    updatedAt: new Date().toISOString(),
+    url: "https://open-meteo.com/en/docs/flood-api",
+    confidence: "Source reported",
+    metrics,
+    raw: json as unknown as Record<string, unknown>,
+  }];
 }

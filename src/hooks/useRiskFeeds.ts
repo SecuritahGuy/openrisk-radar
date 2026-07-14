@@ -24,6 +24,7 @@ import {
   fetchOpenMeteoAirQuality,
   fetchOpenMeteoMarine,
   fetchOpenMeteoWeather,
+  fetchOpenMeteoFlood,
 } from "../services/openMeteo";
 import { fetchRiverConditions } from "../services/usgsWater";
 import { fetchNwpsRiverForecasts } from "../services/nwps";
@@ -156,6 +157,8 @@ function supplementalCategory(signal: SupplementalRiskSignal): EventCategory {
   if (signal.category === "Volcano") return "Volcanic";
   if (signal.category === "Drought") return "Drought";
   if (signal.category === "Space Weather") return "Space Weather";
+  if (signal.category === "Pollen") return "Pollen";
+  if (signal.category === "UV Index") return "UV Index";
   return "Weather";
 }
 
@@ -425,6 +428,19 @@ export function useRiskFeeds(
     retry: 1,
   });
 
+  const floodQuery = useQuery<SupplementalRiskSignal[]>({
+    queryKey: [
+      "openmeteo-flood",
+      location?.latitude,
+      location?.longitude,
+    ],
+    queryFn: () =>
+      fetchOpenMeteoFlood(location!.latitude, location!.longitude, label),
+    enabled: !!location,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
   const riverQuery = useQuery<SupplementalRiskSignal[]>({
     queryKey: [
       "river-conditions",
@@ -531,6 +547,7 @@ export function useRiskFeeds(
   const airQualitySignals = airQualityQuery.data ?? EMPTY_SIGNALS;
   const airNowSignals = airNowQuery.data ?? EMPTY_SIGNALS;
   const marineSignals = marineQuery.data ?? EMPTY_SIGNALS;
+  const floodSignals = floodQuery.data ?? EMPTY_SIGNALS;
   const riverSignals = riverQuery.data ?? EMPTY_SIGNALS;
   const nwpsSignals = nwpsQuery.data ?? EMPTY_SIGNALS;
   const volcanoSignals = volcanoQuery.data ?? EMPTY_SIGNALS;
@@ -541,6 +558,7 @@ export function useRiskFeeds(
       ...airQualitySignals,
       ...airNowSignals,
       ...marineSignals,
+      ...floodSignals,
       ...riverSignals,
       ...nwpsSignals,
       ...volcanoSignals,
@@ -551,6 +569,7 @@ export function useRiskFeeds(
       airQualitySignals,
       airNowSignals,
       marineSignals,
+      floodSignals,
       riverSignals,
       nwpsSignals,
       volcanoSignals,
@@ -614,6 +633,7 @@ export function useRiskFeeds(
   if (airQualityQuery.error) errors.push(`Open-Meteo Air Quality: ${airQualityQuery.error.message}`);
   if (airNowQuery.error) errors.push(`AirNow: ${airNowQuery.error.message}`);
   if (marineQuery.error) errors.push(`Open-Meteo Marine: ${marineQuery.error.message}`);
+  if (floodQuery.error) errors.push(`Open-Meteo Flood: ${floodQuery.error.message}`);
   if (riverQuery.error) errors.push(`USGS Water: ${riverQuery.error.message}`);
   if (nwpsQuery.error) errors.push(`NWPS River Forecasts: ${nwpsQuery.error.message}`);
   if (volcanoQuery.error) errors.push(`USGS Volcanoes: ${volcanoQuery.error.message}`);
@@ -798,6 +818,17 @@ export function useRiskFeeds(
       count: marineSignals.length,
       liveDetail: `${marineSignals.length} marine signal${marineSignals.length !== 1 ? "s" : ""}.`,
       emptyDetail: "No coastal water signal for this location.",
+    }),
+    queryHealth({
+      id: "openmeteo-flood",
+      label: "Open-Meteo Flood",
+      enabled: locationEnabled,
+      isLoading: floodQuery.isLoading,
+      isFetching: floodQuery.isFetching,
+      error: errorMessage(floodQuery.error),
+      count: floodSignals.length,
+      liveDetail: `${floodSignals.length} flood signal${floodSignals.length !== 1 ? "s" : ""}.`,
+      emptyDetail: "No river discharge data for this location.",
     }),
     queryHealth({
       id: "usgs-water",
