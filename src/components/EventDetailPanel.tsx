@@ -3,6 +3,7 @@ import type { RiskEvent } from "../types/riskEvent";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
 import { assessImpact, impactColor } from "../lib/impactInsights";
 import { concernContextLabel, sourceLabel } from "../lib/riskInsights";
+import { incidentMetadata } from "../lib/incidents";
 
 interface EventDetailPanelProps {
   event: RiskEvent;
@@ -366,6 +367,7 @@ export function EventDetailPanel({
       ? `${event.latitude.toFixed(4)}, ${event.longitude.toFixed(4)}`
       : "—";
   const impact = assessImpact(event, location, radius);
+  const incident = incidentMetadata(event);
   const impactBadgeColor = impactColor(impact.level);
   const contextLabel = concernContextLabel(event);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -516,6 +518,33 @@ export function EventDetailPanel({
           <DetailRow label="Coordinates" value={coords} />
           <DetailRow label="Confidence" value={event.confidence} />
         </div>
+
+        {incident && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Incident confidence</div>
+            <DetailRow
+              label="Agreement"
+              value={incident.agreement === "corroborated"
+                ? `Corroborated by ${incident.sources.length} sources`
+                : "Single official source"}
+            />
+            <DetailRow label="Incident ID" value={incident.id} />
+            <div style={styles.contributorList}>
+              {incident.contributors.map((contributor) => (
+                <div
+                  key={`${contributor.source}:${contributor.sourceEventId}`}
+                  style={styles.contributor}
+                >
+                  <span style={{ ...styles.contributorSource, color: sourceColor(contributor.source) }}>
+                    {sourceLabel(contributor.source)}
+                  </span>
+                  <span style={styles.contributorHeadline}>{contributor.headline}</span>
+                  <span style={styles.contributorTime}>{formatTime(contributor.updatedAt)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {event.source === "NWS" && (
           <div style={styles.section}>
@@ -734,6 +763,34 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 500,
     textAlign: "right" as const,
     flex: 1,
+  },
+  contributorList: {
+    display: "grid",
+    gap: 6,
+    marginTop: 8,
+  },
+  contributor: {
+    display: "grid",
+    gridTemplateColumns: "minmax(120px, 0.8fr) minmax(160px, 1.8fr) auto",
+    gap: 8,
+    alignItems: "center",
+    background: "#f7f9fb",
+    borderRadius: 6,
+    padding: "7px 8px",
+    fontSize: 11,
+  },
+  contributorSource: {
+    fontWeight: 800,
+  },
+  contributorHeadline: {
+    color: "#37474f",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  contributorTime: {
+    color: "#78909c",
+    whiteSpace: "nowrap",
   },
   actionRow: {
     display: "flex",

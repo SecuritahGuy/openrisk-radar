@@ -20,6 +20,7 @@ import {
 } from "./lib/riskInsights";
 import { isCurrentImpact } from "./lib/impactInsights";
 import type { RadiusOption, Criticality, LocationType } from "./types/location";
+import { canonicalIncidentEvents } from "./lib/incidents";
 import type { EventSource, RiskEvent, Severity } from "./types/riskEvent";
 import type { WeatherLayerMode } from "./types/weatherLayer";
 
@@ -234,14 +235,19 @@ export default function App() {
   const activeSavedLocation =
     savedLocations.find((l) => coordsMatch(l, result)) ?? null;
 
+  const incidentEvents = useMemo(
+    () => canonicalIncidentEvents(allEvents),
+    [allEvents]
+  );
+
   const filteredEvents = useMemo(() => {
-    const visible = filterEvents(allEvents, sourceFilters, severityFilters);
+    const visible = filterEvents(incidentEvents, sourceFilters, severityFilters);
     if (!currentImpactOnly) return visible;
     return visible.filter((event) => isCurrentImpact(event, result, radius));
-  }, [allEvents, sourceFilters, severityFilters, currentImpactOnly, result, radius]);
+  }, [incidentEvents, sourceFilters, severityFilters, currentImpactOnly, result, radius]);
   const allConcernEvents = useMemo(
-    () => activeConcernEvents(allEvents),
-    [allEvents]
+    () => activeConcernEvents(incidentEvents),
+    [incidentEvents]
   );
   const filteredConcernEvents = useMemo(
     () => activeConcernEvents(filteredEvents),
@@ -432,7 +438,7 @@ export default function App() {
         />
         <OfflineBanner
           location={result}
-          events={allEvents}
+          events={incidentEvents}
           isFetching={isFetching}
         />
         {!result && (
@@ -455,7 +461,7 @@ export default function App() {
           savedLocations={savedLocations}
           activeLocation={activeSavedLocation}
           summaries={savedLocationSummaries}
-          events={allEvents}
+          events={incidentEvents}
           radius={radius}
           currentWeather={currentWeather}
           sourceHealth={sourceHealth}
@@ -466,7 +472,7 @@ export default function App() {
         <RiskCommandBar
           location={result}
           radius={radius}
-          events={allEvents}
+          events={incidentEvents}
           currentWeather={currentWeather}
           currentImpactOnly={currentImpactOnly}
           onToggleCurrentImpact={setCurrentImpactOnly}
@@ -501,7 +507,7 @@ export default function App() {
           events={filteredConcernEvents}
           allEvents={filteredEvents}
           totalEvents={allConcernEvents.length}
-          totalAllEvents={allEvents.length}
+          totalAllEvents={incidentEvents.length}
           location={result}
           radius={radius}
           isFetching={isFetching}
@@ -524,6 +530,7 @@ export default function App() {
         gdacsEvents={gdacsEvents}
         eonetEvents={eonetEvents}
         emscEvents={emscEvents}
+        incidents={incidentEvents}
         currentWeather={currentWeather}
         femaRiskIndex={femaRiskIndex}
         supplementalSignals={supplementalSignals}

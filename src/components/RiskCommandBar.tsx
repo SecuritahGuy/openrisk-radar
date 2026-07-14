@@ -168,13 +168,13 @@ export function RiskCommandBar({
   const concernEvents = activeConcernEvents(events);
   const summary = buildRiskSummary(concernEvents);
   const scoreExplanation = explainRiskScore(concernEvents);
-  const impactSummary = buildImpactSummary(events, location, radius);
-  const currentImpactEvents = events.filter((event) =>
+  const impactSummary = buildImpactSummary(concernEvents, location, radius);
+  const historySummary = buildImpactSummary(events, location, radius);
+  const currentImpactEvents = concernEvents.filter((event) =>
     isCurrentImpact(event, location, radius)
   );
-  const currentImpactConcernEvents = activeConcernEvents(currentImpactEvents);
   const topEvents = attentionEvents(
-    currentImpactConcernEvents.length > 0 ? currentImpactConcernEvents : concernEvents,
+    currentImpactEvents.length > 0 ? currentImpactEvents : concernEvents,
     location,
     2
   );
@@ -253,7 +253,7 @@ export function RiskCommandBar({
           <span style={styles.metricLabel}>High priority</span>
         </div>
         <div style={styles.metric}>
-          <span style={styles.metricValue}>{impactSummary.historicalCount}</span>
+          <span style={styles.metricValue}>{historySummary.historicalCount}</span>
           <span style={styles.metricLabel}>History</span>
         </div>
       </div>

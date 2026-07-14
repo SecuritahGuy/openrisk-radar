@@ -6,6 +6,11 @@ import { fetchNwsAlertsForPoint } from "../services/nws";
 import { fetchEarthquakes } from "../services/usgs";
 import { fetchWildfires } from "../services/nifc";
 import { fetchSpcOutlooks } from "../services/spc";
+import { fetchNhcStorms } from "../services/nhc";
+import { fetchGdacsEvents } from "../services/gdacs";
+import { fetchEonetEvents } from "../services/eonet";
+import { fetchEmscEvents } from "../services/emsc";
+import { fetchMeteoalarmAlerts, supportsMeteoalarm } from "../services/meteoalarm";
 import type { Location, RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import {
@@ -15,6 +20,7 @@ import {
   type RiskSummary,
 } from "../lib/riskInsights";
 import { buildImpactSummary, type ImpactSummary } from "../lib/impactInsights";
+import { canonicalIncidentEvents } from "../lib/incidents";
 
 export interface SavedLocationRiskSummary {
   locationId: string;
@@ -100,7 +106,8 @@ async function fetchSavedLocationSummary(
 ): Promise<SavedLocationSummaryPayload> {
   const radiusMiles = location.radiusMiles || 50;
   const radiusKm = toRadiusKm(radiusMiles);
-  const [nws, usgs, nifc, spc, weather] = await Promise.all([
+  const resolvedLocation = toResolvedLocation(location);
+  const [nws, usgs, nifc, spc, nhc, gdacs, eonet, emsc, meteoalarm, weather] = await Promise.all([
     settleEvents(
       "NWS",
       fetchNwsAlertsForPoint(location.latitude, location.longitude)
@@ -117,11 +124,35 @@ async function fetchSavedLocationSummary(
       "SPC",
       fetchSpcOutlooks(location.latitude, location.longitude, radiusMiles)
     ),
+    settleEvents(
+      "NHC",
+      fetchNhcStorms(location.latitude, location.longitude, radiusMiles)
+    ),
+    settleEvents(
+      "GDACS",
+      fetchGdacsEvents(location.latitude, location.longitude, radiusKm)
+    ),
+    settleEvents(
+      "NASA EONET",
+      fetchEonetEvents(location.latitude, location.longitude, radiusKm)
+    ),
+    settleEvents(
+      "EMSC",
+      fetchEmscEvents(location.latitude, location.longitude, radiusKm)
+    ),
+    settleEvents(
+      "Meteoalarm",
+      supportsMeteoalarm(resolvedLocation)
+        ? fetchMeteoalarmAlerts(resolvedLocation)
+        : Promise.resolve([])
+    ),
     settleWeather(location),
   ]);
 
-  const eventResults = [nws, usgs, nifc, spc];
-  const events = eventResults.flatMap((result) => result.events);
+  const eventResults = [nws, usgs, nifc, spc, nhc, gdacs, eonet, emsc, meteoalarm];
+  const events = canonicalIncidentEvents(
+    eventResults.flatMap((result) => result.events)
+  );
   const errors = [
     ...eventResults
       .filter((result) => result.error)

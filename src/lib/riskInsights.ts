@@ -67,6 +67,12 @@ export interface RiskScoreExplanation {
 }
 
 const STALE_CONCERN_MS = 90 * 24 * 60 * 60 * 1000;
+const SEISMIC_CONCERN_MS: Record<Severity, number> = {
+  Minor: 24 * 60 * 60 * 1000,
+  Moderate: 7 * 24 * 60 * 60 * 1000,
+  Severe: 30 * 24 * 60 * 60 * 1000,
+  Extreme: 30 * 24 * 60 * 60 * 1000,
+};
 
 export function defaultSourceFilters(): SourceFilters {
   return {
@@ -271,6 +277,11 @@ export function isStaleConcernEvent(
     const expires = new Date(event.expiresAt).getTime();
     if (!Number.isNaN(expires) && expires <= nowMs) return true;
     return false;
+  }
+
+  if (event.category === "Seismic") {
+    const started = new Date(event.startedAt).getTime();
+    return !Number.isNaN(started) && nowMs - started > SEISMIC_CONCERN_MS[event.severity];
   }
 
   const updated = new Date(event.updatedAt).getTime();

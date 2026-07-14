@@ -49,6 +49,22 @@ describe("riskInsights", () => {
     expect(severityRank("Severe")).toBeLessThan(severityRank("Extreme"));
   });
 
+  it("keeps old earthquake catalog entries out of the active feed by severity", () => {
+    expect(isStaleConcernEvent(event({
+      category: "Seismic",
+      source: "USGS",
+      severity: "Minor",
+      startedAt: "2026-07-12T00:00:00Z",
+      updatedAt: "2026-07-13T11:59:00Z",
+    }), now)).toBe(true);
+    expect(isStaleConcernEvent(event({
+      category: "Seismic",
+      source: "USGS",
+      severity: "Moderate",
+      startedAt: "2026-07-12T00:00:00Z",
+    }), now)).toBe(false);
+  });
+
   it("computes practical distance between two points", () => {
     const location: ResolvedLocation = {
       city: "Chicago",

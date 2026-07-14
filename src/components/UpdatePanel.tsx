@@ -35,6 +35,7 @@ interface UpdatePanelProps {
   gdacsEvents: RiskEvent[];
   eonetEvents: RiskEvent[];
   emscEvents: RiskEvent[];
+  incidents: RiskEvent[];
   currentWeather: CurrentWeather | null;
   femaRiskIndex: FemaRiskIndexCounty | null;
   supplementalSignals: SupplementalRiskSignal[];
@@ -75,6 +76,7 @@ export function UpdatePanel({
   gdacsEvents,
   eonetEvents,
   emscEvents,
+  incidents,
   currentWeather,
   femaRiskIndex,
   supplementalSignals,
@@ -100,7 +102,7 @@ export function UpdatePanel({
   isSaving,
   onEventClick,
 }: UpdatePanelProps) {
-  const allEvents = [...weatherAlerts, ...earthquakes, ...femaDeclarations, ...wildfires, ...spcOutlooks, ...nhcStorms, ...gdacsEvents, ...eonetEvents, ...emscEvents];
+  const allEvents = incidents;
   const isSaved = !!activeSavedLocation;
 
   return (
