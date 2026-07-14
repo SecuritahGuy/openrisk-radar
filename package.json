@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.60.0",
-    "@turf/turf": "^7.1.0",
     "dexie": "^4.0.8",
     "leaflet": "^1.9.4",
     "papaparse": "^5.4.1",

@@ -155,11 +155,6 @@ export function SignalSummaryPanel({
             ? `${spaceWeatherSignals.length} SWPC space weather signal${spaceWeatherSignals.length !== 1 ? "s" : ""}`
             : "No elevated space weather signal"}
         </SignalLine>
-        <SignalLine active={seismicSignals.length > 0} color="#2e7d32">
-          {seismicSignals.length > 0
-            ? `${seismicSignals[0].headline}`
-            : "No ShakeMap intensity data"}
-        </SignalLine>
       </div>
 
       {supplementalSignals.length > 0 && (

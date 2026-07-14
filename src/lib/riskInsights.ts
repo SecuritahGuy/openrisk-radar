@@ -354,7 +354,7 @@ export function buildRiskSummary(events: RiskEvent[]): RiskSummary {
       : severeCount > 0
         ? `${severeCount} severe signal${severeCount !== 1 ? "s" : ""}`
         : topSource
-          ? `${topSource.count} ${topSource.source} signal${topSource.count !== 1 ? "s" : ""}`
+          ? `${topSource.count} ${sourceLabel(topSource.source)} signal${topSource.count !== 1 ? "s" : ""}`
           : "No active signals";
 
   return {

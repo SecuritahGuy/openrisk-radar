@@ -50,6 +50,9 @@ describe("signalCorrelation", () => {
       sources: ["NWS", "SPC"],
       eventCount: 2,
     });
+    expect(correlations[0]?.summary).toContain(
+      "National Weather Service, Storm Prediction Center"
+    );
   });
 
   it("identifies single-source concerns", () => {

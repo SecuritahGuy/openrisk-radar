@@ -1,6 +1,5 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { SearchBar } from "./components/SearchBar";
-import { MapView } from "./components/MapView";
 import { UpdatePanel } from "./components/UpdatePanel";
 import { FeedExplorer } from "./components/FeedExplorer";
 import { SavedLocationList } from "./components/SavedLocationList";
@@ -22,6 +21,10 @@ import { isCurrentImpact } from "./lib/impactInsights";
 import type { RadiusOption, Criticality, LocationType } from "./types/location";
 import type { EventSource, RiskEvent, Severity } from "./types/riskEvent";
 import type { WeatherLayerMode } from "./types/weatherLayer";
+
+const MapView = lazy(() =>
+  import("./components/MapView").then((module) => ({ default: module.MapView }))
+);
 
 const RADIUS_OPTIONS: RadiusOption[] = [10, 25, 50, 100];
 const WEATHER_LAYER_MODES: WeatherLayerMode[] = [
@@ -463,29 +466,31 @@ export default function App() {
           onToggleCurrentImpact={setCurrentImpactOnly}
           onEventClick={handleSelectEvent}
         />
-        <MapView
-          location={result}
-          radius={radius}
-          events={filteredEvents}
-          weatherOverlay={weatherOverlay}
-          showWeatherOverlay={showWeatherOverlay}
-          weatherLayerMode={weatherLayerMode}
-          weatherOverlayLoading={weatherOverlayLoading}
-          weatherOverlayError={weatherOverlayError}
-          sourceFilters={sourceFilters}
-          severityFilters={severityFilters}
-          currentImpactOnly={currentImpactOnly}
-          onToggleSource={handleToggleSource}
-          onToggleSeverity={handleToggleSeverity}
-          onResetSourceFilters={handleResetSourceFilters}
-          onResetSeverityFilters={handleResetSeverityFilters}
-          onToggleWeatherOverlay={setShowWeatherOverlay}
-          onWeatherLayerModeChange={setWeatherLayerMode}
-          onRadiusChange={setRadius}
-          onSearchMapArea={searchCoordinates}
-          mapSearchLoading={loading}
-          onEventClick={handleSelectEvent}
-        />
+        <Suspense fallback={<div className="map-loading" aria-live="polite">Loading map…</div>}>
+          <MapView
+            location={result}
+            radius={radius}
+            events={filteredEvents}
+            weatherOverlay={weatherOverlay}
+            showWeatherOverlay={showWeatherOverlay}
+            weatherLayerMode={weatherLayerMode}
+            weatherOverlayLoading={weatherOverlayLoading}
+            weatherOverlayError={weatherOverlayError}
+            sourceFilters={sourceFilters}
+            severityFilters={severityFilters}
+            currentImpactOnly={currentImpactOnly}
+            onToggleSource={handleToggleSource}
+            onToggleSeverity={handleToggleSeverity}
+            onResetSourceFilters={handleResetSourceFilters}
+            onResetSeverityFilters={handleResetSeverityFilters}
+            onToggleWeatherOverlay={setShowWeatherOverlay}
+            onWeatherLayerModeChange={setWeatherLayerMode}
+            onRadiusChange={setRadius}
+            onSearchMapArea={searchCoordinates}
+            mapSearchLoading={loading}
+            onEventClick={handleSelectEvent}
+          />
+        </Suspense>
         <FeedExplorer
           events={filteredConcernEvents}
           allEvents={filteredEvents}

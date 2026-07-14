@@ -330,7 +330,7 @@ export function RiskCommandBar({
                   </span>
                   <span style={styles.agreementTitle}>{signal.label}</span>
                   <span style={styles.agreementMeta}>
-                    {signal.sources.join(" + ")} · {signal.eventCount} signal
+                    {signal.sources.map(sourceLabel).join(" + ")} · {signal.eventCount} signal
                     {signal.eventCount !== 1 ? "s" : ""}
                     {signal.latestUpdatedAt
                       ? ` · updated ${timeAgo(signal.latestUpdatedAt)}`

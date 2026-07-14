@@ -206,6 +206,15 @@ describe("riskInsights", () => {
     });
   });
 
+  it("uses readable provider names in the top driver", () => {
+    const summary = buildRiskSummary([
+      event({ id: "space-1", source: "SPACE_WEATHER" }),
+      event({ id: "space-2", source: "SPACE_WEATHER" }),
+    ]);
+
+    expect(summary.topDriver).toBe("2 NOAA Space Weather signals");
+  });
+
   it("excludes expired and very old non-expiring records from active concerns", () => {
     const expired = event({
       id: "expired",

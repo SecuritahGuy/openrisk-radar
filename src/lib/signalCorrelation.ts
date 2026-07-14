@@ -4,7 +4,7 @@ import type {
   RiskEvent,
   Severity,
 } from "../types/riskEvent";
-import { activeConcernEvents, severityRank } from "./riskInsights";
+import { activeConcernEvents, severityRank, sourceLabel } from "./riskInsights";
 
 export type SignalAgreement = "corroborated" | "single-source" | "stale";
 
@@ -114,9 +114,9 @@ function summarizeAgreement(
     return `${label} has ${eventCount} stale signal${eventCount !== 1 ? "s" : ""}; latest update is over 24 hours old.`;
   }
   if (agreement === "corroborated") {
-    return `${label} is corroborated by ${sources.length} sources: ${sources.join(", ")}.`;
+    return `${label} is corroborated by ${sources.length} sources: ${sources.map(sourceLabel).join(", ")}.`;
   }
-  return `${label} is currently single-source from ${sources[0]}.`;
+  return `${label} is currently single-source from ${sourceLabel(sources[0])}.`;
 }
 
 export function buildSignalCorrelations(
