@@ -1,4 +1,4 @@
-import { cachedPublicProxy, type PagesContext } from "../../_shared/proxy";
+import { cachedPublicProxy, jsonError, type PagesContext } from "../../_shared/proxy";
 
 const UPSTREAM = "https://www.ncei.noaa.gov/stormevents/csv";
 const ALLOWED = new Set([
@@ -14,7 +14,7 @@ export async function onRequestGet({ request }: PagesContext): Promise<Response>
     if (ALLOWED.has(key)) upstream.searchParams.append(key, value);
   }
   if (!upstream.searchParams.has("statefips") || !upstream.searchParams.has("county")) {
-    return new Response("Missing state or county", { status: 400 });
+    return jsonError({ code: "INVALID_REQUEST", message: "Missing state or county", status: 400 });
   }
-  return cachedPublicProxy(request, upstream, 86_400, "text/csv");
+  return cachedPublicProxy(request, upstream, 86_400, "text/csv", "NOAA Storm Events");
 }

@@ -1,4 +1,4 @@
-import { cachedPublicProxy, type PagesContext } from "../../_shared/proxy";
+import { cachedPublicProxy, jsonError, type PagesContext } from "../../_shared/proxy";
 
 const UPSTREAM = "https://www.tsunami.gov/php/esri.php?a=t&format=json";
 
@@ -7,7 +7,8 @@ export async function onRequestGet({ request }: PagesContext): Promise<Response>
     request,
     new URL(UPSTREAM),
     60,
-    "text/plain"
+    "text/plain",
+    "NOAA Tsunami"
   );
   if (!upstreamResponse.ok) return upstreamResponse;
 
@@ -17,10 +18,17 @@ export async function onRequestGet({ request }: PagesContext): Promise<Response>
       .replace(/\);?$/, "")
       .replace(/,\s*([}\]])/g, "$1");
     const data = JSON.parse(text);
-    return Response.json(data, {
-      headers: { "Cache-Control": "public, max-age=30, s-maxage=60" },
-    });
+    const headers = new Headers(upstreamResponse.headers);
+    headers.set("Content-Type", "application/json; charset=utf-8");
+    headers.set("Cache-Control", "public, max-age=30, s-maxage=60");
+    return Response.json(data, { headers });
   } catch {
-    return new Response("Unable to parse NOAA tsunami response", { status: 502 });
+    return jsonError({
+      code: "INVALID_UPSTREAM_RESPONSE",
+      message: "Unable to parse the NOAA tsunami response",
+      provider: "NOAA Tsunami",
+      status: 502,
+      retryable: true,
+    });
   }
 }

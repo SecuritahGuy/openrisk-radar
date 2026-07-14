@@ -4,11 +4,12 @@ const checks = [
   { path: "/", type: "text/html", status: 200 },
   { path: "/manifest.webmanifest", type: "application/manifest+json", status: 200 },
   { path: "/service-worker.js", type: "javascript", status: 200 },
+  { path: "/api/status", type: "application/json", status: 200 },
   { path: "/api/noaa/tsunami", type: "application/json", status: 200 },
   { path: "/api/fema/risk-index?where=STCOFIPS%3D%2717031%27&outFields=*&resultRecordCount=1&f=json", type: "application/json", status: 200 },
   // Deliberately invalid inputs make these route checks fast and independent of upstream availability.
-  { path: "/api/noaa/nwps?path=invalid", type: "text/plain", status: 400 },
-  { path: "/api/noaa/storm-events", type: "text/plain", status: 400 },
+  { path: "/api/noaa/nwps?path=invalid", type: "application/json", status: 400 },
+  { path: "/api/noaa/storm-events", type: "application/json", status: 400 },
 ];
 
 let failed = false;

@@ -6,6 +6,7 @@ import { SavedLocationList } from "./components/SavedLocationList";
 import { SavedLocationOverview } from "./components/SavedLocationOverview";
 import { EventDetailPanel } from "./components/EventDetailPanel";
 import { RiskCommandBar } from "./components/RiskCommandBar";
+import { OfflineBanner } from "./components/OfflineBanner";
 import { useResolvedLocation } from "./hooks/useResolvedLocation";
 import { useNwsWeatherOverlay } from "./hooks/useNwsWeatherOverlay";
 import { useRiskFeeds } from "./hooks/useRiskFeeds";
@@ -428,6 +429,11 @@ export default function App() {
           onSearch={search}
           loading={loading}
           error={locError}
+        />
+        <OfflineBanner
+          location={result}
+          events={allEvents}
+          isFetching={isFetching}
         />
         {!result && (
           <FirstRunPanel

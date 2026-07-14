@@ -19,6 +19,7 @@ import { MapLayerControls } from "./update/MapLayerControls";
 import { SignalSummaryPanel } from "./update/SignalSummaryPanel";
 import { SituationBriefPanel } from "./update/SituationBriefPanel";
 import { UpdatePanelHeader, UpdatePanelPlaceholder } from "./update/UpdatePanelHeader";
+import { VisitChangesPanel } from "./update/VisitChangesPanel";
 
 interface UpdatePanelProps {
   location: ResolvedLocation | null;
@@ -153,6 +154,12 @@ export function UpdatePanel({
           />
 
           <LastCheckedPanel lastUpdated={lastUpdated} />
+
+          <VisitChangesPanel
+            location={location}
+            events={allEvents}
+            isFetching={isFetching}
+          />
 
           <BaselineRiskPanel riskIndex={femaRiskIndex} />
 

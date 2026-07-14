@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type {
   SourceHealthItem,
   SourceHealthStatus,
 } from "../../hooks/useRiskFeeds";
+import { fetchApiStatus } from "../../services/apiStatus";
 
 interface DataCoveragePanelProps {
   items: SourceHealthItem[];
@@ -61,6 +63,13 @@ function statusRank(status: SourceHealthStatus): number {
 
 export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
   const [showAll, setShowAll] = useState(false);
+  const apiStatus = useQuery({
+    queryKey: ["openrisk-api-status"],
+    queryFn: fetchApiStatus,
+    enabled: import.meta.env.PROD,
+    staleTime: 5 * 60_000,
+    retry: 1,
+  });
   const liveCount = items.filter((item) => item.status === "live").length;
   const loadingCount = items.filter((item) => item.status === "loading").length;
   const unavailableCount = items.filter(
@@ -114,6 +123,30 @@ export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
         </div>
       </div>
       <div style={styles.list}>
+        {import.meta.env.PROD && (
+          <div style={styles.row}>
+            <div style={styles.topLine}>
+              <span style={styles.name}>OpenRisk API</span>
+              <span
+                style={{
+                  ...styles.badge,
+                  color: apiStatus.isError ? "#c62828" : apiStatus.data ? "#2e7d32" : "#1565c0",
+                  background: apiStatus.isError ? "#c6282814" : apiStatus.data ? "#2e7d3214" : "#1565c014",
+                  borderColor: apiStatus.isError ? "#c6282855" : apiStatus.data ? "#2e7d3255" : "#1565c055",
+                }}
+              >
+                {apiStatus.isError ? "Unavailable" : apiStatus.data ? "Operational" : "Checking"}
+              </span>
+            </div>
+            <div style={styles.rowDetail}>
+              {apiStatus.data
+                ? `${apiStatus.data.sources.length} protected proxy routes · ${apiStatus.data.version}`
+                : apiStatus.isError
+                  ? "The source proxy status endpoint could not be reached."
+                  : "Checking the source proxy."}
+            </div>
+          </div>
+        )}
         {visibleItems.map((item) => {
           const color = statusColor(item.status);
           return (

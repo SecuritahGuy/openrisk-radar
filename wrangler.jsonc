@@ -4,6 +4,10 @@
   "main": "./worker/index.ts",
   "compatibility_date": "2026-07-14",
   "send_metrics": false,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1
+  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
