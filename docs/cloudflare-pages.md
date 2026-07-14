@@ -1,6 +1,6 @@
-# Static Deployment
+# Cloudflare Pages Deployment
 
-OpenRisk Radar is currently set up as a static Cloudflare Pages app. Keep it static while traffic is small so the project stays inside the free tier without Workers or storage bindings.
+OpenRisk Radar uses static Cloudflare Pages assets plus narrowly routed Pages Functions for browser-incompatible public feeds. It requires no paid storage, API keys, or long-running services.
 
 Production URL: https://openriskradar.com
 
@@ -10,6 +10,9 @@ Production URL: https://openriskradar.com
 - Build command: `npm run build`
 - Build output directory: `dist`
 - Node version: `22`
+- Build system: V2 or later
+
+The checked-in `wrangler.jsonc` is the source of truth for the Pages project name, output directory, and compatibility date. Deploy from the repository root with `npm run deploy`; Wrangler detects and bundles the root `functions/` directory alongside `dist`.
 
 Cloudflare Pages will deploy the generated static files and use the files in `public/` for headers:
 
@@ -34,13 +37,7 @@ The app calls public feeds directly from the browser:
 - Nominatim geocoding, with local ZIP/city fallback
 - OpenStreetMap map tiles
 
-Saved locations live in browser IndexedDB. There is no backend database, scheduled job, or Pages Function in the free-tier baseline.
-
-## When To Add Pages Functions
-
-Add a small `/api/feeds` Pages Function only if direct browser calls become unreliable or provider policy requires server-side headers/caching. If that happens, keep the Function as a thin proxy with short cache TTLs because Pages Functions count against Workers free-plan quotas.
-
-NWS and Nominatim both document expectations around identifiable clients, but browser JavaScript cannot set a custom `User-Agent` header. Keep searches user-triggered, avoid autocomplete, cache where practical, prefer local ZIP/city resolution when possible, and add a narrow Pages Function proxy if either provider requires app-specific server-side headers.
+Saved locations live in browser IndexedDB. There is no backend database, scheduled job, user account system, or paid binding in the free-tier baseline.
 
 ## Free-Tier Reliability Functions
 
@@ -52,6 +49,10 @@ limit both upstream traffic and Workers Free requests.
 
 Local Vite development continues to call the public providers directly. Use
 Wrangler Pages development when testing the production proxy routes locally.
+
+Before publishing, run `npm run pages:check`. After publishing, run
+`npm run smoke:production` to ensure the static shell and every `/api/*` route
+return the expected content type instead of falling through to `index.html`.
 
 
 ## Free Dashboard Features

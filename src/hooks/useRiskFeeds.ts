@@ -19,7 +19,6 @@ import { fetchEonetEvents } from "../services/eonet";
 import { fetchEmscEvents } from "../services/emsc";
 import { fetchCurrentWeather } from "../services/weather";
 import type { CurrentWeather } from "../services/weather";
-import { fetchAirNowCurrentObservations } from "../services/airnow";
 import {
   fetchOpenMeteoAirQuality,
   fetchOpenMeteoMarine,
@@ -411,25 +410,6 @@ export function useRiskFeeds(
     retry: 1,
   });
 
-  const airNowQuery = useQuery<SupplementalRiskSignal[]>({
-    queryKey: [
-      "airnow-current",
-      location?.latitude,
-      location?.longitude,
-      radius,
-    ],
-    queryFn: () =>
-      fetchAirNowCurrentObservations(
-        location!.latitude,
-        location!.longitude,
-        radius,
-        import.meta.env.VITE_AIRNOW_API_KEY ?? ""
-      ),
-    enabled: !!location && !!import.meta.env.VITE_AIRNOW_API_KEY,
-    staleTime: 300_000,
-    retry: 1,
-  });
-
   const marineQuery = useQuery<SupplementalRiskSignal[]>({
     queryKey: [
       "openmeteo-marine",
@@ -594,7 +574,6 @@ export function useRiskFeeds(
   const emscEvents = emscQuery.data ?? EMPTY_EVENTS;
   const currentWeather = weatherQuery.data ?? null;
   const airQualitySignals = airQualityQuery.data ?? EMPTY_SIGNALS;
-  const airNowSignals = airNowQuery.data ?? EMPTY_SIGNALS;
   const marineSignals = marineQuery.data ?? EMPTY_SIGNALS;
   const floodSignals = floodQuery.data ?? EMPTY_SIGNALS;
   const tsunamiSignals = tsunamiQuery.data ?? EMPTY_SIGNALS;
@@ -611,7 +590,6 @@ export function useRiskFeeds(
   const supplementalSignals = useMemo(
     () => [
       ...airQualitySignals,
-      ...airNowSignals,
       ...marineSignals,
       ...floodSignals,
       ...tsunamiSignals,
@@ -625,7 +603,6 @@ export function useRiskFeeds(
     ],
     [
       airQualitySignals,
-      airNowSignals,
       marineSignals,
       floodSignals,
       tsunamiSignals,
@@ -672,9 +649,9 @@ export function useRiskFeeds(
       supplementalEvents,
     ]
   );
-  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || airNowQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || airNowQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
-  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || weatherQuery.isError || airQualityQuery.isError || airNowQuery.isError || marineQuery.isError || tsunamiQuery.isError || shakemapQuery.isError || ukFloodQuery.isError || riverQuery.isError || nwpsQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
+  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
+  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || weatherQuery.isError || airQualityQuery.isError || marineQuery.isError || tsunamiQuery.isError || shakemapQuery.isError || ukFloodQuery.isError || riverQuery.isError || nwpsQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
@@ -694,7 +671,6 @@ export function useRiskFeeds(
   if (eonetQuery.error) errors.push(`EONET: ${eonetQuery.error.message}`);
   if (emscQuery.error) errors.push(`EMSC: ${emscQuery.error.message}`);
   if (airQualityQuery.error) errors.push(`Open-Meteo Air Quality: ${airQualityQuery.error.message}`);
-  if (airNowQuery.error) errors.push(`AirNow: ${airNowQuery.error.message}`);
   if (marineQuery.error) errors.push(`Open-Meteo Marine: ${marineQuery.error.message}`);
   if (floodQuery.error) errors.push(`Open-Meteo Flood: ${floodQuery.error.message}`);
   if (tsunamiQuery.error) errors.push(`NOAA Tsunami: ${tsunamiQuery.error.message}`);
@@ -855,25 +831,6 @@ export function useRiskFeeds(
       liveDetail: `${airQualitySignals.length} air quality signal${airQualitySignals.length !== 1 ? "s" : ""}.`,
       emptyDetail: "No elevated air quality signal.",
     }),
-    import.meta.env.VITE_AIRNOW_API_KEY
-      ? queryHealth({
-          id: "airnow",
-          label: "AirNow Current Observations",
-          enabled: locationEnabled,
-          isLoading: airNowQuery.isLoading,
-          isFetching: airNowQuery.isFetching,
-          error: errorMessage(airNowQuery.error),
-          count: airNowSignals.length,
-          liveDetail: `${airNowSignals.length} AirNow observation${airNowSignals.length !== 1 ? "s" : ""}.`,
-          emptyDetail: "No AirNow observations returned for this location.",
-        })
-      : {
-          id: "airnow",
-          label: "AirNow Current Observations",
-          status: "unavailable",
-          count: null,
-          detail: "Missing VITE_AIRNOW_API_KEY; Open-Meteo air quality remains active.",
-        },
     queryHealth({
       id: "openmeteo-marine",
       label: "Open-Meteo Marine",
@@ -1029,7 +986,6 @@ export function useRiskFeeds(
       emscQuery.refetch();
       weatherQuery.refetch();
       airQualityQuery.refetch();
-      airNowQuery.refetch();
       marineQuery.refetch();
       riverQuery.refetch();
       nwpsQuery.refetch();

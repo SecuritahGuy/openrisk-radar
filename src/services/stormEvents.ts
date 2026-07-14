@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { readTextResponse } from "../lib/http";
 import { newEventId } from "../lib/ids";
 import type { EventCategory, RiskEvent, Severity } from "../types/riskEvent";
 
@@ -264,9 +265,7 @@ export async function fetchStormEvents(
   const res = await fetch(`${endpoint}?${params}`, {
     headers: { Accept: "text/csv" },
   });
-  if (!res.ok) throw new Error(`NOAA Storm Events API returned ${res.status}`);
-
-  const text = await res.text();
+  const text = await readTextResponse(res, "NOAA Storm Events API");
   const parsed = Papa.parse<StormEventRow>(text, {
     header: true,
     skipEmptyLines: true,

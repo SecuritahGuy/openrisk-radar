@@ -1,4 +1,5 @@
 import { newEventId } from "../lib/ids";
+import { readJsonResponse } from "../lib/http";
 import type { Severity } from "../types/riskEvent";
 import type { SupplementalMetric, SupplementalRiskSignal } from "../types/supplementalRisk";
 
@@ -136,8 +137,7 @@ async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(endpoint, {
     headers: { Accept: "application/json" },
   });
-  if (!res.ok) throw new Error(`NWPS API returned ${res.status}`);
-  return res.json() as Promise<T>;
+  return readJsonResponse<T>(res, "NWPS API");
 }
 
 async function fetchStageflow(lid: string): Promise<NwpsStageflow | null> {

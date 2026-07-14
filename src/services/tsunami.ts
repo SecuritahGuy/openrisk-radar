@@ -1,4 +1,5 @@
 import { newEventId } from "../lib/ids";
+import { readJsonResponse } from "../lib/http";
 import type { SupplementalRiskSignal, SupplementalMetric } from "../types/supplementalRisk";
 import type { Severity } from "../types/riskEvent";
 
@@ -81,10 +82,8 @@ export async function fetchTsunamiEvents(): Promise<SupplementalRiskSignal[]> {
 
   const url = import.meta.env.PROD ? PROXY : `${BASE}?${params}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Tsunami API returned ${res.status}`);
-
   const json = import.meta.env.PROD
-    ? await res.json() as TsunamiResponse
+    ? await readJsonResponse<TsunamiResponse>(res, "NOAA Tsunami API")
     : parsePayload(await res.text());
   if (!json.items?.length) return [];
 

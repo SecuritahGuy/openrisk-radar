@@ -34,3 +34,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Compile Pages Functions
+        run: npm run pages:check

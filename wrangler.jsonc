@@ -1,14 +1,7 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "openradar-risk",
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "openrisk-radar",
+  "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-07-14",
-  "observability": {
-    "enabled": true
-  },
-  "assets": {
-    "not_found_handling": "single-page-application"
-  },
-  "compatibility_flags": [
-    "nodejs_compat"
-  ]
+  "send_metrics": false
 }

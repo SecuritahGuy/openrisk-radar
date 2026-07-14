@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { milesToKm } from "../lib/geo";
-import { fetchAirNowCurrentObservations } from "../services/airnow";
 import { fetchCoopsWaterLevels } from "../services/coops";
 import { fetchNhcStorms } from "../services/nhc";
+import { fetchOpenMeteoAirQuality } from "../services/openMeteo";
 import { fetchSpcOutlooks } from "../services/spc";
 import type { RiskEvent } from "../types/riskEvent";
 import { fetchUsgsWaterObservations } from "../services/usgsWater";
@@ -41,8 +41,6 @@ function toSupplementalSignal(event: RiskEvent): SupplementalRiskSignal {
 
 export interface SupplementalRiskFeedsOptions {
   enabled?: boolean;
-  airNowApiKey?: string;
-  includeAirNow?: boolean;
   stationLimit?: number;
 }
 
@@ -71,7 +69,6 @@ export function useSupplementalRiskFeeds(
 ): UseSupplementalRiskFeedsResult {
   const enabled = (options.enabled ?? true) && !!location;
   const radiusKm = milesToKm(radius);
-  const airNowApiKey = options.airNowApiKey ?? import.meta.env.VITE_AIRNOW_API_KEY ?? "";
   const stationLimit = options.stationLimit ?? 6;
 
   const spcQuery = useQuery({
@@ -132,22 +129,14 @@ export function useSupplementalRiskFeeds(
     retry: 1,
   });
 
-  const airNowQuery = useQuery({
-    queryKey: [
-      "supplemental-risk",
-      "airnow",
-      location?.latitude,
-      location?.longitude,
-      radius,
-    ],
-    queryFn: () =>
-      fetchAirNowCurrentObservations(
-        location!.latitude,
-        location!.longitude,
-        radius,
-        airNowApiKey
-      ),
-    enabled: enabled && (options.includeAirNow ?? true) && !!airNowApiKey,
+  const airQualityQuery = useQuery({
+    queryKey: ["supplemental-risk", "openmeteo-air-quality", location?.latitude, location?.longitude],
+    queryFn: () => fetchOpenMeteoAirQuality(
+      location!.latitude,
+      location!.longitude,
+      `${location!.city}, ${location!.state}`
+    ),
+    enabled,
     staleTime: 15 * 60_000,
     retry: 1,
   });
@@ -156,7 +145,7 @@ export function useSupplementalRiskFeeds(
   const waterGauges = waterQuery.data ?? EMPTY_SIGNALS;
   const coastalWaterLevels = coopsQuery.data ?? EMPTY_SIGNALS;
   const tropicalCyclones = nhcQuery.data?.map(toSupplementalSignal) ?? EMPTY_SIGNALS;
-  const airQuality = airNowQuery.data ?? EMPTY_SIGNALS;
+  const airQuality = airQualityQuery.data ?? EMPTY_SIGNALS;
   const allSignals = useMemo(
     () => [
       ...spcOutlooks,
@@ -173,7 +162,7 @@ export function useSupplementalRiskFeeds(
     queryErrorMessage("USGS Water", waterQuery.error),
     queryErrorMessage("NOAA CO-OPS", coopsQuery.error),
     queryErrorMessage("NHC", nhcQuery.error),
-    queryErrorMessage("AirNow", airNowQuery.error),
+    queryErrorMessage("Open-Meteo Air Quality", airQualityQuery.error),
   ].filter((message): message is string => message != null);
 
   return {
@@ -188,26 +177,26 @@ export function useSupplementalRiskFeeds(
       waterQuery.isLoading ||
       coopsQuery.isLoading ||
       nhcQuery.isLoading ||
-      airNowQuery.isLoading,
+      airQualityQuery.isLoading,
     isFetching:
       spcQuery.isFetching ||
       waterQuery.isFetching ||
       coopsQuery.isFetching ||
       nhcQuery.isFetching ||
-      airNowQuery.isFetching,
+      airQualityQuery.isFetching,
     isError:
       spcQuery.isError ||
       waterQuery.isError ||
       coopsQuery.isError ||
       nhcQuery.isError ||
-      airNowQuery.isError,
+      airQualityQuery.isError,
     error: errors.length > 0 ? errors.join("; ") : null,
     refetch: () => {
       spcQuery.refetch();
       waterQuery.refetch();
       coopsQuery.refetch();
       nhcQuery.refetch();
-      airNowQuery.refetch();
+      airQualityQuery.refetch();
     },
   };
 }
