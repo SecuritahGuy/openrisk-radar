@@ -3,6 +3,7 @@ import { newEventId } from "../lib/ids";
 import type { EventCategory, RiskEvent, Severity } from "../types/riskEvent";
 
 const BASE_URL = "https://www.ncei.noaa.gov/stormevents/csv";
+const PROXY_URL = "/api/noaa/storm-events";
 const DEFAULT_LOOKBACK_YEARS = 10;
 const DEFAULT_LIMIT = 25;
 
@@ -259,7 +260,8 @@ export async function fetchStormEvents(
     county: `${countyName}:${Number(countyFips.slice(-3))}`,
   });
 
-  const res = await fetch(`${BASE_URL}?${params}`, {
+  const endpoint = import.meta.env.PROD ? PROXY_URL : BASE_URL;
+  const res = await fetch(`${endpoint}?${params}`, {
     headers: { Accept: "text/csv" },
   });
   if (!res.ok) throw new Error(`NOAA Storm Events API returned ${res.status}`);

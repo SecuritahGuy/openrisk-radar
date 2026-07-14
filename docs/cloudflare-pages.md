@@ -42,6 +42,36 @@ Add a small `/api/feeds` Pages Function only if direct browser calls become unre
 
 NWS and Nominatim both document expectations around identifiable clients, but browser JavaScript cannot set a custom `User-Agent` header. Keep searches user-triggered, avoid autocomplete, cache where practical, prefer local ZIP/city resolution when possible, and add a narrow Pages Function proxy if either provider requires app-specific server-side headers.
 
+## Free-Tier Reliability Functions
+
+The production build routes only the browser-incompatible NOAA Storm Events,
+FEMA National Risk Index, and NOAA NWPS calls through `/api/*`. The checked-in
+`public/_routes.json` keeps all static navigation and assets outside the Worker
+invocation path. Responses use the Cache API and conservative public TTLs to
+limit both upstream traffic and Workers Free requests.
+
+Local Vite development continues to call the public providers directly. Use
+Wrangler Pages development when testing the production proxy routes locally.
+
+
+## Free Dashboard Features
+
+- Enable Pages build caching in Workers & Pages → project → Settings → Builds.
+- Enable Cloudflare Web Analytics for privacy-first page and Web Vitals data.
+  Do not add searched cities, ZIP codes, coordinates, or shared-view query
+  strings as analytics dimensions.
+- Keep preview deployments enabled for pull requests and test a real location
+  search before promoting a deployment.
+- Watch Pages Functions request volume after release. The static site remains
+  outside that quota because `_routes.json` includes only `/api/*`.
+
+## Offline Shell
+
+The app ships a small web app manifest and service worker. It caches only the
+application shell and hashed same-origin assets. Live feed calls are never
+cached by the service worker, so offline rendering cannot be mistaken for live
+hazard data.
+
 ## Required Public Assets
 
 - `public/og-image.png` should be created before launch-quality social sharing.

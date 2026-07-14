@@ -11,10 +11,16 @@ function sourceColor(source: SupplementalSource): string {
   switch (source) {
     case "SPC":
       return "#1565c0";
+    case "NOAA_TSUNAMI":
+      return "#005b96";
     case "NWPS":
       return "#01579b";
     case "USGS_WATER":
       return "#0277bd";
+    case "USGS_SHAKEMAP":
+      return "#558b2f";
+    case "UK_EA":
+      return "#00796b";
     case "COOPS":
       return "#00838f";
     case "NHC":

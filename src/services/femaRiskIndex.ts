@@ -1,5 +1,6 @@
 const SERVICE_URL =
   "https://services.arcgis.com/XG15cJAlne2vxtgt/arcgis/rest/services/National_Risk_Index_Counties/FeatureServer/0/query";
+const PROXY_URL = "/api/fema/risk-index";
 
 export interface FemaRiskIndexHazard {
   code: string;
@@ -101,7 +102,8 @@ export async function fetchFemaRiskIndexCounty(
     resultRecordCount: "1",
     f: "json",
   });
-  const res = await fetch(`${SERVICE_URL}?${params}`, {
+  const endpoint = import.meta.env.PROD ? PROXY_URL : SERVICE_URL;
+  const res = await fetch(`${endpoint}?${params}`, {
     headers: { Accept: "application/json" },
   });
   if (!res.ok) throw new Error(`FEMA NRI API returned ${res.status}`);

@@ -39,6 +39,26 @@ const EXAMPLE_SEARCHES = [
   "Nashville, TN",
   "New Orleans, LA",
 ];
+const PREFERENCES_KEY = "openrisk:view-preferences:v1";
+
+interface ViewPreferences {
+  radius?: RadiusOption;
+  showWeatherOverlay?: boolean;
+  weatherLayerMode?: WeatherLayerMode;
+  feedExplorerCollapsed?: boolean;
+  currentImpactOnly?: boolean;
+  sourceFilters?: Partial<Record<EventSource, boolean>>;
+  severityFilters?: Partial<Record<Severity, boolean>>;
+}
+
+function readPreferences(): ViewPreferences {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(window.localStorage.getItem(PREFERENCES_KEY) ?? "{}") as ViewPreferences;
+  } catch {
+    return {};
+  }
+}
 
 function readInitialQuery(): string {
   if (typeof window === "undefined") return "";
@@ -50,12 +70,14 @@ function readInitialRadius(): RadiusOption {
   const value = Number(new URLSearchParams(window.location.search).get("radius"));
   return RADIUS_OPTIONS.includes(value as RadiusOption)
     ? (value as RadiusOption)
-    : 50;
+    : readPreferences().radius ?? 50;
 }
 
 function readInitialWeatherOverlay(): boolean {
   if (typeof window === "undefined") return false;
-  return new URLSearchParams(window.location.search).get("weather") === "1";
+  const value = new URLSearchParams(window.location.search).get("weather");
+  if (value != null) return value === "1";
+  return readPreferences().showWeatherOverlay ?? false;
 }
 
 function readInitialWeatherLayerMode(): WeatherLayerMode {
@@ -63,7 +85,15 @@ function readInitialWeatherLayerMode(): WeatherLayerMode {
   const value = new URLSearchParams(window.location.search).get("layer");
   return WEATHER_LAYER_MODES.includes(value as WeatherLayerMode)
     ? (value as WeatherLayerMode)
-    : "temp";
+    : readPreferences().weatherLayerMode ?? "temp";
+}
+
+function readInitialSourceFilters() {
+  return { ...defaultSourceFilters(), ...readPreferences().sourceFilters };
+}
+
+function readInitialSeverityFilters() {
+  return { ...defaultSeverityFilters(), ...readPreferences().severityFilters };
 }
 
 function coordsMatch(
@@ -147,10 +177,14 @@ export default function App() {
   );
   const [weatherLayerMode, setWeatherLayerMode] =
     useState<WeatherLayerMode>(readInitialWeatherLayerMode);
-  const [feedExplorerCollapsed, setFeedExplorerCollapsed] = useState(false);
-  const [currentImpactOnly, setCurrentImpactOnly] = useState(false);
-  const [sourceFilters, setSourceFilters] = useState(defaultSourceFilters);
-  const [severityFilters, setSeverityFilters] = useState(defaultSeverityFilters);
+  const [feedExplorerCollapsed, setFeedExplorerCollapsed] = useState(
+    () => readPreferences().feedExplorerCollapsed ?? false
+  );
+  const [currentImpactOnly, setCurrentImpactOnly] = useState(
+    () => readPreferences().currentImpactOnly ?? false
+  );
+  const [sourceFilters, setSourceFilters] = useState(readInitialSourceFilters);
+  const [severityFilters, setSeverityFilters] = useState(readInitialSeverityFilters);
   const [selectedEvent, setSelectedEvent] = useState<RiskEvent | null>(null);
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
@@ -242,6 +276,28 @@ export default function App() {
       window.history.replaceState(null, "", nextUrl);
     }
   }, [initialQuery, radius, result, showWeatherOverlay, weatherLayerMode]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const preferences: ViewPreferences = {
+      radius,
+      showWeatherOverlay,
+      weatherLayerMode,
+      feedExplorerCollapsed,
+      currentImpactOnly,
+      sourceFilters,
+      severityFilters,
+    };
+    window.localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences));
+  }, [
+    currentImpactOnly,
+    feedExplorerCollapsed,
+    radius,
+    severityFilters,
+    showWeatherOverlay,
+    sourceFilters,
+    weatherLayerMode,
+  ]);
 
   const handleToggleSource = useCallback((source: EventSource) => {
     setSourceFilters((current) => ({

@@ -30,6 +30,9 @@ import { fetchRiverConditions } from "../services/usgsWater";
 import { fetchNwpsRiverForecasts } from "../services/nwps";
 import { fetchNearbyVolcanoes } from "../services/usgsVolcanoes";
 import { fetchDroughtAtPoint } from "../services/drought";
+import { fetchTsunamiEvents } from "../services/tsunami";
+import { fetchShakeMap } from "../services/shakemap";
+import { fetchUkFloods } from "../services/ukFlood";
 import { fetchSwpcConditions } from "../services/swpc";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 import { scopedNwsAlerts } from "../lib/nwsAlertScope";
@@ -90,6 +93,12 @@ function errorMessage(error: Error | null): string | null {
   return error?.message ?? null;
 }
 
+function isEnglandLocation(location: ResolvedLocation | null): boolean {
+  if (!location) return false;
+  return location.latitude >= 49.8 && location.latitude <= 55.9 &&
+    location.longitude >= -6.5 && location.longitude <= 2;
+}
+
 function queryHealth({
   id,
   label,
@@ -100,6 +109,7 @@ function queryHealth({
   count,
   liveDetail,
   emptyDetail,
+  disabledDetail,
 }: {
   id: string;
   label: string;
@@ -110,6 +120,7 @@ function queryHealth({
   count: number;
   liveDetail: string;
   emptyDetail: string;
+  disabledDetail?: string;
 }): SourceHealthItem {
   if (!enabled) {
     return {
@@ -117,7 +128,7 @@ function queryHealth({
       label,
       status: "disabled",
       count: null,
-      detail: "Waiting for a location search.",
+      detail: disabledDetail ?? "Waiting for a location search.",
     };
   }
 
@@ -159,6 +170,7 @@ function supplementalCategory(signal: SupplementalRiskSignal): EventCategory {
   if (signal.category === "Space Weather") return "Space Weather";
   if (signal.category === "Pollen") return "Pollen";
   if (signal.category === "UV Index") return "UV Index";
+  if (signal.category === "Seismic") return "Seismic";
   return "Weather";
 }
 
@@ -170,7 +182,10 @@ function supplementalSource(signal: SupplementalRiskSignal): EventSource {
     signal.source === "USGS_WATER" ||
     signal.source === "VOLCANO" ||
     signal.source === "DROUGHT" ||
-    signal.source === "SPACE_WEATHER"
+    signal.source === "SPACE_WEATHER" ||
+    signal.source === "NOAA_TSUNAMI" ||
+    signal.source === "USGS_SHAKEMAP" ||
+    signal.source === "UK_EA"
   ) {
     return signal.source;
   }
@@ -441,6 +456,40 @@ export function useRiskFeeds(
     retry: 1,
   });
 
+  const tsunamiQuery = useQuery<SupplementalRiskSignal[]>({
+    queryKey: ["tsunami-events"],
+    queryFn: () => fetchTsunamiEvents(),
+    enabled: !!location,
+    staleTime: 60_000,
+    retry: 1,
+  });
+
+  const shakemapQuery = useQuery<SupplementalRiskSignal | null>({
+    queryKey: ["shakemap", usgsQuery.data?.[0]?.sourceEventId],
+    queryFn: () => {
+      const topQuake = usgsQuery.data?.[0];
+      if (!topQuake?.sourceEventId) return null;
+      return fetchShakeMap(topQuake.sourceEventId);
+    },
+    enabled: !!location && (usgsQuery.data?.length ?? 0) > 0,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
+  const ukFloodQuery = useQuery<SupplementalRiskSignal[]>({
+    queryKey: [
+      "uk-flood",
+      location?.latitude,
+      location?.longitude,
+      radiusKm,
+    ],
+    queryFn: () =>
+      fetchUkFloods(location!.latitude, location!.longitude, radiusKm),
+    enabled: isEnglandLocation(location),
+    staleTime: 300_000,
+    retry: 1,
+  });
+
   const riverQuery = useQuery<SupplementalRiskSignal[]>({
     queryKey: [
       "river-conditions",
@@ -548,6 +597,12 @@ export function useRiskFeeds(
   const airNowSignals = airNowQuery.data ?? EMPTY_SIGNALS;
   const marineSignals = marineQuery.data ?? EMPTY_SIGNALS;
   const floodSignals = floodQuery.data ?? EMPTY_SIGNALS;
+  const tsunamiSignals = tsunamiQuery.data ?? EMPTY_SIGNALS;
+  const shakemapSignals = useMemo(
+    () => shakemapQuery.data ? [shakemapQuery.data] : EMPTY_SIGNALS,
+    [shakemapQuery.data]
+  );
+  const ukFloodSignals = ukFloodQuery.data ?? EMPTY_SIGNALS;
   const riverSignals = riverQuery.data ?? EMPTY_SIGNALS;
   const nwpsSignals = nwpsQuery.data ?? EMPTY_SIGNALS;
   const volcanoSignals = volcanoQuery.data ?? EMPTY_SIGNALS;
@@ -559,6 +614,9 @@ export function useRiskFeeds(
       ...airNowSignals,
       ...marineSignals,
       ...floodSignals,
+      ...tsunamiSignals,
+      ...shakemapSignals,
+      ...ukFloodSignals,
       ...riverSignals,
       ...nwpsSignals,
       ...volcanoSignals,
@@ -570,6 +628,9 @@ export function useRiskFeeds(
       airNowSignals,
       marineSignals,
       floodSignals,
+      tsunamiSignals,
+      shakemapSignals,
+      ukFloodSignals,
       riverSignals,
       nwpsSignals,
       volcanoSignals,
@@ -578,7 +639,9 @@ export function useRiskFeeds(
     ]
   );
   const supplementalEvents = useMemo(
-    () => supplementalSignals.map(supplementalToEvent),
+    () => supplementalSignals
+      .filter((signal) => signal.source !== "USGS_SHAKEMAP")
+      .map(supplementalToEvent),
     [supplementalSignals]
   );
   const allEvents = useMemo(
@@ -609,9 +672,9 @@ export function useRiskFeeds(
       supplementalEvents,
     ]
   );
-  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || airNowQuery.isFetching || marineQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || airNowQuery.isLoading || marineQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
-  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || weatherQuery.isError || airQualityQuery.isError || airNowQuery.isError || marineQuery.isError || riverQuery.isError || nwpsQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
+  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || airNowQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || airNowQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
+  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || weatherQuery.isError || airQualityQuery.isError || airNowQuery.isError || marineQuery.isError || tsunamiQuery.isError || shakemapQuery.isError || ukFloodQuery.isError || riverQuery.isError || nwpsQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
@@ -634,6 +697,9 @@ export function useRiskFeeds(
   if (airNowQuery.error) errors.push(`AirNow: ${airNowQuery.error.message}`);
   if (marineQuery.error) errors.push(`Open-Meteo Marine: ${marineQuery.error.message}`);
   if (floodQuery.error) errors.push(`Open-Meteo Flood: ${floodQuery.error.message}`);
+  if (tsunamiQuery.error) errors.push(`NOAA Tsunami: ${tsunamiQuery.error.message}`);
+  if (shakemapQuery.error) errors.push(`ShakeMap: ${shakemapQuery.error.message}`);
+  if (ukFloodQuery.error) errors.push(`UK Flood: ${ukFloodQuery.error.message}`);
   if (riverQuery.error) errors.push(`USGS Water: ${riverQuery.error.message}`);
   if (nwpsQuery.error) errors.push(`NWPS River Forecasts: ${nwpsQuery.error.message}`);
   if (volcanoQuery.error) errors.push(`USGS Volcanoes: ${volcanoQuery.error.message}`);
@@ -829,6 +895,39 @@ export function useRiskFeeds(
       count: floodSignals.length,
       liveDetail: `${floodSignals.length} flood signal${floodSignals.length !== 1 ? "s" : ""}.`,
       emptyDetail: "No river discharge data for this location.",
+    }),
+    queryHealth({
+      id: "noaa-tsunami",
+      label: "NOAA Tsunami",
+      enabled: locationEnabled,
+      isLoading: tsunamiQuery.isLoading,
+      isFetching: tsunamiQuery.isFetching,
+      error: errorMessage(tsunamiQuery.error),
+      count: tsunamiSignals.length,
+      liveDetail: `${tsunamiSignals.length} tsunami signal${tsunamiSignals.length !== 1 ? "s" : ""}.`,
+      emptyDetail: "No active tsunami events.",
+    }),
+    queryHealth({
+      id: "usgs-shakemap",
+      label: "USGS ShakeMap",
+      enabled: locationEnabled && (usgsQuery.data?.length ?? 0) > 0,
+      isLoading: shakemapQuery.isLoading,
+      isFetching: shakemapQuery.isFetching,
+      error: errorMessage(shakemapQuery.error),
+      count: shakemapSignals.length,
+      liveDetail: shakemapSignals.length > 0 ? "ShakeMap available for largest quake." : "No ShakeMap data for recent quakes.",
+      emptyDetail: "No ShakeMap data for recent quakes.",
+    }),
+    queryHealth({
+      id: "uk-flood",
+      label: "UK Environment Agency Flood",
+      enabled: isEnglandLocation(location),
+      isLoading: ukFloodQuery.isLoading,
+      isFetching: ukFloodQuery.isFetching,
+      error: errorMessage(ukFloodQuery.error),
+      count: ukFloodSignals.length,
+      liveDetail: `${ukFloodSignals.length} UK flood signal${ukFloodSignals.length !== 1 ? "s" : ""}.`,
+      emptyDetail: "No UK flood warnings for this area.",
     }),
     queryHealth({
       id: "usgs-water",

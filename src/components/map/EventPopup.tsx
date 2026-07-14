@@ -1,7 +1,7 @@
 import type { RiskEvent } from "../../types/riskEvent";
 import type { ImpactAssessment } from "../../lib/impactInsights";
 import { impactColor } from "../../lib/impactInsights";
-import { concernContextLabel, severityColor } from "../../lib/riskInsights";
+import { concernContextLabel, severityColor, sourceLabel } from "../../lib/riskInsights";
 
 interface EventPopupProps {
   event: RiskEvent;
@@ -49,7 +49,7 @@ export function EventPopup({
       {event.description?.slice(0, 200)}
       <br />
       <em style={{ fontSize: 11 }}>
-        {event.source} · {event.severity} · {timeLabel}
+        {sourceLabel(event.source)} · {event.severity} · {timeLabel}
       </em>
       <br />
       <button

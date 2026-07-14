@@ -4,9 +4,12 @@ import type { EventSource, RiskEvent, Severity } from "../types/riskEvent";
 export const EVENT_SOURCES: EventSource[] = [
   "NWS",
   "NOAA",
+  "NOAA_TSUNAMI",
   "NWPS",
   "USGS",
+  "USGS_SHAKEMAP",
   "USGS_WATER",
+  "UK_EA",
   "VOLCANO",
   "DROUGHT",
   "EMSC",
@@ -69,9 +72,12 @@ export function defaultSourceFilters(): SourceFilters {
   return {
     NWS: true,
     NOAA: true,
+    NOAA_TSUNAMI: true,
     NWPS: true,
     USGS: true,
+    USGS_SHAKEMAP: true,
     USGS_WATER: true,
+    UK_EA: true,
     VOLCANO: true,
     DROUGHT: true,
     EMSC: true,
@@ -102,12 +108,18 @@ export function sourceColor(source: EventSource): string {
       return "#f57c00";
     case "NOAA":
       return "#0065a8";
+    case "NOAA_TSUNAMI":
+      return "#005b96";
     case "NWPS":
       return "#01579b";
     case "USGS":
       return "#2e7d32";
+    case "USGS_SHAKEMAP":
+      return "#558b2f";
     case "USGS_WATER":
       return "#0288d1";
+    case "UK_EA":
+      return "#00796b";
     case "VOLCANO":
       return "#8d6e63";
     case "DROUGHT":
@@ -133,6 +145,32 @@ export function sourceColor(source: EventSource): string {
     case "SPACE_WEATHER":
       return "#5e35b1";
   }
+}
+
+export function sourceLabel(source: EventSource): string {
+  const labels: Record<EventSource, string> = {
+    NWS: "National Weather Service",
+    NOAA: "NOAA Storm History",
+    NOAA_TSUNAMI: "NOAA Tsunami Warnings",
+    NWPS: "NOAA River Forecasts",
+    USGS: "USGS Earthquakes",
+    USGS_SHAKEMAP: "USGS ShakeMap",
+    USGS_WATER: "USGS Water",
+    UK_EA: "UK Environment Agency",
+    VOLCANO: "USGS Volcanoes",
+    DROUGHT: "Drought Monitor",
+    EMSC: "EMSC Earthquakes",
+    FEMA: "FEMA Disasters",
+    NIFC: "National Wildfire Data",
+    SPC: "Storm Prediction Center",
+    NHC: "National Hurricane Center",
+    GDACS: "Global Disaster Alerts",
+    EONET: "NASA Earth Events",
+    AIRNOW: "Air Quality",
+    COOPS: "NOAA Coastal Conditions",
+    SPACE_WEATHER: "NOAA Space Weather",
+  };
+  return labels[source];
 }
 
 export function severityColor(severity: Severity): string {

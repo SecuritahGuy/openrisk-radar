@@ -1,20 +1,21 @@
-import type { RadiusOption } from "../../types/location";
+import type { RadiusOption, ResolvedLocation } from "../../types/location";
 import type { RiskEvent } from "../../types/riskEvent";
+import { buildImpactSeveritySummary } from "../../lib/impactInsights";
 
 interface ImpactSummaryPanelProps {
   events: RiskEvent[];
+  location: ResolvedLocation;
   radius: RadiusOption;
 }
 
-function countBySeverity(events: RiskEvent[], ...severities: string[]): number {
-  return events.filter((event) => severities.includes(event.severity)).length;
-}
-
-export function ImpactSummaryPanel({ events, radius }: ImpactSummaryPanelProps) {
+export function ImpactSummaryPanel({ events, location, radius }: ImpactSummaryPanelProps) {
   if (events.length === 0) return null;
 
-  const criticalCount = countBySeverity(events, "Extreme", "Severe");
-  const moderateCount = countBySeverity(events, "Moderate");
+  const { criticalCount, moderateCount } = buildImpactSeveritySummary(
+    events,
+    location,
+    radius
+  );
 
   return (
     <div style={styles.section}>
@@ -33,7 +34,7 @@ export function ImpactSummaryPanel({ events, radius }: ImpactSummaryPanelProps) 
       )}
       {criticalCount === 0 && moderateCount === 0 && (
         <div style={styles.detail}>
-          No critical or moderate events detected
+          No current critical or moderate events within {radius} miles
         </div>
       )}
     </div>
