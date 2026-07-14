@@ -1,6 +1,7 @@
 import type { RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent, Severity } from "../types/riskEvent";
 import { buildImpactSeveritySummary } from "./impactInsights";
+import { sourceLabel } from "./riskInsights";
 
 export interface ActionGuidance {
   level: "act" | "prepare" | "monitor" | "clear";
@@ -73,7 +74,7 @@ export function buildActionGuidance(
   return {
     level: "monitor",
     title: "Monitor changing conditions",
-    detail: `A minor signal is relevant to this location. Review ${top.source} details if your plans may be affected.`,
+    detail: `A minor signal is relevant to this location. Review ${sourceLabel(top.source)} details if your plans may be affected.`,
     sourceEvent: top,
   };
 }

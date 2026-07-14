@@ -12,6 +12,7 @@ import {
   formatDistance,
   severityColor,
   sourceColor,
+  sourceLabel,
 } from "../lib/riskInsights";
 import { buildImpactSummary, isCurrentImpact } from "../lib/impactInsights";
 import {
@@ -83,7 +84,7 @@ function AttentionCard({
             background: sourceColor(event.source),
           }}
         >
-          {event.source}
+          {sourceLabel(event.source)}
         </span>
         <span
           style={{
@@ -121,7 +122,7 @@ function AgreementEventRow({
           background: sourceColor(event.source),
         }}
       >
-        {event.source}
+        {sourceLabel(event.source)}
       </span>
       <span style={styles.agreementEventText}>{event.headline}</span>
       <span
@@ -218,7 +219,7 @@ export function RiskCommandBar({
               <div style={styles.sourceSummary}>
                 Sources:{" "}
                 {scoreExplanation.sourceCounts
-                  .map((item) => `${item.source} ${item.count}`)
+                  .map((item) => `${sourceLabel(item.source)} ${item.count}`)
                   .join(" · ")}
               </div>
             ) : null}

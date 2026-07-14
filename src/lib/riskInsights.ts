@@ -135,6 +135,29 @@ export function sourceColor(source: EventSource): string {
   }
 }
 
+export function sourceLabel(source: EventSource): string {
+  const labels: Record<EventSource, string> = {
+    NWS: "National Weather Service",
+    NOAA: "NOAA Storm History",
+    NWPS: "NOAA River Forecasts",
+    USGS: "USGS Earthquakes",
+    USGS_WATER: "USGS Water",
+    VOLCANO: "USGS Volcanoes",
+    DROUGHT: "Drought Monitor",
+    EMSC: "EMSC Earthquakes",
+    FEMA: "FEMA Disasters",
+    NIFC: "National Wildfire Data",
+    SPC: "Storm Prediction Center",
+    NHC: "National Hurricane Center",
+    GDACS: "Global Disaster Alerts",
+    EONET: "NASA Earth Events",
+    AIRNOW: "Air Quality",
+    COOPS: "NOAA Coastal Conditions",
+    SPACE_WEATHER: "NOAA Space Weather",
+  };
+  return labels[source];
+}
+
 export function severityColor(severity: Severity): string {
   switch (severity) {
     case "Extreme":

@@ -12,6 +12,7 @@ import {
   severityColor,
   severityRank,
   sourceColor,
+  sourceLabel,
 } from "../lib/riskInsights";
 import { assessImpact, impactColor } from "../lib/impactInsights";
 import type { RadiusOption } from "../types/location";
@@ -95,7 +96,7 @@ function applyDirection(value: number, direction: SortDirection): number {
 
 function topSourceChips(events: RiskEvent[], limit = 4): CountChip[] {
   return EVENT_SOURCES.map((source) => ({
-    label: source,
+    label: sourceLabel(source),
     count: events.filter((event) => event.source === source).length,
     color: sourceColor(source),
   }))
@@ -414,7 +415,7 @@ export function FeedExplorer({
                       background: sourceColor(evt.source),
                     }}
                   >
-                    {evt.source}
+                    {sourceLabel(evt.source)}
                   </span>
                 </span>
                 <span style={styles.colType}>{evt.type}</span>
@@ -459,7 +460,7 @@ export function FeedExplorer({
                       background: sourceColor(evt.source),
                     }}
                   >
-                    {evt.source}
+                    {sourceLabel(evt.source)}
                   </span>
                   <SeverityBadge severity={evt.severity} />
                   <ImpactBadge event={evt} location={location} radius={radius} />

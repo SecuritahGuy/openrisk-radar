@@ -8,6 +8,7 @@ import {
   filterEvents,
   isStaleConcernEvent,
   sourceColor,
+  sourceLabel,
   severityRank,
   type SeverityFilters,
   type SourceFilters,
@@ -118,6 +119,11 @@ describe("riskInsights", () => {
     expect(sourceColor("AIRNOW")).toBe("#455a64");
     expect(sourceColor("COOPS")).toBe("#0277bd");
     expect(sourceColor("SPACE_WEATHER")).toBe("#5e35b1");
+  });
+
+  it("provides readable labels for internal source codes", () => {
+    expect(sourceLabel("USGS_WATER")).toBe("USGS Water");
+    expect(sourceLabel("SPACE_WEATHER")).toBe("NOAA Space Weather");
   });
 
   it("explains risk score contributions and source counts", () => {

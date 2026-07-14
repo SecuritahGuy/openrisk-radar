@@ -20,6 +20,7 @@ import {
   type SourceFilters,
   severityColor,
   sourceColor,
+  sourceLabel,
 } from "../lib/riskInsights";
 import { EventMapLayers } from "./EventMapLayers";
 import { MapLegend } from "./MapLegend";
@@ -382,7 +383,7 @@ function MapControlPanel({
                     : {}),
                 }}
               >
-                {source}
+                {sourceLabel(source)}
               </button>
             );
           })}

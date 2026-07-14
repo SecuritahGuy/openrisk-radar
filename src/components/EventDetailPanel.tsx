@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { RiskEvent } from "../types/riskEvent";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
 import { assessImpact, impactColor } from "../lib/impactInsights";
-import { concernContextLabel } from "../lib/riskInsights";
+import { concernContextLabel, sourceLabel } from "../lib/riskInsights";
 
 interface EventDetailPanelProps {
   event: RiskEvent;
@@ -379,7 +379,7 @@ export function EventDetailPanel({
 
     const lines = [
       `OpenRisk Radar Event Detail`,
-      `${event.source} · ${event.type} · ${event.severity} · ${impact.label}`,
+      `${sourceLabel(event.source)} · ${event.type} · ${event.severity} · ${impact.label}`,
       event.headline,
       event.description ? `Description: ${event.description}` : null,
       `Impact: ${impact.detail}`,
@@ -469,7 +469,7 @@ export function EventDetailPanel({
                 background: sourceColor(event.source),
               }}
             >
-              {event.source}
+              {sourceLabel(event.source)}
             </span>
             <span style={styles.headerType}>{event.type}</span>
             <span style={severityStyle(event.severity)}>{event.severity}</span>
