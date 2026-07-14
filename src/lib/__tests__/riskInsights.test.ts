@@ -100,6 +100,7 @@ describe("riskInsights", () => {
       AIRNOW: true,
       COOPS: true,
       SPACE_WEATHER: true,
+      METEOALARM: true,
     };
     const severityFilters: SeverityFilters = {
       Extreme: true,
@@ -122,11 +123,13 @@ describe("riskInsights", () => {
     expect(sourceColor("AIRNOW")).toBe("#455a64");
     expect(sourceColor("COOPS")).toBe("#0277bd");
     expect(sourceColor("SPACE_WEATHER")).toBe("#5e35b1");
+    expect(sourceColor("METEOALARM")).toBe("#c62828");
   });
 
   it("provides readable labels for internal source codes", () => {
     expect(sourceLabel("USGS_WATER")).toBe("USGS Water");
     expect(sourceLabel("SPACE_WEATHER")).toBe("NOAA Space Weather");
+    expect(sourceLabel("METEOALARM")).toBe("Meteoalarm European Warnings");
   });
 
   it("explains risk score contributions and source counts", () => {

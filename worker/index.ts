@@ -2,6 +2,7 @@ import { onRequestGet as femaRiskIndex } from "../functions/api/fema/risk-index"
 import { onRequestGet as nwps } from "../functions/api/noaa/nwps";
 import { onRequestGet as stormEvents } from "../functions/api/noaa/storm-events";
 import { onRequestGet as tsunami } from "../functions/api/noaa/tsunami";
+import { onRequestGet as meteoalarm } from "../functions/api/meteoalarm/alerts";
 import { jsonError } from "../functions/_shared/proxy";
 
 interface Env {
@@ -13,6 +14,7 @@ const apiRoutes = new Map<string, (context: { request: Request }) => Promise<Res
   ["/api/noaa/nwps", nwps],
   ["/api/noaa/storm-events", stormEvents],
   ["/api/noaa/tsunami", tsunami],
+  ["/api/meteoalarm/alerts", meteoalarm],
 ]);
 
 const sourceStatus = [
@@ -20,6 +22,7 @@ const sourceStatus = [
   { id: "noaa-nwps", label: "NOAA River Forecasts", route: "/api/noaa/nwps", cacheSeconds: 900 },
   { id: "noaa-storm-events", label: "NOAA Storm Events", route: "/api/noaa/storm-events", cacheSeconds: 86_400 },
   { id: "noaa-tsunami", label: "NOAA Tsunami", route: "/api/noaa/tsunami", cacheSeconds: 60 },
+  { id: "meteoalarm", label: "Meteoalarm European Warnings", route: "/api/meteoalarm/alerts", cacheSeconds: 300 },
 ];
 
 export default {

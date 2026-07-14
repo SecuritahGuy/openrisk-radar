@@ -45,6 +45,7 @@ export async function geocode(query: string): Promise<ResolvedLocation | null> {
     q: query,
     format: "json",
     addressdetails: "1",
+    "accept-language": "en",
     limit: "1",
   });
   const url = `${BASE}/search?${params}`;
@@ -90,6 +91,7 @@ export async function reverseGeocode(
     format: "json",
     addressdetails: "1",
     zoom: "10",
+    "accept-language": "en",
   });
   const url = `${BASE}/reverse?${params}`;
   const res = await fetch(url, {

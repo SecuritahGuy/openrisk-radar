@@ -47,6 +47,8 @@ function sourceColor(source: string): string {
       return "#0277bd";
     case "SPACE_WEATHER":
       return "#5e35b1";
+    case "METEOALARM":
+      return "#c62828";
     default:
       return "#757575";
   }

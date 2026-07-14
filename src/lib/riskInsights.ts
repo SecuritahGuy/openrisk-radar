@@ -90,6 +90,7 @@ export function defaultSourceFilters(): SourceFilters {
     AIRNOW: true,
     COOPS: true,
     SPACE_WEATHER: true,
+    METEOALARM: true,
   };
 }
 
@@ -144,6 +145,8 @@ export function sourceColor(source: EventSource): string {
       return "#0277bd";
     case "SPACE_WEATHER":
       return "#5e35b1";
+    case "METEOALARM":
+      return "#c62828";
   }
 }
 
@@ -169,6 +172,7 @@ export function sourceLabel(source: EventSource): string {
     AIRNOW: "Air Quality",
     COOPS: "NOAA Coastal Conditions",
     SPACE_WEATHER: "NOAA Space Weather",
+    METEOALARM: "Meteoalarm European Warnings",
   };
   return labels[source];
 }
