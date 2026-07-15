@@ -59,6 +59,11 @@ interface UpdatePanelProps {
   onUpdateCriticality: (c: Criticality) => void;
   onUpdateType: (t: LocationType) => void;
   onUpdateWatch: (watch: WatchPreferences) => void;
+  cloudWatchBusy: boolean;
+  cloudWatchError: string | null;
+  onEnableCloudWatch: () => void;
+  onRefreshCloudWatch: () => void;
+  onDisableCloudWatch: () => void;
   onDeleteLocation: () => void;
   isSaving: boolean;
   onEventClick: (event: RiskEvent) => void;
@@ -101,6 +106,11 @@ export function UpdatePanel({
   onUpdateCriticality,
   onUpdateType,
   onUpdateWatch,
+  cloudWatchBusy,
+  cloudWatchError,
+  onEnableCloudWatch,
+  onRefreshCloudWatch,
+  onDisableCloudWatch,
   onDeleteLocation,
   isSaving,
   onEventClick,
@@ -132,6 +142,11 @@ export function UpdatePanel({
             <LocationWatchPanel
               location={activeSavedLocation}
               onUpdate={onUpdateWatch}
+              cloudWatchBusy={cloudWatchBusy}
+              cloudWatchError={cloudWatchError}
+              onEnableCloudWatch={onEnableCloudWatch}
+              onRefreshCloudWatch={onRefreshCloudWatch}
+              onDisableCloudWatch={onDisableCloudWatch}
             />
           )}
 

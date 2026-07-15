@@ -8,6 +8,17 @@
     "enabled": true,
     "head_sampling_rate": 0.1
   },
+  "triggers": {
+    "crons": ["*/30 * * * *"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "openradar-risk",
+      "database_id": "b8effa0a-1141-465b-9361-4079f71e605f",
+      "migrations_dir": "migrations"
+    }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

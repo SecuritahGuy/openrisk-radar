@@ -23,6 +23,13 @@ import type { RadiusOption, Criticality, LocationType } from "./types/location";
 import { canonicalIncidentEvents } from "./lib/incidents";
 import type { EventSource, RiskEvent, Severity } from "./types/riskEvent";
 import type { WeatherLayerMode } from "./types/weatherLayer";
+import {
+  fetchCloudWatchStatus,
+  registerCloudWatch,
+  removeCloudWatch,
+  syncCloudWatch,
+} from "./services/cloudWatch";
+import { watchPreferencesFor } from "./lib/watchPreferences";
 
 const MapView = lazy(() =>
   import("./components/MapView").then((module) => ({ default: module.MapView }))
@@ -180,6 +187,8 @@ export default function App() {
   const [showWeatherOverlay, setShowWeatherOverlay] = useState(
     readInitialWeatherOverlay
   );
+  const [cloudWatchBusyId, setCloudWatchBusyId] = useState<string | null>(null);
+  const [cloudWatchError, setCloudWatchError] = useState<string | null>(null);
   const [weatherLayerMode, setWeatherLayerMode] =
     useState<WeatherLayerMode>(readInitialWeatherLayerMode);
   const [feedExplorerCollapsed, setFeedExplorerCollapsed] = useState(
@@ -240,10 +249,130 @@ export default function App() {
       setRadius(nextRadius);
       if (activeSavedLocation) {
         void updateLocation(activeSavedLocation.id, { radiusMiles: nextRadius });
+        if (activeSavedLocation.cloudWatch) {
+          void syncCloudWatch(
+            { ...activeSavedLocation, radiusMiles: nextRadius },
+            watchPreferencesFor(activeSavedLocation),
+            activeSavedLocation.cloudWatch
+          ).then((cloudWatch) => {
+            void updateLocation(activeSavedLocation.id, { cloudWatch });
+          }).catch((error: unknown) => {
+            void updateLocation(activeSavedLocation.id, {
+              cloudWatch: {
+                ...activeSavedLocation.cloudWatch!,
+                status: "error",
+                lastError: error instanceof Error ? error.message : "Cloud watch sync failed",
+              },
+            });
+          });
+        }
       }
     },
     [activeSavedLocation, updateLocation]
   );
+
+  const handleEnableCloudWatch = useCallback(async () => {
+    if (!activeSavedLocation) return;
+    setCloudWatchBusyId(activeSavedLocation.id);
+    setCloudWatchError(null);
+    try {
+      const cloudWatch = await registerCloudWatch(
+        activeSavedLocation,
+        watchPreferencesFor(activeSavedLocation)
+      );
+      await updateLocation(activeSavedLocation.id, { cloudWatch });
+    } catch (error) {
+      setCloudWatchError(error instanceof Error ? error.message : "Cloud audit could not be enabled");
+    } finally {
+      setCloudWatchBusyId(null);
+    }
+  }, [activeSavedLocation, updateLocation]);
+
+  const handleRefreshCloudWatch = useCallback(async () => {
+    if (!activeSavedLocation?.cloudWatch) return;
+    setCloudWatchBusyId(activeSavedLocation.id);
+    setCloudWatchError(null);
+    try {
+      const cloudWatch = await fetchCloudWatchStatus(activeSavedLocation.cloudWatch);
+      await updateLocation(activeSavedLocation.id, { cloudWatch });
+    } catch (error) {
+      setCloudWatchError(error instanceof Error ? error.message : "Cloud audit status is unavailable");
+    } finally {
+      setCloudWatchBusyId(null);
+    }
+  }, [activeSavedLocation, updateLocation]);
+
+  const handleDisableCloudWatch = useCallback(async () => {
+    if (!activeSavedLocation?.cloudWatch) return;
+    setCloudWatchBusyId(activeSavedLocation.id);
+    setCloudWatchError(null);
+    try {
+      await removeCloudWatch(activeSavedLocation.cloudWatch);
+      await updateLocation(activeSavedLocation.id, { cloudWatch: undefined });
+    } catch (error) {
+      setCloudWatchError(error instanceof Error ? error.message : "Cloud audit could not be removed");
+    } finally {
+      setCloudWatchBusyId(null);
+    }
+  }, [activeSavedLocation, updateLocation]);
+
+  const handleDeleteSavedLocation = useCallback(async (id: string) => {
+    const location = savedLocations.find((item) => item.id === id);
+    if (!location) return;
+    setCloudWatchError(null);
+    if (location.cloudWatch) {
+      setCloudWatchBusyId(id);
+      try {
+        await removeCloudWatch(location.cloudWatch);
+      } catch (error) {
+        setCloudWatchError(
+          error instanceof Error
+            ? `Cloud copy was not removed: ${error.message}`
+            : "Cloud copy was not removed"
+        );
+        setCloudWatchBusyId(null);
+        return;
+      }
+    }
+    await deleteLocation(id);
+    setCloudWatchBusyId(null);
+  }, [deleteLocation, savedLocations]);
+
+  const handleUpdateWatch = useCallback(async (watch: ReturnType<typeof watchPreferencesFor>) => {
+    if (!activeSavedLocation) return;
+    await updateLocation(activeSavedLocation.id, { watch });
+    if (!activeSavedLocation.cloudWatch) return;
+    setCloudWatchBusyId(activeSavedLocation.id);
+    setCloudWatchError(null);
+    try {
+      const cloudWatch = await syncCloudWatch(
+        { ...activeSavedLocation, watch },
+        watch,
+        activeSavedLocation.cloudWatch
+      );
+      await updateLocation(activeSavedLocation.id, { cloudWatch });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Cloud watch sync failed";
+      setCloudWatchError(message);
+      await updateLocation(activeSavedLocation.id, {
+        cloudWatch: { ...activeSavedLocation.cloudWatch, status: "error", lastError: message },
+      });
+    } finally {
+      setCloudWatchBusyId(null);
+    }
+  }, [activeSavedLocation, updateLocation]);
+
+  useEffect(() => {
+    setCloudWatchError(null);
+  }, [activeSavedLocation?.id]);
+
+  useEffect(() => {
+    const cloudWatch = activeSavedLocation?.cloudWatch;
+    if (!cloudWatch || cloudWatchBusyId === activeSavedLocation.id) return;
+    const syncedAt = new Date(cloudWatch.lastSyncedAt).getTime();
+    if (Number.isFinite(syncedAt) && Date.now() - syncedAt < 5 * 60 * 1000) return;
+    void handleRefreshCloudWatch();
+  }, [activeSavedLocation, cloudWatchBusyId, handleRefreshCloudWatch]);
 
   const incidentEvents = useMemo(
     () => canonicalIncidentEvents(allEvents),
@@ -464,7 +593,7 @@ export default function App() {
           savedLocations={savedLocations}
           activeLocationId={activeSavedLocation?.id ?? null}
           onSelect={handleSelectSaved}
-          onDelete={deleteLocation}
+          onDelete={(id) => void handleDeleteSavedLocation(id)}
           onUpdateLabel={(id, label) => updateLocation(id, { label })}
         />
         <SavedLocationOverview
@@ -578,14 +707,15 @@ export default function App() {
             });
           }
         }}
-        onUpdateWatch={(watch) => {
-          if (activeSavedLocation) {
-            void updateLocation(activeSavedLocation.id, { watch });
-          }
-        }}
+        onUpdateWatch={(watch) => void handleUpdateWatch(watch)}
+        cloudWatchBusy={cloudWatchBusyId === activeSavedLocation?.id}
+        cloudWatchError={cloudWatchError}
+        onEnableCloudWatch={() => void handleEnableCloudWatch()}
+        onRefreshCloudWatch={() => void handleRefreshCloudWatch()}
+        onDisableCloudWatch={() => void handleDisableCloudWatch()}
         onDeleteLocation={() => {
           if (activeSavedLocation) {
-            deleteLocation(activeSavedLocation.id);
+            void handleDeleteSavedLocation(activeSavedLocation.id);
           }
         }}
         isSaving={isSaving}

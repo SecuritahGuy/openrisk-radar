@@ -90,7 +90,10 @@ function normalize(feature: NwsFeature, pointMatch = false): RiskEvent {
 export async function fetchNwsAlerts(state: string): Promise<RiskEvent[]> {
   const url = `${BASE}/alerts/active?area=${encodeURIComponent(state)}`;
   const res = await fetch(url, {
-    headers: { Accept: "application/geo+json" },
+    headers: {
+      Accept: "application/geo+json",
+      "User-Agent": "OpenRisk-Radar/1.0 (+https://openriskradar.com)",
+    },
   });
   if (!res.ok) throw new Error(`NWS API returned ${res.status}`);
   const data: NwsResponse = await res.json();
@@ -103,7 +106,10 @@ export async function fetchNwsAlertsForPoint(
 ): Promise<RiskEvent[]> {
   const url = `${BASE}/alerts/active?point=${latitude.toFixed(4)},${longitude.toFixed(4)}`;
   const res = await fetch(url, {
-    headers: { Accept: "application/geo+json" },
+    headers: {
+      Accept: "application/geo+json",
+      "User-Agent": "OpenRisk-Radar/1.0 (+https://openriskradar.com)",
+    },
   });
   if (!res.ok) throw new Error(`NWS point API returned ${res.status}`);
   const data: NwsResponse = await res.json();

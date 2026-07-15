@@ -14,6 +14,11 @@ import type { Location } from "../../types/location";
 interface LocationWatchPanelProps {
   location: Location;
   onUpdate: (preferences: WatchPreferences) => void;
+  cloudWatchBusy: boolean;
+  cloudWatchError: string | null;
+  onEnableCloudWatch: () => void;
+  onRefreshCloudWatch: () => void;
+  onDisableCloudWatch: () => void;
 }
 
 const SEVERITIES: WatchPreferences["minimumSeverity"][] = [
@@ -33,9 +38,30 @@ function expirationLabel(expiresAt: string): string {
   })}`;
 }
 
-export function LocationWatchPanel({ location, onUpdate }: LocationWatchPanelProps) {
+function formatCloudTime(value: string | null): string {
+  if (!value) return "Pending";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Unknown";
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+export function LocationWatchPanel({
+  location,
+  onUpdate,
+  cloudWatchBusy,
+  cloudWatchError,
+  onEnableCloudWatch,
+  onRefreshCloudWatch,
+  onDisableCloudWatch,
+}: LocationWatchPanelProps) {
   const watch = watchPreferencesFor(location);
   const expired = isWatchExpired(watch);
+  const cloudWatch = location.cloudWatch;
 
   function update(changes: Partial<WatchPreferences>) {
     onUpdate({ ...watch, ...changes });
@@ -180,6 +206,104 @@ export function LocationWatchPanel({ location, onUpdate }: LocationWatchPanelPro
         These settings filter this place’s risk summary and stay in this browser.
         Background notifications are the next delivery step and are not sent yet.
       </div>
+
+      <div style={styles.cloudCard}>
+        <div style={styles.cloudHeader}>
+          <div>
+            <div style={styles.cloudTitle}>Cloud audit preview</div>
+            <div style={styles.cloudSubtitle}>
+              {cloudWatch
+                ? "Cloudflare checks this watch even when the site is closed."
+                : "Optionally test background matching before notifications launch."}
+            </div>
+          </div>
+          {cloudWatch && (
+            <span style={{
+              ...styles.cloudStatus,
+              ...(cloudWatch.status === "error" ? styles.cloudStatusError : {}),
+            }}>
+              {cloudWatch.status === "error" ? "Needs attention" : cloudWatch.status}
+            </span>
+          )}
+        </div>
+
+        {cloudWatch ? (
+          <>
+            <div style={styles.cloudMetrics}>
+              <div>
+                <span style={styles.cloudMetricLabel}>Last checked</span>
+                <span style={styles.cloudMetricValue}>{formatCloudTime(cloudWatch.lastCheckedAt)}</span>
+              </div>
+              <div>
+                <span style={styles.cloudMetricLabel}>Next check</span>
+                <span style={styles.cloudMetricValue}>{formatCloudTime(cloudWatch.nextCheckAt)}</span>
+              </div>
+              <div>
+                <span style={styles.cloudMetricLabel}>Matches</span>
+                <span style={styles.cloudMetricValue}>{cloudWatch.lastMatchCount}</span>
+              </div>
+            </div>
+            {cloudWatch.latestAudit && (
+              <div style={styles.auditResult}>
+                <strong>
+                  {cloudWatch.latestAudit.wouldNotify
+                    ? "Would notify"
+                    : cloudWatch.latestAudit.kind === "baseline"
+                      ? "Baseline established"
+                      : cloudWatch.latestAudit.kind === "error"
+                        ? "Audit check failed"
+                        : "No notification"}
+                </strong>
+                {cloudWatch.latestAudit.topHeadline
+                  ? ` · ${cloudWatch.latestAudit.topHeadline}`
+                  : cloudWatch.latestAudit.detail
+                    ? ` · ${cloudWatch.latestAudit.detail}`
+                    : ""}
+              </div>
+            )}
+            {(cloudWatch.lastError || cloudWatchError) && (
+              <div role="alert" style={styles.cloudError}>
+                {cloudWatchError ?? cloudWatch.lastError}
+              </div>
+            )}
+            <div style={styles.cloudActions}>
+              <button
+                type="button"
+                style={styles.cloudButton}
+                disabled={cloudWatchBusy}
+                onClick={onRefreshCloudWatch}
+              >
+                {cloudWatchBusy ? "Working..." : "Refresh status"}
+              </button>
+              <button
+                type="button"
+                style={styles.cloudRemoveButton}
+                disabled={cloudWatchBusy}
+                onClick={onDisableCloudWatch}
+              >
+                Remove cloud copy
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={styles.cloudPrivacy}>
+              Sends rounded coordinates, radius, timezone, and watch preferences.
+              No label, email, or account identity is stored. NWS, USGS, and NIFC
+              are included in this audit phase.
+            </div>
+            {cloudWatchError && <div role="alert" style={styles.cloudError}>{cloudWatchError}</div>}
+            <button
+              type="button"
+              style={styles.enableCloudButton}
+              disabled={cloudWatchBusy}
+              onClick={onEnableCloudWatch}
+            >
+              {cloudWatchBusy ? "Enabling..." : "Enable cloud audit"}
+            </button>
+          </>
+        )}
+      </div>
     </section>
   );
 }
@@ -296,5 +420,75 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: 1.4,
     marginTop: 12,
     padding: "7px 8px",
+  },
+  cloudCard: {
+    border: "1px solid #c5e1a5",
+    borderRadius: 7,
+    marginTop: 12,
+    padding: 10,
+  },
+  cloudHeader: { alignItems: "flex-start", display: "flex", gap: 8, justifyContent: "space-between" },
+  cloudTitle: { color: "#33691e", fontSize: 12, fontWeight: 900 },
+  cloudSubtitle: { color: "#607d8b", fontSize: 10, lineHeight: 1.35, marginTop: 2 },
+  cloudStatus: {
+    background: "#e8f5e9",
+    borderRadius: 999,
+    color: "#2e7d32",
+    fontSize: 9,
+    fontWeight: 900,
+    padding: "3px 6px",
+    textTransform: "capitalize",
+    whiteSpace: "nowrap",
+  },
+  cloudStatusError: { background: "#ffebee", color: "#c62828" },
+  cloudMetrics: {
+    display: "grid",
+    gap: 6,
+    gridTemplateColumns: "1fr 1fr auto",
+    marginTop: 10,
+  },
+  cloudMetricLabel: { color: "#78909c", display: "block", fontSize: 9, fontWeight: 700 },
+  cloudMetricValue: { color: "#37474f", display: "block", fontSize: 10, fontWeight: 800, marginTop: 2 },
+  auditResult: {
+    background: "#f1f8e9",
+    borderRadius: 5,
+    color: "#455a64",
+    fontSize: 10,
+    lineHeight: 1.4,
+    marginTop: 9,
+    padding: "6px 7px",
+  },
+  cloudPrivacy: { color: "#546e7a", fontSize: 10, lineHeight: 1.45, marginTop: 9 },
+  cloudError: { color: "#c62828", fontSize: 10, fontWeight: 700, lineHeight: 1.35, marginTop: 8 },
+  cloudActions: { display: "flex", gap: 6, marginTop: 9 },
+  cloudButton: {
+    background: "#fff",
+    border: "1px solid #9ccc65",
+    borderRadius: 5,
+    color: "#33691e",
+    cursor: "pointer",
+    fontSize: 10,
+    fontWeight: 800,
+    padding: "6px 8px",
+  },
+  cloudRemoveButton: {
+    background: "transparent",
+    border: "none",
+    color: "#78909c",
+    cursor: "pointer",
+    fontSize: 10,
+    fontWeight: 700,
+    padding: "6px 4px",
+  },
+  enableCloudButton: {
+    background: "#558b2f",
+    border: "none",
+    borderRadius: 5,
+    color: "#fff",
+    cursor: "pointer",
+    fontSize: 10,
+    fontWeight: 900,
+    marginTop: 9,
+    padding: "7px 9px",
   },
 };

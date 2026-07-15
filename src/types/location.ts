@@ -18,6 +18,31 @@ export interface WatchPreferences {
   expiresAt: string | null;
 }
 
+export interface CloudWatchAuditEvent {
+  id: string;
+  kind: "baseline" | "change" | "resolved" | "error";
+  wouldNotify: boolean;
+  suppressedReason: string | null;
+  matchCount: number;
+  topHeadline: string | null;
+  topSeverity: string | null;
+  sources: string[];
+  detail: string | null;
+  createdAt: string;
+}
+
+export interface CloudWatchLink {
+  id: string;
+  token: string;
+  status: "active" | "paused" | "expired" | "error";
+  lastSyncedAt: string;
+  nextCheckAt: string | null;
+  lastCheckedAt: string | null;
+  lastMatchCount: number;
+  lastError: string | null;
+  latestAudit: CloudWatchAuditEvent | null;
+}
+
 export interface Location {
   id: string;
   label: string;
@@ -39,6 +64,7 @@ export interface Location {
   createdAt: string;
   lastCheckedAt: string;
   watch?: WatchPreferences;
+  cloudWatch?: CloudWatchLink;
 }
 
 export interface LocationInput {

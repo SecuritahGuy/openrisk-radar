@@ -4,9 +4,13 @@ import { onRequestGet as stormEvents } from "../functions/api/noaa/storm-events"
 import { onRequestGet as tsunami } from "../functions/api/noaa/tsunami";
 import { onRequestGet as meteoalarm } from "../functions/api/meteoalarm/alerts";
 import { jsonError } from "../functions/_shared/proxy";
+import type { D1Database } from "./d1";
+import { runWatchAudit } from "./watchEvaluator";
+import { handleWatchRequest } from "./watchRegistry";
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
+  DB?: D1Database;
 }
 
 const apiRoutes = new Map<string, (context: { request: Request }) => Promise<Response>>([
@@ -36,7 +40,39 @@ export default {
         status: "operational",
         checkedAt: new Date().toISOString(),
         sources: sourceStatus,
+        watchRegistry: {
+          configured: !!env.DB,
+          mode: "audit",
+          evaluatedSources: ["NWS", "USGS", "NIFC"],
+        },
       }, { headers: { "Cache-Control": "public, max-age=60, s-maxage=300" } });
+    }
+
+    if (url.pathname === "/api/watches" || url.pathname.startsWith("/api/watches/")) {
+      if (!env.DB) {
+        return jsonError({
+          code: "WATCH_REGISTRY_UNAVAILABLE",
+          message: "The cloud watch registry is not configured",
+          status: 503,
+          retryable: true,
+        });
+      }
+      try {
+        const response = await handleWatchRequest(request, env.DB);
+        if (response) return response;
+      } catch (error) {
+        console.error(JSON.stringify({
+          type: "watch_registry_error",
+          route: url.pathname,
+          message: error instanceof Error ? error.message : "Unknown registry error",
+        }));
+        return jsonError({
+          code: "WATCH_REGISTRY_ERROR",
+          message: "The watch registry could not complete the request",
+          status: 500,
+          retryable: true,
+        });
+      }
     }
 
     const handler = apiRoutes.get(url.pathname);
@@ -66,5 +102,22 @@ export default {
     }
 
     return env.ASSETS.fetch(request);
+  },
+
+  async scheduled(_controller: unknown, env: Env): Promise<void> {
+    if (!env.DB) {
+      console.warn(JSON.stringify({ type: "watch_audit_skipped", reason: "D1 binding unavailable" }));
+      return;
+    }
+    try {
+      const result = await runWatchAudit(env.DB);
+      console.log(JSON.stringify({ type: "watch_audit_complete", processed: result.processed }));
+    } catch (error) {
+      console.error(JSON.stringify({
+        type: "watch_audit_failed",
+        message: error instanceof Error ? error.message : "Unknown audit error",
+      }));
+      throw error;
+    }
   },
 };
