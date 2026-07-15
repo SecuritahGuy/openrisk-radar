@@ -10,6 +10,7 @@ import {
   watchPreferencesFor,
 } from "../../lib/watchPreferences";
 import type { Location } from "../../types/location";
+import { pushCapability } from "../../services/pushNotifications";
 
 interface LocationWatchPanelProps {
   location: Location;
@@ -19,6 +20,9 @@ interface LocationWatchPanelProps {
   onEnableCloudWatch: () => void;
   onRefreshCloudWatch: () => void;
   onDisableCloudWatch: () => void;
+  onEnablePush: () => void;
+  onTestPush: () => void;
+  onDisablePush: () => void;
 }
 
 const SEVERITIES: WatchPreferences["minimumSeverity"][] = [
@@ -58,10 +62,14 @@ export function LocationWatchPanel({
   onEnableCloudWatch,
   onRefreshCloudWatch,
   onDisableCloudWatch,
+  onEnablePush,
+  onTestPush,
+  onDisablePush,
 }: LocationWatchPanelProps) {
   const watch = watchPreferencesFor(location);
   const expired = isWatchExpired(watch);
   const cloudWatch = location.cloudWatch;
+  const capability = pushCapability();
 
   function update(changes: Partial<WatchPreferences>) {
     onUpdate({ ...watch, ...changes });
@@ -203,8 +211,8 @@ export function LocationWatchPanel({
       )}
 
       <div style={styles.note}>
-        These settings filter this place’s risk summary and stay in this browser.
-        Background notifications are the next delivery step and are not sent yet.
+        These settings filter this place’s risk summary. Cloud checks and browser
+        notification testing below are optional and require separate opt in.
       </div>
 
       <div style={styles.cloudCard}>
@@ -283,6 +291,55 @@ export function LocationWatchPanel({
               >
                 Remove cloud copy
               </button>
+            </div>
+            <div style={styles.pushCard}>
+              <div style={styles.pushHeader}>
+                <div>
+                  <div style={styles.pushTitle}>Browser notifications</div>
+                  <div style={styles.pushSubtitle}>
+                    Opt in on this device, then send a real test notification.
+                  </div>
+                </div>
+                <span style={styles.testBadge}>Test mode</span>
+              </div>
+              {cloudWatch.pushNotification ? (
+                <>
+                  <div style={styles.pushReady}>
+                    {cloudWatch.pushNotification.status === "active" ? "Device ready" : "Device needs to be enabled again"}
+                    {cloudWatch.pushNotification.lastTestStatus
+                      ? ` · Last test ${cloudWatch.pushNotification.lastTestStatus}`
+                      : ""}
+                  </div>
+                  {cloudWatch.pushNotification.lastError && (
+                    <div role="alert" style={styles.cloudError}>{cloudWatch.pushNotification.lastError}</div>
+                  )}
+                  <div style={styles.cloudActions}>
+                    <button type="button" style={styles.pushButton} disabled={cloudWatchBusy} onClick={onTestPush}>
+                      {cloudWatchBusy ? "Sending..." : "Send test"}
+                    </button>
+                    <button type="button" style={styles.cloudRemoveButton} disabled={cloudWatchBusy} onClick={onDisablePush}>
+                      Disable on this watch
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={styles.pushNote}>
+                    {capability.reason ?? "Your browser will ask for permission only after you choose Enable notifications."}
+                  </div>
+                  <button
+                    type="button"
+                    style={styles.pushButton}
+                    disabled={cloudWatchBusy || !capability.supported || capability.permission === "denied"}
+                    onClick={onEnablePush}
+                  >
+                    Enable notifications
+                  </button>
+                </>
+              )}
+              <div style={styles.pushSafety}>
+                Automated hazard alerts remain off while delivery is validated.
+              </div>
             </div>
           </>
         ) : (
@@ -490,5 +547,38 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 900,
     marginTop: 9,
     padding: "7px 9px",
+  },
+  pushCard: {
+    background: "#f7fbff",
+    border: "1px solid #bbdefb",
+    borderRadius: 6,
+    marginTop: 10,
+    padding: 9,
+  },
+  pushHeader: { alignItems: "flex-start", display: "flex", gap: 8, justifyContent: "space-between" },
+  pushTitle: { color: "#0d47a1", fontSize: 11, fontWeight: 900 },
+  pushSubtitle: { color: "#607d8b", fontSize: 9, lineHeight: 1.35, marginTop: 2 },
+  testBadge: {
+    background: "#fff3e0",
+    borderRadius: 999,
+    color: "#e65100",
+    fontSize: 8,
+    fontWeight: 900,
+    padding: "3px 6px",
+    whiteSpace: "nowrap",
+  },
+  pushReady: { color: "#2e7d32", fontSize: 10, fontWeight: 800, marginTop: 8 },
+  pushNote: { color: "#546e7a", fontSize: 10, lineHeight: 1.4, marginTop: 7 },
+  pushSafety: { color: "#78909c", fontSize: 9, lineHeight: 1.35, marginTop: 7 },
+  pushButton: {
+    background: "#1565c0",
+    border: "none",
+    borderRadius: 5,
+    color: "#fff",
+    cursor: "pointer",
+    fontSize: 10,
+    fontWeight: 900,
+    marginTop: 8,
+    padding: "6px 8px",
   },
 };

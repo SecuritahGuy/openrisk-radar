@@ -5,12 +5,26 @@ import { onRequestGet as tsunami } from "../functions/api/noaa/tsunami";
 import { onRequestGet as meteoalarm } from "../functions/api/meteoalarm/alerts";
 import { jsonError } from "../functions/_shared/proxy";
 import type { D1Database } from "./d1";
+import { deliverPushMessage, type PushDeliveryEnv, type PushQueueMessage } from "./pushDelivery";
 import { runWatchAudit } from "./watchEvaluator";
 import { handleWatchRequest } from "./watchRegistry";
+import { handleWatchPushRequest, type PushQueueBinding } from "./watchPush";
 
-interface Env {
+interface Env extends PushDeliveryEnv {
   ASSETS: { fetch(request: Request): Promise<Response> };
   DB?: D1Database;
+  PUSH_QUEUE?: PushQueueBinding;
+  AUTOMATED_PUSH_ENABLED?: string;
+}
+
+interface QueueMessage<T> {
+  body: T;
+  ack(): void;
+  retry(options?: { delaySeconds?: number }): void;
+}
+
+interface QueueBatch<T> {
+  messages: QueueMessage<T>[];
 }
 
 const apiRoutes = new Map<string, (context: { request: Request }) => Promise<Response>>([
@@ -33,6 +47,17 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const startedAt = Date.now();
     const url = new URL(request.url);
+    if (url.pathname === "/api/push/config") {
+      if (request.method !== "GET") {
+        return Response.json({ error: { code: "METHOD_NOT_ALLOWED", message: "Only GET is supported" } }, { status: 405 });
+      }
+      return Response.json({
+        supported: true,
+        configured: !!(env.DB && env.PUSH_QUEUE && env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY && env.PUSH_DATA_KEY),
+        publicKey: env.VAPID_PUBLIC_KEY ?? null,
+        automatedDelivery: env.AUTOMATED_PUSH_ENABLED === "true",
+      }, { headers: { "Cache-Control": "no-store" } });
+    }
     if (url.pathname === "/api/status") {
       return Response.json({
         service: "OpenRisk Radar API",
@@ -44,6 +69,11 @@ export default {
           configured: !!env.DB,
           mode: "audit",
           evaluatedSources: ["NWS", "USGS", "NIFC"],
+        },
+        pushNotifications: {
+          configured: !!(env.DB && env.PUSH_QUEUE && env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY && env.PUSH_DATA_KEY),
+          automatedDelivery: env.AUTOMATED_PUSH_ENABLED === "true",
+          mode: "test",
         },
       }, { headers: { "Cache-Control": "public, max-age=60, s-maxage=300" } });
     }
@@ -58,6 +88,8 @@ export default {
         });
       }
       try {
+        const pushResponse = await handleWatchPushRequest(request, { ...env, DB: env.DB });
+        if (pushResponse) return pushResponse;
         const response = await handleWatchRequest(request, env.DB);
         if (response) return response;
       } catch (error) {
@@ -118,6 +150,22 @@ export default {
         message: error instanceof Error ? error.message : "Unknown audit error",
       }));
       throw error;
+    }
+  },
+
+  async queue(batch: QueueBatch<PushQueueMessage>, env: Env): Promise<void> {
+    for (const message of batch.messages) {
+      try {
+        await deliverPushMessage(env, message.body.deliveryId);
+        message.ack();
+      } catch (error) {
+        console.error(JSON.stringify({
+          type: "push_delivery_retry",
+          deliveryId: message.body.deliveryId,
+          message: error instanceof Error ? error.message : "Unknown push delivery error",
+        }));
+        message.retry({ delaySeconds: 60 });
+      }
     }
   },
 };

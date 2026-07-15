@@ -64,6 +64,9 @@ interface UpdatePanelProps {
   onEnableCloudWatch: () => void;
   onRefreshCloudWatch: () => void;
   onDisableCloudWatch: () => void;
+  onEnablePush: () => void;
+  onTestPush: () => void;
+  onDisablePush: () => void;
   onDeleteLocation: () => void;
   isSaving: boolean;
   onEventClick: (event: RiskEvent) => void;
@@ -111,6 +114,9 @@ export function UpdatePanel({
   onEnableCloudWatch,
   onRefreshCloudWatch,
   onDisableCloudWatch,
+  onEnablePush,
+  onTestPush,
+  onDisablePush,
   onDeleteLocation,
   isSaving,
   onEventClick,
@@ -147,6 +153,9 @@ export function UpdatePanel({
               onEnableCloudWatch={onEnableCloudWatch}
               onRefreshCloudWatch={onRefreshCloudWatch}
               onDisableCloudWatch={onDisableCloudWatch}
+              onEnablePush={onEnablePush}
+              onTestPush={onTestPush}
+              onDisablePush={onDisablePush}
             />
           )}
 

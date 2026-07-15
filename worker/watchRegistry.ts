@@ -13,7 +13,7 @@ const MAX_ACTIVE_WATCHES = 5_000;
 const WATCH_PATH = /^\/api\/watches\/([0-9a-f-]+)\/status$/i;
 const WATCH_ITEM_PATH = /^\/api\/watches\/([0-9a-f-]+)$/i;
 
-interface WatchRow {
+export interface WatchRow {
   id: string;
   secret_hash: string;
   latitude: number;
@@ -44,7 +44,7 @@ interface AuditRow {
   created_at: string;
 }
 
-function json(data: unknown, status = 200): Response {
+export function watchApiJson(data: unknown, status = 200): Response {
   return Response.json(data, {
     status,
     headers: {
@@ -55,8 +55,8 @@ function json(data: unknown, status = 200): Response {
   });
 }
 
-function apiError(code: string, message: string, status: number): Response {
-  return json({ error: { code, message } }, status);
+export function watchApiError(code: string, message: string, status: number): Response {
+  return watchApiJson({ error: { code, message } }, status);
 }
 
 function sameOriginMutation(request: Request): boolean {
@@ -90,7 +90,7 @@ function safeEqual(a: string, b: string): boolean {
   return difference === 0;
 }
 
-async function authorizedWatch(db: D1Database, request: Request, id: string): Promise<WatchRow | null> {
+export async function authorizeWatch(db: D1Database, request: Request, id: string): Promise<WatchRow | null> {
   const token = bearerToken(request);
   if (!token || token.length > 256) return null;
   const row = await db.prepare("SELECT * FROM watches WHERE id = ?1").bind(id).first<WatchRow>();
@@ -119,21 +119,21 @@ function publicWatch(row: WatchRow) {
 }
 
 async function createWatch(db: D1Database, request: Request): Promise<Response> {
-  if (!sameOriginMutation(request)) return apiError("ORIGIN_NOT_ALLOWED", "Cross-origin watch registration is not allowed", 403);
+  if (!sameOriginMutation(request)) return watchApiError("ORIGIN_NOT_ALLOWED", "Cross-origin watch registration is not allowed", 403);
   let body: unknown;
   try {
     body = await readBody(request);
   } catch (error) {
     const code = error instanceof Error ? error.message : "INVALID_BODY";
-    return apiError(code, code === "BODY_TOO_LARGE" ? "Request body is too large" : "Request body must be valid JSON", 400);
+    return watchApiError(code, code === "BODY_TOO_LARGE" ? "Request body is too large" : "Request body must be valid JSON", 400);
   }
   const validation = validateWatchRegistration(body);
   if (!validation.valid || !validation.value) {
-    return apiError("INVALID_WATCH", validation.message ?? "Watch registration is invalid", 400);
+    return watchApiError("INVALID_WATCH", validation.message ?? "Watch registration is invalid", 400);
   }
   const count = await db.prepare("SELECT COUNT(*) AS count FROM watches WHERE status != 'expired'").first<{ count: number }>();
   if ((count?.count ?? 0) >= MAX_ACTIVE_WATCHES) {
-    return apiError("WATCH_CAPACITY_REACHED", "The free audit registry is currently at capacity", 503);
+    return watchApiError("WATCH_CAPACITY_REACHED", "The free audit registry is currently at capacity", 503);
   }
 
   const now = new Date().toISOString();
@@ -165,23 +165,23 @@ async function createWatch(db: D1Database, request: Request): Promise<Response> 
   ).run();
 
   const row = await db.prepare("SELECT * FROM watches WHERE id = ?1").bind(id).first<WatchRow>();
-  return json({ watch: row ? publicWatch(row) : null, credentials: { id, token } }, 201);
+  return watchApiJson({ watch: row ? publicWatch(row) : null, credentials: { id, token } }, 201);
 }
 
 async function updateWatch(db: D1Database, request: Request, id: string): Promise<Response> {
-  if (!sameOriginMutation(request)) return apiError("ORIGIN_NOT_ALLOWED", "Cross-origin watch updates are not allowed", 403);
-  const existing = await authorizedWatch(db, request, id);
-  if (!existing) return apiError("WATCH_NOT_FOUND", "Watch not found or control token is invalid", 404);
+  if (!sameOriginMutation(request)) return watchApiError("ORIGIN_NOT_ALLOWED", "Cross-origin watch updates are not allowed", 403);
+  const existing = await authorizeWatch(db, request, id);
+  if (!existing) return watchApiError("WATCH_NOT_FOUND", "Watch not found or control token is invalid", 404);
   let body: unknown;
   try {
     body = await readBody(request);
   } catch (error) {
     const code = error instanceof Error ? error.message : "INVALID_BODY";
-    return apiError(code, code === "BODY_TOO_LARGE" ? "Request body is too large" : "Request body must be valid JSON", 400);
+    return watchApiError(code, code === "BODY_TOO_LARGE" ? "Request body is too large" : "Request body must be valid JSON", 400);
   }
   const validation = validateWatchRegistration(body);
   if (!validation.valid || !validation.value) {
-    return apiError("INVALID_WATCH", validation.message ?? "Watch update is invalid", 400);
+    return watchApiError("INVALID_WATCH", validation.message ?? "Watch update is invalid", 400);
   }
   const now = new Date().toISOString();
   const { location, preferences, timezone } = validation.value;
@@ -206,18 +206,18 @@ async function updateWatch(db: D1Database, request: Request, id: string): Promis
     id
   ).run();
   const row = await db.prepare("SELECT * FROM watches WHERE id = ?1").bind(id).first<WatchRow>();
-  return json({ watch: row ? publicWatch(row) : null });
+  return watchApiJson({ watch: row ? publicWatch(row) : null });
 }
 
 async function watchStatusResponse(db: D1Database, request: Request, id: string): Promise<Response> {
-  const row = await authorizedWatch(db, request, id);
-  if (!row) return apiError("WATCH_NOT_FOUND", "Watch not found or control token is invalid", 404);
+  const row = await authorizeWatch(db, request, id);
+  if (!row) return watchApiError("WATCH_NOT_FOUND", "Watch not found or control token is invalid", 404);
   const audit = await db.prepare(`
     SELECT id, kind, would_notify, suppressed_reason, match_count, top_headline,
       top_severity, sources_json, detail, created_at
     FROM watch_audit_events WHERE watch_id = ?1 ORDER BY created_at DESC LIMIT 10
   `).bind(id).all<AuditRow>();
-  return json({
+  return watchApiJson({
     watch: publicWatch(row),
     audit: (audit.results ?? []).map((event) => ({
       id: event.id,
@@ -235,11 +235,24 @@ async function watchStatusResponse(db: D1Database, request: Request, id: string)
 }
 
 async function deleteWatch(db: D1Database, request: Request, id: string): Promise<Response> {
-  if (!sameOriginMutation(request)) return apiError("ORIGIN_NOT_ALLOWED", "Cross-origin watch deletion is not allowed", 403);
-  const existing = await authorizedWatch(db, request, id);
-  if (!existing) return apiError("WATCH_NOT_FOUND", "Watch not found or control token is invalid", 404);
+  if (!sameOriginMutation(request)) return watchApiError("ORIGIN_NOT_ALLOWED", "Cross-origin watch deletion is not allowed", 403);
+  const existing = await authorizeWatch(db, request, id);
+  if (!existing) return watchApiError("WATCH_NOT_FOUND", "Watch not found or control token is invalid", 404);
+  const subscriptions = await db.prepare(
+    "SELECT subscription_id FROM watch_push_subscriptions WHERE watch_id = ?1"
+  ).bind(id).all<{ subscription_id: string }>();
   await db.prepare("DELETE FROM watch_audit_events WHERE watch_id = ?1").bind(id).run();
+  await db.prepare("DELETE FROM push_deliveries WHERE watch_id = ?1").bind(id).run();
+  await db.prepare("DELETE FROM watch_push_subscriptions WHERE watch_id = ?1").bind(id).run();
   await db.prepare("DELETE FROM watches WHERE id = ?1").bind(id).run();
+  for (const subscription of subscriptions.results ?? []) {
+    await db.prepare(`
+      DELETE FROM push_subscriptions WHERE id = ?1
+        AND NOT EXISTS (
+          SELECT 1 FROM watch_push_subscriptions WHERE subscription_id = ?1
+        )
+    `).bind(subscription.subscription_id).run();
+  }
   return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
 }
 
@@ -247,7 +260,7 @@ export async function handleWatchRequest(request: Request, db: D1Database): Prom
   const url = new URL(request.url);
   if (url.pathname === "/api/watches") {
     if (request.method !== "POST") {
-      const response = apiError("METHOD_NOT_ALLOWED", "Only POST is supported", 405);
+      const response = watchApiError("METHOD_NOT_ALLOWED", "Only POST is supported", 405);
       response.headers.set("Allow", "POST");
       return response;
     }
@@ -257,7 +270,7 @@ export async function handleWatchRequest(request: Request, db: D1Database): Prom
   const statusMatch = url.pathname.match(WATCH_PATH);
   if (statusMatch) {
     if (request.method !== "GET") {
-      const response = apiError("METHOD_NOT_ALLOWED", "Only GET is supported", 405);
+      const response = watchApiError("METHOD_NOT_ALLOWED", "Only GET is supported", 405);
       response.headers.set("Allow", "GET");
       return response;
     }
@@ -268,7 +281,7 @@ export async function handleWatchRequest(request: Request, db: D1Database): Prom
   if (!itemMatch) return null;
   if (request.method === "PATCH") return updateWatch(db, request, itemMatch[1]);
   if (request.method === "DELETE") return deleteWatch(db, request, itemMatch[1]);
-  const response = apiError("METHOD_NOT_ALLOWED", "Only PATCH and DELETE are supported", 405);
+  const response = watchApiError("METHOD_NOT_ALLOWED", "Only PATCH and DELETE are supported", 405);
   response.headers.set("Allow", "PATCH, DELETE");
   return response;
 }

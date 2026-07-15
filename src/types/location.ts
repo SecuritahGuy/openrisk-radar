@@ -41,6 +41,16 @@ export interface CloudWatchLink {
   lastMatchCount: number;
   lastError: string | null;
   latestAudit: CloudWatchAuditEvent | null;
+  pushNotification?: PushNotificationLink;
+}
+
+export interface PushNotificationLink {
+  subscriptionId: string;
+  status: "active" | "invalid" | "error";
+  enabledAt: string;
+  lastTestStatus: "queued" | "sent" | "failed" | "invalid" | null;
+  lastTestAt: string | null;
+  lastError: string | null;
 }
 
 export interface Location {

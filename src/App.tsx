@@ -29,6 +29,12 @@ import {
   removeCloudWatch,
   syncCloudWatch,
 } from "./services/cloudWatch";
+import {
+  disablePushNotifications,
+  enablePushNotifications,
+  refreshPushNotification,
+  sendTestPush,
+} from "./services/pushNotifications";
 import { watchPreferencesFor } from "./lib/watchPreferences";
 
 const MapView = lazy(() =>
@@ -293,7 +299,11 @@ export default function App() {
     setCloudWatchBusyId(activeSavedLocation.id);
     setCloudWatchError(null);
     try {
-      const cloudWatch = await fetchCloudWatchStatus(activeSavedLocation.cloudWatch);
+      let cloudWatch = await fetchCloudWatchStatus(activeSavedLocation.cloudWatch);
+      if (cloudWatch.pushNotification) {
+        const pushNotification = await refreshPushNotification(cloudWatch, cloudWatch.pushNotification);
+        cloudWatch = { ...cloudWatch, pushNotification };
+      }
       await updateLocation(activeSavedLocation.id, { cloudWatch });
     } catch (error) {
       setCloudWatchError(error instanceof Error ? error.message : "Cloud audit status is unavailable");
@@ -307,10 +317,67 @@ export default function App() {
     setCloudWatchBusyId(activeSavedLocation.id);
     setCloudWatchError(null);
     try {
+      if (activeSavedLocation.cloudWatch.pushNotification) {
+        await disablePushNotifications(
+          activeSavedLocation.cloudWatch,
+          activeSavedLocation.cloudWatch.pushNotification
+        );
+      }
       await removeCloudWatch(activeSavedLocation.cloudWatch);
       await updateLocation(activeSavedLocation.id, { cloudWatch: undefined });
     } catch (error) {
       setCloudWatchError(error instanceof Error ? error.message : "Cloud audit could not be removed");
+    } finally {
+      setCloudWatchBusyId(null);
+    }
+  }, [activeSavedLocation, updateLocation]);
+
+  const handleEnablePush = useCallback(async () => {
+    if (!activeSavedLocation?.cloudWatch) return;
+    setCloudWatchBusyId(activeSavedLocation.id);
+    setCloudWatchError(null);
+    try {
+      const pushNotification = await enablePushNotifications(activeSavedLocation.cloudWatch);
+      await updateLocation(activeSavedLocation.id, {
+        cloudWatch: { ...activeSavedLocation.cloudWatch, pushNotification },
+      });
+    } catch (error) {
+      setCloudWatchError(error instanceof Error ? error.message : "Notifications could not be enabled");
+    } finally {
+      setCloudWatchBusyId(null);
+    }
+  }, [activeSavedLocation, updateLocation]);
+
+  const handleTestPush = useCallback(async () => {
+    const cloudWatch = activeSavedLocation?.cloudWatch;
+    if (!activeSavedLocation || !cloudWatch?.pushNotification) return;
+    setCloudWatchBusyId(activeSavedLocation.id);
+    setCloudWatchError(null);
+    try {
+      let pushNotification = await sendTestPush(cloudWatch, cloudWatch.pushNotification);
+      await updateLocation(activeSavedLocation.id, { cloudWatch: { ...cloudWatch, pushNotification } });
+      await new Promise((resolve) => window.setTimeout(resolve, 2_000));
+      pushNotification = await refreshPushNotification(cloudWatch, pushNotification);
+      await updateLocation(activeSavedLocation.id, { cloudWatch: { ...cloudWatch, pushNotification } });
+    } catch (error) {
+      setCloudWatchError(error instanceof Error ? error.message : "The test notification could not be sent");
+    } finally {
+      setCloudWatchBusyId(null);
+    }
+  }, [activeSavedLocation, updateLocation]);
+
+  const handleDisablePush = useCallback(async () => {
+    const cloudWatch = activeSavedLocation?.cloudWatch;
+    if (!activeSavedLocation || !cloudWatch?.pushNotification) return;
+    setCloudWatchBusyId(activeSavedLocation.id);
+    setCloudWatchError(null);
+    try {
+      await disablePushNotifications(cloudWatch, cloudWatch.pushNotification);
+      await updateLocation(activeSavedLocation.id, {
+        cloudWatch: { ...cloudWatch, pushNotification: undefined },
+      });
+    } catch (error) {
+      setCloudWatchError(error instanceof Error ? error.message : "Notifications could not be disabled");
     } finally {
       setCloudWatchBusyId(null);
     }
@@ -323,6 +390,9 @@ export default function App() {
     if (location.cloudWatch) {
       setCloudWatchBusyId(id);
       try {
+        if (location.cloudWatch.pushNotification) {
+          await disablePushNotifications(location.cloudWatch, location.cloudWatch.pushNotification);
+        }
         await removeCloudWatch(location.cloudWatch);
       } catch (error) {
         setCloudWatchError(
@@ -713,6 +783,9 @@ export default function App() {
         onEnableCloudWatch={() => void handleEnableCloudWatch()}
         onRefreshCloudWatch={() => void handleRefreshCloudWatch()}
         onDisableCloudWatch={() => void handleDisableCloudWatch()}
+        onEnablePush={() => void handleEnablePush()}
+        onTestPush={() => void handleTestPush()}
+        onDisablePush={() => void handleDisablePush()}
         onDeleteLocation={() => {
           if (activeSavedLocation) {
             void handleDeleteSavedLocation(activeSavedLocation.id);

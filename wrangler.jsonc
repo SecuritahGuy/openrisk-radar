@@ -3,7 +3,13 @@
   "name": "openradar-risk",
   "main": "./worker/index.ts",
   "compatibility_date": "2026-07-14",
+  "compatibility_flags": ["nodejs_compat"],
   "send_metrics": false,
+  "vars": {
+    "VAPID_PUBLIC_KEY": "BAzo-xScUUYxFr7J2z8GhfAvyLwBgdRnvw49RFMNZzoRELY9MVurEqQci_yIKJerXZjbPQh_QORbzmpM1W-bYes",
+    "VAPID_SUBJECT": "https://openriskradar.com",
+    "AUTOMATED_PUSH_ENABLED": "false"
+  },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 0.1
@@ -19,6 +25,25 @@
       "migrations_dir": "migrations"
     }
   ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "PUSH_QUEUE",
+        "queue": "openrisk-push"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "openrisk-push",
+        "max_batch_size": 5,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "retry_delay": 60,
+        "dead_letter_queue": "openrisk-push-dlq",
+        "max_concurrency": 2
+      }
+    ]
+  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

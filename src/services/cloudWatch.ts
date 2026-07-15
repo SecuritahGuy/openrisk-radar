@@ -50,7 +50,7 @@ async function responseJson(response: Response): Promise<WatchResponse> {
   return data;
 }
 
-function toLink(data: WatchResponse, token: string): CloudWatchLink {
+function toLink(data: WatchResponse, token: string, previous?: CloudWatchLink): CloudWatchLink {
   return {
     id: data.watch.id,
     token,
@@ -61,6 +61,7 @@ function toLink(data: WatchResponse, token: string): CloudWatchLink {
     lastMatchCount: data.watch.lastMatchCount,
     lastError: data.watch.lastError,
     latestAudit: data.audit?.[0] ?? null,
+    pushNotification: previous?.pushNotification,
   };
 }
 
@@ -91,14 +92,14 @@ export async function syncCloudWatch(
     },
     body: JSON.stringify(payloadFor(location, preferences)),
   });
-  return toLink(await responseJson(response), link.token);
+  return toLink(await responseJson(response), link.token, link);
 }
 
 export async function fetchCloudWatchStatus(link: CloudWatchLink): Promise<CloudWatchLink> {
   const response = await fetch(`/api/watches/${encodeURIComponent(link.id)}/status`, {
     headers: { Authorization: `Bearer ${link.token}` },
   });
-  return toLink(await responseJson(response), link.token);
+  return toLink(await responseJson(response), link.token, link);
 }
 
 export async function removeCloudWatch(link: CloudWatchLink): Promise<void> {
