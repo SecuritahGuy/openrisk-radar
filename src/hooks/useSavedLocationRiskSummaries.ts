@@ -21,6 +21,7 @@ import {
 } from "../lib/riskInsights";
 import { buildImpactSummary, type ImpactSummary } from "../lib/impactInsights";
 import { canonicalIncidentEvents } from "../lib/incidents";
+import { eventMatchesWatch, watchPreferencesFor } from "../lib/watchPreferences";
 
 export interface SavedLocationRiskSummary {
   locationId: string;
@@ -150,9 +151,11 @@ async function fetchSavedLocationSummary(
   ]);
 
   const eventResults = [nws, usgs, nifc, spc, nhc, gdacs, eonet, emsc, meteoalarm];
-  const events = canonicalIncidentEvents(
+  const incidents = canonicalIncidentEvents(
     eventResults.flatMap((result) => result.events)
   );
+  const watch = watchPreferencesFor(location);
+  const events = incidents.filter((event) => eventMatchesWatch(event, watch));
   const errors = [
     ...eventResults
       .filter((result) => result.error)
@@ -182,6 +185,7 @@ export function useSavedLocationRiskSummaries(
         location.latitude,
         location.longitude,
         location.radiusMiles,
+        location.watch,
       ],
       queryFn: () => fetchSavedLocationSummary(location),
       staleTime: 120_000,

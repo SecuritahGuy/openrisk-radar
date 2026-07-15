@@ -4,6 +4,20 @@ export type Criticality = "Low" | "Medium" | "High";
 
 export type LocationType = "Office" | "Supplier" | "Data Center" | "Travel" | "Facility" | "Custom";
 
+export type WatchHazard = "weather" | "flood" | "wildfire" | "earthquake" | "tropical" | "other";
+export type WatchDelivery = "immediate" | "daily";
+
+export interface WatchPreferences {
+  enabled: boolean;
+  minimumSeverity: "Minor" | "Moderate" | "Severe" | "Extreme";
+  hazards: WatchHazard[];
+  delivery: WatchDelivery;
+  quietHoursEnabled: boolean;
+  quietHoursStart: string;
+  quietHoursEnd: string;
+  expiresAt: string | null;
+}
+
 export interface Location {
   id: string;
   label: string;
@@ -24,6 +38,7 @@ export interface Location {
   tags: string[];
   createdAt: string;
   lastCheckedAt: string;
+  watch?: WatchPreferences;
 }
 
 export interface LocationInput {

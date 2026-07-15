@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Location, Criticality } from "../types/location";
+import { isWatchExpired, watchPreferencesFor } from "../lib/watchPreferences";
 
 interface SavedLocationListProps {
   savedLocations: Location[];
@@ -123,6 +124,12 @@ export function SavedLocationList({
             )}
             {visibleLocations.map((loc) => {
               const isActive = loc.id === activeLocationId;
+              const watch = watchPreferencesFor(loc);
+              const watchState = isWatchExpired(watch)
+                ? "Watch expired"
+                : watch.enabled
+                  ? "Watching"
+                  : "Watch paused";
               return (
                 <div
                   key={loc.id}
@@ -170,6 +177,16 @@ export function SavedLocationList({
                       </span>
                       <span style={styles.badgeOutline}>
                         {loc.locationType}
+                      </span>
+                      <span
+                        style={{
+                          ...styles.watchBadge,
+                          ...(!watch.enabled || isWatchExpired(watch)
+                            ? styles.watchBadgeInactive
+                            : {}),
+                        }}
+                      >
+                        {watchState}
                       </span>
                     </span>
                   </button>
@@ -328,5 +345,19 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #bdbdbd",
     padding: "1px 6px",
     borderRadius: 3,
+  },
+  watchBadge: {
+    background: "#e3f2fd",
+    border: "1px solid #bbdefb",
+    borderRadius: 3,
+    color: "#1565c0",
+    fontSize: 10,
+    fontWeight: 700,
+    padding: "1px 6px",
+  },
+  watchBadgeInactive: {
+    background: "#eceff1",
+    borderColor: "#cfd8dc",
+    color: "#607d8b",
   },
 };

@@ -1,4 +1,4 @@
-import type { ResolvedLocation, RadiusOption, Criticality, LocationType, Location } from "../types/location";
+import type { ResolvedLocation, RadiusOption, Criticality, LocationType, Location, WatchPreferences } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 import type { CurrentWeather } from "../services/weather";
@@ -15,6 +15,7 @@ import { ImpactSummaryPanel } from "./update/ImpactSummaryPanel";
 import { ActionGuidancePanel } from "./update/ActionGuidancePanel";
 import { LocationActionPanel } from "./update/LocationActionPanel";
 import { LocationDetailsPanel } from "./update/LocationDetailsPanel";
+import { LocationWatchPanel } from "./update/LocationWatchPanel";
 import { MapLayerControls } from "./update/MapLayerControls";
 import { SignalSummaryPanel } from "./update/SignalSummaryPanel";
 import { SituationBriefPanel } from "./update/SituationBriefPanel";
@@ -57,6 +58,7 @@ interface UpdatePanelProps {
   onUpdateLabel: (label: string) => void;
   onUpdateCriticality: (c: Criticality) => void;
   onUpdateType: (t: LocationType) => void;
+  onUpdateWatch: (watch: WatchPreferences) => void;
   onDeleteLocation: () => void;
   isSaving: boolean;
   onEventClick: (event: RiskEvent) => void;
@@ -98,6 +100,7 @@ export function UpdatePanel({
   onUpdateLabel,
   onUpdateCriticality,
   onUpdateType,
+  onUpdateWatch,
   onDeleteLocation,
   isSaving,
   onEventClick,
@@ -124,6 +127,13 @@ export function UpdatePanel({
             onUpdateCriticality={onUpdateCriticality}
             onUpdateType={onUpdateType}
           />
+
+          {activeSavedLocation && (
+            <LocationWatchPanel
+              location={activeSavedLocation}
+              onUpdate={onUpdateWatch}
+            />
+          )}
 
           <CurrentConditionsPanel currentWeather={currentWeather} />
 

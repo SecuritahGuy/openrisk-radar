@@ -235,6 +235,16 @@ export default function App() {
   const activeSavedLocation =
     savedLocations.find((l) => coordsMatch(l, result)) ?? null;
 
+  const handleRadiusChange = useCallback(
+    (nextRadius: RadiusOption) => {
+      setRadius(nextRadius);
+      if (activeSavedLocation) {
+        void updateLocation(activeSavedLocation.id, { radiusMiles: nextRadius });
+      }
+    },
+    [activeSavedLocation, updateLocation]
+  );
+
   const incidentEvents = useMemo(
     () => canonicalIncidentEvents(allEvents),
     [allEvents]
@@ -497,7 +507,7 @@ export default function App() {
             onResetSeverityFilters={handleResetSeverityFilters}
             onToggleWeatherOverlay={setShowWeatherOverlay}
             onWeatherLayerModeChange={setWeatherLayerMode}
-            onRadiusChange={setRadius}
+            onRadiusChange={handleRadiusChange}
             onSearchMapArea={searchCoordinates}
             mapSearchLoading={loading}
             onEventClick={handleSelectEvent}
@@ -519,7 +529,7 @@ export default function App() {
       <UpdatePanel
         location={result}
         radius={radius}
-        onRadiusChange={setRadius}
+        onRadiusChange={handleRadiusChange}
         weatherAlerts={weatherAlerts}
         earthquakes={earthquakes}
         femaDeclarations={femaDeclarations}
@@ -566,6 +576,11 @@ export default function App() {
             updateLocation(activeSavedLocation.id, {
               locationType: t as LocationType,
             });
+          }
+        }}
+        onUpdateWatch={(watch) => {
+          if (activeSavedLocation) {
+            void updateLocation(activeSavedLocation.id, { watch });
           }
         }}
         onDeleteLocation={() => {

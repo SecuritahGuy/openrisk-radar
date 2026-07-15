@@ -10,6 +10,11 @@ import {
   sourceColor,
 } from "../lib/riskInsights";
 import { buildImpactSummary } from "../lib/impactInsights";
+import {
+  eventMatchesWatch,
+  isWatchExpired,
+  watchPreferencesFor,
+} from "../lib/watchPreferences";
 
 interface SavedLocationOverviewProps {
   savedLocations: Location[];
@@ -71,11 +76,15 @@ export function SavedLocationOverview({
 }: SavedLocationOverviewProps) {
   if (savedLocations.length === 0) return null;
 
-  const concernEvents = activeConcernEvents(events);
+  const activeWatch = activeLocation ? watchPreferencesFor(activeLocation) : null;
+  const watchedEvents = activeWatch
+    ? events.filter((event) => eventMatchesWatch(event, activeWatch))
+    : events;
+  const concernEvents = activeConcernEvents(watchedEvents);
   const risk = buildRiskSummary(concernEvents);
   const impact = activeLocation
     ? buildImpactSummary(
-        events,
+        watchedEvents,
         {
           city: activeLocation.city,
           state: activeLocation.state,
@@ -156,6 +165,16 @@ export function SavedLocationOverview({
           const cardSourceIssues = active
             ? sourceIssues
             : summary?.errorCount ?? 0;
+          const watch = watchPreferencesFor(loc);
+          const watchExpired = isWatchExpired(watch);
+          const watchState = watchExpired
+            ? "Expired"
+            : watch.enabled
+              ? "Watching"
+              : "Paused";
+          const matchingCount = active
+            ? concernEvents.length
+            : summary?.eventCount ?? 0;
           const postureColor = cardRisk ? levelColor(cardRisk.level) : "#607d8b";
           return (
             <button
@@ -170,14 +189,25 @@ export function SavedLocationOverview({
             >
               <div style={styles.cardTop}>
                 <span style={styles.cardTitle}>{loc.label}</span>
-                <span
-                  style={{
-                    ...styles.criticalityPill,
-                    color: criticalityColor(loc.criticality),
-                    background: `${criticalityColor(loc.criticality)}14`,
-                  }}
-                >
-                  {loc.criticality}
+                <span style={styles.pillRow}>
+                  <span
+                    style={{
+                      ...styles.watchPill,
+                      color: watch.enabled && !watchExpired ? "#1565c0" : "#78909c",
+                      background: watch.enabled && !watchExpired ? "#e3f2fd" : "#eceff1",
+                    }}
+                  >
+                    {watchState}
+                  </span>
+                  <span
+                    style={{
+                      ...styles.criticalityPill,
+                      color: criticalityColor(loc.criticality),
+                      background: `${criticalityColor(loc.criticality)}14`,
+                    }}
+                  >
+                    {loc.criticality}
+                  </span>
                 </span>
               </div>
               <div style={styles.cardMeta}>
@@ -229,6 +259,7 @@ export function SavedLocationOverview({
                       : "Weather pending"}
                     {" · "}
                     {cardLiveSources} live
+                    {` · ${matchingCount} matching`}
                     {cardSourceIssues > 0 ? `, ${cardSourceIssues} issues` : ""}
                   </div>
                 </>
@@ -324,6 +355,13 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 999,
     flex: "0 0 auto",
     fontSize: 10,
+    fontWeight: 900,
+    padding: "3px 6px",
+  },
+  pillRow: { display: "flex", flex: "0 0 auto", gap: 4 },
+  watchPill: {
+    borderRadius: 999,
+    fontSize: 9,
     fontWeight: 900,
     padding: "3px 6px",
   },

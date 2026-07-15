@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { db } from "../services/db";
 import { newLocationId } from "../lib/ids";
 import type { Location } from "../types/location";
+import { DEFAULT_WATCH_PREFERENCES } from "../lib/watchPreferences";
 
 export interface SaveLocationInput {
   label: string;
@@ -62,6 +63,10 @@ export function useSavedLocations(): UseSavedLocationsReturn {
         tags: [],
         createdAt: now,
         lastCheckedAt: now,
+        watch: {
+          ...DEFAULT_WATCH_PREFERENCES,
+          hazards: [...DEFAULT_WATCH_PREFERENCES.hazards],
+        },
       };
       await db.locations.add(location);
       setSavedLocations((prev) => [location, ...prev]);
