@@ -13,7 +13,8 @@ export type Capability =
   | "grid"
   | "environmental-health"
   | "avalanche"
-  | "marine";
+  | "marine"
+  | "earthquake";
 
 export type OutputModel = "risk-event" | "supplemental-signal" | "map-overlay";
 
