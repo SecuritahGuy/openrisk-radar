@@ -61,6 +61,11 @@ const STATE_BBOX: Record<string, { north: number; south: number; east: number; w
   TN: { north: 36.7, south: 35, east: -81.6, west: -90.3 },
   NJ: { north: 41.4, south: 38.9, east: -73.9, west: -75.6 },
   IA: { north: 43.5, south: 40.4, east: -90.1, west: -96.7 },
+  AK: { north: 71.4, south: 51.2, east: -130, west: -180 },
+  AR: { north: 36.5, south: 33, east: -89.6, west: -94.6 },
+  CT: { north: 42.1, south: 40.9, east: -71.8, west: -73.7 },
+  DE: { north: 39.8, south: 38.4, east: -75, west: -75.8 },
+  DC: { north: 39, south: 38.8, east: -76.9, west: -77.2 },
 };
 
 function haversineKm(latA: number, lngA: number, latB: number, lngB: number): number {

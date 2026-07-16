@@ -22,11 +22,11 @@ national feeds rather than duplicating them.
 | File | Purpose |
 |------|---------|
 | `types.ts` | `StateIntelligencePack`, `StateSourceDefinition`, capability/output/access enums, authority ranking |
-| `stateRegistry.ts` | Pack configurations for all 31 states with 200 sources |
+| `stateRegistry.ts` | Pack configurations for all 36 states with 233 sources |
 | `authorityHierarchy.ts` | Source authority hierarchy (Local > State > Federal > International) and dedup logic |
 | `stateResolver.ts` | Activation logic: given a location or assets, which packs fire |
 | `validate.ts` | Quick smoke-test: CAL FIRE + CDEC + CAISO + resolver demo |
-| `validate-all.ts` | Full endpoint validation across all 200 sources |
+| `validate-all.ts` | Full endpoint validation across all 233 sources |
 | `tsconfig.json` | Isolated TS config for this experiment only |
 
 ## Pack definitions
@@ -84,8 +84,13 @@ are retained as corroborating.
 | KY | 6 | GoKY ArcGIS | KY DoF (portal) | USGS KY | LG&E/KU (portal) | — | NWS alerts | USGS FDSN | — | — | — |
 | NJ | 7 | NJ511 RSS | NJFFS (portal) | USGS NJ | PSE&G (portal) | — | NWS alerts | USGS FDSN | — | NWS marine | — |
 | TN | 6 | SmartWay ArcGIS | TN DoF (portal) | USGS TN | TVA (portal) | — | NWS alerts | USGS FDSN | — | — | — |
+| AK | 8 | AK 511 REST | BLM AFS ArcGIS | USGS AK | Chugach/GVEA (portal) | — | NWS alerts | USGS FDSN | CNFAIC | NWS marine | — |
+| AR | 6 | iDriveArkansas ArcGIS | AFC (portal) | USGS AR | Entergy (portal) | — | NWS alerts | USGS FDSN | — | — | — |
+| CT | 7 | CTroads REST | DEEP (portal) | USGS CT | Eversource (portal) | — | NWS alerts | USGS FDSN | — | NWS marine | — |
+| DE | 7 | DelDOT TMC ArcGIS | DE Forest Svc (portal) | USGS DE | Delmarva (portal) | — | NWS alerts | USGS FDSN | — | NWS marine | — |
+| DC | 5 | DDOT ArcGIS | — | USGS DC | PEPCO (portal) | — | NWS alerts | USGS FDSN | — | — | — |
 
-All endpoints live-probed and validated, **143 validated** and **57 discovered** across 31 states (200 sources). Every state pack is ready to build — no research-required or error statuses remain.
+All endpoints live-probed and validated, **164 validated** and **69 discovered** across 36 states (233 sources). Every state pack is ready to build — no research-required or error statuses remain.
 
 ## Status legend
 
@@ -100,13 +105,13 @@ All endpoints live-probed and validated, **143 validated** and **57 discovered**
 # Quick smoke test (CAL FIRE + CDEC + CAISO + resolver)
 node --experimental-strip-types experiments/state-packs/validate.ts
 
-# Full endpoint validation (all 200 sources)
+# Full endpoint validation (all 233 sources)
 node --experimental-strip-types experiments/state-packs/validate-all.ts
 ```
 
 The quick test checks the live CAL FIRE Incidents API, CDEC station metadata,
 CAISO outlook page, runs the resolver for a Sacramento search, demonstrates
-saved-asset dedup, resolves the authority hierarchy, and logs all 31 state
+saved-asset dedup, resolves the authority hierarchy, and logs all 36 state
 packs. The full test probes every source endpoint and proposes status changes.
 
 ## Relationship to traffic experiment
