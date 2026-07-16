@@ -10,7 +10,7 @@
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
-      "endpoint": "https://opendata-download-metobs.smhi.se/api/version/latest/parameter/1/station/52430/period/latest-hour/data.json",
+      "endpoint": "https://opendata-download-metobs.smhi.se/api/version/latest/parameter/1/station-set/all/period/latest-hour/data.json",
       "refreshSeconds": 900,
       "proxyRequired": false,
       "attribution": "SMHI",

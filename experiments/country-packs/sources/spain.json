@@ -10,7 +10,7 @@
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
-      "endpoint": "https://apidatos.ree.es/en/datos/balance/balance-electrico",
+      "endpoint": "https://apidatos.ree.es/en/datos/balance/balance-electrico?start_date=2026-07-14T00:00:00&end_date=2026-07-16T00:00:00&time_trunc=day",
       "refreshSeconds": 300,
       "proxyRequired": false,
       "attribution": "Red Eléctrica de España (Redeia)",
@@ -67,20 +67,20 @@
       "notes": "INSPIRE WMS for seismic information. Layers: Ultimos10dias, Ultimos30dias, Ultimos365dias, NZ.ObservedEvent (full catalog), GE.Geophysics.seismologicalStation, HazardArea. Supports GeoJSON output format. CC BY 4.0 license."
     },
     {
-      "id": "es-aemet-weather-alerts",
-      "authority": "Agencia Estatal de Meteorología (AEMET)",
+"id": "es-aemet-weather-alerts",
+      "authority": "AEMET (Agencia Estatal de Meteorología)",
       "coverage": { "countries": ["ES"] },
       "capability": "weather",
       "outputModel": "risk-event",
       "access": "api-key",
       "format": "json",
       "endpoint": "https://opendata.aemet.es/opendata/api/avisos",
-      "refreshSeconds": 900,
+      "refreshSeconds": 600,
       "proxyRequired": false,
       "attribution": "AEMET - Agencia Estatal de Meteorología",
       "termsUrl": "https://opendata.aemet.es/centrodedescargas/inicio",
-      "status": "discovered",
-      "notes": "AEMET OpenData REST API. Requires free API key (register at opendata.aemet.es). Two-step download: 1) GET returns metadata JSON with 'datos' URL, 2) GET that URL for actual data. Endpoints: /avisos (warnings), /observacion/convencional (observations), /prediccion (forecasts), /red/radar (radar imagery). Also CAP alerts at /avisos_cap."
+      "status": "research-required",
+      "notes": "AEMET OpenData REST API. Requires free API key (register at opendata.aemet.es) passed as ?api_key= parameter. Returns 404 without valid API key. Two-step download: 1) GET returns metadata JSON with 'datos' URL, 2) GET that URL for actual data."
     }
   ]
 }

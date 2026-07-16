@@ -57,14 +57,14 @@
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
-      "format": "json",
+      "format": "html",
       "endpoint": "http://www.bom.gov.au/marine/",
       "refreshSeconds": 3600,
       "proxyRequired": false,
       "attribution": "Australian Bureau of Meteorology",
       "termsUrl": "https://www.bom.gov.au/marine/",
       "status": "discovered",
-      "notes": "BOM marine forecasts — official page. The unofficial API (api.weather.bom.gov.au) has no marine-specific endpoint. Use FTP at ftp.bom.gov.au/anon/gen/marine/ for structured marine data (IDY030 etc)."
+      "notes": "BOM marine forecasts — official page. No JSON API. Use FTP at ftp.bom.gov.au/anon/gen/marine/ for structured marine data (IDY030 etc)."
     },
     {
       "id": "au-aemo-grid",

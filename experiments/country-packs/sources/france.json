@@ -9,8 +9,8 @@
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "geojson",
-      "endpoint": "https://seismicportal.eu/fdsnws/event/1/query?format=geojson&minlatitude=41&maxlatitude=52&minlongitude=-5&maxlongitude=10",
+      "format": "json",
+      "endpoint": "https://seismicportal.eu/fdsnws/event/1/query?format=json&minlatitude=41&maxlatitude=52&minlongitude=-5&maxlongitude=10&minmagnitude=2&limit=50&orderby=time",
       "refreshSeconds": 300,
       "proxyRequired": false,
       "attribution": "EMSC / ReNaSS",
@@ -19,20 +19,20 @@
       "notes": "FDSN Event web service for the Euro-Med region. Filtered to France bounding box. Returns GeoJSON FeatureCollection of earthquake events with magnitude, depth, location, timestamp. Also supports XML/QuakeML format. ReNaSS is the French national seismic network contributing data."
     },
     {
-      "id": "fr-emsc-rts-realtime",
+"id": "fr-emsc-rts-realtime",
       "authority": "EMSC (European-Mediterranean Seismological Centre)",
       "coverage": { "countries": ["FR", "nearby"] },
-      "capability": "earthquake",
+      "capability": "seismic",
       "outputModel": "risk-event",
       "access": "public",
       "format": "json",
-      "endpoint": "https://www.seismicportal.eu/realtime",
+      "endpoint": "https://www.seismicportal.eu/realtime.json",
       "refreshSeconds": 60,
       "proxyRequired": false,
       "attribution": "EMSC",
       "termsUrl": "https://www.emsc-csem.org/",
-      "status": "discovered",
-      "notes": "EMSC real-time earthquake notifications via WebSocket. The REST endpoint provides latest events in JSON. Near-real-time earthquake data from multiple European networks including ReNaSS for France."
+      "status": "research-required",
+      "notes": "EMSC real-time earthquake notifications — REST endpoint removed (returns 404). WebSocket at wss://www.seismicportal.eu/spring/websocket only. Use fr-emsc-seismicportal-earthquakes for REST-based FDSN data."
     },
     {
       "id": "fr-open-meteo-weather",
@@ -211,36 +211,36 @@
       "notes": "National ATMO air quality index by commune. WFS OGC service returning daily air quality scores per commune. Fields: code_qual (index 1-10), code_no2, code_o3, code_pm10, code_pm25, code_so2, lib_qual (label), source (local AASQA). Daily updates at ~14:00. ODbL license. Also available as CSV via data.gouv.fr. REST API at admindata.atmo-france.org (documented)."
     },
     {
-      "id": "fr-meteofrance-avalanche-bulletin",
-      "authority": "Météo-France (BRA - Bulletin Risque Avalanche)",
+"id": "fr-meteofrance-avalanche-bulletin",
+      "authority": "Météo-France",
       "coverage": { "countries": ["FR"] },
       "capability": "avalanche",
       "outputModel": "risk-event",
       "access": "api-key",
       "format": "xml",
-      "endpoint": "https://portail-api.meteofrance.fr/public/DonneesPubliquesBRA/v1",
-      "refreshSeconds": 86400,
+      "endpoint": "https://portail-api.meteofrance.fr/api/v1/risques-avalanche/regions",
+      "refreshSeconds": 3600,
       "proxyRequired": false,
       "attribution": "Météo-France",
       "termsUrl": "https://donneespubliques.meteofrance.fr/",
-      "status": "discovered",
-      "notes": "Météo-France Avalanche Risk Estimation Bulletin (BRA). Daily bulletins for Alps, Pyrenees and Corsica massifs (Nov-Jun). XML format includes risk levels, snow conditions, typical avalanche problems. Also PDF format. Requires free API key registration on Météo-France API portal. Data under Etalab Open License."
+      "status": "research-required",
+      "notes": "Météo-France Avalanche Risk Estimation Bulletin (BRA). Endpoint returns 404 — API portal domain or path may have changed. Requires free API key registration. Daily bulletins for Alps, Pyrenees and Corsica massifs (Nov-Jun)."
     },
     {
-      "id": "fr-meteofrance-forest-weather",
+"id": "fr-meteofrance-forest-weather",
       "authority": "Météo-France",
       "coverage": { "countries": ["FR"] },
       "capability": "wildfire",
-      "outputModel": "risk-event",
+      "outputModel": "supplemental-signal",
       "access": "api-key",
       "format": "json",
-      "endpoint": "https://portail-api.meteofrance.fr/public/DonneesPubliquesMF/v1/forest-fire-weather",
-      "refreshSeconds": 86400,
+      "endpoint": "https://portail-api.meteofrance.fr/api/v1/indice-feu",
+      "refreshSeconds": 3600,
       "proxyRequired": false,
       "attribution": "Météo-France",
       "termsUrl": "https://portail-api.meteofrance.fr/",
-      "status": "discovered",
-      "notes": "Météo-France forest fire weather index. Provides daily fire danger level by department for D+1 and D+2 based on weather forecast and vegetation dryness. Requires free API key from Météo-France API portal. Related to the forest weather vigilance (Météo-France)."
+      "status": "research-required",
+      "notes": "Météo-France forest fire weather index. Endpoint returns 404 — API portal domain may have changed. Requires free API key registration. Daily fire danger level by department for D+1 and D+2."
     }
   ]
 }

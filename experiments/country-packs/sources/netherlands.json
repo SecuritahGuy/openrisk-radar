@@ -9,8 +9,8 @@
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "geojson",
-      "endpoint": "https://rdsa.knmi.nl/fdsnws/event/1/query?format=geojson&limit=100",
+      "format": "json",
+      "endpoint": "https://rdsa.knmi.nl/fdsnws/event/1/query?format=json&limit=100",
       "refreshSeconds": 60,
       "proxyRequired": false,
       "attribution": "KNMI",
@@ -115,20 +115,20 @@
       "notes": "RIVM OGC SOS (Sensor Observation Service) for air quality. INSPIRE-compliant AQD service. Supports GetCapabilities, GetObservation, DescribeSensor. Offers data from RIVM stations (NL.RIVM.AQ/...). Returns XML/SensorML. Can be used for EEA reporting."
     },
     {
-      "id": "nl-rijkswaterstaat-water",
+"id": "nl-rijkswaterstaat-water",
       "authority": "Rijkswaterstaat",
       "coverage": { "countries": ["NL"] },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
-      "endpoint": "https://ddapi20-waterwebservices.rijkswaterstaat.nl/METADATASERVICES/OphalenCatalogus",
-      "refreshSeconds": 900,
+      "endpoint": "https://rijkswaterstaatdata.nl/waterdata/v1/",
+      "refreshSeconds": 600,
       "proxyRequired": false,
       "attribution": "Rijkswaterstaat",
       "termsUrl": "https://rijkswaterstaatdata.nl/waterdata/",
-      "status": "discovered",
-      "notes": "NEW Rijkswaterstaat Waterwebservices (since Dec 2025). POST-based JSON API (replaced old SOAP/WCF). Endpoints: OphalenCatalogus (metadata), OphalenWaarnemingen (observations), OphalenLaatsteWaarnemingen (latest), CheckWaarnemingenAanwezig (check), OphalenAantalWaarnemingen (count). Request body: {AquoPlusWaarnemingMetadata, Locatie, Periode}. Covers water level (WATHTE), discharge (DEBIET), wave height, salinity, temperature at thousands of stations. Optional X-API-KEY header for future rate limiting."
+      "status": "research-required",
+      "notes": "Rijkswaterstaat Waterwebservices (since Dec 2025). POST-based JSON API — HTTP GET returns 405. Use POST with JSON body {AquoPlusWaarnemingMetadata, Locatie, Periode}. Covers water level (WATHTE), discharge (DEBIET), wave height, salinity, temperature. Optional X-A PI-KEY header for future rate limiting."
     },
     {
       "id": "nl-rijkswaterstaat-water-wfs",
