@@ -97,6 +97,10 @@ export function defaultSourceFilters(): SourceFilters {
     COOPS: true,
     SPACE_WEATHER: true,
     METEOALARM: true,
+    WHO: true,
+    GTM: true,
+    DWD: true,
+    GEONET: true,
   };
 }
 
@@ -153,6 +157,14 @@ export function sourceColor(source: EventSource): string {
       return "#5e35b1";
     case "METEOALARM":
       return "#c62828";
+    case "WHO":
+      return "#00897b";
+    case "GTM":
+      return "#006064";
+    case "DWD":
+      return "#1565c0";
+    case "GEONET":
+      return "#2e7d32";
   }
 }
 
@@ -179,6 +191,10 @@ export function sourceLabel(source: EventSource): string {
     COOPS: "NOAA Coastal Conditions",
     SPACE_WEATHER: "NOAA Space Weather",
     METEOALARM: "Meteoalarm European Warnings",
+    WHO: "WHO Disease Outbreak News",
+    GTM: "Global Tsunami Monitor",
+    DWD: "Deutscher Wetterdienst",
+    GEONET: "GeoNet New Zealand",
   };
   return labels[source];
 }

@@ -117,6 +117,10 @@ describe("riskInsights", () => {
       COOPS: true,
       SPACE_WEATHER: true,
       METEOALARM: true,
+      WHO: true,
+      GTM: true,
+      DWD: true,
+      GEONET: true,
     };
     const severityFilters: SeverityFilters = {
       Extreme: true,

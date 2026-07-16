@@ -35,6 +35,10 @@ function sourceColor(source: SupplementalSource): string {
       return "#bf360c";
     case "GVP":
       return "#ef6c00";
+    case "HDX":
+      return "#37474f";
+    default:
+      return "#607d8b";
   }
 }
 

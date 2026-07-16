@@ -13,7 +13,8 @@ export type SupplementalSource =
   | "SPACE_WEATHER"
   | "DROUGHT"
   | "VOLCANO"
-  | "GVP";
+  | "GVP"
+  | "HDX";
 
 export type SupplementalCategory =
   | "Storm Outlook"
@@ -25,7 +26,8 @@ export type SupplementalCategory =
   | "Volcano"
   | "Pollen"
   | "UV Index"
-  | "Seismic";
+  | "Seismic"
+  | "Exposure";
 
 export type SupplementalGeometry =
   | {

@@ -25,6 +25,10 @@ const SOURCE_PRIORITY: Record<EventSource, number> = {
   GDACS: 55,
   EONET: 45,
   USGS_SHAKEMAP: 40,
+  WHO: 50,
+  GTM: 60,
+  DWD: 100,
+  GEONET: 80,
 };
 
 const CORRELATION_RULES: Partial<Record<EventCategory, { miles: number; hours: number }>> = {

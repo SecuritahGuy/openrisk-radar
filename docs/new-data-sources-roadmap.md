@@ -6,6 +6,40 @@ Project constraints (from `ROADMAP.md` / `README.md`): browser-first, anonymous,
 
 ---
 
+## Works vs. Will Not Work (validation summary)
+
+Statuses below reflect live HTTP + CORS + payload testing performed from the project environment.
+
+### ✅ Will work (no key/token required — browser-direct)
+- **WHO Disease Outbreak News** — 200, CORS `*`, real OData JSON.
+- **NASA GIBS** — tile 200, CORS `*`. Raster overlay only.
+- **Global Tsunami Monitor** (`/api/geojson/active`) — 200, CORS `*`, GeoJSON.
+- **DWD Germany** (JSONP warnings) — 200, CORS `*`.
+- **GeoNet New Zealand** — 200, CORS `*`, GeoJSON (requires `MMI` param).
+- **HDX / HOT OSM** — CKAN API 200, CORS `*`, real JSON.
+
+### ✅ Will work (free key/token required)
+- **OpenAQ** — 401 without `X-API-Key` (free key; CORS enabled).
+- **WAQI** — 200 with demo token, CORS `*` (free token).
+- **UNESCO-IOC Sea Level** — 401 without V2 key (free key).
+- **CWA Taiwan** — 401 on bad key (free auth code).
+- **ReliefWeb** — 403 without pre-approved `appname` (free request).
+
+### ⚠️ Partial / needs re-test or deeper integration
+- **INMET WIS2 (Brazil)** — live, CORS `*`, but exposes SYNOP obs only (no CAP alert collection).
+- **WMO SWIC / WIS2 GDC** — live, CORS `*`, but discovery-only catalog (no data links).
+- **EFFIS / GWIS** — unreachable from test env (HTTP 000); standard public WMS, re-test from deploy region.
+- **SPEI / ACLED** — portal URLs 404'd in test; verify exact endpoints.
+- **GloFAS / CAMS / IMD / BoM / KNMI / AEMET / Météo-France / JMA** — reachable portals; need key, proxy, or third-party wrapper.
+
+### ❌ Will not work (rejected)
+- **Blitzortung / LightningMaps** — all WebSocket hosts `ECONNREFUSED`; archive `401`; CC-BY-SA non-commercial licence conflicts with the commercial iOS track. Drop lightning for now.
+
+### ⏸️ Backlog (deferred by request)
+- **NASA FIRMS** — key-gated (free MAP_KEY); endpoint confirmed live (400 on bad key). Held on backlog.
+
+---
+
 ## Tier 1 — Drop-in, no key / CORS-friendly, high value
 
 | Source | Coverage | Signals | Access | License / Attribution | Why on the list | Status |
@@ -40,16 +74,16 @@ Project constraints (from `ROADMAP.md` / `README.md`): browser-first, anonymous,
 
 | Source | Coverage | Signals | Access | License / Attribution | Why on the list | Status |
 |--------|----------|---------|--------|------------------------|-----------------|--------|
-| DWD (Germany) | Germany | Severe weather warnings (CAP/WFS), nowcast, pollen, radar | `opendata.dwd.de` files; JSONP `dwd.de/DWD/warnungen/warnapp/json/warnings.json`; no key; CORS via JSONP | DWD open data; attribution | Finer than Meteoalarm aggregate | Pending |
-| GeoNet (New Zealand) | New Zealand | Earthquakes, volcanic alert level, landslides, tsunami | `api.geonet.org.nz/` JSON (CORS-enabled); no key | Free, CC-BY (cite DOIs) | Very active tectonics/volcanoes; browser-friendly | Pending |
-| CWA (Taiwan) | Taiwan | Earthquakes, tsunami, typhoons, weather warnings | `opendata.cwa.gov.tw/api/v1/...` REST; free auth code | Open Gov Data License v1.0 | High quake/typhoon exposure, no current coverage | Pending |
-| JMA via P2Pquake / Wolfx | Japan | Earthquakes/EEW, tsunami, volcanic, typhoon | Official XML lacks CORS; use `api.p2pquake.net` or `api.wolfx.jp/jma_*.json` (free) | JMA "own risk"; secondary-use free | One of most seismic nations; no US/EU equivalent | Pending |
-| INMET WIS2 (Brazil) | Brazil | CAP weather warnings, SYNOP obs (GeoJSON) | OGC API `wis2bra.inmet.gov.br/oapi/collections/...`; no key; CORS likely | WMO core data policy | Modern clean standard; fills South America | Pending |
-| IMD / INCOIS (India) | India | District warnings, cyclone, tsunami JSON | `api.imd.gov.in/api/v1/...` (free key, possible IP whitelist) | IMD terms; attribution | Major population exposure (monsoon/cyclone) | Pending |
-| BoM (Australia) | Australia | Severe weather/cyclone/flood warnings, flood gauge network | Warnings RSS; ArcGIS REST `hosting.wsapi.cloud.bom.gov.au/...` GeoJSON; no key | © Commonwealth of Australia; attribution | Australia floods/cyclones/bushfire weather | Pending |
-| KNMI (Netherlands) | Netherlands | Dutch warnings (current/48h/week-ahead), obs | `api.dataplatform.knmi.nl/...` file-based REST; free key (anon available) | CC-BY-4.0 | Finer Dutch coverage than Meteoalarm | Pending |
-| AEMET (Spain) | Spain | CAP warnings, maritime, fire indices, radar | `opendata.aemet.es/opendata/api/...` (free key, two-call); no CORS | AEMET open data; HVD | Rich Spanish CAP + maritime + fire | Pending |
-| Météo-France | France + DOM-TOM | Vigilance color warnings, models, avalanche, fire meteo | `public-api.meteofrance.fr/...` (free JWT); CORS likely blocked → proxy | Licence Ouverte Etalab | Fills France mainland + overseas | Pending |
+| DWD (Germany) | Germany | Severe weather warnings (CAP/WFS), nowcast, pollen, radar | `opendata.dwd.de` files; JSONP `dwd.de/DWD/warnungen/warnapp/json/warnings.json`; no key; CORS `*` | DWD open data; attribution | Finer than Meteoalarm aggregate | **Validated** (200, CORS `*`, JSONP `warnWetter.loadWarnings(...)`) |
+| GeoNet (New Zealand) | New Zealand | Earthquakes, volcanic alert level, landslides, tsunami | `api.geonet.org.nz/quake?MMI=0` JSON (CORS `*`); no key | Free, CC-BY (cite DOIs) | Very active tectonics/volcanoes; browser-friendly | **Validated** (200, CORS `*`, GeoJSON FeatureCollection; MMI param required) |
+| CWA (Taiwan) | Taiwan | Earthquakes, tsunami, typhoons, weather warnings | `opendata.cwa.gov.tw/api/v1/...` REST; free auth code | Open Gov Data License v1.0 | High quake/typhoon exposure, no current coverage | **Validated (key-gated)** (401 on bad key; endpoint live) |
+| JMA via P2Pquake / Wolfx | Japan | Earthquakes/EEW, tsunami, volcanic, typhoon | Official XML lacks CORS; use `api.p2pquake.net` or `api.wolfx.jp/jma_*.json` (free) | JMO "own risk"; secondary-use free | One of most seismic nations; no US/EU equivalent | **Pending** (third-party wrappers; verify CORS) |
+| INMET WIS2 (Brazil) | Brazil | CAP weather warnings, SYNOP obs (GeoJSON) | OGC API `wis2bra.inmet.gov.br/oapi/collections/...`; no key; CORS `*` | WMO core data policy | Modern clean standard; fills South America | **Validated (obs only)** (CORS `*`, collections live; exposes SYNOP obs + `messages`, but NO CAP alert collection found) |
+| IMD / INCOIS (India) | India | District warnings, cyclone, tsunami JSON | `api.imd.gov.in/api/v1/...` (free key, possible IP whitelist) | IMD terms; attribution | Major population exposure (monsoon/cyclone) | **Pending** (free key; verify) |
+| BoM (Australia) | Australia | Severe weather/cyclone/flood warnings, flood gauge network | Warnings RSS; ArcGIS REST `hosting.wsapi.cloud.bom.gov.au/...` GeoJSON; no key | © Commonwealth of Australia; attribution | Australia floods/cyclones/bushfire weather | **Pending** (verify ArcGIS CORS) |
+| KNMI (Netherlands) | Netherlands | Dutch warnings (current/48h/week-ahead), obs | `api.dataplatform.knmi.nl/...` file-based REST; free key (anon available) | CC-BY-4.0 | Finer Dutch coverage than Meteoalarm | **Pending** (free key; verify CORS) |
+| AEMET (Spain) | Spain | CAP warnings, maritime, fire indices, radar | `opendata.aemet.es/opendata/api/...` (free key, two-call); no CORS | AEMET open data; HVD | Rich Spanish CAP + maritime + fire | **Pending** (free key; no CORS → proxy) |
+| Météo-France | France + DOM-TOM | Vigilance color warnings, models, avalanche, fire meteo | `public-api.meteofrance.fr/...` (free JWT); CORS likely blocked → proxy | Licence Ouverte Etalab | Fills France mainland + overseas | **Pending** (free JWT; proxy likely) |
 
 ---
 
