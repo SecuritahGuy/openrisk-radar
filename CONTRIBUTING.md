@@ -23,6 +23,12 @@ git pull
 git checkout -b feature/short-description
 ```
 
+## Project scope
+
+This repository is primarily focused on OpenRiskRadar Web, the open-source browser-first application. Contributors should not introduce web authentication, Stripe, subscription billing, team workspaces, or SaaS account infrastructure without an explicit architectural decision. New web features should preserve anonymous use and minimize dependence on centralized personal data.
+
+Native apps are a separate product track. If native-source code is added in the future, it should remain clearly separated from the web application unless the repo is explicitly extended for multi-platform work.
+
 ## Required Checks
 
 Run these before opening a pull request:
@@ -33,7 +39,7 @@ npm test
 npm run build
 ```
 
-Do not add placeholder tests. Prefer focused tests around deterministic logic such as severity mapping, filtering, geospatial distance, or source normalization.
+Do not add placeholder tests. Prefer focused tests around deterministic logic such as severity mapping, filtering, geospatial distance, or source normalization. When adding new source integrations, consider whether the domain logic can later be specified in a platform-independent way.
 
 ## Pull Request Expectations
 

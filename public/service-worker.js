@@ -1,5 +1,5 @@
-const CACHE_NAME = "openrisk-shell-v2";
-const SHELL = ["/", "/manifest.webmanifest", "/favicon.svg", "/apple-touch-icon.png"];
+const CACHE_NAME = "openrisk-shell-v3";
+const SHELL = ["/app", "/manifest.webmanifest", "/favicon.svg", "/apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)));
@@ -22,7 +22,23 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(fetch(request).catch(() => caches.match("/")));
+    event.respondWith(
+      fetch(request).then((response) => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      }).catch(async () => {
+        const exact = await caches.match(request);
+        if (exact) return exact;
+        if (url.pathname === "/app") return caches.match("/app");
+        return new Response(
+          "This page is not available offline. Reconnect to view public content, or open a previously cached page.",
+          { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } }
+        );
+      })
+    );
     return;
   }
 
@@ -87,7 +103,7 @@ self.addEventListener("push", (event) => {
       badge: "/apple-touch-icon.png",
       tag: payload.tag || "openrisk-update",
       renotify: true,
-      data: payload.data || { url: "/" },
+      data: payload.data || { url: "/app" },
     });
     if ("setAppBadge" in self.navigator) {
       await self.navigator.setAppBadge(1).catch(() => undefined);
@@ -101,7 +117,7 @@ self.addEventListener("notificationclick", (event) => {
     if ("clearAppBadge" in self.navigator) {
       await self.navigator.clearAppBadge().catch(() => undefined);
     }
-    const destination = new URL(event.notification.data?.url || "/", self.location.origin).href;
+    const destination = new URL(event.notification.data?.url || "/app", self.location.origin).href;
     const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const client of windows) {
       if (new URL(client.url).origin !== self.location.origin) continue;

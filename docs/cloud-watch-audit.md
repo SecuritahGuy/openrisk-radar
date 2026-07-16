@@ -1,5 +1,7 @@
 # Cloud watch audit mode
 
+This document describes experimental Cloudflare watch audit research. The implementation is a proof of concept for background watch evaluation and is not required for OpenRiskRadar Web to remain useful.
+
 Cloud watch audit mode evaluates an explicitly opted-in saved-location watch when the site is closed. It records whether a notification would have been sent, but it does not deliver notifications.
 
 ## Privacy model

@@ -1,4 +1,4 @@
-# 🌎 OpenRisk Radar
+# 🌎 OpenRiskRadar
 
 **Real-time hazard intelligence for the places that matter.**
 
@@ -6,11 +6,52 @@
 [![Live App](https://img.shields.io/badge/live-openriskradar.com-1565c0)](https://openriskradar.com)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-OpenRisk Radar is an open-source geospatial situational-awareness platform that aggregates real-time natural hazard, severe weather, disaster, air-quality and environmental risk intelligence from authoritative global and U.S. data sources. It currently provides a browser-based operational map, feed explorer, risk summary, local saved locations, and source-specific adapters for official hazard feeds across weather alerts, earthquakes, disaster declarations, wildfires, convective outlooks, tropical cyclones, global disasters, Earth observation events, and environmental conditions.
+OpenRiskRadar is an open-source geospatial situational-awareness platform that aggregates public natural-hazard, severe-weather, disaster, air-quality, and environmental records from authoritative global and U.S. data sources. It currently provides a browser-based operational map, feed explorer, risk summary, local saved locations, and source-specific adapters for official hazard feeds across weather alerts, earthquakes, disaster declarations, wildfires, convective outlooks, tropical cyclones, global disasters, Earth observation events, and environmental conditions.
 
-**Live application:** [https://openriskradar.com](https://openriskradar.com)
+**Public website:** [https://openriskradar.com](https://openriskradar.com)
 
-**Quick Links:** [Architecture](#architecture) · [Data Sources](#live-data-sources) · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md)
+**Live radar:** [https://openriskradar.com/app](https://openriskradar.com/app)
+
+## Product tracks
+
+OpenRiskRadar has two intentionally separate product tracks.
+
+### OpenRiskRadar Web
+
+OpenRiskRadar Web is the existing open-source browser-first product. It is:
+
+- Free to use.
+- Open source.
+- Anonymous.
+- Browser-first.
+- No-account.
+- No authentication requirement.
+- No subscription requirement.
+- Independent of the native iOS product.
+
+The website is a first-class public product, not a demo or an incomplete placeholder.
+
+### OpenRiskRadar for iOS
+
+OpenRiskRadar for iOS is a separate Apple-native product track. It will draw on the web project for source research, risk normalization, incident correlation, and UX learnings, but it will be a true native SwiftUI application, not a WebView wrapper. Android is a possible future native product track, but it is not the current implementation priority.
+
+See [docs/native-app-strategy.md](docs/native-app-strategy.md) for the native app vision, CloudKit direction, and product boundaries.
+
+**Quick Links:** [Architecture](#architecture) · [Data Sources](#live-data-sources) · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md) · [Native App Strategy](docs/native-app-strategy.md) · [iOS Product Requirements](docs/ios-product-requirements.md)
+
+## Why OpenRiskRadar Web?
+
+OpenRiskRadar Web is built to deliver authoritative situational awareness without requiring user registration or backend accounts. It is designed to stay public, open source, and anonymous while continuing to improve:
+
+- authoritative data sources
+- risk event normalization
+- incident correlation and deduplication
+- maps and visualizations
+- risk summaries
+- local-only saved locations
+- accessibility and responsive design
+- public documentation
+- source attribution and developer experience
 
 ## Hero Screenshot
 
@@ -54,9 +95,9 @@ This table reflects the current codebase. "Main dashboard" means the source is f
 | Federal Emergency Management Agency (FEMA) | United States | Disaster declarations by state/county | Main dashboard, feed/detail; no event geometry | `src/services/fema.ts` |
 | National Interagency Fire Center (NIFC) | United States | Wildfires and prescribed burns by proximity | Main dashboard | `src/services/nifc.ts` |
 | Storm Prediction Center (SPC) | United States | Day 1-3 convective outlook polygons | Main dashboard | `src/services/spc.ts` |
-| National Hurricane Center (NHC) | Atlantic and Eastern/Central Pacific basins | Active tropical cyclones | Main dashboard when active/in range | `src/services/nhc.ts` |
+| National Hurricane Center (NHC) | Atlantic and Eastern/Central Pacific | Active tropical cyclones | Main dashboard when active/in range | `src/services/nhc.ts` |
 | Global Disaster Alert and Coordination System (GDACS) | Global | Earthquakes, tropical cyclones, floods, volcanoes, wildfires, droughts | Main dashboard | `src/services/gdacs.ts` |
-| NASA EONET | Global | Wildfires, storms, volcanoes, floods, ice, landslides, dust, drought and related Earth observation events | Main dashboard | `src/services/eonet.ts` |
+| NASA EONET | Global | Earth observation natural events | Main dashboard | `src/services/eonet.ts` |
 | Open-Meteo | Global | Weather fallback, air quality, marine conditions | Current conditions fallback and environmental signals panel | `src/services/openMeteo.ts` |
 | Nominatim / OpenStreetMap | Global | Geocoding and reverse geocoding | Location resolution fallback | `src/services/nominatim.ts` |
 | Local lookup tables | United States | ZIP/city/state/county/FIPS lookup | Fast location resolution | `src/data/` |
@@ -90,7 +131,7 @@ flowchart LR
 
 ### Technical Architecture
 
-OpenRisk Radar is a static React application. It calls public APIs directly from the browser, uses TanStack React Query for request caching and refresh behavior, normalizes event data into shared TypeScript models, and renders geospatial state with Leaflet/react-leaflet. Saved locations are local-only browser data stored in IndexedDB through Dexie. There is currently no backend database, scheduled worker, user account system, or server-side ingestion pipeline in the baseline deployment.
+OpenRiskRadar is a React application delivered as static assets. It calls most public APIs directly from the browser, uses TanStack React Query for request caching and refresh behavior, normalizes event data into shared TypeScript models, and renders geospatial state with Leaflet/react-leaflet. Saved locations are stored in browser IndexedDB through Dexie by default. Narrow Cloudflare Worker routes proxy browser-incompatible feeds, and the explicitly enabled cloud-watch feature uses a Worker, scheduled audits, D1, queues, and Web Push. There is no user account or authentication system.
 
 ## Stack
 
@@ -115,6 +156,22 @@ npm run dev
 Local app: `http://localhost:5173`
 
 Production app: [https://openriskradar.com](https://openriskradar.com)
+
+## Website routes and content
+
+- `/` is the public landing page.
+- `/app` lazy-loads the operational map dashboard.
+- `/learn` and `/learn/*` contain educational guides.
+- `/data-sources` and `/methodology` document providers and processing.
+- `/about`, `/privacy`, `/terms`, and `/contact` provide project and policy information.
+
+Cloudflare's static-asset SPA fallback serves `index.html` for direct route requests, while Worker execution remains limited to `/api/*`. The service worker treats `/app` as the installable application shell and does not replace uncached public pages with the dashboard when offline. See [docs/site-architecture.md](docs/site-architecture.md) and [docs/cloudflare-pages.md](docs/cloudflare-pages.md).
+
+Learning articles live in `src/data/learnArticles.ts`. Add metadata, original sections, authoritative source links, and a route entry in `src/routes.ts`, then add the canonical URL to `public/sitemap.xml`. Data-source cards are maintained in `src/data/dataSources.ts`; verify them against service adapters, provider documentation, and actual React Query cache settings.
+
+Copy `.env.example` to `.env.local` for optional configuration. `VITE_SITE_URL` controls canonical metadata and `VITE_CONTACT_EMAIL` enables a public contact link. Advertising is disabled by default. `VITE_GOOGLE_ADSENSE_CLIENT` alone does not activate ads: consent handling, CSP work, approved slot IDs, and a real publisher record are still required. `/app`, `/privacy`, `/terms`, `/contact`, and `/404` are intentionally ad-free. When approved, copy `public/ads.txt.example` to `public/ads.txt` and replace the placeholder with the exact account record.
+
+Before a production release, run `npm run lint`, `npm test`, `npm run build`, `npm run worker:check`, and the deployed `npm run smoke:production`. Manually verify direct refreshes, browser navigation, saved locations, API responses, service-worker upgrades, metadata, sitemap, robots, and the apex/`www` redirect.
 
 ## Available Scripts
 
@@ -156,8 +213,8 @@ MIT License. See [LICENSE](LICENSE).
 
 ## Data Provider Acknowledgments
 
-OpenRisk Radar depends on public data and APIs from the National Weather Service, U.S. Geological Survey, FEMA, National Interagency Fire Center, NOAA Storm Prediction Center, National Hurricane Center, GDACS, NASA EONET, Open-Meteo, Nominatim/OpenStreetMap, and OpenStreetMap tile contributors. Each provider retains ownership of its data and terms of use.
+OpenRiskRadar depends on public data and APIs from the National Weather Service, U.S. Geological Survey, FEMA, National Interagency Fire Center, NOAA Storm Prediction Center, National Hurricane Center, GDACS, NASA EONET, Open-Meteo, Nominatim/OpenStreetMap, and OpenStreetMap tile contributors. Each provider retains ownership of its data and terms of use.
 
 ## Support
 
-If OpenRisk Radar is useful to you, please star the repository: [github.com/SecuritahGuy/openrisk-radar](https://github.com/SecuritahGuy/openrisk-radar).
+If OpenRiskRadar is useful to you, please star the repository: [github.com/SecuritahGuy/openrisk-radar](https://github.com/SecuritahGuy/openrisk-radar).

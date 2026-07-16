@@ -1,0 +1,65 @@
+import { Breadcrumbs, Disclaimer, GITHUB_URL, PageHero, SiteLayout } from "../components/site/SiteLayout";
+import { Seo } from "../components/site/Seo";
+import { dataSources } from "../data/dataSources";
+import { Link } from "../router";
+
+export function DataSourcesPage() {
+  return <SiteLayout><Seo path="/data-sources" title="Data Sources | OpenRisk Radar" description="Review the public hazard, weather, environmental, mapping, and geocoding sources used by OpenRisk Radar, including handling and limitations." />
+    <PageHero eyebrow="Transparency" title="Data Sources" description="The dashboard requests public and openly available feeds. Each provider remains authoritative for its own records, documentation, and reuse terms." />
+    <section className="section"><div className="site-container"><Disclaimer /><div className="source-grid">{dataSources.map((source) => <article className="source-card" key={source.name}><div className="source-card-header"><div><p className="eyebrow">{source.organization}</p><h2>{source.name}</h2></div><a href={source.url} target="_blank" rel="noreferrer">Official source</a></div><dl><div><dt>Signals</dt><dd>{source.eventTypes}</dd></div><div><dt>Coverage</dt><dd>{source.coverage}</dd></div><div><dt>App refresh</dt><dd>{source.refresh}</dd></div><div><dt>Format</dt><dd>{source.format}</dd></div><div><dt>Attribution</dt><dd>{source.attribution}</dd></div><div><dt>Known limits</dt><dd>{source.limitations}</dd></div><div><dt>OpenRisk handling</dt><dd>{source.handling}</dd></div></dl></article>)}</div></div></section>
+  </SiteLayout>;
+}
+
+export function MethodologyPage() {
+  return <SiteLayout><Seo path="/methodology" title="Methodology | OpenRisk Radar" description="Learn how OpenRisk Radar retrieves, normalizes, filters, correlates, caches, and displays public risk and hazard records." />
+    <PageHero eyebrow="How the dashboard works" title="Methodology" description="A source-grounded explanation of what the application does—and what it deliberately does not do." />
+    <InfoArticle>
+      <section><h2>Retrieval and refresh</h2><p>Source-specific TypeScript adapters request public APIs from the browser. Browser-incompatible FEMA, NOAA, and Meteoalarm feeds use narrow Cloudflare Worker proxy routes. TanStack React Query caches results by source, location, and radius. Cache windows range from about one minute for some active feeds to 24 hours for baseline and historical datasets. Manual refresh starts new eligible requests but cannot make a provider publish sooner.</p></section>
+      <section><h2>Normalization and categories</h2><p>Records used in the shared feed are mapped into a common <code>RiskEvent</code> shape: source, provider ID, type, category, severity, headline, description, geometry, timing, source URL, and confidence. Categories are assigned with provider-specific mappings. Supplemental observations retain additional metrics outside the common event shape.</p></section>
+      <section><h2>Geographic handling</h2><p>Location searches first use bundled U.S. ZIP and city tables, then Nominatim when needed. Feeds may be queried by state, point, radius, bounding box, or provider-specific region. Point distance, polygon intersection, and administrative scope are not interchangeable; the interface preserves these differences where possible.</p></section>
+      <section><h2>Correlation and duplication</h2><p>The incident layer groups selected nearby, time-related events and chooses canonical representations for display. It does not guarantee that every duplicate across providers is identified. Source records remain available because differing measurements or updates can carry useful context.</p></section>
+      <section><h2>Severity, time, and expiration</h2><p>Provider severity fields are retained or mapped into Minor, Moderate, Severe, and Extreme display levels. Source-specific logic may infer a display severity from documented thresholds or event types. Active-concern filtering considers timing and expiration, but missing or inconsistent timestamps remain a source limitation.</p></section>
+      <section><h2>What OpenRisk Radar does not do</h2><ul><li>It does not independently verify every event.</li><li>It does not predict disasters or individual impacts.</li><li>It does not provide complete global coverage.</li><li>It does not replace official alerts, emergency services, evacuation maps, or professional analysis.</li><li>It does not guarantee that upstream records are timely, unique, accurate, or continuously available.</li></ul></section>
+      <Disclaimer />
+    </InfoArticle>
+  </SiteLayout>;
+}
+
+export function AboutPage() {
+  return <SiteLayout><Seo path="/about" title="About OpenRisk Radar" description="OpenRisk Radar is an open-source, privacy-conscious project that organizes public hazard feeds for practical situational awareness." /><PageHero eyebrow="About the project" title="Calmer context for fragmented public risk data" description="OpenRisk Radar is an open-source project built to make public hazard and environmental information easier to inspect around a place." /><InfoArticle><section><h2>Mission</h2><p>Weather warnings, earthquakes, fires, floods, disaster records, and environmental observations live across many provider systems. OpenRisk Radar brings selected feeds into one interface while keeping source attribution and limitations visible.</p></section><section><h2>Open and privacy-conscious</h2><p>The web application is public, requires no account, and stores saved locations in the browser by default. Its source code is available for review, contribution, and reuse under the repository license.</p><p><a href={GITHUB_URL} target="_blank" rel="noreferrer">View the project on GitHub</a>.</p></section><section><h2>Contribute or report a problem</h2><p>Use GitHub Issues for reproducible bugs, inaccurate source descriptions, accessibility problems, or feature proposals. Do not post private information or urgent emergency reports.</p><p><a href={`${GITHUB_URL}/issues`} target="_blank" rel="noreferrer">Open GitHub Issues</a> or read the repository’s contribution guide.</p></section></InfoArticle></SiteLayout>;
+}
+
+export function PrivacyPage() {
+  return <SiteLayout><Seo path="/privacy" title="Privacy | OpenRisk Radar" description="Learn how OpenRisk Radar uses browser storage, location permission, public APIs, optional cloud watches, and hosting infrastructure." /><PageHero eyebrow="Last reviewed July 16, 2026" title="Privacy" description="This policy distinguishes current behavior from features that may be introduced later." /><InfoArticle>
+    <section><h2>Browser storage</h2><p>Saved locations are stored in IndexedDB on your device. View preferences, visit comparisons, and limited offline snapshots use local storage. The service worker caches the application shell and static assets. Clearing browser site data can remove these records.</p></section>
+    <section><h2>Location and searches</h2><p>If you choose “Use my location,” the browser asks for geolocation permission and supplies coordinates to the application. Place searches and coordinates may be sent to public data providers to return nearby information. Nominatim may receive search text or coordinates when local lookup is insufficient.</p></section>
+    <section><h2>Optional cloud watches and notifications</h2><p>When you explicitly enable a cloud watch, location coordinates, radius, watch preferences, and an opaque secret are registered with the Cloudflare Worker and D1 database so scheduled audits can run. Enabling push notifications also registers a browser push subscription. These records remain until you remove the watch, subject to operational backups and platform retention.</p></section>
+    <section><h2>Hosting, providers, and logs</h2><p>The site and Worker are hosted on Cloudflare. Cloudflare and upstream public APIs may process IP addresses, request metadata, and standard logs under their own policies. OpenRisk Radar does not currently include Google Analytics or an advertising script in the repository.</p></section>
+    <section><h2>Cookies and advertising</h2><p>The application does not currently set an advertising cookie. AdSense support is only preparatory and disabled without production configuration and consent handling. If advertising or analytics is enabled later, this policy and consent controls should be updated before collection begins.</p></section>
+    <section><h2>Your choices</h2><ul><li>Decline browser location permission and search manually.</li><li>Do not enable cloud watches or push notifications.</li><li>Delete saved locations in the app or clear site data in browser settings.</li><li>Use GitHub Issues for privacy questions without posting sensitive information.</li></ul></section>
+  </InfoArticle></SiteLayout>;
+}
+
+export function TermsPage() {
+  return <SiteLayout><Seo path="/terms" title="Terms | OpenRisk Radar" description="Plain-language terms for informational use of OpenRisk Radar and its third-party public data." /><PageHero eyebrow="Last reviewed July 16, 2026" title="Terms of Use" description="These plain-language terms should receive final legal review before being treated as formal terms for an operating entity." /><InfoArticle>
+    <section><h2>Informational use only</h2><p>OpenRisk Radar provides public data for general situational awareness. It is not an official alert service, emergency dispatcher, evacuation system, or substitute for professional advice. Contact the appropriate emergency service when help is needed.</p></section>
+    <section><h2>Third-party data and no warranty</h2><p>Records come from third-party providers and may be delayed, incomplete, duplicated, inaccurate, unavailable, or revised. The service is provided “as is” without a guarantee of availability, completeness, fitness for a particular purpose, or accuracy.</p></section>
+    <section><h2>Your responsibility</h2><p>You are responsible for checking original sources and official local instructions before making travel, safety, financial, operational, or emergency decisions. Do not misuse the service, disrupt access, circumvent controls, or use it unlawfully.</p></section>
+    <section><h2>Open-source software</h2><p>The repository’s source code is available under its stated open-source license. Third-party data, services, trademarks, and content remain subject to their respective owners’ terms.</p></section>
+    <section><h2>Liability and changes</h2><p>To the extent permitted by applicable law, the project contributors and future operating entity are not liable for losses arising from use of, inability to use, or reliance on the service. Features and these terms may change; a reviewed date will identify material updates.</p></section>
+    <aside className="legal-note"><strong>Owner action:</strong> replace any required entity placeholders and obtain legal review before commercial launch.</aside>
+  </InfoArticle></SiteLayout>;
+}
+
+export function ContactPage() {
+  const email = import.meta.env.VITE_CONTACT_EMAIL?.trim();
+  return <SiteLayout><Seo path="/contact" title="Contact | OpenRisk Radar" description="Report OpenRisk Radar bugs, data-source issues, accessibility problems, or responsible security concerns through the appropriate channel." /><PageHero eyebrow="Contact" title="Start with the right channel" description="OpenRisk Radar cannot receive emergency reports. Contact local emergency services or the issuing authority for urgent help." /><InfoArticle><section><h2>Project questions and bugs</h2><p>Use GitHub Issues for reproducible application bugs, documentation corrections, data-source problems, or accessibility feedback.</p><p><a className="button" href={`${GITHUB_URL}/issues`} target="_blank" rel="noreferrer">Open GitHub Issues</a></p></section><section><h2>Security concerns</h2><p>Follow the private reporting instructions in the repository’s security policy. Do not publish exploit details or personal information in a public issue.</p><p><a href={`${GITHUB_URL}/security/policy`} target="_blank" rel="noreferrer">Read the security policy</a></p></section>{email && <section><h2>General contact</h2><p><a href={`mailto:${email}`}>{email}</a></p></section>}</InfoArticle></SiteLayout>;
+}
+
+export function NotFoundPage() {
+  return <SiteLayout><Seo path="/404" title="Page Not Found | OpenRisk Radar" description="The requested OpenRisk Radar page could not be found." noIndex /><section className="not-found"><div className="site-container narrow"><p className="eyebrow">404</p><h1>That page is not on the radar.</h1><p>The address may be outdated or mistyped.</p><div className="button-row"><Link to="/" className="button">Return home</Link><Link to="/app" className="button button-secondary">Open Live Radar</Link></div></div></section></SiteLayout>;
+}
+
+function InfoArticle({ children }: { children: React.ReactNode }) {
+  return <section className="section"><div className="site-container info-layout"><Breadcrumbs items={[{ label: "Home", to: "/" }]} /><div className="article-body">{children}</div></div></section>;
+}

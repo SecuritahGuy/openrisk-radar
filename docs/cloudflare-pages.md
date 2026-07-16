@@ -16,7 +16,7 @@ The checked-in `wrangler.jsonc` is the source of truth for the Worker name, entr
 
 Cloudflare deploys the generated static files with the API Worker in one operation.
 
-- Do not add a catch-all `_redirects` rule for the SPA shell. Cloudflare Pages already serves the root app for unknown paths when there is no top-level `404.html`, and `/* /index.html 200` can fail validation as an infinite loop.
+- Do not add a catch-all `_redirects` rule for the SPA shell. `wrangler.jsonc` sets static asset `not_found_handling` to `single-page-application`, which serves the Vite shell for `/app` and public content routes without routing assets through the Worker.
 - `_headers` adds browser security headers, allows the current feed/map domains, and marks hashed assets as immutable.
 
 ## Current Runtime Shape
@@ -66,12 +66,18 @@ return the expected content type instead of falling through to `index.html`.
 - Watch Pages Functions request volume after release. The static site remains
   outside that quota because `_routes.json` includes only `/api/*`.
 
-## Offline Shell
+## Public Routes and Offline Shell
 
-The app ships a small web app manifest and service worker. It caches only the
-application shell and hashed same-origin assets. Live feed calls are never
-cached by the service worker, so offline rendering cannot be mistaken for live
-hazard data.
+The public landing page is `/`; the operational dashboard is `/app`. Direct
+refreshes work through the static asset SPA fallback. `_routes.json` and
+`assets.run_worker_first` remain limited to `/api/*`, so public HTML and static
+assets do not consume API Worker invocations.
+
+The manifest starts at `/app`. The service worker pre-caches that exact shell
+and hashed same-origin assets. Successful public page navigations are cached by
+their exact URL, but an uncached content route receives a plain offline response
+instead of the dashboard shell. Live feed calls are never cached by the service
+worker, so offline rendering cannot be mistaken for current hazard data.
 
 ## Required Public Assets
 

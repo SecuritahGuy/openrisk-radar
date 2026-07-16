@@ -36,6 +36,7 @@ import {
   sendTestPush,
 } from "./services/pushNotifications";
 import { watchPreferencesFor } from "./lib/watchPreferences";
+import "leaflet/dist/leaflet.css";
 
 const MapView = lazy(() =>
   import("./components/MapView").then((module) => ({ default: module.MapView }))
@@ -809,8 +810,8 @@ export default function App() {
 const styles: Record<string, React.CSSProperties> = {
   root: {
     display: "flex",
-    height: "100vh",
-    width: "100vw",
+    height: "100%",
+    width: "100%",
     overflow: "hidden",
     fontFamily: "system-ui, -apple-system, sans-serif",
   },
