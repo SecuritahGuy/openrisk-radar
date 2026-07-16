@@ -1,6 +1,6 @@
 // EXPERIMENT ONLY — comprehensive endpoint validation
 // node --experimental-strip-types experiments/state-packs/validate-all.ts
-// Tests every source endpoint across all 21 state packs.
+// Tests every source endpoint across all 26 state packs.
 
 import { getAllPacks } from "./stateRegistry.ts";
 import type { StateSourceDefinition, SourceStatus } from "./types.ts";

@@ -22,7 +22,7 @@ national feeds rather than duplicating them.
 | File | Purpose |
 |------|---------|
 | `types.ts` | `StateIntelligencePack`, `StateSourceDefinition`, capability/output/access enums, authority ranking |
-| `stateRegistry.ts` | Pack configurations for all 21 states with 136 sources |
+| `stateRegistry.ts` | Pack configurations for all 26 states with 169 sources |
 | `authorityHierarchy.ts` | Source authority hierarchy (Local > State > Federal > International) and dedup logic |
 | `stateResolver.ts` | Activation logic: given a location or assets, which packs fire |
 | `validate.ts` | Quick smoke-test: CAL FIRE + CDEC + CAISO + resolver demo |
@@ -74,8 +74,13 @@ are retained as corroborating.
 | VA | 7 | VDOT SmarterRoads | VDOF IFRIS | DEQ EDMA ArcGIS | Dominion (portal) | — | DEQ air quality | USGS FDSN | — | NWS CWF | — |
 | OH | 7 | OHGO API | NWS alerts | USGS OH | FirstEnergy (portal) | — | BeachGuard HABs | USGS FDSN | — | NWS GLF | — |
 | ID | 5 | ITD ArcGIS | IDL FireLayers | USGS ID | ID Power (portal) | — | — | USGS FDSN | — | — | — |
+| SC | 7 | SCDOT KML | SCFC FireResponse | USGS SC | Dominion SC (portal) | — | Beach advisories | USGS FDSN | — | NWS CWF | — |
+| IN | 6 | INDOT CARS XML | NWS alerts | IDEM AIMS + USGS | FirstEnergy (portal) | — | — | USGS FDSN | — | — | — |
+| MD | 7 | CHART ArcGIS | NWS alerts | DNR + MDE ArcGIS | BGE (portal) | — | — | USGS FDSN | — | NWS CBF | — |
+| LA | 7 | LA 511 v2 | LDAF (NIFC IRWIN) | USGS LA | Entergy (portal) | — | NWS alerts | USGS FDSN | — | NWS Gulf | NHC |
+| MO | 6 | MoDOT ArcGIS | NWS alerts | USGS MO | Ameren (portal) | — | NWS alerts | USGS FDSN | — | — | — |
 
-All endpoints live-probed and validated, **99 validated** and **37 discovered** across 21 states (136 sources). Every state pack is ready to build — no research-required or error statuses remain.
+All endpoints live-probed and validated, **124 validated** and **45 discovered** across 26 states (169 sources). Every state pack is ready to build — no research-required or error statuses remain.
 
 ## Status legend
 
@@ -90,13 +95,13 @@ All endpoints live-probed and validated, **99 validated** and **37 discovered** 
 # Quick smoke test (CAL FIRE + CDEC + CAISO + resolver)
 node --experimental-strip-types experiments/state-packs/validate.ts
 
-# Full endpoint validation (all 136 sources)
+# Full endpoint validation (all 169 sources)
 node --experimental-strip-types experiments/state-packs/validate-all.ts
 ```
 
 The quick test checks the live CAL FIRE Incidents API, CDEC station metadata,
 CAISO outlook page, runs the resolver for a Sacramento search, demonstrates
-saved-asset dedup, resolves the authority hierarchy, and logs all 21 state
+saved-asset dedup, resolves the authority hierarchy, and logs all 26 state
 packs. The full test probes every source endpoint and proposes status changes.
 
 ## Relationship to traffic experiment
