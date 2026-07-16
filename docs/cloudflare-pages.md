@@ -58,9 +58,10 @@ return the expected content type instead of falling through to `index.html`.
 ## Free Dashboard Features
 
 - Enable Pages build caching in Workers & Pages → project → Settings → Builds.
-- Enable Cloudflare Web Analytics for privacy-first page and Web Vitals data.
-  Do not add searched cities, ZIP codes, coordinates, or shared-view query
-  strings as analytics dimensions.
+- Cloudflare Web Analytics is enabled at the hosting layer for page and Web
+  Vitals data. Its beacon is injected at the edge rather than by repository
+  code. Do not add searched cities, ZIP codes, coordinates, saved-place labels,
+  or shared-view query strings as analytics dimensions.
 - Keep preview deployments enabled for pull requests and test a real location
   search before promoting a deployment.
 - Watch Pages Functions request volume after release. The static site remains

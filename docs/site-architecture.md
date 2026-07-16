@@ -47,7 +47,7 @@ The existing CSP was not weakened. AdSense is not currently compatible with its 
 
 ## Privacy and analytics
 
-No analytics loader was added. Cloudflare Web Analytics is the recommended privacy-conscious first option if the owner enables analytics. It should not record search text, ZIP codes, coordinates, saved-place labels, or dashboard query strings as custom dimensions. The privacy policy must be updated before any materially different collection begins.
+No repository analytics loader was added. Production currently has Cloudflare Web Analytics enabled at the hosting layer, and Cloudflare automatically injects its Real User Monitoring beacon into HTML responses. Cloudflare documents that this beacon collects page-view and browser performance measurements without storing or accessing cookies, local storage, session storage, or IndexedDB; request IP addresses are discarded at the nearest Cloudflare data center rather than retained in the analytics databases. The project does not configure search text, ZIP codes, coordinates, or saved-place labels as custom dimensions. The privacy policy must be updated before any materially different collection begins.
 
 The privacy page documents browser storage, geolocation, third-party requests, Cloudflare hosting, and the opt-in D1-backed cloud-watch and push-notification implementation. It does not claim that the project has no server-side storage.
 
