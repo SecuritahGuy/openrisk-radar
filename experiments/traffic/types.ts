@@ -66,6 +66,7 @@ export interface TransportationRiskEvent {
   url: string | null;
   confidence: Confidence;
   transportation: TransportationDetails;
+  raw: Record<string, unknown>;
 }
 
 export interface TrafficFlowSegment {
