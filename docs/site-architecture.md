@@ -43,7 +43,7 @@ Because this remains a client-rendered SPA, crawlers that do not execute JavaScr
 
 Advertising is disabled. `src/config/advertising.ts` explicitly marks content routes as eligible and `/app`, `/privacy`, `/terms`, `/contact`, and `/404` as excluded. `AdSlot` renders nothing without a production publisher configuration and currently has no live loader or slot IDs. Consent handling must be implemented before an AdSense loader is introduced. `public/ads.txt.example` is documentation only; there is no published fake record.
 
-The existing CSP was not weakened. AdSense is not currently compatible with its strict `script-src 'self'` policy. A future implementation should use Cloudflare middleware to create a cryptographically random per-response nonce, attach it to approved scripts, keep route-based script exclusion, and add only the exact Google origins required by current AdSense documentation. Do not use `script-src *` or add broad origins to routes that do not load advertising.
+The CSP remains strict. Production review confirmed that Cloudflare injects its current Web Analytics beacon at the edge, so `script-src` permits the single documented `https://static.cloudflareinsights.com` origin in addition to same-origin scripts. AdSense remains blocked. A future advertising implementation should use Cloudflare middleware to create a cryptographically random per-response nonce, attach it to approved scripts, keep route-based script exclusion, and add only the exact Google origins required by current AdSense documentation. Do not use `script-src *` or add broad origins to routes that do not load advertising.
 
 ## Privacy and analytics
 
