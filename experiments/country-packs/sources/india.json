@@ -79,8 +79,8 @@
       "proxyRequired": true,
       "attribution": "Central Water Commission, India",
       "termsUrl": "https://ffs.india-water.gov.in/",
-      "status": "research-required",
-      "notes": "CWC Flood Forecasting portal. The live API subdomain (live.ffs.india-water.gov.in) had DNS issues. Web portal may require scraping. Check NWDP CKAN for river discharge alternatives."
+      "status": "broken",
+      "notes": "CWC Flood Forecasting portal. ffs.india-water.gov.in and aff.india-water.gov.in confirmed unreachable (DNS/transport errors). inf.cwc.gov.in returns 401 (requires auth). CWC flood warnings were severely impacted in June 2026 monsoon. NWDP CKAN (nwdp.nwic.gov.in) is the primary working alternative — serves CWC telemetry river water level data as CSV via CKAN API. Also see in-nwdp-cwc-river-level for direct data access."
     },
     {
       "id": "in-nwdp-water-data",
@@ -96,7 +96,23 @@
       "attribution": "National Water Informatics Centre (NWIC)",
       "termsUrl": "https://nwdp.nwic.gov.in/",
       "status": "discovered",
-      "notes": "CKAN API listing all water datasets from CWC, CGWB, CPCB. Groundwater, rainfall, reservoir levels, river discharge data available."
+      "notes": "CKAN API listing 532+ water datasets from CWC, CGWB, CPCB. Use package_show?id={name} for resource URLs. CWC river water level telemetry data updated through May 30, 2026. All datasets available as CSV download via CKAN resource API. No API key required."
+    },
+    {
+      "id": "in-nwdp-cwc-river-level",
+      "authority": "National Water Data Portal (NWIC) / CWC",
+      "coverage": { "countries": ["IN"] },
+      "capability": "water",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://nwdp.nwic.gov.in/api/3/action/package_show?id=river-water-level-telemetry-hourly-central-water-commission-cwc",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Central Water Commission, India / NWIC",
+      "termsUrl": "https://nwdp.nwic.gov.in/dataset/river-water-level-telemetry-hourly-central-water-commission-cwc",
+      "status": "discovered",
+      "notes": "CKAN package_show for CWC river water level telemetry data (hourly). Returns JSON with 58 resources covering all river basins — Subernarekha, Brahmani, Mahanadi, Godavari, Krishna, Pennar, Cauvery, Tapi, Narmada, Mahi, Sabarmati, West/East flowing rivers, Yamuna. Data periods: 2021-2025 and 2026-2030 CSVs. Replace the NWDP FFS portal for real-time water levels."
     },
     {
       "id": "in-cpcb-air-quality",
@@ -127,8 +143,8 @@
       "proxyRequired": false,
       "attribution": "Ministry of Earth Sciences / INCOIS",
       "termsUrl": "https://incois.gov.in/",
-      "status": "research-required",
-      "notes": "INCOIS tsunami early warning portal. JSON API at tsunami.incois.gov.in appears intermittently unreachable. Ocean State Forecast at incois.gov.in/oceanservices/osfforecast.jsp. Alternative: USGS earthquake feed for Indian Ocean region."
+      "status": "discovered",
+      "notes": "INCOIS main site works. Key sub-services: (1) Ocean State Forecast at /site/services/osf.jsp — 5-10 day wave/wind/current/SST forecasts. (2) RSMC NetCDF data download at /oceanservices/rsmc_download.jsp — daily WW3 wave and HYCOM current NetCDF via THREDDS at /thredds/catalog.html. (3) Location-specific forecasts at /site/services/LSFImages.jsp — GIF images for fish landing centres. (4) Port/harbour forecasts at sarat.incois.gov.in/OSF/. (5) ESSDP data portal at /essdp/ — 1,047 MoES datasets. Subdomains tsunami.incois.gov.in, erddap.incois.gov.in, las.incois.gov.in, io50.incois.gov.in are unreachable."
     }
   ]
 }
