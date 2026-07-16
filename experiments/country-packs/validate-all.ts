@@ -4,6 +4,8 @@
 import { getAllPacks } from "./countryRegistry.ts";
 import type { CountrySourceDefinition } from "./types.ts";
 
+type ResultCategory = "alive" | "redirect" | "api-key" | "dead";
+
 interface ValidationResult {
   source: CountrySourceDefinition;
   countryCode: string;
@@ -13,9 +15,10 @@ interface ValidationResult {
   contentType: string | null;
   bodySample: string | null;
   notes: string;
+  category: ResultCategory;
 }
 
-const TIMEOUT = 10000;
+const TIMEOUT = 40000;
 
 function statusCategory(code: number | null): "success" | "client-error" | "server-error" | "network-error" | "redirect" {
   if (code === null) return "network-error";
@@ -39,6 +42,7 @@ async function validateSource(
     contentType: null,
     bodySample: null,
     notes: "",
+    category: "dead",
   };
 
   try {
@@ -55,12 +59,17 @@ async function validateSource(
     if (cat === "redirect") {
       const location = res.headers.get("location") ?? "(no location)";
       result.notes = `Redirected (${res.status}) → ${location}`;
+      result.category = "redirect";
       return result;
     }
 
     if (cat === "client-error") {
       if (res.status === 401 || res.status === 403) {
         result.notes = `HTTP ${res.status} — endpoint exists but requires authentication/API key`;
+        if (source.access === "api-key") result.category = "api-key";
+      } else if (res.status === 400 && source.access === "api-key") {
+        result.notes = `HTTP 400 — endpoint expects API key`;
+        result.category = "api-key";
       } else if (res.status === 429) {
         result.notes = `HTTP 429 — rate limited`;
       } else {
@@ -74,6 +83,7 @@ async function validateSource(
       return result;
     }
 
+    result.category = "alive";
     const body = await res.text();
     result.bodySample = body.slice(0, 300);
 
@@ -151,10 +161,13 @@ async function main() {
     allResults.push(...results);
 
     for (const r of results) {
-      const statusIcon =
-        r.httpStatus && r.httpStatus >= 200 && r.httpStatus < 300 ? "✅" :
-        r.httpStatus && r.httpStatus >= 300 && r.httpStatus < 400 ? "🔶" :
-        r.httpStatus ? "❌" : "❌";
+      const iconMap: Record<ResultCategory, string> = {
+        alive: "✅",
+        redirect: "🔶",
+        "api-key": "🔑",
+        dead: "❌",
+      };
+      const statusIcon = iconMap[r.category] ?? "❌";
       const httpStr = r.httpStatus ? `HTTP ${r.httpStatus}` : r.error ?? "no-conn";
 
       console.log(`  ${statusIcon} ${r.source.id}`);
@@ -164,15 +177,17 @@ async function main() {
   }
 
   const total = allResults.length;
-  const alive = allResults.filter(r => r.httpStatus && r.httpStatus >= 200 && r.httpStatus < 400).length;
-  const dead = allResults.filter(r => !r.httpStatus || r.httpStatus >= 400).length;
+  const alive = allResults.filter(r => r.category === "alive" || r.category === "redirect").length;
+  const needKey = allResults.filter(r => r.category === "api-key").length;
+  const dead = allResults.filter(r => r.category === "dead").length;
 
   console.log(`\n\n=== SUMMARY ===`);
   console.log(`  Total:  ${total}`);
   console.log(`  Alive:  ${alive}`);
+  console.log(`  ⚷ Key:  ${needKey}`);
   console.log(`  Dead:   ${dead}`);
 
-  const deadResults = allResults.filter(r => !r.httpStatus || r.httpStatus >= 400);
+  const deadResults = allResults.filter(r => r.category === "dead");
   if (deadResults.length > 0) {
     console.log(`\n  Dead endpoints:`);
     for (const r of deadResults) {

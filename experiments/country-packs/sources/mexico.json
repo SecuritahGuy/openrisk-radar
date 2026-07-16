@@ -67,22 +67,6 @@
       "notes": "SMN weather web services. Tropical cyclone forecasts, weather alerts. Also satellite imagery and radar. Potential JSON endpoints available through their web services."
     },
     {
-      "id": "mx-cfe-grid",
-      "authority": "CFE (Comisión Federal de Electricidad)",
-      "coverage": { "countries": ["MX"] },
-      "capability": "grid",
-      "outputModel": "supplemental-signal",
-      "access": "research-required",
-      "format": "html",
-      "endpoint": "https://www.cfe.mx/",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "CFE",
-      "termsUrl": "https://www.cfe.mx/",
-      "status": "discovered",
-      "notes": "CFE grid status and outage information. No public API found — web portal only. CENACE (operador del sistema) at cenace.gob.mx publishes some operational data."
-    },
-    {
       "id": "mx-usgs-earthquakes",
       "authority": "USGS Earthquake Hazards Program",
       "coverage": { "countries": ["MX"] },

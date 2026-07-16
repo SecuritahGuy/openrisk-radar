@@ -131,22 +131,6 @@
       "notes": "ECan EMAR ArcGIS MapServer: monitoring sites, bore references, water management zones, air quality zones. Supports WFS."
     },
     {
-      "id": "nz-niwa-hydro-gis",
-      "authority": "NIWA",
-      "coverage": { "countries": ["NZ"] },
-      "capability": "water",
-      "outputModel": "supplemental-signal",
-      "access": "research-required",
-      "format": "arcgis",
-      "endpoint": "https://gis.niwa.co.nz/server/rest/services/HYDRO/NZ_Rivers_and_Names/FeatureServer/0/query?where=1%3D1&outFields=*&f=json&resultRecordCount=1",
-      "refreshSeconds": 86400,
-      "proxyRequired": true,
-      "attribution": "NIWA",
-      "termsUrl": "https://niwa.co.nz/",
-      "status": "research-required",
-      "notes": "NIWA Hydro GIS FeatureServer — slow/timeout from external networks. May require proxy or whitelisting. NZ rivers, catchments, watershed boundaries."
-    },
-    {
       "id": "nz-nasa-firms-wildfire",
       "authority": "NASA FIRMS",
       "coverage": { "countries": ["NZ"] },

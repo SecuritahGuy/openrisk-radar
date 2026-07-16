@@ -110,25 +110,9 @@
       "refreshSeconds": 3600,
       "proxyRequired": false,
       "attribution": "RIVM",
-      "termsUrl": "https://inspire.rivm.nl/sos/eaq/",
+      "termsUrl": "https://www.samenmeten.nl/",
       "status": "discovered",
-      "notes": "RIVM OGC SOS (Sensor Observation Service) for air quality. INSPIRE-compliant AQD service. Supports GetCapabilities, GetObservation, DescribeSensor. Offers data from RIVM stations (NL.RIVM.AQ/...). Returns XML/SensorML. Can be used for EEA reporting."
-    },
-    {
-"id": "nl-rijkswaterstaat-water",
-      "authority": "Rijkswaterstaat",
-      "coverage": { "countries": ["NL"] },
-      "capability": "water",
-      "outputModel": "supplemental-signal",
-      "access": "public",
-      "format": "json",
-      "endpoint": "https://rijkswaterstaatdata.nl/waterdata/v1/",
-      "refreshSeconds": 600,
-      "proxyRequired": false,
-      "attribution": "Rijkswaterstaat",
-      "termsUrl": "https://rijkswaterstaatdata.nl/waterdata/",
-      "status": "research-required",
-      "notes": "Rijkswaterstaat Waterwebservices (since Dec 2025). POST-based JSON API — HTTP GET returns 405. Use POST with JSON body {AquoPlusWaarnemingMetadata, Locatie, Periode}. Covers water level (WATHTE), discharge (DEBIET), wave height, salinity, temperature. Optional X-A PI-KEY header for future rate limiting."
+      "notes": "Same meets results (Samen Meten) — geographic-enabled air quality observations."
     },
     {
       "id": "nl-rijkswaterstaat-water-wfs",
