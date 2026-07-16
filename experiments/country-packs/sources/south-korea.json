@@ -116,19 +116,19 @@
     },
     {
       "id": "kr-khoa-tide",
-      "authority": "KHOA (Korea Hydrographic and Oceanographic Agency)",
+      "authority": "KHOA / data.go.kr",
       "coverage": { "countries": ["KR"] },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "api-key",
       "format": "json",
-      "endpoint": "https://www.khoa.go.kr/api/tide/tideObsRecent.do",
+      "endpoint": "https://apis.data.go.kr/1192136/tidebed/GetTidebedApiService?serviceKey=${SERVICE_KEY}&numOfRows=10&pageNo=1&resultType=json",
       "refreshSeconds": 3600,
       "proxyRequired": false,
-      "attribution": "KHOA",
-      "termsUrl": "https://www.khoa.go.kr/",
+      "attribution": "KHOA / data.go.kr",
+      "termsUrl": "https://www.data.go.kr/en/data/15156026/openapi.do",
       "status": "discovered",
-      "notes": "KHOA tide observation recent data API. Free API key from data.go.kr. Real-time tide levels, sea surface temperature, wave height from coastal stations."
+      "notes": "KHOA TideBED 1-min tide level forecast API via data.go.kr. Requires free service key from data.go.kr/en/data/15156026/openapi.do. Parameters: lat, lon, reqDate, min interval."
     },
     {
       "id": "kr-airkorea-quality",

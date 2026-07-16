@@ -35,8 +35,8 @@ worker/       — Cloudflare Workers entry point
 functions/    — Pages Functions (imported by worker)
 migrations/   — D1 (SQLite on Cloudflare) schema migrations
 experiments/  — research scaffolds, NOT part of the web app
-  state-packs/  — 51 US state packs (331 sources, all 50+DC)
-  country-packs/ — 6 country packs (35 sources, CA/GB/MX/AU/JP/DE)
+  state-packs/  — 51 US state packs (331 sources, JSON files in sources/)
+  country-packs/ — 11 country packs (82 sources, JSON files in sources/)
   traffic/      — traffic incident research
 ```
 
@@ -56,7 +56,7 @@ npx tsx experiments/country-packs/validate.ts
 npx tsx experiments/country-packs/validate-all.ts
 ```
 
-Country source files are JSON: `experiments/country-packs/sources/{country}.json`. Registry auto-loads all `.json` files from that directory. Add a new country by creating a new JSON file there.
+State and country source files are JSON: `experiments/{state-packs,country-packs}/sources/{code}.json`. Each registry auto-loads all `.json` files from its `sources/` directory. Add a new state or country by creating a new JSON file there.
 
 ## Testing
 

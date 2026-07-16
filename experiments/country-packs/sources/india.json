@@ -73,14 +73,14 @@
       "capability": "water",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "json",
-      "endpoint": "https://live.ffs.india-water.gov.in/ffsapi/",
-      "refreshSeconds": 900,
-      "proxyRequired": false,
+      "format": "html",
+      "endpoint": "https://ffs.india-water.gov.in/",
+      "refreshSeconds": 3600,
+      "proxyRequired": true,
       "attribution": "Central Water Commission, India",
       "termsUrl": "https://ffs.india-water.gov.in/",
-      "status": "discovered",
-      "notes": "CWC Flood Forecasting System API. Real-time river water levels, inflow forecasts, flood categories (normal/severe/extreme) at 330+ forecasting sites."
+      "status": "research-required",
+      "notes": "CWC Flood Forecasting portal. The live API subdomain (live.ffs.india-water.gov.in) had DNS issues. Web portal may require scraping. Check NWDP CKAN for river discharge alternatives."
     },
     {
       "id": "in-nwdp-water-data",
@@ -121,14 +121,14 @@
       "capability": "marine",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "json",
-      "endpoint": "https://tsunami.incois.gov.in/itews/DSSProducts/OPR/past90days.json",
-      "refreshSeconds": 300,
+      "format": "html",
+      "endpoint": "https://incois.gov.in/",
+      "refreshSeconds": 3600,
       "proxyRequired": false,
       "attribution": "Ministry of Earth Sciences / INCOIS",
       "termsUrl": "https://incois.gov.in/",
-      "status": "discovered",
-      "notes": "Indian Tsunami Early Warning Centre — past 90 days seismic events >=6.5M in Indian Ocean. JSON feed with tsunami bulletins."
+      "status": "research-required",
+      "notes": "INCOIS tsunami early warning portal. JSON API at tsunami.incois.gov.in appears intermittently unreachable. Ocean State Forecast at incois.gov.in/oceanservices/osfforecast.jsp. Alternative: USGS earthquake feed for Indian Ocean region."
     }
   ]
 }
