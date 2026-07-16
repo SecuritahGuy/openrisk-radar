@@ -36,7 +36,7 @@ functions/    — Pages Functions (imported by worker)
 migrations/   — D1 (SQLite on Cloudflare) schema migrations
 experiments/  — research scaffolds, NOT part of the web app
   state-packs/  — 51 US state packs (331 sources, JSON files in sources/)
-  country-packs/ — 16 country packs (124 sources, JSON files in sources/)
+  country-packs/ — 28 country packs (199 sources, JSON files in sources/)
   traffic/      — traffic incident research
 ```
 
