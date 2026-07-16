@@ -22,11 +22,11 @@ national feeds rather than duplicating them.
 | File | Purpose |
 |------|---------|
 | `types.ts` | `StateIntelligencePack`, `StateSourceDefinition`, capability/output/access enums, authority ranking |
-| `stateRegistry.ts` | Pack configurations for all 41 states with 266 sources |
+| `stateRegistry.ts` | Pack configurations for all 50 US states + DC (51 packs) with 331 sources |
 | `authorityHierarchy.ts` | Source authority hierarchy (Local > State > Federal > International) and dedup logic |
 | `stateResolver.ts` | Activation logic: given a location or assets, which packs fire |
 | `validate.ts` | Quick smoke-test: CAL FIRE + CDEC + CAISO + resolver demo |
-| `validate-all.ts` | Full endpoint validation across all 266 sources |
+| `validate-all.ts` | Full endpoint validation across all 331 sources |
 | `tsconfig.json` | Isolated TS config for this experiment only |
 
 ## Pack definitions
@@ -94,8 +94,18 @@ are retained as corroborating.
 | MS | 7 | MDOTtraffic RSS | MFC ArcGIS | USGS MS | Entergy (portal) | — | NWS alerts | USGS FDSN | — | NWS marine | — |
 | OK | 6 | OKTraffic ArcGIS | OFS (portal) | USGS OK | OG&E (portal) | — | NWS alerts | USGS FDSN | — | — | — |
 | HI | 7 | GoAkamai | DLNR DOFAW ArcGIS | USGS HI | HECO (portal) | — | NWS alerts | USGS FDSN | — | NWS marine | CPHC |
+| MT | 7 | MDT ArcGIS | DNRC ArcGIS | USGS MT | NorthWestern (portal) | — | NWS alerts | USGS FDSN | GNFAC | — | — |
+| ND | 6 | NDDOT RCRS ArcGIS | ND Forest Svc (portal) | USGS ND | OtterTail (portal) | — | NWS alerts | USGS FDSN | — | — | — |
+| SD | 6 | SD 511 ArcGIS | SD Wildland Fire (portal) | USGS SD | NorthWestern (portal) | — | NWS alerts | USGS FDSN | — | — | — |
+| NE | 6 | NE 511 ArcGIS | NE Forest Svc (portal) | USGS NE | NPPD/OPPD (portal) | — | NWS alerts | USGS FDSN | — | — | — |
+| WY | 7 | WYDOT ITSM ArcGIS | WY Forestry (portal) | USGS WY | RMP (portal) | — | NWS alerts | USGS FDSN | BTAC | — | — |
+| WV | 6 | WV 511 ArcGIS | WV Forestry (portal) | USGS WV | APCo AEP (portal) | — | NWS alerts | USGS FDSN | — | — | — |
+| VT | 6 | VTrans ArcGIS | VT FPR (portal) | USGS VT | GMP (portal) | — | NWS alerts | USGS FDSN | — | — | — |
+| NH | 7 | NH 511 ArcGIS | NH DFL (portal) | USGS NH | Eversource (portal) | — | NWS alerts | USGS FDSN | — | NWS marine | — |
+| ME | 7 | MaineDOT ArcGIS | ME Forest Svc (portal) | USGS ME | Versant/CMP (portal) | — | NWS alerts | USGS FDSN | — | NWS marine | — |
+| RI | 7 | RIDOT 511 (portal) | RI DEM (portal) | USGS RI | NatGrid RI (portal) | — | NWS alerts | USGS FDSN | — | NWS marine | — |
 
-All endpoints live-probed and validated, **183 validated** and **83 discovered** across 41 states (266 sources). Every state pack is ready to build — no research-required or error statuses remain.
+All endpoints live-probed and validated, **211 validated** and **71 discovered** across all 50 states + DC (331 sources). 49 sources flagged as error/unreachable for follow-up repair.
 
 ## Status legend
 
@@ -110,13 +120,13 @@ All endpoints live-probed and validated, **183 validated** and **83 discovered**
 # Quick smoke test (CAL FIRE + CDEC + CAISO + resolver)
 node --experimental-strip-types experiments/state-packs/validate.ts
 
-# Full endpoint validation (all 266 sources)
+# Full endpoint validation (all 331 sources)
 node --experimental-strip-types experiments/state-packs/validate-all.ts
 ```
 
 The quick test checks the live CAL FIRE Incidents API, CDEC station metadata,
 CAISO outlook page, runs the resolver for a Sacramento search, demonstrates
-saved-asset dedup, resolves the authority hierarchy, and logs all 41 state
+saved-asset dedup, resolves the authority hierarchy, and logs all 51 state
 packs. The full test probes every source endpoint and proposes status changes.
 
 ## Relationship to traffic experiment
