@@ -1,0 +1,146 @@
+{
+  "state": "FL",
+  "name": "Florida",
+  "sources": [
+    {
+      "id": "fl-forest-service-fires",
+      "authority": "Florida Forest Service / FDACS",
+      "coverage": {
+        "states": [
+          "FL"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services3.arcgis.com/XYg2eF8UuxZVuVmF/ArcGIS/rest/services/Florida_Forest_Service_-_Active_Wildfires/FeatureServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Florida Forest Service",
+      "termsUrl": "https://www.fdacs.gov/Forest-Wildfire",
+      "status": "validated",
+      "notes": "FFS ArcGIS Online FeatureServer. 74 current records (Jul 2026). Fields: Name, Kind (Fire), Category (Wildfire), Status, Size (Acres), Contained, County, District. Supports f=geojson."
+    },
+    {
+      "id": "fl-burn-bans",
+      "authority": "FDACS (burn bans)",
+      "coverage": {
+        "states": [
+          "FL"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services3.arcgis.com/XYg2eF8UuxZVuVmF/ArcGIS/rest/services/Burn_Ban_Public_View_v2_4118cfe50dba49efa3d6fa7326d5a87f/FeatureServer",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Florida Forest Service",
+      "termsUrl": "https://www.fdacs.gov/Forest-Wildfire",
+      "status": "validated",
+      "notes": "County burn-ban polygons. Fields: NAME (county), Burn_Ban, Fireworks_Ban, DateUpdated. Supports f=geojson."
+    },
+    {
+      "id": "fl-fire-danger",
+      "authority": "FDACS",
+      "coverage": {
+        "states": [
+          "FL"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://gis.fdacs.gov/mapping/rest/services/FFS/ActiveOBAPoints/FeatureServer",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Florida Forest Service",
+      "termsUrl": "https://www.fdacs.gov/Forest-Wildfire",
+      "status": "discovered",
+      "notes": "Active Open Burn Authorization (OBA) points — proxy for fire activity. FIRE folder on FDACS GIS server requires auth token (499) — fire danger index/KBDI not publicly REST-accessible. Use Esri Living Atlas national wildfire layers as alternative."
+    },
+    {
+      "id": "fl-enviro-habs",
+      "authority": "Florida DEP / FWRI",
+      "coverage": {
+        "states": [
+          "FL"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.floridadep.gov/algalbloom",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Florida Department of Environmental Protection",
+      "termsUrl": "https://floridadep.gov/",
+      "status": "discovered",
+      "notes": "Florida DEP HAB monitoring page. Redirects from old URL. Portal page — inspect for data feeds/RSS."
+    },
+    {
+      "id": "fl-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "FL"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=31&minlatitude=24.4&maxlongitude=-80&minlongitude=-87.6. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    },
+    {
+      "id": "fl-nhc-hurricane",
+      "authority": "NOAA National Hurricane Center",
+      "coverage": {
+        "states": [
+          "FL"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.nhc.noaa.gov/CurrentStorms.json",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Hurricane Center",
+      "termsUrl": "https://www.nhc.noaa.gov/",
+      "status": "validated",
+      "notes": "NHC current storms JSON. Active storms with position, intensity, pressure, movement, forecast track, wind radii, cone. Updated every 2-3 hours during active hurricane season. Also GIS data at nhc.noaa.gov/gis/."
+    },
+    {
+      "id": "fl-noaa-marine",
+      "authority": "NOAA NWS Marine Forecasts",
+      "coverage": {
+        "states": [
+          "FL"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/products/types/CWF",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API marine products. Coastal Waters Forecast — Gulf of Mexico and Atlantic. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    }
+  ]
+}

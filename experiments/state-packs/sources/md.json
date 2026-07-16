@@ -1,0 +1,146 @@
+{
+  "state": "MD",
+  "name": "Maryland",
+  "sources": [
+    {
+      "id": "md-transport-chart",
+      "authority": "MDOT SHA / CHART",
+      "coverage": {
+        "states": [
+          "MD"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://chartimap1.sha.maryland.gov/arcgis/rest/services/CHART/Incidents/MapServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Maryland Department of Transportation State Highway Administration",
+      "termsUrl": "https://chart.maryland.gov/DataFeeds/GetDataFeeds",
+      "status": "validated",
+      "notes": "MD CHART ArcGIS MapServer. Incident events, congestion events, special events, DMS, TSS. Also JSON feed at chart.maryland.gov/DataFeeds/GetDataFeeds."
+    },
+    {
+      "id": "md-wildfire-nws",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "MD"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/MD",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS active alerts for MD. Also Chesapeake Bay wildfire risk data at gis.chesapeakebay.net."
+    },
+    {
+      "id": "md-water-dnr",
+      "authority": "Maryland DNR",
+      "coverage": {
+        "states": [
+          "MD"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://dnr.geodata.md.gov/dnrdata/rest/services/Environment/MDWaterMonitoring/MapServer",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Maryland Department of Natural Resources",
+      "termsUrl": "https://eyesonthebay.dnr.maryland.gov/",
+      "status": "validated",
+      "notes": "MD DNR water monitoring ArcGIS. Chesapeake Bay tidal water quality, drought water supply. Also Eyes on the Bay at eyesonthebay.dnr.maryland.gov for real-time buoy data."
+    },
+    {
+      "id": "md-water-mde",
+      "authority": "Maryland Department of the Environment",
+      "coverage": {
+        "states": [
+          "MD"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://mdewin64.mde.state.md.us/arcgis/rest/services/MDE_WSA",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Maryland Department of the Environment",
+      "termsUrl": "https://mde.maryland.gov/",
+      "status": "discovered",
+      "notes": "MDE integrated water quality assessment ArcGIS. 303(d) impaired waters, sediments, fish consumption advisories at mdewin64.mde.state.md.us."
+    },
+    {
+      "id": "md-grid-bge",
+      "authority": "BGE (Exelon)",
+      "coverage": {
+        "states": [
+          "MD"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://secure.bge.com/powerOutages/outageTracker/preparingForAnOutage",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Baltimore Gas and Electric",
+      "termsUrl": "https://www.bge.com/",
+      "status": "discovered",
+      "notes": "BGE outage tracker at secure.bge.com (outage.bge.com DNS failure). Web portal — no public API found. Also Pepco for DC/MD suburbs."
+    },
+    {
+      "id": "md-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "MD"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=39.7&minlatitude=37.9&maxlongitude=-75&minlongitude=-79.5",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for MD. Bounding box covers MD. Returns magnitude, place, time, depth, coordinates, url."
+    },
+    {
+      "id": "md-noaa-marine",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "MD"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active?zone=MDZ000",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS marine zone alerts for MD coast and Chesapeake Bay. Also NHC for hurricane threat."
+    }
+  ]
+}

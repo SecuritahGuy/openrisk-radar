@@ -1,0 +1,106 @@
+{
+  "state": "DC",
+  "name": "District of Columbia",
+  "sources": [
+    {
+      "id": "dc-transport-ddot",
+      "authority": "DDOT / DC GIS",
+      "coverage": {
+        "states": [
+          "DC"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://maps2.dcgis.dc.gov/dcgis/rest/services/DDOT/TrafficOperations/FeatureServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "District Department of Transportation",
+      "termsUrl": "https://maps2.dcgis.dc.gov/",
+      "status": "validated",
+      "notes": "DDOT ArcGIS FeatureServer. Traffic Control, CCTV, Traffic Control Status, Loop Counter, Parking sensors. JSON, geoJSON."
+    },
+    {
+      "id": "dc-water-usgs",
+      "authority": "USGS",
+      "coverage": {
+        "states": [
+          "DC"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=dc",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/dc/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for DC. Potomac River, Rock Creek."
+    },
+    {
+      "id": "dc-grid-pepco",
+      "authority": "PEPCO (Exelon)",
+      "coverage": {
+        "states": [
+          "DC"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.pepco.com/outages",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Potomac Electric Power Company",
+      "termsUrl": "https://www.pepco.com/",
+      "status": "discovered",
+      "notes": "PEPCO outage map. Web portal — no public API. Serves DC + parts of MD. Exelon/Pepco."
+    },
+    {
+      "id": "dc-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "DC"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/DC",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for DC. Severe weather, flood, winter storm, heat. GeoJSON."
+    },
+    {
+      "id": "dc-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "DC"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=39&minlatitude=38.8&maxlongitude=-76.9&minlongitude=-77.2",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for DC. Bounding box covers DC and immediate surroundings."
+    }
+  ]
+}

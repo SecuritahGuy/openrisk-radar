@@ -1,0 +1,126 @@
+{
+  "state": "WA",
+  "name": "Washington",
+  "sources": [
+    {
+      "id": "wa-wsdot-alerts",
+      "authority": "Washington State Department of Transportation",
+      "coverage": {
+        "states": [
+          "WA"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://wsdot.wa.gov/traffic/api/HighwayAlerts/HighwayAlertsREST.svc/GetAlertsAsJson",
+      "refreshSeconds": 90,
+      "proxyRequired": true,
+      "attribution": "Washington State Department of Transportation",
+      "termsUrl": "https://wsdot.wa.gov/traffic/api/",
+      "status": "discovered",
+      "notes": "WSDOT HighwayAlerts REST API. Requires AccessCode query param (free registration at wsdot.wa.gov/traffic/api). Returns JSON alerts for road closures, construction, incidents."
+    },
+    {
+      "id": "wa-wsdot-pass-conditions",
+      "authority": "WSDOT (mountain passes)",
+      "coverage": {
+        "states": [
+          "WA"
+        ]
+      },
+      "capability": "road-weather",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://wsdot.wa.gov/traffic/api/MountainPassConditions/MountainPassConditionsREST.svc/GetMountainPassConditionsAsJson",
+      "refreshSeconds": 300,
+      "proxyRequired": true,
+      "attribution": "Washington State Department of Transportation",
+      "termsUrl": "https://wsdot.wa.gov/traffic/api/",
+      "status": "discovered",
+      "notes": "WSDOT Mountain Pass Conditions REST API. Requires AccessCode. Returns road/winter conditions for WA mountain passes."
+    },
+    {
+      "id": "wa-wzdx",
+      "authority": "WSDOT (WZDx work zones)",
+      "coverage": {
+        "states": [
+          "WA"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://wzdx.wsdot.wa.gov/api/v4/WorkZoneFeed",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Washington State Department of Transportation",
+      "termsUrl": "https://wsdot.wa.gov/traffic/api/",
+      "status": "validated",
+      "notes": "WZDx v4.2 feed on dedicated subdomain. Returns GeoJSON work zones. Also DeviceFeed at /api/v4/DeviceFeed for field devices. No API key needed."
+    },
+    {
+      "id": "wa-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "WA"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=49&minlatitude=45.5&maxlongitude=-117&minlongitude=-124.8. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    },
+    {
+      "id": "wa-nwac-avalanche",
+      "authority": "Northwest Avalanche Center",
+      "coverage": {
+        "states": [
+          "WA"
+        ]
+      },
+      "capability": "avalanche",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://nwac.us/api/v2/avalanche-region-forecast",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Northwest Avalanche Center (NWAC)",
+      "termsUrl": "https://nwac.us/",
+      "status": "validated",
+      "notes": "NWAC API v2. Returns 2875 forecast records with day1_danger_elev_high/middle/low, day2_*, problems[*].problem_type, zones[*].name, bottom_line_summary, publish_date. Covers WA and OR zones. Paginated with ?limit=N&offset=N."
+    },
+    {
+      "id": "wa-noaa-marine",
+      "authority": "NOAA NWS Marine Forecasts",
+      "coverage": {
+        "states": [
+          "WA"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/products/types/CWF",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API marine products. Coastal Waters Forecast — Pacific coast. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "state": "SD",
+  "name": "South Dakota",
+  "sources": [
+    {
+      "id": "sd-transport-sd511",
+      "authority": "SDDOT / SD 511",
+      "coverage": {
+        "states": [
+          "SD"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://sdgis.sd.gov/dot/rest/services/TIM/DOT_Crashes/FeatureServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "South Dakota Department of Transportation",
+      "termsUrl": "https://www.sd511.org/",
+      "status": "discovered",
+      "notes": "SDDOT TIM ArcGIS services. SD 511 at sd511.org for traveler info. DOT_Crashes FeatureServer, TrafficCountLoc. Traffic incidents, road conditions, cameras."
+    },
+    {
+      "id": "sd-wildfire-sdwf",
+      "authority": "SD Wildland Fire",
+      "coverage": {
+        "states": [
+          "SD"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://dakotafire.com/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "South Dakota Wildland Fire Division",
+      "termsUrl": "https://dakotafire.com/",
+      "status": "discovered",
+      "notes": "SD Wildland Fire information via Dakota Fire. Fire danger, restrictions. Web portal + NWS fire weather alerts."
+    },
+    {
+      "id": "sd-water-usgs",
+      "authority": "USGS South Dakota Water Science Center",
+      "coverage": {
+        "states": [
+          "SD"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=sd",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/sd/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for SD. Streamflow, gage height."
+    },
+    {
+      "id": "sd-grid",
+      "authority": "Multiple SD utilities",
+      "coverage": {
+        "states": [
+          "SD"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.northwesternenergy.com/outages",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NorthWestern Energy / Black Hills Energy / co-ops",
+      "termsUrl": "https://www.northwesternenergy.com/",
+      "status": "discovered",
+      "notes": "Multiple SD utilities: NorthWestern (western), Black Hills Energy (eastern), rural electric co-ops. Web portals only."
+    },
+    {
+      "id": "sd-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "SD"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/SD",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for SD. Severe weather, winter storms, blizzards. GeoJSON."
+    },
+    {
+      "id": "sd-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "SD"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=45.9&minlatitude=42.5&maxlongitude=-96.4&minlongitude=-104.1",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for SD. Bounding box covers SD."
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "state": "HI",
+  "name": "Hawaii",
+  "sources": [
+    {
+      "id": "hi-transport-goakamai",
+      "authority": "HDOT / GoAkamai",
+      "coverage": {
+        "states": [
+          "HI"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://goakamai.org/",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Hawaii Department of Transportation - Highways Division",
+      "termsUrl": "https://goakamai.org/",
+      "status": "discovered",
+      "notes": "GoAkamai by HDOT. Real-time traffic conditions, incidents, cameras, travel times. Web portal + mobile app. Also HDOT ArcGIS traffic camera feature layer."
+    },
+    {
+      "id": "hi-wildfire-dlnr",
+      "authority": "HI DLNR DOFAW / HIEMA",
+      "coverage": {
+        "states": [
+          "HI"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://geodata.hawaii.gov/arcgis/rest/services/Hazards/MapServer/7",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Hawaii DLNR Division of Forestry and Wildlife",
+      "termsUrl": "https://dlnr.hawaii.gov/",
+      "status": "validated",
+      "notes": "HIEMA Wildfire Dashboard + DLNR DOFAW Fire Risk Areas ArcGIS layer. Also NIFC for active wildfire incidents. HI vulnerable to large brush fires (e.g., Maui 2023)."
+    },
+    {
+      "id": "hi-water-usgs",
+      "authority": "USGS Pacific Island Water Science Center",
+      "coverage": {
+        "states": [
+          "HI"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=hi",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/hi/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for HI. Streamflow, gage height."
+    },
+    {
+      "id": "hi-grid-heco",
+      "authority": "Hawaiian Electric (HECO)",
+      "coverage": {
+        "states": [
+          "HI"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.hawaiianelectric.com/safety-and-outages/power-outages/oahu-outage-map",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Hawaiian Electric Company",
+      "termsUrl": "https://www.hawaiianelectric.com/",
+      "status": "discovered",
+      "notes": "HECO outage maps per island (Oahu, Hawaii Island, Maui). Web portal — no public API. HECO serves Oahu; HELCO serves Big Island; MECO serves Maui."
+    },
+    {
+      "id": "hi-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "HI"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/HI",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for HI. Tropical storms, flash flood, high surf, volcanic smog (vog). GeoJSON."
+    },
+    {
+      "id": "hi-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program / HVO",
+      "coverage": {
+        "states": [
+          "HI"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=22.3&minlatitude=18.9&maxlongitude=-154.8&minlongitude=-160.3",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey / Hawaiian Volcano Observatory",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for HI (volcanic earthquakes, Big Island). Also HVO for Kilauea/Mauna Loa eruptions. Bounding box covers all HI islands."
+    },
+    {
+      "id": "hi-noaa-marine",
+      "authority": "NOAA NWS / CPHC",
+      "coverage": {
+        "states": [
+          "HI"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active?zone=HIZ000",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service / Central Pacific Hurricane Center",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS marine/coastal zone alerts for HI. Central Pacific Hurricane Center (CPHC) for hurricane threat. High surf, coastal flooding."
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "state": "VT",
+  "name": "Vermont",
+  "sources": [
+    {
+      "id": "vt-transport-vtrans",
+      "authority": "VTrans / New England 511",
+      "coverage": {
+        "states": [
+          "VT"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://maps.vtrans.vermont.gov/arcgis/rest/services/VTrans511/511lookup/FeatureServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Vermont Agency of Transportation",
+      "termsUrl": "https://newengland511.org/region/Vermont",
+      "status": "validated",
+      "notes": "VTrans 511 ArcGIS FeatureServer with route codes, milepoints. New England Compass ATMS developer portal at nec-por.ne-compass.com provides Incidents, CCTV, DMS, traffic conditions, travel times for ME, NH, VT."
+    },
+    {
+      "id": "vt-wildfire-vtfpr",
+      "authority": "VT Dept of Forests",
+      "coverage": {
+        "states": [
+          "VT"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://fpr.vermont.gov/forest/wildland-fire",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Vermont Department of Forests, Parks and Recreation",
+      "termsUrl": "https://fpr.vermont.gov/",
+      "status": "discovered",
+      "notes": "VT FPR wildland fire program. Fire danger, burn permits. Web portal + NWS fire weather alerts."
+    },
+    {
+      "id": "vt-water-usgs",
+      "authority": "USGS Vermont Water Science Center",
+      "coverage": {
+        "states": [
+          "VT"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=vt",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/vt/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for VT. Streamflow, gage height."
+    },
+    {
+      "id": "vt-grid-gmp",
+      "authority": "Green Mountain Power / VELCO",
+      "coverage": {
+        "states": [
+          "VT"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://greenmountainpower.com/outages/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Green Mountain Power / VELCO",
+      "termsUrl": "https://greenmountainpower.com/",
+      "status": "discovered",
+      "notes": "Green Mountain Power outage map. Web portal — no public API. GMP serves most of VT. VELCO is transmission. Also Burlington Electric and Vermont Electric Co-op."
+    },
+    {
+      "id": "vt-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "VT"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/VT",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for VT. Winter storms, flooding, severe weather. GeoJSON."
+    },
+    {
+      "id": "vt-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "VT"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=45&minlatitude=42.7&maxlongitude=-71.5&minlongitude=-73.4",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for VT. Bounding box covers VT."
+    }
+  ]
+}

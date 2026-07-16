@@ -9,7 +9,7 @@
 //   4. Future: iOS user follows locations in that state.
 
 import { getStatePack, type StateIntelligencePack, type StateSourceDefinition } from "./stateRegistry.ts";
-import { readySources, resolveAuthority } from "./authorityHierarchy.ts";
+import { readySources } from "./authorityHierarchy.ts";
 
 export interface ResolvedLocation {
   state: string;

@@ -1,0 +1,146 @@
+{
+  "state": "NJ",
+  "name": "New Jersey",
+  "sources": [
+    {
+      "id": "nj-transport-511",
+      "authority": "NJDOT / 511NJ",
+      "coverage": {
+        "states": [
+          "NJ"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://511nj.org/RSS511Service/RSS511Service.svc/rest/rss/RSSActiveIncidents",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "New Jersey Department of Transportation",
+      "termsUrl": "https://511nj.org/",
+      "status": "validated",
+      "notes": "NJ511 RSS feed of active traffic incidents. Also TRANSCOM data feed for regional tri-state area. Cameras at 511nj.org."
+    },
+    {
+      "id": "nj-wildfire-njffs",
+      "authority": "NJ Forest Fire Service",
+      "coverage": {
+        "states": [
+          "NJ"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://www.nj.gov/dep/parksandforests/fire/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "New Jersey Forest Fire Service",
+      "termsUrl": "https://www.nj.gov/dep/parksandforests/fire/",
+      "status": "discovered",
+      "notes": "NJ Forest Fire Service. Wildfire danger, burn bans. Web portal supplemented by NWS fire weather alerts."
+    },
+    {
+      "id": "nj-water-usgs",
+      "authority": "USGS New Jersey Water Science Center",
+      "coverage": {
+        "states": [
+          "NJ"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=nj",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/nj/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for NJ. Streamflow, gage height."
+    },
+    {
+      "id": "nj-grid-pseg",
+      "authority": "PSE&G / Jersey Central Power & Light",
+      "coverage": {
+        "states": [
+          "NJ"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://outagecenter.pseg.com/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Public Service Electric & Gas",
+      "termsUrl": "https://www.pseg.com/",
+      "status": "discovered",
+      "notes": "PSE&G outage center. Web portal — no public API found. Also JCPL at firstenergycorp.com."
+    },
+    {
+      "id": "nj-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "NJ"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/NJ",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for NJ. Coastal storms, nor'easters, severe weather. GeoJSON."
+    },
+    {
+      "id": "nj-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "NJ"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=41.4&minlatitude=38.9&maxlongitude=-73.9&minlongitude=-75.6",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for NJ. Bounding box covers NJ. Returns magnitude, place, time, depth, coordinates, url."
+    },
+    {
+      "id": "nj-noaa-marine",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "NJ"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active?zone=NJZ000",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS marine zone alerts for NJ coast (Atlantic). Also NHC for hurricane threat."
+    }
+  ]
+}

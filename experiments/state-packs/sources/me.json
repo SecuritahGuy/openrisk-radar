@@ -1,0 +1,146 @@
+{
+  "state": "ME",
+  "name": "Maine",
+  "sources": [
+    {
+      "id": "me-transport-mainedot",
+      "authority": "MaineDOT / New England 511",
+      "coverage": {
+        "states": [
+          "ME"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://arcgisserver.maine.gov/arcgis/rest/services/mdot/MaineDOT_Dynamic/MapServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Maine Department of Transportation",
+      "termsUrl": "https://newengland511.org/region/Maine",
+      "status": "validated",
+      "notes": "MaineDOT Dynamic ArcGIS MapServer. Traffic counts, road features. New England Compass ATMS developer portal at nec-por.ne-compass.com provides CCTV, DMS, incidents, travel times for ME, NH, VT."
+    },
+    {
+      "id": "me-wildfire-mfs",
+      "authority": "Maine Forest Service",
+      "coverage": {
+        "states": [
+          "ME"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://www.maine.gov/dacf/mfs/wildfire_danger_report/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Maine Forest Service / DACF",
+      "termsUrl": "https://www.maine.gov/dacf/mfs/",
+      "status": "discovered",
+      "notes": "Maine Forest Service wildfire danger report. Fire danger class day, restrictions. Web portal operational March-November. Also mainefireweather.org."
+    },
+    {
+      "id": "me-water-usgs",
+      "authority": "USGS Maine Water Science Center",
+      "coverage": {
+        "states": [
+          "ME"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=me",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/me/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for ME. Streamflow, gage height."
+    },
+    {
+      "id": "me-grid",
+      "authority": "Versant Power / CMP",
+      "coverage": {
+        "states": [
+          "ME"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.versantpower.com/outages",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Versant Power / Central Maine Power",
+      "termsUrl": "https://www.versantpower.com/",
+      "status": "discovered",
+      "notes": "Versant Power (formerly Emera Maine/Bangor Hydro) outage map. Web portal. CMP serves southern ME; Versant serves northern/eastern ME."
+    },
+    {
+      "id": "me-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "ME"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/ME",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for ME. Nor'easters, winter storms, coastal flooding. GeoJSON."
+    },
+    {
+      "id": "me-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "ME"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=47.5&minlatitude=43.1&maxlongitude=-67&minlongitude=-71.1",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for ME. Bounding box covers ME."
+    },
+    {
+      "id": "me-noaa-marine",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "ME"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active?zone=MEZ000",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS coastal/marine zone alerts for ME (extensive Atlantic coastline). Hurricane threat. Coastal flooding, storm surge."
+    }
+  ]
+}

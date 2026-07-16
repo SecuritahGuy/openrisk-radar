@@ -1,0 +1,126 @@
+{
+  "state": "IN",
+  "name": "Indiana",
+  "sources": [
+    {
+      "id": "in-transport-cars",
+      "authority": "INDOT / 511IN",
+      "coverage": {
+        "states": [
+          "IN"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://inhub.carsprogram.org/data/feu-g.xml",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Indiana Department of Transportation",
+      "termsUrl": "https://511in.org/",
+      "status": "validated",
+      "notes": "INDOT CARS (Condition Acquisition Reporting System) public XML feeds. FEU-g for general events, FEU-t for construction, FEU-w for winter road conditions, CCTV cameras. Also Waze CIFS feed."
+    },
+    {
+      "id": "in-wildfire-nws",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "IN"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/IN",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS active alerts for IN. Filter to fire weather (RFW, FW) for red flag warnings."
+    },
+    {
+      "id": "in-water-idem",
+      "authority": "IDEM / Indiana Department of Environmental Management",
+      "coverage": {
+        "states": [
+          "IN"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://gisdata.in.gov/server/rest/services/Hosted/AIMS/FeatureServer",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Indiana Department of Environmental Management",
+      "termsUrl": "https://www.in.gov/idem/cleanwater/",
+      "status": "validated",
+      "notes": "IDEM AIMS (Water Quality Assessment Information System) ArcGIS. Chemical sample stations, fish sample stations, macroinvertebrate stations. 20+ years of water monitoring data."
+    },
+    {
+      "id": "in-water-usgs",
+      "authority": "USGS Indiana Water Science Center",
+      "coverage": {
+        "states": [
+          "IN"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=in",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/in/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for IN. Streamflow, gage height."
+    },
+    {
+      "id": "in-grid-firstenergy",
+      "authority": "FirstEnergy / Indiana Michigan Power",
+      "coverage": {
+        "states": [
+          "IN"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://outages-oh.firstenergycorp.com/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "FirstEnergy Corporation / AEP",
+      "termsUrl": "https://www.firstenergycorp.com/",
+      "status": "discovered",
+      "notes": "FirstEnergy IN outage map. Web portal — no public API found. Also AEP Indiana Michigan Power at aep.com/outages."
+    },
+    {
+      "id": "in-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "IN"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=41.8&minlatitude=37.8&maxlongitude=-84.8&minlongitude=-88.2",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for IN. Bounding box covers IN. Returns magnitude, place, time, depth, coordinates, url."
+    }
+  ]
+}

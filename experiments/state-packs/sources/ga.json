@@ -1,0 +1,146 @@
+{
+  "state": "GA",
+  "name": "Georgia",
+  "sources": [
+    {
+      "id": "ga-511-events",
+      "authority": "GDOT / Georgia 511",
+      "coverage": {
+        "states": [
+          "GA"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://511ga.org/api/v2/get/event",
+      "refreshSeconds": 120,
+      "proxyRequired": true,
+      "attribution": "Georgia Department of Transportation",
+      "termsUrl": "https://511ga.org/developers/doc",
+      "status": "validated",
+      "notes": "GA511 REST API v2 at 511ga.org (not api.511ga.org which fails DNS). Free key at 511ga.org. Endpoints: event, cameras, messagesigns, alerts, restareas. Also Iteris public XML feeds at cdn.511ga.org/RSS/incidents.xml and construction.xml."
+    },
+    {
+      "id": "ga-wildfire-gfc",
+      "authority": "Georgia Forestry Commission",
+      "coverage": {
+        "states": [
+          "GA"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services1.arcgis.com/z5tlnpYHokW9isdE/arcgis/rest/services/RECOVER_Fires/FeatureServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Georgia Forestry Commission",
+      "termsUrl": "https://gatrees.org/fire-prevention-suppression/emergency-response/",
+      "status": "validated",
+      "notes": "GFC Public Viewer ArcGIS service. Layers: Wildfires_Current (0) with IncidentName, acres, geometry. Also prescribed burn data via same service."
+    },
+    {
+      "id": "ga-water-usgs",
+      "authority": "USGS Georgia Water Science Center",
+      "coverage": {
+        "states": [
+          "GA"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=ga&parameterCd=00060,00065&siteStatus=active",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/ga/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for GA (streamflow 00060, gage height 00065). Also GOMAS water quality portal at gomaspublic.gaepd.org. Added parameterCd and siteStatus params to avoid 503 from broad queries."
+    },
+    {
+      "id": "ga-grid-power",
+      "authority": "Georgia Power (Southern Company)",
+      "coverage": {
+        "states": [
+          "GA"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://outagemap.georgiapower.com/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Georgia Power",
+      "termsUrl": "https://www.georgiapower.com/",
+      "status": "discovered",
+      "notes": "Georgia Power outage map. Web portal — no public API found. Also GA open data hub at data-hub.gio.georgia.gov has Georgia Power Outages View."
+    },
+    {
+      "id": "ga-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "GA"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/GA",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for GA. Includes severe weather, tornado, flood, heat. GeoJSON."
+    },
+    {
+      "id": "ga-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "GA"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=35&minlatitude=30.3&maxlongitude=-80.8&minlongitude=-85.6",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Bounding box covers GA. Params: format=geojson&minmagnitude=2.5. Returns magnitude, place, time, depth, coordinates, url."
+    },
+    {
+      "id": "ga-noaa-marine",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "GA"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.weather.gov/alerts/active?zone=GAZ000",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS marine zone alerts for GA coast. Covers coastal waters, nearshore, offshore. GeoJSON with marine forecast zones, wind, wave, hazard details."
+    }
+  ]
+}

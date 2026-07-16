@@ -1,0 +1,167 @@
+{
+  "state": "IL",
+  "name": "Illinois",
+  "sources": [
+    {
+      "id": "il-idot-transport",
+      "authority": "Illinois DOT",
+      "coverage": {
+        "states": [
+          "IL"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services2.arcgis.com/aIrBD8yn1TDTEXoz/arcgis/rest/services/ClosureIncidentExtents/FeatureServer",
+      "refreshSeconds": 180,
+      "proxyRequired": false,
+      "attribution": "Illinois Department of Transportation",
+      "termsUrl": "https://idot.illinois.gov/",
+      "status": "validated",
+      "notes": "IDOT ArcGIS Online ClosureIncidentExtents FeatureServer. Road closure and incident extents data. Also Road_Construction_Public and IL_DOT_Winter_Road_Conditions_ FeatureServers available. Getting Around Illinois at gettingaroundillinois.com for real-time traffic."
+    },
+    {
+      "id": "il-dnr-fire",
+      "authority": "IL DNR / Esri Living Atlas",
+      "coverage": {
+        "states": [
+          "IL"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/USA_Wildfires_v1/FeatureServer",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Esri / National Interagency Fire Center",
+      "termsUrl": "https://dnr.illinois.gov/",
+      "status": "discovered",
+      "notes": "IL DNR ArcGIS servers have no public fire-related services. Using Esri Living Atlas national wildfire layer instead (current incidents + perimeters). IL wildfire risk is very low — prescribed burns are the main concern."
+    },
+    {
+      "id": "il-dnr-water",
+      "authority": "IL DNR Water Resources",
+      "coverage": {
+        "states": [
+          "IL"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://maps.dnr.illinois.gov/geoservices/rest/services/WaterResources/IllinoisRiverStageInundationLayers/MapServer",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Illinois Department of Natural Resources",
+      "termsUrl": "https://dnr.illinois.gov/",
+      "status": "validated",
+      "notes": "IL DNR Water Resources ArcGIS MapServer. HTTP 200 confirmed. River stage inundation layers for Illinois and DesPlaines rivers. Also Base Layers with USGS gauge data."
+    },
+    {
+      "id": "il-great-lakes-water",
+      "authority": "NOAA CO-OPS / GLERL",
+      "coverage": {
+        "states": [
+          "IL"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_level&station=9076021&format=json&units=metric&date=latest&datum=IGLD",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "NOAA CO-OPS / Great Lakes Environmental Research Laboratory",
+      "termsUrl": "https://tidesandcurrents.noaa.gov/",
+      "status": "validated",
+      "notes": "NOAA CO-OPS API for Lake Michigan water levels. Station 9076021 = Chicago IL. Also USACE combined lakes CSV at lre-wm.usace.army.mil/ForecastData/WaterLevelData/GLHYD_data_metric.csv."
+    },
+    {
+      "id": "il-pjm-grid",
+      "authority": "PJM Interconnection (IL)",
+      "coverage": {
+        "states": [
+          "IL"
+        ],
+        "isoTerritory": "PJM"
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://dataviewer.pjm.com/dataviewer/pages/public/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "PJM Interconnection",
+      "termsUrl": "https://www.pjm.com/",
+      "status": "validated",
+      "notes": "PJM Data Viewer public. IL in PJM footprint. Real-time grid data. Data Miner requires free API key."
+    },
+    {
+      "id": "il-beachguard",
+      "authority": "IL Dept of Public Health",
+      "coverage": {
+        "states": [
+          "IL"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "rss",
+      "endpoint": "http://www.idph.state.il.us/envhealth/ilbeaches/public/RssFeed.aspx",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Illinois Department of Public Health",
+      "termsUrl": "https://dph.illinois.gov/",
+      "status": "discovered",
+      "notes": "Illinois BeachGuard RSS feed. Lake Michigan beach closures and advisories. Also detail pages at BeachDetail.aspx?BeachID={ID}. No public JSON/ArcGIS API — RSS is the best programmatic feed."
+    },
+    {
+      "id": "il-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "IL"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=42.5&minlatitude=36.9&maxlongitude=-87.5&minlongitude=-91.6. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    },
+    {
+      "id": "il-noaa-marine",
+      "authority": "NOAA NWS Marine Forecasts",
+      "coverage": {
+        "states": [
+          "IL"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/products/types/GLF",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API marine products. Great Lakes Marine Forecast — Lake Michigan. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    }
+  ]
+}

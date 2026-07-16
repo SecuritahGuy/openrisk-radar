@@ -1,0 +1,126 @@
+{
+  "state": "IA",
+  "name": "Iowa",
+  "sources": [
+    {
+      "id": "ia-transport-511",
+      "authority": "Iowa DOT / 511IA",
+      "coverage": {
+        "states": [
+          "IA"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/CARS511_Iowa_View/FeatureServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Iowa Department of Transportation",
+      "termsUrl": "https://iowadot.gov/travel-tools/iowa-511/511-data-feeds",
+      "status": "validated",
+      "notes": "Iowa 511 ArcGIS FeatureServer. Real-time traffic events, cameras, DMS. Updated every 10 minutes. Public XML feeds also available via CARS-Hub."
+    },
+    {
+      "id": "ia-wildfire-dnr",
+      "authority": "NIFC WFIGS",
+      "coverage": {
+        "states": [
+          "IA"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "National Interagency Fire Center",
+      "termsUrl": "https://www.nifc.gov/",
+      "status": "validated",
+      "notes": "NIFC WFIGS wildland fire perimeters (National interagency dataset covering IA). Layer 0: Current fire perimeters with attributes for acres, cause, contained date, discovery date, fire name, and status. Updated daily during fire season."
+    },
+    {
+      "id": "ia-water-usgs",
+      "authority": "USGS Iowa Water Science Center",
+      "coverage": {
+        "states": [
+          "IA"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=ia",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/ia/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for IA. Streamflow, gage height."
+    },
+    {
+      "id": "ia-grid-midamerican",
+      "authority": "MidAmerican Energy",
+      "coverage": {
+        "states": [
+          "IA"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.midamericanenergy.com/outages",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "MidAmerican Energy",
+      "termsUrl": "https://www.midamericanenergy.com/",
+      "status": "research-required",
+      "notes": "MidAmerican Energy outage map at /outages (old /outage-central 404). Web portal — no public API found. Also Alliant Energy for eastern IA. Need to investigate outage JSON API."
+    },
+    {
+      "id": "ia-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "IA"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/IA",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for IA. Severe weather, tornado, flood, winter storm. GeoJSON."
+    },
+    {
+      "id": "ia-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "IA"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=43.5&minlatitude=40.4&maxlongitude=-90.1&minlongitude=-96.7",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for IA. Bounding box covers IA. Returns magnitude, place, time, depth, coordinates, url."
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "state": "NE",
+  "name": "Nebraska",
+  "sources": [
+    {
+      "id": "ne-transport-511",
+      "authority": "NDOR / Nebraska 511",
+      "coverage": {
+        "states": [
+          "NE"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/CARS511_Nebraska_View/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Nebraska Department of Transportation (NDOR)",
+      "termsUrl": "https://www.511.nebraska.gov/",
+      "status": "validated",
+      "notes": "Nebraska 511 ArcGIS FeatureServer hosted on Iowa DOT ArcGIS Online (removed resultRecordCount param which caused 400). Same CARS platform as Iowa. Events, roadwork, winter conditions. Supports JSON, geoJSON, PBF. Web at 511.nebraska.gov."
+    },
+    {
+      "id": "ne-wildfire-nefs",
+      "authority": "NE Forest Service",
+      "coverage": {
+        "states": [
+          "NE"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://nfs.unl.edu/wildfire",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Nebraska Forest Service",
+      "termsUrl": "https://nfs.unl.edu/",
+      "status": "discovered",
+      "notes": "Nebraska Forest Service wildfire information. Fire danger, restrictions. Web portal + NWS fire weather alerts."
+    },
+    {
+      "id": "ne-water-usgs",
+      "authority": "USGS Nebraska Water Science Center",
+      "coverage": {
+        "states": [
+          "NE"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=ne",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/ne/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for NE. Streamflow, gage height."
+    },
+    {
+      "id": "ne-grid-nppd",
+      "authority": "NPPD / OPPD",
+      "coverage": {
+        "states": [
+          "NE"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.nppd.com/outages",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Nebraska Public Power District / OPPD",
+      "termsUrl": "https://www.nppd.com/",
+      "status": "discovered",
+      "notes": "NPPD and OPPD outage maps. Web portals — no public API. NPPD serves rural NE; OPPD serves Omaha metro. Also LES (Lincoln)."
+    },
+    {
+      "id": "ne-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "NE"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/NE",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for NE. Tornado alley, severe weather, winter storms. GeoJSON."
+    },
+    {
+      "id": "ne-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "NE"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=43&minlatitude=40&maxlongitude=-95.3&minlongitude=-104.1",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for NE. Bounding box covers NE."
+    }
+  ]
+}

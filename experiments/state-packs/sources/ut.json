@@ -1,0 +1,146 @@
+{
+  "state": "UT",
+  "name": "Utah",
+  "sources": [
+    {
+      "id": "ut-511-events",
+      "authority": "UDOT / Utah 511",
+      "coverage": {
+        "states": [
+          "UT"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://udottraffic.utah.gov/api/v2/get/event",
+      "refreshSeconds": 120,
+      "proxyRequired": true,
+      "attribution": "Utah Department of Transportation",
+      "termsUrl": "https://udottraffic.utah.gov/developers/doc",
+      "status": "discovered",
+      "notes": "UDOT Traffic REST API v2. Free key at udottraffic.utah.gov. Endpoints: event, cameras, road conditions, VMS, mountain passes, snow plows, alerts."
+    },
+    {
+      "id": "ut-wildfire-arcgis",
+      "authority": "Utah Division of Forestry, Fire & State Lands",
+      "coverage": {
+        "states": [
+          "UT"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/Active_Fires_Public_View/FeatureServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Utah DNR / Division of Forestry, Fire & State Lands",
+      "termsUrl": "https://ffsl.utah.gov/",
+      "status": "validated",
+      "notes": "Utah DNR Active Fires FeatureServer. Layer 0: Fires. Also Fire_Restrictions and Fire_Perimeters_1999_to_2019 FeatureServers available on same AGOL org. Supports f=geojson."
+    },
+    {
+      "id": "ut-water-arcgis",
+      "authority": "Utah Division of Water Resources",
+      "coverage": {
+        "states": [
+          "UT"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/QXFlowLines/FeatureServer",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Utah Division of Water Resources",
+      "termsUrl": "https://water.utah.gov/",
+      "status": "validated",
+      "notes": "Utah DWRE QXFlowLines FeatureServer on AGOL org ZzrwjTRez6FJiOq4. Water flow lines, subarea schematics. Also CulinaryWaterServiceAreas, WaterRelatedLandUse, and water budget services available. Supports f=geojson."
+    },
+    {
+      "id": "ut-avalanche-uac",
+      "authority": "Utah Avalanche Center",
+      "coverage": {
+        "states": [
+          "UT"
+        ]
+      },
+      "capability": "avalanche",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://utahavalanchecenter.org/api/forecasts",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Utah Avalanche Center (UAC)",
+      "termsUrl": "https://utahavalanchecenter.org/",
+      "status": "validated",
+      "notes": "UAC API. Returns JSON with forecasts by region (Abajos, Moab, etc.). Danger ratings, problem types, confidence, travel advice."
+    },
+    {
+      "id": "ut-air-quality",
+      "authority": "Utah DEQ / Air Monitoring",
+      "coverage": {
+        "states": [
+          "UT"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://air.utah.gov/xmlFeed.php",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Utah Department of Environmental Quality",
+      "termsUrl": "https://air.utah.gov/",
+      "status": "validated",
+      "notes": "UT air quality XML feed. PM2.5, ozone, NO2, temp, wind for all stations. Also CSV forecast feed at /csvFeed.php?id=forecast with 3-day AQI by county."
+    },
+    {
+      "id": "ut-grid-rmp",
+      "authority": "Rocky Mountain Power (PacifiCorp)",
+      "coverage": {
+        "states": [
+          "UT"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.rockymountainpower.net/etc/pcorp/datafiles/outagemap/mapUT.json",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Rocky Mountain Power",
+      "termsUrl": "https://www.rockymountainpower.net/outages-safety.html",
+      "status": "validated",
+      "notes": "RMP internal outage map JSON API at /etc/pcorp/datafiles/outagemap/map{state}.json. Also list.json available. Returns customer count, outages by area, last_updated. Used by official outage map."
+    },
+    {
+      "id": "ut-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "UT"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=42&minlatitude=37&maxlongitude=-109&minlongitude=-114",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=42&minlatitude=37&maxlongitude=-109&minlongitude=-114. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    }
+  ]
+}

@@ -27,7 +27,7 @@ function statusCategory(code: number | null): "success" | "client-error" | "serv
   return "server-error";
 }
 
-function assessArcGIS(responseBody: string, _url: string): ValidationResult["notes"] {
+function assessArcGIS(responseBody: string): ValidationResult["notes"] {
   try {
     const json = JSON.parse(responseBody);
     if (json.currentVersion || json.layers || json.tables || json.serviceDescription) {
@@ -42,7 +42,7 @@ function assessArcGIS(responseBody: string, _url: string): ValidationResult["not
   }
 }
 
-function assessJSON(responseBody: string, source: StateSourceDefinition): ValidationResult["notes"] {
+function assessJSON(responseBody: string): ValidationResult["notes"] {
   try {
     const json = JSON.parse(responseBody);
     if (Array.isArray(json)) {
@@ -110,6 +110,9 @@ async function validateSource(
       if (res.status === 401 || res.status === 403) {
         result.suggestedStatus = "discovered";
         result.notes = `HTTP ${res.status} — endpoint exists but requires authentication/API key`;
+      } else if (res.status === 400 && source.access === "api-key") {
+        result.suggestedStatus = "discovered";
+        result.notes = `HTTP 400 — endpoint exists but requires API key (expected for api-key access)`;
       } else if (res.status === 404) {
         result.suggestedStatus = "error";
         result.notes = `HTTP 404 — endpoint not found. May have moved or been removed.`;
@@ -139,7 +142,7 @@ async function validateSource(
     const ct = (result.contentType ?? "").toLowerCase();
 
     if (source.format === "arcgis" || ct.includes("arcgis")) {
-      result.notes = assessArcGIS(body, source.endpoint);
+      result.notes = assessArcGIS(body);
       result.suggestedStatus = body.includes("error") && JSON.parse(body).error?.code === 404
         ? "error"
         : "validated";
@@ -154,7 +157,7 @@ async function validateSource(
             result.notes = `JSON response, checking WZDx compliance`;
             result.suggestedStatus = "validated";
           } else {
-            result.notes = assessJSON(body, source);
+            result.notes = assessJSON(body);
             result.suggestedStatus = "validated";
           }
         } catch {
@@ -162,7 +165,7 @@ async function validateSource(
           result.suggestedStatus = "discovered";
         }
       } else {
-        result.notes = assessJSON(body, source);
+        result.notes = assessJSON(body);
         result.suggestedStatus = "validated";
       }
     } else if (source.format === "csv" || ct.includes("csv") || ct.includes("text/csv")) {
@@ -189,26 +192,27 @@ async function validateSource(
     }
 
     return result;
-  } catch (err: any) {
+  } catch (err: unknown) {
     result.httpStatus = null;
-    if (err.name === "TimeoutError" || err.name === "AbortError") {
+    const error = err as { name?: string; message?: string; cause?: { code?: string } };
+    if (error.name === "TimeoutError" || error.name === "AbortError") {
       result.error = "TIMEOUT";
       result.notes = `Request timed out after ${TIMEOUT}ms`;
       result.suggestedStatus = "discovered";
-    } else if (err.cause?.code === "ENOTFOUND" || err.cause?.code === "EAI_AGAIN") {
+    } else if (error.cause?.code === "ENOTFOUND" || error.cause?.code === "EAI_AGAIN") {
       result.error = "DNS_FAILURE";
       result.notes = `DNS resolution failed for ${new URL(source.endpoint).hostname}`;
       result.suggestedStatus = "error";
-    } else if (err.cause?.code === "ECONNREFUSED") {
+    } else if (error.cause?.code === "ECONNREFUSED") {
       result.error = "CONNECTION_REFUSED";
       result.notes = `Connection refused`;
       result.suggestedStatus = "error";
-    } else if (err.cause?.code === "ECONNRESET") {
+    } else if (error.cause?.code === "ECONNRESET") {
       result.error = "CONNECTION_RESET";
       result.notes = `Connection reset`;
       result.suggestedStatus = "error";
     } else {
-      result.error = err.message ?? String(err);
+      result.error = error.message ?? String(err);
       result.notes = `Fetch error: ${result.error}`;
       result.suggestedStatus = "error";
     }

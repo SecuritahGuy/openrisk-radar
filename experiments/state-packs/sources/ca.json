@@ -1,0 +1,127 @@
+{
+  "state": "CA",
+  "name": "California",
+  "sources": [
+    {
+      "id": "ca-cal-fire-incidents",
+      "authority": "CAL FIRE",
+      "coverage": {
+        "states": [
+          "CA"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://incidents.fire.ca.gov/umbraco/api/incidentapi/List",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "CAL FIRE",
+      "termsUrl": "https://www.fire.ca.gov/incidents",
+      "status": "validated",
+      "notes": "13 current incidents (Jul 2026). Returns name, lat/lng, acresBurned, percentContained, adminUnit, county, type, startDate. JSON array, web-probed and confirmed. Preferred CA wildfire source."
+    },
+    {
+      "id": "ca-cdec-water",
+      "authority": "California Data Exchange Center (CDEC)",
+      "coverage": {
+        "states": [
+          "CA"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://cdec.water.ca.gov/dynamicapp/wsSensorData",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "California Department of Water Resources",
+      "termsUrl": "https://cdec.water.ca.gov/",
+      "status": "discovered",
+      "notes": "wsSensorData endpoint (replaces deprecated JSONDataServlet). Params: Stations=ORO,SAC&SensorNums=1,2,15,20&dur_code=D&Start=YYYY-MM-DD&End=YYYY-MM-DD. Returns [{stationId, sensorType, value, units, date, obsDate}]. Water stress card candidate."
+    },
+    {
+      "id": "ca-cdec-river-events",
+      "authority": "CDEC (flood alerts)",
+      "coverage": {
+        "states": [
+          "CA"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://cdec.water.ca.gov/dynamicapp/wsSensorData",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "California Department of Water Resources",
+      "termsUrl": "https://cdec.water.ca.gov/",
+      "status": "discovered",
+      "notes": "wsSensorData endpoint (replaces deprecated JSONDataServlet). River stage (sensor 1) or flow (sensor 20) at threshold → RiskEvent. Rapid rise, scheduled reservoir release (sensor 76, 23). Use continuous signal monitoring + threshold logic."
+    },
+    {
+      "id": "ca-caiso-grid",
+      "authority": "California ISO",
+      "coverage": {
+        "states": [
+          "CA"
+        ],
+        "isoTerritory": "CAISO"
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://www.caiso.com/todays-outlook",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "California ISO",
+      "termsUrl": "https://developer.caiso.com/",
+      "status": "validated",
+      "notes": "CAISO Today's Outlook page. Demand, available capacity, reserves, renewables forecast. Also CSV exports at caiso.com (market data). Use as statewide grid-condition signal."
+    },
+    {
+      "id": "ca-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "CA"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=42&minlatitude=32.5&maxlongitude=-114.1&minlongitude=-124.4. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    },
+    {
+      "id": "ca-noaa-marine",
+      "authority": "NOAA NWS Marine Forecasts",
+      "coverage": {
+        "states": [
+          "CA"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/products/types/CWF",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API marine products. Coastal Waters Forecast — Pacific coast. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    }
+  ]
+}

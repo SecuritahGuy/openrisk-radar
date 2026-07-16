@@ -1,0 +1,166 @@
+{
+  "state": "AK",
+  "name": "Alaska",
+  "sources": [
+    {
+      "id": "ak-transport-511",
+      "authority": "Alaska DOT&PF / 511 Alaska",
+      "coverage": {
+        "states": [
+          "AK"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://511.alaska.gov/api/v2/get/event",
+      "refreshSeconds": 120,
+      "proxyRequired": true,
+      "attribution": "Alaska Department of Transportation and Public Facilities",
+      "termsUrl": "https://511.alaska.gov/developers/doc",
+      "status": "validated",
+      "notes": "Alaska 511 REST API v2. Requires free developer key (?key= param). Endpoints: event, cameras, messagesigns, alerts, roadconditions, airports, weatherstations, bridges, workzones, wildfire. Partners with Waze for Cities. HTTP 400 without ?key= is expected — endpoint is correct."
+    },
+    {
+      "id": "ak-wildfire-afs",
+      "authority": "BLM Alaska Fire Service / AK DOF",
+      "coverage": {
+        "states": [
+          "AK"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://fire.ak.blm.gov/arcgis/rest/services/MapAndFeatureServices/Fires_Perimeters/FeatureServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Alaska Wildland Fire Coordinating Group / BLM AFS",
+      "termsUrl": "https://fire.ak.blm.gov/",
+      "status": "validated",
+      "notes": "Alaska Wildland Fire Perimeter Polygons. Layers: Active Fires(0), Out Fires(1), Active Prescribed Fires(2), Out Prescribed Fires(3)."
+    },
+    {
+      "id": "ak-water-usgs",
+      "authority": "USGS Alaska Water Science Center",
+      "coverage": {
+        "states": [
+          "AK"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=ak",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/ak/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for AK. Streamflow, gage height."
+    },
+    {
+      "id": "ak-grid",
+      "authority": "Chugach / GVEA / MEA (multiple utilities)",
+      "coverage": {
+        "states": [
+          "AK"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.chugachelectric.com/outages",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Multiple Alaska utilities",
+      "termsUrl": "https://www.chugachelectric.com/",
+      "status": "discovered",
+      "notes": "Multiple AK utilities: Chugach Electric (Anchorage), Golden Valley (Fairbanks), Matanuska Electric (Palmer), Homer Electric (Kenai). Each has own web portal."
+    },
+    {
+      "id": "ak-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "AK"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/AK",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for AK. Severe weather, winter storm, flood, wind chill. GeoJSON."
+    },
+    {
+      "id": "ak-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "AK"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=71.4&minlatitude=51.2&maxlongitude=-130&minlongitude=-180",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for AK. Bounding box covers all of Alaska (Aleutians to Panhandle). AK is most seismically active US state."
+    },
+    {
+      "id": "ak-avalanche",
+      "authority": "Alaska Avalanche Info / CNFAIC",
+      "coverage": {
+        "states": [
+          "AK"
+        ]
+      },
+      "capability": "avalanche",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.avalanche.org/v2/public/products/map-layer/CNFAIC",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Chugach National Forest Avalanche Center",
+      "termsUrl": "https://alaskasnow.org/",
+      "status": "discovered",
+      "notes": "Chugach National Forest Avalanche Center (CNFAIC) via avalanche.org API. Covers Turnagain Pass, Seward, Girdwood. Danger ratings, observations, incidents."
+    },
+    {
+      "id": "ak-noaa-marine",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "AK"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active?zone=AKZ000",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS marine/coastal zone alerts for AK. Extensive coastline: Gulf of AK, Bering Sea, Aleutians, Arctic Ocean. NHC for hurricane threat in southern AK waters."
+    }
+  ]
+}

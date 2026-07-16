@@ -1,0 +1,146 @@
+{
+  "state": "WY",
+  "name": "Wyoming",
+  "sources": [
+    {
+      "id": "wy-transport-wydot",
+      "authority": "WYDOT / Wyoming 511",
+      "coverage": {
+        "states": [
+          "WY"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://gisservices.wyoroad.info/arcgis/rest/services/ITSM/ITSM_Data_Layers/MapServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Wyoming Department of Transportation",
+      "termsUrl": "https://www.wyoroad.info/",
+      "status": "validated",
+      "notes": "WYDOT ITSM ArcGIS MapServer. ITSM journey layers including bridge condition, STIP, road classification, traffic counts. WYDOT 511 at wyoroad.info for road conditions, incidents, closures, cameras."
+    },
+    {
+      "id": "wy-wildfire-wsf",
+      "authority": "NIFC WFIGS",
+      "coverage": {
+        "states": [
+          "WY"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "National Interagency Fire Center",
+      "termsUrl": "https://www.nifc.gov/",
+      "status": "validated",
+      "notes": "NIFC WFIGS wildland fire perimeters (National interagency dataset covering WY). Layer 0: Current fire perimeters with attributes for acres, cause, contained date, discovery date, fire name, and status. Updated daily during fire season."
+    },
+    {
+      "id": "wy-water-usgs",
+      "authority": "USGS Wyoming Water Science Center",
+      "coverage": {
+        "states": [
+          "WY"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=wy",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/wy/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for WY. Streamflow, gage height."
+    },
+    {
+      "id": "wy-grid-rmp",
+      "authority": "Rocky Mountain Power (Pacificorp)",
+      "coverage": {
+        "states": [
+          "WY"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.rockymountainpower.net/outages",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Rocky Mountain Power",
+      "termsUrl": "https://www.rockymountainpower.net/",
+      "status": "discovered",
+      "notes": "Rocky Mountain Power outage map. Web portal — no public API. Serves most of WY. Also rural electric co-ops."
+    },
+    {
+      "id": "wy-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "WY"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/WY",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for WY. Winter storms, wildfire weather, severe weather. GeoJSON."
+    },
+    {
+      "id": "wy-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "WY"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=45&minlatitude=41&maxlongitude=-104&minlongitude=-111.1",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for WY (Yellowstone caldera region). Bounding box covers WY."
+    },
+    {
+      "id": "wy-avalanche",
+      "authority": "Bridger-Teton Avalanche Center",
+      "coverage": {
+        "states": [
+          "WY"
+        ]
+      },
+      "capability": "avalanche",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.avalanche.org/v2/public/products/map-layer/BTAC",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Bridger-Teton Avalanche Center",
+      "termsUrl": "https://www.jhavalanche.org/",
+      "status": "discovered",
+      "notes": "Bridger-Teton Avalanche Center (BTAC) via avalanche.org API. Covers Jackson Hole, Teton Pass, Togwotee Pass. Danger ratings, observations, incidents."
+    }
+  ]
+}

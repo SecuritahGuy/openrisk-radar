@@ -1,0 +1,146 @@
+{
+  "state": "CO",
+  "name": "Colorado",
+  "sources": [
+    {
+      "id": "co-transport-arcgis",
+      "authority": "Colorado DOT",
+      "coverage": {
+        "states": [
+          "CO"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://data.cotrip.org/api/v1/incidents",
+      "refreshSeconds": 120,
+      "proxyRequired": true,
+      "attribution": "Colorado Department of Transportation",
+      "termsUrl": "https://maps.cotrip.org/help/117/Traveler-Information-Data-Feed-Access",
+      "status": "validated",
+      "notes": "COtrip API v1. Returns GeoJSON FeatureCollection with incidents, road conditions. Requires free API key from cotrip.org. CDOT old ArcGIS server (dtdapps.coloradodot.info) decommissioned; new server at maps.codot.gov/server/rest/services/ requires token. COtrip API is the recommended replacement."
+    },
+    {
+      "id": "co-water-cdss",
+      "authority": "CO Division of Water Resources",
+      "coverage": {
+        "states": [
+          "CO"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://dwr.state.co.us/Rest/GET/api/v2/telemetrystations/telemetrystation",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Colorado Division of Water Resources",
+      "termsUrl": "https://dwr.state.co.us/Rest/GET/Help",
+      "status": "validated",
+      "notes": "CDSS REST API v2. 1407 telemetry stations with discharge, stage. Also climate stations (12K+), surface water, groundwater wells, diversion records, administrative calls. API key optional."
+    },
+    {
+      "id": "co-avalanche-caic",
+      "authority": "Colorado Avalanche Information Center",
+      "coverage": {
+        "states": [
+          "CO"
+        ]
+      },
+      "capability": "avalanche",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.avalanche.org/v2/public/products/map-layer/CAIC",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Colorado Avalanche Information Center (CAIC)",
+      "termsUrl": "https://avalanche.state.co.us/",
+      "status": "validated",
+      "notes": "Avalanche.org API v2. Returns GeoJSON with danger/danger_level (1-5), travel_advice, zone boundaries (MultiPolygon), center_id, warning product. CAIC covers CO zones."
+    },
+    {
+      "id": "co-wildfire-nws",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "CO"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/CO",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS active alerts for CO. Filter to fire weather (RFW, FW) for red flag warnings, fire weather watches. Also CO Fire Ban at colorado.gov/fireban."
+    },
+    {
+      "id": "co-grid-xcel",
+      "authority": "Xcel Energy Colorado",
+      "coverage": {
+        "states": [
+          "CO"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.xcelenergy.com/outages_and_emergencies",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Xcel Energy",
+      "termsUrl": "https://www.xcelenergy.com/",
+      "status": "discovered",
+      "notes": "Xcel Energy CO outage map and grid status. Web portal — no public API found. Use as reference for grid condition monitoring."
+    },
+    {
+      "id": "co-data-portal",
+      "authority": "Colorado Information Marketplace",
+      "coverage": {
+        "states": [
+          "CO"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://data.colorado.gov/resource/4ykn-tg5h.json",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "State of Colorado",
+      "termsUrl": "https://data.colorado.gov/",
+      "status": "discovered",
+      "notes": "Socrata SODA API. Catalog at data.colorado.gov. Also CDPHE air quality at colorado.gov/airquality (web)."
+    },
+    {
+      "id": "co-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "CO"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=41&minlatitude=37&maxlongitude=-102&minlongitude=-109",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=41&minlatitude=37&maxlongitude=-102&minlongitude=-109. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "state": "NC",
+  "name": "North Carolina",
+  "sources": [
+    {
+      "id": "nc-transport-arcgis",
+      "authority": "NCDOT",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services.arcgis.com/NuWFvHYDMVmmxMeM/ArcGIS/rest/services/NCDOT_Traffic_Incidents/FeatureServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "North Carolina Department of Transportation",
+      "termsUrl": "https://tims.ncdot.gov/tims/",
+      "status": "validated",
+      "notes": "NCDOT traffic incidents ArcGIS FeatureServer on public ArcGIS Online (gis11.services.ncdot.gov internal-only). Active incidents with location, type, severity, description. Also cameras at same org: NCDOT_Traffic_Cameras FeatureServer."
+    },
+    {
+      "id": "nc-wildfire-ncfs",
+      "authority": "NC Forest Service (NCDA&CS)",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://www.ncmhtd.com/arcgis/rest/services/AG_FS/FARS_dev/FeatureServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NC Forest Service / NCDA&CS",
+      "termsUrl": "https://www.ncagr.gov/divisions/nc-forest-service",
+      "status": "discovered",
+      "notes": "NC Forest Service FARS (Fire and Resource Assessment System) ArcGIS FeatureServer. Wildfire locations, perimeters. Also NC OneMap wildfire risk at services.nconemap.gov NC1Map_Environment."
+    },
+    {
+      "id": "nc-water-deq",
+      "authority": "NC DEQ Division of Water Resources",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://maps.deq.nc.gov/arcgis/rest/services/DEQ/ApplicationTracker/MapServer",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "NC Department of Environmental Quality",
+      "termsUrl": "https://data-ncdenr.opendata.arcgis.com/",
+      "status": "discovered",
+      "notes": "NC DEQ application tracker ArcGIS. Water resources layers: NPDES wastewater, groundwater, animal operations, wetlands. Also NC1Map_Environment at services.nconemap.gov for ambient water quality monitoring sites."
+    },
+    {
+      "id": "nc-water-usgs",
+      "authority": "USGS North Carolina Water Science Center",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=nc",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/nc/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for NC. Streamflow, gage height, temperature."
+    },
+    {
+      "id": "nc-grid-duke",
+      "authority": "Duke Energy",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services3.arcgis.com/oX5r75R7mapdoI2F/ArcGIS/rest/services/Duke_Energy_Distribution_Outages_Public/FeatureServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Duke Energy",
+      "termsUrl": "https://outagemap.duke-energy.com/",
+      "status": "validated",
+      "notes": "Duke Energy public ArcGIS outage FeatureServer. Layers: Outage Points by Affected Customers (0), Outages by County (1). Also ReadyNC power outages at spartagis.ncem.org/arcgis/rest/services/Public/ReadyNC_PowerOutages."
+    },
+    {
+      "id": "nc-beach-monitoring",
+      "authority": "NC DEQ Marine Fisheries",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://xapps.ncdenr.org/mf/beaches/smplData.do",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "NC Division of Marine Fisheries",
+      "termsUrl": "https://www.deq.nc.gov/about/divisions/marine-fisheries/shellfish-sanitation-and-recreational-water-quality",
+      "status": "validated",
+      "notes": "NC DEQ beach water quality sampling via smplData.do (notification.do deprecated). Enterococci levels at 354 coastal monitoring sites. Also EPA BEACON 2.0 at beacon.epa.gov for national beach water quality."
+    },
+    {
+      "id": "nc-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=36.6&minlatitude=33.8&maxlongitude=-75.4&minlongitude=-84.3",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Bounding box covers NC. Returns magnitude, place, time, depth, coordinates, url."
+    },
+    {
+      "id": "nc-noaa-marine",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active?zone=NCZ000",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS marine zone alerts for NC coast. Also NHC current storms for hurricane threat at nhc.noaa.gov/CurrentStorms.json."
+    }
+  ]
+}

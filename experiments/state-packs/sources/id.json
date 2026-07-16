@@ -1,0 +1,106 @@
+{
+  "state": "ID",
+  "name": "Idaho",
+  "sources": [
+    {
+      "id": "id-transport-arcgis",
+      "authority": "ITD / Idaho 511",
+      "coverage": {
+        "states": [
+          "ID"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://gis.itd.idaho.gov/arcgisprod/rest/services/ArcGISOnline/RoadFeatureLayers/MapServer",
+      "refreshSeconds": 180,
+      "proxyRequired": false,
+      "attribution": "Idaho Transportation Department",
+      "termsUrl": "https://511.idaho.gov/",
+      "status": "validated",
+      "notes": "ITD ArcGIS RoadFeatureLayers. DMS, CCTV, RWIS, traffic signals, rest areas, bridges. Also CARS XML feeds at id.carsprogram.org/hub/data/feu-g.xml for events."
+    },
+    {
+      "id": "id-wildfire-idl",
+      "authority": "Idaho Department of Lands",
+      "coverage": {
+        "states": [
+          "ID"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://gis1.idl.idaho.gov/arcgis/rest/services/Portal/IDLFireLayers/FeatureServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Idaho Department of Lands",
+      "termsUrl": "https://www.idl.idaho.gov/fire-management/idaho-fire-map/",
+      "status": "validated",
+      "notes": "IDL FireLayers ArcGIS FeatureServer. Layers: IdahoFires (0) with IncidentName, StartDate, Acres, FireCause, Status; Idaho Fire Perimeters (1) with polygon boundaries. Updated regularly from Wildcad, Geomac, EGP."
+    },
+    {
+      "id": "id-water-usgs",
+      "authority": "USGS Idaho Water Science Center",
+      "coverage": {
+        "states": [
+          "ID"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=id",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/id/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for ID. Snake River, Salmon River, Clearwater basin streamflow and gage height."
+    },
+    {
+      "id": "id-grid-power",
+      "authority": "Idaho Power Company",
+      "coverage": {
+        "states": [
+          "ID"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://tools.idahopower.com/outage",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Idaho Power Company",
+      "termsUrl": "https://www.idahopower.com/",
+      "status": "discovered",
+      "notes": "Idaho Power outage map. Web portal — no public API found. Also Rocky Mountain Power for eastern ID."
+    },
+    {
+      "id": "id-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "ID"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=49&minlatitude=42&maxlongitude=-111&minlongitude=-117.2",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Bounding box covers ID. Returns magnitude, place, time, depth, coordinates, url."
+    }
+  ]
+}

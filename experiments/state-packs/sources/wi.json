@@ -1,0 +1,66 @@
+{
+  "state": "WI",
+  "name": "Wisconsin",
+  "sources": [
+    {
+      "id": "wi-511-incidents",
+      "authority": "Wisconsin Department of Transportation (511WI)",
+      "coverage": {
+        "states": [
+          "WI"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://511wi.gov/api/v2/get/event",
+      "refreshSeconds": 90,
+      "proxyRequired": true,
+      "attribution": "Wisconsin Department of Transportation",
+      "termsUrl": "https://511wi.gov/developers/resources",
+      "status": "validated",
+      "notes": "511WI v2 REST API. Requires free API key from 511wi.gov/developers. Endpoints: /api/v2/get/event (events), /api/wzdx (WZDx work zones), /api/v2/get/alerts. JSON or XML."
+    },
+    {
+      "id": "wi-dnr-beach-advisories",
+      "authority": "Wisconsin DNR / Beach Health",
+      "coverage": {
+        "states": [
+          "WI"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://dnrmaps.wi.gov/arcgis2/rest/services/OGW_Beach_Monitoring/BEACH_MONITORING_LOCATIONS/MapServer/1",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Wisconsin Department of Natural Resources",
+      "termsUrl": "https://dnr.wisconsin.gov/",
+      "status": "validated",
+      "notes": "DNR ArcGIS MapServer for beach monitoring. 441 features. Fields: OGW_BEACH_NAME_TEXT, MAP_STATUS (Open/Advisory/Closed), ECOLIVALUE, WATERTEMP, SAMPLEDATE, ISSUED. Supports f=geojson. Filter by status: where=MAP_STATUS%3D'Advisory'."
+    },
+    {
+      "id": "wi-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "WI"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=47.3&minlatitude=42.5&maxlongitude=-86.8&minlongitude=-92.9. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    }
+  ]
+}

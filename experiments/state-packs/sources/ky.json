@@ -1,0 +1,126 @@
+{
+  "state": "KY",
+  "name": "Kentucky",
+  "sources": [
+    {
+      "id": "ky-transport-goky",
+      "authority": "KYTC / GoKY",
+      "coverage": {
+        "states": [
+          "KY"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_WebCams_WGS84WM/MapServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Kentucky Transportation Cabinet",
+      "termsUrl": "https://goky.ky.gov/",
+      "status": "validated",
+      "notes": "KYTC ArcGIS MapServer with traffic cameras, incidents, message signs. GoKY traveler information at goky.ky.gov. Camera images, status, lat/lng, highway, mile marker."
+    },
+    {
+      "id": "ky-wildfire-dof",
+      "authority": "KY Division of Forestry",
+      "coverage": {
+        "states": [
+          "KY"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://eec.ky.gov/Natural-Resources/Forestry/Pages/default.aspx",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Kentucky Division of Forestry",
+      "termsUrl": "https://eec.ky.gov/",
+      "status": "discovered",
+      "notes": "KY Division of Forestry fire management. Wildfire danger, burn bans. Web portal supplemented by NWS fire weather alerts."
+    },
+    {
+      "id": "ky-water-usgs",
+      "authority": "USGS Kentucky Water Science Center",
+      "coverage": {
+        "states": [
+          "KY"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=ky",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/ky/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for KY. Streamflow, gage height."
+    },
+    {
+      "id": "ky-grid-lge",
+      "authority": "LG&E and KU (PPL)",
+      "coverage": {
+        "states": [
+          "KY"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://lge-ku.com/outages",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Louisville Gas & Electric and Kentucky Utilities",
+      "termsUrl": "https://lge-ku.com/",
+      "status": "discovered",
+      "notes": "LG&E and KU outage map. Web portal — no public API found."
+    },
+    {
+      "id": "ky-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "KY"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/KY",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for KY. Severe weather, tornado, flood, winter storm. GeoJSON."
+    },
+    {
+      "id": "ky-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "KY"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=39.1&minlatitude=36.5&maxlongitude=-81.9&minlongitude=-89.6",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for KY (New Madrid seismic zone). Bounding box covers KY. Returns magnitude, place, time, depth, coordinates, url."
+    }
+  ]
+}

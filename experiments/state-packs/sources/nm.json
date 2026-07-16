@@ -1,0 +1,106 @@
+{
+  "state": "NM",
+  "name": "New Mexico",
+  "sources": [
+    {
+      "id": "nm-511-events",
+      "authority": "NMDOT / NMRoads",
+      "coverage": {
+        "states": [
+          "NM"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://lambdav5.nmroads.com/getEvents",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "New Mexico Department of Transportation",
+      "termsUrl": "https://nmroads.com/",
+      "status": "validated",
+      "notes": "NMRoads v5 backend API. Public JSON endpoints: getEvents (closures, incidents), getRouteNow (conditions), getConstructionProjects (geometry). Also legacy v4 at servicev5.nmroads.com."
+    },
+    {
+      "id": "nm-wildfire-nws",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "NM"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/NM",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for NM. Filter to fire weather (RFW, FW) for red flag warnings, fire weather watches. GeoJSON with polygon geometry, severity, headline, description."
+    },
+    {
+      "id": "nm-water-usgs",
+      "authority": "USGS New Mexico Water Science Center",
+      "coverage": {
+        "states": [
+          "NM"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=nm",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/nm/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for NM. Streamflow, gage height, temperature. Also available: GeoJSON via api.waterdata.usgs.gov."
+    },
+    {
+      "id": "nm-grid-pnm",
+      "authority": "PNM / Public Service Company of NM",
+      "coverage": {
+        "states": [
+          "NM"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.pnm.com/outage-center",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "PNM Resources",
+      "termsUrl": "https://www.pnm.com/",
+      "status": "discovered",
+      "notes": "PNM outage center. Web portal — no public API found. Also El Paso Electric for southern NM."
+    },
+    {
+      "id": "nm-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "NM"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=37&minlatitude=31.3&maxlongitude=-103&minlongitude=-109",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=37&minlatitude=31.3&maxlongitude=-103&minlongitude=-109. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    }
+  ]
+}

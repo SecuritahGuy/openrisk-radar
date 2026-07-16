@@ -1,0 +1,108 @@
+{
+  "state": "TX",
+  "name": "Texas",
+  "sources": [
+    {
+      "id": "tx-ercot-grid",
+      "authority": "Electric Reliability Council of Texas (ERCOT)",
+      "coverage": {
+        "states": [
+          "TX"
+        ],
+        "isoTerritory": "ERCOT"
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "authenticated",
+      "format": "json",
+      "endpoint": "https://www.ercot.com/api/1/services/read/dashboards/todays-outlook.json",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "ERCOT",
+      "termsUrl": "https://developer.ercot.com/",
+      "status": "discovered",
+      "notes": "Public JSON dashboard at www.ercot.com/api/1/services/read/dashboards/todays-outlook.json. Returns {lastUpdated, data: [{capacity, demand, forecast, interval, hourEnding}]}. No auth required. Also: daily-prc.json (grid condition + EEA level), supply-demand.json. Fuel mix XLSX at ercot.com/files/docs/{year}/ (IntGenbyFuel{year}.xlsx). Real-time load HTML at ercot.com/content/cdr/html/actual_loads_of_forecast_zones.html."
+    },
+    {
+      "id": "tx-ercot-grid-emergency",
+      "authority": "ERCOT (emergency)",
+      "coverage": {
+        "states": [
+          "TX"
+        ],
+        "isoTerritory": "ERCOT"
+      },
+      "capability": "grid",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.ercot.com/api/1/services/read/dashboards/daily-prc.json",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "ERCOT",
+      "termsUrl": "https://developer.ercot.com/",
+      "status": "discovered",
+      "notes": "Public JSON dashboard at www.ercot.com/api/1/services/read/dashboards/daily-prc.json. Returns {current_condition: {eea_level, condition_note, prc_value, state, title, datetime}}. EEA level 0=normal, 1=conservation, 2=warning, 3=emergency. No auth required. Also monitor load HTML at ercot.com/content/cdr/html/actual_loads_of_forecast_zones.html."
+    },
+    {
+      "id": "tx-forest-service-fires",
+      "authority": "Texas A&M Forest Service",
+      "coverage": {
+        "states": [
+          "TX"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://gis.tfs.tamu.edu/arcgis/rest/services/EOC/Texas_Historic_Wildfire_perimeters/FeatureServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Texas A&M Forest Service",
+      "termsUrl": "https://tfswildfires.com/",
+      "status": "validated",
+      "notes": "TFS on-premise ArcGIS server. Historic perimeters FeatureServer (8,544 records) with IncidentName, GISAcres, StartDate. Also AGOL at services5.arcgis.com/ELI1iJkCzTIagHkp/ with TFS_Fire_Event_Polygon_View and IncidentMapping (16 layers). Active current incidents not public REST — only via tfswildfires.com app."
+    },
+    {
+      "id": "tx-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "TX"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=36.5&minlatitude=25.8&maxlongitude=-93.5&minlongitude=-106.6. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    },
+    {
+      "id": "tx-noaa-marine",
+      "authority": "NOAA NWS Marine Forecasts",
+      "coverage": {
+        "states": [
+          "TX"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/products/types/CWF",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API marine products. Coastal Waters Forecast — Gulf of Mexico. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    }
+  ]
+}

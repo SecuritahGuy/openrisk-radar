@@ -1,0 +1,126 @@
+{
+  "state": "TN",
+  "name": "Tennessee",
+  "sources": [
+    {
+      "id": "tn-transport-smartway",
+      "authority": "TDOT SmartWay / TN 511",
+      "coverage": {
+        "states": [
+          "TN"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://spatial.tdot.tn.gov/arcgis/rest/services/WAZE/Waze_Smartway/MapServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Tennessee Department of Transportation",
+      "termsUrl": "https://smartway.tn.gov/",
+      "status": "discovered",
+      "notes": "TDOT SmartWay ArcGIS with Waze partner data. Also TN 511 at smartway.tn.gov/traffic for incidents, construction, cameras. Covers Memphis, Nashville, Chattanooga, Knoxville TMCs."
+    },
+    {
+      "id": "tn-wildfire-dor",
+      "authority": "NIFC WFIGS",
+      "coverage": {
+        "states": [
+          "TN"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "National Interagency Fire Center",
+      "termsUrl": "https://www.nifc.gov/",
+      "status": "validated",
+      "notes": "NIFC WFIGS wildland fire perimeters (National interagency dataset covering TN). Layer 0: Current fire perimeters with attributes for acres, cause, contained date, discovery date, fire name, and status. Updated daily during fire season."
+    },
+    {
+      "id": "tn-water-usgs",
+      "authority": "USGS Tennessee Water Science Center",
+      "coverage": {
+        "states": [
+          "TN"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=tn",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/tn/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for TN. Streamflow, gage height."
+    },
+    {
+      "id": "tn-grid-tva",
+      "authority": "Tennessee Valley Authority",
+      "coverage": {
+        "states": [
+          "TN"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.tva.com/outages",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Tennessee Valley Authority",
+      "termsUrl": "https://www.tva.com/",
+      "status": "discovered",
+      "notes": "TVA provides wholesale power to local distributors. Individual utility outage maps vary by city. No central public API."
+    },
+    {
+      "id": "tn-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "TN"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/TN",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for TN. Severe weather, tornado, flood, winter storm. GeoJSON."
+    },
+    {
+      "id": "tn-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "TN"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=36.7&minlatitude=35&maxlongitude=-81.6&minlongitude=-90.3",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for TN (New Madrid seismic zone). Bounding box covers TN. Returns magnitude, place, time, depth, coordinates, url."
+    }
+  ]
+}

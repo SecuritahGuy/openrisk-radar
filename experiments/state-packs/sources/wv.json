@@ -1,0 +1,126 @@
+{
+  "state": "WV",
+  "name": "West Virginia",
+  "sources": [
+    {
+      "id": "wv-transport-wvdot",
+      "authority": "WVDOT / WV 511",
+      "coverage": {
+        "states": [
+          "WV"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services2.arcgis.com/xLpB90lOmCXYDAWo/arcgis/rest/services/driveforward_events/FeatureServer",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "West Virginia Department of Transportation",
+      "termsUrl": "https://wv511.org/",
+      "status": "validated",
+      "notes": "WVDOT ArcGIS Online driveforward_events FeatureServer. Also Bridge_Closures and Combined_Active_Roadway_Projects_2025 FeatureServers on same AGOL org. WV 511 at wv511.org for real-time incidents, closures, cameras. Supports f=geojson."
+    },
+    {
+      "id": "wv-wildfire-wvdf",
+      "authority": "WV Division of Forestry",
+      "coverage": {
+        "states": [
+          "WV"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://wvforestry.com/wildfire/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "West Virginia Division of Forestry",
+      "termsUrl": "https://wvforestry.com/",
+      "status": "discovered",
+      "notes": "WV Division of Forestry wildfire information. Fire danger, burn bans. Web portal + NWS fire weather alerts."
+    },
+    {
+      "id": "wv-water-usgs",
+      "authority": "USGS West Virginia Water Science Center",
+      "coverage": {
+        "states": [
+          "WV"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=wv",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/wv/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for WV. Streamflow, gage height."
+    },
+    {
+      "id": "wv-grid-appalachian",
+      "authority": "Appalachian Power (AEP)",
+      "coverage": {
+        "states": [
+          "WV"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://outagemap.appalachianpower.com/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Appalachian Power / AEP",
+      "termsUrl": "https://www.appalachianpower.com/",
+      "status": "discovered",
+      "notes": "Appalachian Power (AEP) outage map. Web portal — no public API. Serves most of WV. Also FirstEnergy/Mon Power for northern WV."
+    },
+    {
+      "id": "wv-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "WV"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/WV",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for WV. Severe weather, flood, winter storm. GeoJSON."
+    },
+    {
+      "id": "wv-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "WV"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=40.6&minlatitude=37.2&maxlongitude=-77.7&minlongitude=-82.6",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for WV. Bounding box covers WV."
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "state": "NY",
+  "name": "New York",
+  "sources": [
+    {
+      "id": "ny-511-alerts",
+      "authority": "NYSDOT 511",
+      "coverage": {
+        "states": [
+          "NY"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://511ny.org/api/v2/get/alerts",
+      "refreshSeconds": 120,
+      "proxyRequired": true,
+      "attribution": "New York State Department of Transportation",
+      "termsUrl": "http://511ny.org/developers/doc",
+      "status": "validated",
+      "notes": "511NY REST API v2. Requires free dev key via ?key= param. Endpoints: /api/v2/get/alerts, events, cameras, message signs, winter road conditions. Original /api/getalerts endpoint deprecated."
+    },
+    {
+      "id": "ny-wzdx",
+      "authority": "NYSDOT 511 (WZDx)",
+      "coverage": {
+        "states": [
+          "NY"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "wzdx",
+      "endpoint": "https://511ny.org/api/wzdx",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "New York State Department of Transportation",
+      "termsUrl": "http://511ny.org/developers/doc",
+      "status": "validated",
+      "notes": "Public WZDx GeoJSON feed at /api/wzdx. No API key needed. Work zone data with road_event_id, road_names, direction, mileposts, geometry, lanes, restrictions, start/end dates."
+    },
+    {
+      "id": "ny-dec-fire-danger",
+      "authority": "NYSDEC via Open NY",
+      "coverage": {
+        "states": [
+          "NY"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://data.ny.gov/resource/miub-n5th.json",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "New York State Department of Environmental Conservation",
+      "termsUrl": "https://data.ny.gov/",
+      "status": "validated",
+      "notes": "Open NY SODA API — Forest Ranger Wildland Fire Reporting DB (2008–present). Fields: fire_number, incident_name, start_date, county, cause, acreage, lat/long, fatalities. Also 1975-2007 at data.ny.gov/resource/4xir-miej.json. No real-time fire danger map REST found on DEC ArcGIS server."
+    },
+    {
+      "id": "ny-nyiso-grid",
+      "authority": "New York ISO",
+      "coverage": {
+        "states": [
+          "NY"
+        ],
+        "isoTerritory": "NYISO"
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://mis.nyiso.com/public/csv/rtfuelmix/{YYYYMMDD}rtfuelmix.csv",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "New York ISO",
+      "termsUrl": "https://www.nyiso.com/",
+      "status": "validated",
+      "notes": "NYISO real-time fuel mix CSV from mis.nyiso.com. Format: /public/csv/rtfuelmix/{YYYYMMDD}rtfuelmix.csv. Also LBMP, load, gen maintenance at mis.nyiso.com/public/. The oasis-postings.prod.nysdi.com endpoint was returning 404."
+    },
+    {
+      "id": "ny-great-lakes-water",
+      "authority": "NOAA CO-OPS / GLERL",
+      "coverage": {
+        "states": [
+          "NY"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_level&station=9075035&format=json&units=metric&date=latest&datum=IGLD",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "NOAA CO-OPS / Great Lakes Environmental Research Laboratory",
+      "termsUrl": "https://tidesandcurrents.noaa.gov/",
+      "status": "validated",
+      "notes": "NOAA CO-OPS API for Great Lakes water levels. Station 9075035 = Essexville MI (Lake Huron / Lake Erie corridor). Also USACE combined lakes CSV at lre-wm.usace.army.mil/ForecastData/WaterLevelData/GLHYD_data_metric.csv."
+    },
+    {
+      "id": "ny-habs",
+      "authority": "NYSDEC HABs",
+      "coverage": {
+        "states": [
+          "NY"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services6.arcgis.com/DZHaqZm9cxOD4CWM/ArcGIS/rest/services/Current_HAB_Reports_7_3_19/FeatureServer",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "New York State Department of Environmental Conservation",
+      "termsUrl": "https://www.dec.ny.gov/",
+      "status": "validated",
+      "notes": "NYSDEC ArcGIS Online FeatureServer for HAB reports (131 current). Fields: water_name, county, HAB_STATUS (Confirmed/Suspected), extent_bloom (Small Localized/Widespread), date_time, Weblink. Also archived reports at /Archived_HAB_Reports_DIL/FeatureServer (223 records). Supports f=geojson."
+    },
+    {
+      "id": "ny-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "NY"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=45&minlatitude=40.5&maxlongitude=-71.8&minlongitude=-80. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    },
+    {
+      "id": "ny-noaa-marine",
+      "authority": "NOAA NWS Marine Forecasts",
+      "coverage": {
+        "states": [
+          "NY"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/products/types/GLF",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API marine products. Great Lakes Marine Forecast — Lake Erie and Lake Ontario. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    }
+  ]
+}

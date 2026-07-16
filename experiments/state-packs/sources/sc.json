@@ -1,0 +1,146 @@
+{
+  "state": "SC",
+  "name": "South Carolina",
+  "sources": [
+    {
+      "id": "sc-transport-kml",
+      "authority": "SCDOT / 511SC",
+      "coverage": {
+        "states": [
+          "SC"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://sc.cdn.iteris-atis.com/geojson/icons/metadata/icons.incident.geojson",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "SCDOT / Iteris",
+      "termsUrl": "https://www.scdot.org/travel/travel-road.html",
+      "status": "validated",
+      "notes": "SCDOT road conditions via Iteris public GeoJSON feed (KML at scdot.org deprecated). Incidents, construction, closures with geometry, type, severity. Updated every 2 minutes."
+    },
+    {
+      "id": "sc-wildfire-scfc",
+      "authority": "South Carolina Forestry Commission",
+      "coverage": {
+        "states": [
+          "SC"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://scfc.firesponse.com/public/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "South Carolina Forestry Commission",
+      "termsUrl": "https://www.scfc.gov/protection/fire-burning/fire-resources/",
+      "status": "discovered",
+      "notes": "SCFC Public Viewer (firesponse). Active wildfire locations, prescribed burns, KBDI drought index. ArcGIS-based dashboard at scfc.maps.arcgis.com."
+    },
+    {
+      "id": "sc-water-usgs",
+      "authority": "USGS South Carolina Water Science Center",
+      "coverage": {
+        "states": [
+          "SC"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=sc",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/sc/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for SC. Streamflow, gage height. Also SC Water Monitoring Portal at scseagrant.org."
+    },
+    {
+      "id": "sc-beach-monitoring",
+      "authority": "SC Department of Environmental Services",
+      "coverage": {
+        "states": [
+          "SC"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://gis.dhec.sc.gov/beachaccess/",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "SC Department of Environmental Services",
+      "termsUrl": "https://des.sc.gov/programs/bureau-water/aquatic-science/beach-monitoring",
+      "status": "validated",
+      "notes": "SCDES beach monitoring. 122 stations along SC coast. Swim advisories for Enterococcus bacteria. Also EPA BEACON 2.0 at beacon.epa.gov."
+    },
+    {
+      "id": "sc-grid-sceg",
+      "authority": "Dominion Energy South Carolina",
+      "coverage": {
+        "states": [
+          "SC"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://outagemap.dominionenergysc.com/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Dominion Energy South Carolina",
+      "termsUrl": "https://www.dominionenergy.com/",
+      "status": "discovered",
+      "notes": "Dominion Energy SC outage map at SC-specific outagemap subdomain. Web portal — no public API found. Also Duke Energy for Upstate SC."
+    },
+    {
+      "id": "sc-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "SC"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=35.2&minlatitude=32&maxlongitude=-78.5&minlongitude=-83.4",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for SC. Bounding box covers SC. Returns magnitude, place, time, depth, coordinates, url."
+    },
+    {
+      "id": "sc-noaa-marine",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "SC"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active?zone=SCZ000",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS marine zone alerts for SC coast. Also NHC for hurricane threat."
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "state": "MN",
+  "name": "Minnesota",
+  "sources": [
+    {
+      "id": "mn-511-events",
+      "authority": "Minnesota DOT 511",
+      "coverage": {
+        "states": [
+          "MN"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api-511x-mn.carsprogram.org/events?eventClassifications=incidents,closures,workZones,roadReports",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Minnesota Department of Transportation",
+      "termsUrl": "https://511mn.org/",
+      "status": "validated",
+      "notes": "New 511mn.org API. REST endpoint returns JSON events (incidents, closures, work zones, road reports). Also GraphQL at 511mn.org/api/graphql. Old hb.511mn.org host decommissioned."
+    },
+    {
+      "id": "mn-dnr-fire",
+      "authority": "Minnesota DNR Forestry",
+      "coverage": {
+        "states": [
+          "MN"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://maps.dnr.state.mn.us/cgi-bin/mapserv/fire_danger?mode=query",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Minnesota Department of Natural Resources",
+      "termsUrl": "https://www.dnr.state.mn.us/",
+      "status": "validated",
+      "notes": "MapServer CGI query endpoint. Returns current fire danger by county/forestry area. Params: mapxy={lng}+{lat}. Response: status 1-5 (Low to Extreme), last_update. Also WMS layer and static PNG map at maps.dnr.state.mn.us/for/fire_maps/."
+    },
+    {
+      "id": "mn-dnr-water",
+      "authority": "Minnesota DNR Waters",
+      "coverage": {
+        "states": [
+          "MN"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://services.dnr.state.mn.us/api/lakefinder/by_point/v1/",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Minnesota Department of Natural Resources",
+      "termsUrl": "https://www.dnr.state.mn.us/",
+      "status": "validated",
+      "notes": "MN DNR LakeFinder API. Takes ?lat={lat}&lon={lon} and returns lake data (level, area, info) for nearest lake. Also Where API for spatial queries."
+    },
+    {
+      "id": "mn-great-lakes-water",
+      "authority": "NOAA CO-OPS / GLERL",
+      "coverage": {
+        "states": [
+          "MN"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_level&station=9099064&format=json&units=metric&date=latest&datum=IGLD",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "NOAA CO-OPS / Great Lakes Environmental Research Laboratory",
+      "termsUrl": "https://tidesandcurrents.noaa.gov/",
+      "status": "validated",
+      "notes": "NOAA CO-OPS API for Lake Superior water levels. Station 9099064 = Duluth MN. Also USACE combined lakes CSV at lre-wm.usace.army.mil/ForecastData/WaterLevelData/GLHYD_data_metric.csv."
+    },
+    {
+      "id": "mn-miso-grid",
+      "authority": "MISO (new public API)",
+      "coverage": {
+        "states": [
+          "MN"
+        ],
+        "isoTerritory": "MISO"
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://public-api.misoenergy.org/api/Interchange/GetNai",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Midcontinent Independent System Operator",
+      "termsUrl": "https://public-api.misoenergy.org/",
+      "status": "validated",
+      "notes": "MISO public API v2.0 (MUI). Same as MI. Interchange/GetNai for real-time grid data. Legacy DataBrokerServices.asmx also available for fuel mix."
+    },
+    {
+      "id": "mn-air-quality",
+      "authority": "Minnesota PCA",
+      "coverage": {
+        "states": [
+          "MN"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://www.pca.state.mn.us/air-water-land-climate/air-quality-monitoring",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Minnesota Pollution Control Agency",
+      "termsUrl": "https://www.pca.state.mn.us/",
+      "status": "discovered",
+      "notes": "PCA air quality monitoring page. data.pca.state.mn.us blocked by Radware captcha. AQI data at data.web.health.state.mn.us/air_aqi. Canadian wildfire smoke impacts significant for MN."
+    },
+    {
+      "id": "mn-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "MN"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=49.4&minlatitude=43.5&maxlongitude=-89.5&minlongitude=-97.2. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    },
+    {
+      "id": "mn-noaa-marine",
+      "authority": "NOAA NWS Marine Forecasts",
+      "coverage": {
+        "states": [
+          "MN"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/products/types/GLF",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API marine products. Great Lakes Marine Forecast — Lake Superior. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    }
+  ]
+}

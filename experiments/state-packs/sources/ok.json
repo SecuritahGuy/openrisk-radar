@@ -1,0 +1,126 @@
+{
+  "state": "OK",
+  "name": "Oklahoma",
+  "sources": [
+    {
+      "id": "ok-transport-odot",
+      "authority": "ODOT / OKTraffic",
+      "coverage": {
+        "states": [
+          "OK"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://gisdata.odot.ok.gov/arcgis/rest/services/StatusSheets/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson&resultRecordCount=100",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "Oklahoma Department of Transportation",
+      "termsUrl": "https://oktraffic.org/",
+      "status": "discovered",
+      "notes": "ODOT ArcGIS StatusSheets FeatureServer at gisdata.odot.ok.gov. Also Agile/Network_Events MapServer for network events. OKTraffic at oktraffic.org for real-time traffic map (web app, no public REST API). Drive Oklahoma mobile app available."
+    },
+    {
+      "id": "ok-wildfire-ofs",
+      "authority": "Oklahoma Forestry Services",
+      "coverage": {
+        "states": [
+          "OK"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "html",
+      "endpoint": "https://ag.ok.gov/divisions/forestry-services/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Oklahoma Forestry Services / ODAFF",
+      "termsUrl": "https://ag.ok.gov/",
+      "status": "discovered",
+      "notes": "Oklahoma Forestry Services wildfire detection, suppression, prevention. Web portal + ArcGIS services. Also NIFC IRWIN for active incidents."
+    },
+    {
+      "id": "ok-water-usgs",
+      "authority": "USGS Oklahoma Water Science Center",
+      "coverage": {
+        "states": [
+          "OK"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=ok",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/ok/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for OK. Streamflow, gage height."
+    },
+    {
+      "id": "ok-grid-oge",
+      "authority": "OG&E",
+      "coverage": {
+        "states": [
+          "OK"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://outagemap.oge.com/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Oklahoma Gas & Electric",
+      "termsUrl": "https://www.oge.com/",
+      "status": "discovered",
+      "notes": "OG&E System Watch outage map. Web portal — no public API. Serves central and western OK. PSO (AEP) serves Tulsa/eastern OK."
+    },
+    {
+      "id": "ok-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "OK"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/OK",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for OK. Tornado alley epicenter, severe weather. GeoJSON."
+    },
+    {
+      "id": "ok-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "OK"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=37&minlatitude=33.6&maxlongitude=-94.4&minlongitude=-103",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for OK (induced seismicity from oil/gas). Major earthquake swarms in central OK. Bounding box covers OK."
+    }
+  ]
+}

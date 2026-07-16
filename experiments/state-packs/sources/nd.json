@@ -1,0 +1,126 @@
+{
+  "state": "ND",
+  "name": "North Dakota",
+  "sources": [
+    {
+      "id": "nd-transport-nddot",
+      "authority": "NDDOT / NDRoads",
+      "coverage": {
+        "states": [
+          "ND"
+        ]
+      },
+      "capability": "transportation-events",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://travelfiles.dot.nd.gov/geojson_nc/alerts.json",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "North Dakota Department of Transportation",
+      "termsUrl": "https://www.dot.nd.gov/",
+      "status": "validated",
+      "notes": "NDDOT GeoJSON alerts feed from travelfiles.dot.nd.gov. Returns road alerts/incidents with highway, direction, milepost, travel speed, delay time. Also roads.json for road conditions. Falls back to gis.dot.nd.gov/arcgis/rest/services/external/rcrs_dynamic/MapServer (layers: Alerts, Work Zones, Road Conditions, Cameras)."
+    },
+    {
+      "id": "nd-wildfire-ndfs",
+      "authority": "NIFC WFIGS",
+      "coverage": {
+        "states": [
+          "ND"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "National Interagency Fire Center",
+      "termsUrl": "https://www.nifc.gov/",
+      "status": "validated",
+      "notes": "NIFC WFIGS wildland fire perimeters (National interagency dataset covering ND). Layer 0: Current fire perimeters with attributes for acres, cause, contained date, discovery date, fire name, and status. Updated daily during fire season."
+    },
+    {
+      "id": "nd-water-usgs",
+      "authority": "USGS North Dakota Water Science Center",
+      "coverage": {
+        "states": [
+          "ND"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=nd",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/nd/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for ND. Streamflow, gage height."
+    },
+    {
+      "id": "nd-grid",
+      "authority": "Multiple ND utilities",
+      "coverage": {
+        "states": [
+          "ND"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.ottertail.com/outages",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Otter Tail Power / MDU / co-ops",
+      "termsUrl": "https://www.ottertail.com/",
+      "status": "discovered",
+      "notes": "Multiple ND utilities: Otter Tail Power (eastern), Montana-Dakota Utilities (western), Basin Electric co-ops. Each has web portal. No unified API."
+    },
+    {
+      "id": "nd-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "ND"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/ND",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for ND. Winter storms, blizzards, flooding. GeoJSON."
+    },
+    {
+      "id": "nd-usgs-earthquake",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "states": [
+          "ND"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=49&minlatitude=45.9&maxlongitude=-96.6&minlongitude=-104.1",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://earthquake.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API for ND (minimal seismic activity). Bounding box covers ND."
+    }
+  ]
+}
