@@ -49,6 +49,11 @@ async function validateSource(
     const res = await fetch(source.endpoint, {
       signal: AbortSignal.timeout(TIMEOUT),
       redirect: "manual",
+      headers: {
+        "User-Agent":
+          "OpenRiskRadar-CountryPackValidator/1.0 (+https://github.com/SecuritahGuy/openrisk-radar)",
+        Accept: "application/json, geojson, xml, text/xml, csv, */*",
+      },
     });
 
     result.httpStatus = res.status;
