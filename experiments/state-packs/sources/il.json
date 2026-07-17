@@ -162,6 +162,46 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS API marine products. Great Lakes Marine Forecast — Lake Michigan. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    },
+    {
+      "id": "il-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "IL"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/IL",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for IL. Severe storms, tornado, flood, winter weather. GeoJSON."
+    },
+    {
+      "id": "il-water-usgs",
+      "authority": "USGS Illinois Water Science Center",
+      "coverage": {
+        "states": [
+          "IL"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=IL",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/il/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for IL. Streamflow, gage height, temperature."
     }
   ]
 }

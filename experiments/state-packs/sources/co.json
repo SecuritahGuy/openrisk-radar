@@ -141,6 +141,26 @@
       "termsUrl": "https://earthquake.usgs.gov/",
       "status": "validated",
       "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=41&minlatitude=37&maxlongitude=-102&minlongitude=-109. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    },
+    {
+      "id": "co-water-usgs",
+      "authority": "USGS Colorado Water Science Center",
+      "coverage": {
+        "states": [
+          "CO"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=CO",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/co/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for CO. Streamflow, gage height, temperature."
     }
   ]
 }

@@ -141,6 +141,26 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS marine zone alerts for SC coast. Also NHC for hurricane threat."
+    },
+    {
+      "id": "sc-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "SC"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/SC",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for SC. Hurricanes, severe storms, tornado, flood, heat. GeoJSON."
     }
   ]
 }

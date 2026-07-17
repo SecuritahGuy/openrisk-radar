@@ -141,6 +141,46 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS marine zone alerts for VA coast (Chesapeake Bay, Atlantic). Also NHC for hurricane threat."
+    },
+    {
+      "id": "va-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "VA"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/VA",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for VA. Hurricanes, severe storms, tornado, flood, winter weather. GeoJSON."
+    },
+    {
+      "id": "va-water-usgs",
+      "authority": "USGS Virginia Water Science Center",
+      "coverage": {
+        "states": [
+          "VA"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=VA",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/va/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for VA. Streamflow, gage height, temperature."
     }
   ]
 }

@@ -122,6 +122,46 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS API marine products. Coastal Waters Forecast — Pacific coast. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    },
+    {
+      "id": "ca-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "CA"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/CA",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for CA. Severe weather, winter storm, flood, heat, wind. GeoJSON."
+    },
+    {
+      "id": "ca-water-usgs",
+      "authority": "USGS California Water Science Center",
+      "coverage": {
+        "states": [
+          "CA"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=CA",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/ca/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for CA. Streamflow, gage height, temperature. Large state — many active gages."
     }
   ]
 }

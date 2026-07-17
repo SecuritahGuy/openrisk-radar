@@ -101,6 +101,26 @@
       "termsUrl": "https://earthquake.usgs.gov/",
       "status": "validated",
       "notes": "USGS FDSN Event API for DC. Bounding box covers DC and immediate surroundings."
+    },
+    {
+      "id": "dc-wildfire-firms",
+      "authority": "NASA FIRMS",
+      "coverage": {
+        "states": [
+          "DC"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "csv",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/38.8,39.0,-77.2,-76.9/1",
+      "refreshSeconds": 600,
+      "proxyRequired": true,
+      "attribution": "NASA FIRMS",
+      "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
+      "status": "discovered",
+      "notes": "NASA FIRMS VIIRS active fire/hotspot detection. Replace MAP_KEY in URL with free API key from firms.modaps.eosdis.nasa.gov. Returns CSV with latitude, longitude, brightness, confidence, frp. Bounding box covers DC and immediate surroundings."
     }
   ]
 }

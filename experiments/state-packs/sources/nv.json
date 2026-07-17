@@ -101,6 +101,26 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS API active alerts for NV. Includes fire weather, red flag, excessive heat, dust storms. GeoJSON with polygon geometry, severity, headline, description."
+    },
+    {
+      "id": "nv-grid-nvenergy",
+      "authority": "NV Energy",
+      "coverage": {
+        "states": [
+          "NV"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://www.nvenergy.com/outage-center/outage-map",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NV Energy",
+      "termsUrl": "https://www.nvenergy.com/",
+      "status": "discovered",
+      "notes": "NV Energy outage map. Web portal — no public API found. Also Valley Electric Association for rural NV."
     }
   ]
 }

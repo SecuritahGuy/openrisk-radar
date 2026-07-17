@@ -103,6 +103,46 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS API marine products. Coastal Waters Forecast — Gulf of Mexico. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    },
+    {
+      "id": "tx-nws-alerts",
+      "authority": "NOAA National Weather Service",
+      "coverage": {
+        "states": [
+          "TX"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/TX",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for TX. Severe weather, hurricane, flood, heat, winter storm. GeoJSON with polygon geometry, severity, headline, description. No key required."
+    },
+    {
+      "id": "tx-water-usgs",
+      "authority": "USGS Texas Water Science Center",
+      "coverage": {
+        "states": [
+          "TX"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=tx",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/tx/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for TX. Streamflow, gage height, temperature for major river basins including Rio Grande, Brazos, Colorado, Trinity. JSON with site info, variable, and time-series values. No key required."
     }
   ]
 }

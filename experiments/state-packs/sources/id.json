@@ -101,6 +101,46 @@
       "termsUrl": "https://earthquake.usgs.gov/",
       "status": "validated",
       "notes": "USGS FDSN Event API. Bounding box covers ID. Returns magnitude, place, time, depth, coordinates, url."
+    },
+    {
+      "id": "id-nws-alerts",
+      "authority": "NOAA National Weather Service",
+      "coverage": {
+        "states": [
+          "ID"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/ID",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for ID. Severe weather, winter storm, flood, heat. GeoJSON with polygon geometry, severity, headline, description. No key required."
+    },
+    {
+      "id": "id-wildfire-firms",
+      "authority": "NASA FIRMS",
+      "coverage": {
+        "states": [
+          "ID"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "csv",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/42,49,-117.2,-111/1",
+      "refreshSeconds": 600,
+      "proxyRequired": true,
+      "attribution": "NASA FIRMS",
+      "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
+      "status": "discovered",
+      "notes": "NASA FIRMS VIIRS active fire/hotspot detection. Replace MAP_KEY in URL with free API key from firms.modaps.eosdis.nasa.gov. Returns CSV with latitude, longitude, brightness, confidence, frp. Bounding box covers Idaho."
     }
   ]
 }

@@ -121,6 +121,46 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS API marine products. Coastal Waters Forecast — Pacific coast. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    },
+    {
+      "id": "or-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "OR"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/OR",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for OR. Winter storms, severe storms, flood, fire weather, tsunami. GeoJSON."
+    },
+    {
+      "id": "or-water-usgs",
+      "authority": "USGS Oregon Water Science Center",
+      "coverage": {
+        "states": [
+          "OR"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=OR",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/or/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for OR. Streamflow, gage height, temperature."
     }
   ]
 }

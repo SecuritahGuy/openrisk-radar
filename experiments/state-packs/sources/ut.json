@@ -141,6 +141,46 @@
       "termsUrl": "https://earthquake.usgs.gov/",
       "status": "validated",
       "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=42&minlatitude=37&maxlongitude=-109&minlongitude=-114. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    },
+    {
+      "id": "ut-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "UT"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/UT",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for UT. Winter storms, severe storms, flood, fire weather, heat. GeoJSON."
+    },
+    {
+      "id": "ut-water-usgs",
+      "authority": "USGS Utah Water Science Center",
+      "coverage": {
+        "states": [
+          "UT"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=UT",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/ut/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for UT. Streamflow, gage height, temperature."
     }
   ]
 }

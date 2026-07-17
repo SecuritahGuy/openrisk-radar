@@ -141,6 +141,26 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS marine zone alerts for MD coast and Chesapeake Bay. Also NHC for hurricane threat."
+    },
+    {
+      "id": "md-water-usgs",
+      "authority": "USGS Maryland Water Science Center",
+      "coverage": {
+        "states": [
+          "MD"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=MD",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/md/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for MD. Streamflow, gage height, temperature."
     }
   ]
 }

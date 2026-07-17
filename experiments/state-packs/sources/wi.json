@@ -61,6 +61,66 @@
       "termsUrl": "https://earthquake.usgs.gov/",
       "status": "validated",
       "notes": "USGS FDSN Event API. Params: format=geojson&minmagnitude=2.5&maxlatitude=47.3&minlatitude=42.5&maxlongitude=-86.8&minlongitude=-92.9. Returns GeoJSON with magnitude, place, time, depth, coordinates, url, alert, tsunami, felt, cdi, mmi. No key required."
+    },
+    {
+      "id": "wi-nws-alerts",
+      "authority": "NOAA National Weather Service",
+      "coverage": {
+        "states": [
+          "WI"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/WI",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for WI. Severe weather, winter storm, flood, extreme heat. GeoJSON with polygon geometry, severity, headline, description. No key required."
+    },
+    {
+      "id": "wi-water-usgs",
+      "authority": "USGS Wisconsin Water Science Center",
+      "coverage": {
+        "states": [
+          "WI"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=wi",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/wi/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for WI. Streamflow, gage height, temperature for Mississippi, Wisconsin, Fox, Menominee, and Rock River basins. JSON with site info, variable, and time-series values. No key required."
+    },
+    {
+      "id": "wi-wildfire-firms",
+      "authority": "NASA FIRMS",
+      "coverage": {
+        "states": [
+          "WI"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "csv",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/42.5,47.3,-92.9,-86.8/1",
+      "refreshSeconds": 600,
+      "proxyRequired": true,
+      "attribution": "NASA FIRMS",
+      "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
+      "status": "discovered",
+      "notes": "NASA FIRMS VIIRS active fire/hotspot detection. Replace MAP_KEY in URL with free API key from firms.modaps.eosdis.nasa.gov. Returns CSV with latitude, longitude, brightness, confidence, frp. Bounding box covers Wisconsin."
     }
   ]
 }

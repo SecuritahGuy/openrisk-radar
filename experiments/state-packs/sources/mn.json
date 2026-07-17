@@ -162,6 +162,46 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS API marine products. Great Lakes Marine Forecast — Lake Superior. Product codes: CWF (Coastal Waters), GLF (Great Lakes), MWW (Marine Weather), SRF (Surf), CFW (Coastal Flood). Use /types/{code} to list active products, /types/{code}/locations/{loc} for GeoJSON. No key required."
+    },
+    {
+      "id": "mn-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "MN"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/MN",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for MN. Winter storms, blizzards, severe storms, flood, extreme cold. GeoJSON."
+    },
+    {
+      "id": "mn-water-usgs",
+      "authority": "USGS Minnesota Water Science Center",
+      "coverage": {
+        "states": [
+          "MN"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=MN",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterdata.usgs.gov/mn/",
+      "status": "validated",
+      "notes": "USGS instantaneous values for MN. Streamflow, gage height, temperature."
     }
   ]
 }

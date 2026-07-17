@@ -161,6 +161,26 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS marine zone alerts for NC coast. Also NHC current storms for hurricane threat at nhc.noaa.gov/CurrentStorms.json."
+    },
+    {
+      "id": "nc-nws-alerts",
+      "authority": "NOAA NWS",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active/area/NC",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA National Weather Service",
+      "termsUrl": "https://api.weather.gov/",
+      "status": "validated",
+      "notes": "NWS API active alerts for NC. Hurricanes, severe storms, tornado, flood, winter weather. GeoJSON."
     }
   ]
 }
