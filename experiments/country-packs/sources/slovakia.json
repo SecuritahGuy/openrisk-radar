@@ -5,11 +5,15 @@
     {
       "id": "sk-meteoalarm-warnings",
       "authority": "Meteoalarm (Slovak Hydrometeorological Institute)",
-      "coverage": { "countries": ["SK"] },
+      "coverage": {
+        "countries": [
+          "SK"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "atom",
+      "format": "rss",
       "endpoint": "https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-slovakia",
       "refreshSeconds": 600,
       "proxyRequired": false,
@@ -21,7 +25,11 @@
     {
       "id": "sk-shmu-observations",
       "authority": "Slovak Hydrometeorological Institute (SHMÚ)",
-      "coverage": { "countries": ["SK"] },
+      "coverage": {
+        "countries": [
+          "SK"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "map-overlay",
       "access": "public",
@@ -37,7 +45,11 @@
     {
       "id": "sk-usgs-earthquake",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["SK"] },
+      "coverage": {
+        "countries": [
+          "SK"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -53,7 +65,11 @@
     {
       "id": "sk-airquality-shmu",
       "authority": "Slovak Hydrometeorological Institute (SHMÚ) — Air Quality",
-      "coverage": { "countries": ["SK"] },
+      "coverage": {
+        "countries": [
+          "SK"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "map-overlay",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "sk-seps-grid",
       "authority": "Slovenská elektrizačná prenosová sústava (SEPS) — transmission operator",
-      "coverage": { "countries": ["SK"] },
+      "coverage": {
+        "countries": [
+          "SK"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "sk-water-shmu",
       "authority": "Slovak Hydrometeorological Institute (SHMÚ) — Hydrology",
-      "coverage": { "countries": ["SK"] },
+      "coverage": {
+        "countries": [
+          "SK"
+        ]
+      },
       "capability": "water",
       "outputModel": "map-overlay",
       "access": "public",

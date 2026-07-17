@@ -5,7 +5,14 @@
     {
       "id": "fr-emsc-seismicportal-earthquakes",
       "authority": "EMSC (European-Mediterranean Seismological Centre) / ReNaSS",
-      "coverage": { "countries": ["FR"], "regions": ["nearby"] },
+      "coverage": {
+        "countries": [
+          "FR"
+        ],
+        "regions": [
+          "nearby"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,8 +28,12 @@
     {
       "id": "fr-open-meteo-weather",
       "authority": "Open-Meteo (Météo-France AROME/ARPEGE models)",
-      "coverage": { "countries": ["FR"] },
-      "capability": "weather",
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
+      "capability": "road-weather",
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
@@ -37,8 +48,12 @@
     {
       "id": "fr-meteoalarm-weather-warnings",
       "authority": "EUMETNET / Météo-France (via Meteoalarm)",
-      "coverage": { "countries": ["FR"] },
-      "capability": "weather",
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
+      "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
       "format": "html",
@@ -53,7 +68,11 @@
     {
       "id": "fr-vigicrues-flood-territories",
       "authority": "Service Central d'Hydrométéorologie et d'Appui à la Prévision des Inondations (SCHAPI)",
-      "coverage": { "countries": ["FR"] },
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
       "capability": "water",
       "outputModel": "risk-event",
       "access": "public",
@@ -69,7 +88,11 @@
     {
       "id": "fr-vigicrues-flood-observations",
       "authority": "SCHAPI / Vigicrues",
-      "coverage": { "countries": ["FR"] },
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
       "capability": "water",
       "outputModel": "risk-event",
       "access": "public",
@@ -85,7 +108,11 @@
     {
       "id": "fr-vigicrues-flood-predictions",
       "authority": "SCHAPI / Vigicrues",
-      "coverage": { "countries": ["FR"] },
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
       "capability": "water",
       "outputModel": "risk-event",
       "access": "public",
@@ -101,7 +128,11 @@
     {
       "id": "fr-hubeau-hydrometrie",
       "authority": "BRGM / OFB / SCHAPI (Hub'Eau)",
-      "coverage": { "countries": ["FR"] },
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
       "capability": "water",
       "outputModel": "risk-event",
       "access": "public",
@@ -117,7 +148,11 @@
     {
       "id": "fr-rte-eco2mix-grid",
       "authority": "RTE (Réseau de Transport d'Électricité)",
-      "coverage": { "countries": ["FR"] },
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -133,7 +168,11 @@
     {
       "id": "fr-nasa-firms-wildfire",
       "authority": "NASA FIRMS (Fire Information for Resource Management System)",
-      "coverage": { "countries": ["FR"] },
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "risk-event",
       "access": "api-key",
@@ -149,7 +188,11 @@
     {
       "id": "fr-open-meteo-marine",
       "authority": "Open-Meteo Marine (Copernicus Marine / Météo-France models)",
-      "coverage": { "countries": ["FR"] },
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -165,7 +208,11 @@
     {
       "id": "fr-open-meteo-air-quality",
       "authority": "Open-Meteo Air Quality (CAMS Copernicus)",
-      "coverage": { "countries": ["FR"] },
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -181,7 +228,11 @@
     {
       "id": "fr-atmo-france-air-quality",
       "authority": "Atmo France / Fédération ATMO",
-      "coverage": { "countries": ["FR"] },
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",

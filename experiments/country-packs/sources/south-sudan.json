@@ -1,0 +1,166 @@
+{
+  "country": "SS",
+  "name": "South Sudan",
+  "sources": [
+    {
+      "id": "ss-earthquake-emsc",
+      "authority": "EMSC / European-Mediterranean Seismological Centre",
+      "coverage": {
+        "countries": [
+          "SS"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.seismicportal.eu/fdsnws/event/1/query?format=json&minlat=3.40&maxlat=12.20&minlon=23.80&maxlon=35.90&limit=100",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "EMSC",
+      "termsUrl": "https://www.seismicportal.eu/terms_of_use.html",
+      "status": "discovered",
+      "notes": "EMSC FDSNWS event query constrained to South Sudan bbox. Confirmed 200 application/json."
+    },
+    {
+      "id": "ss-earthquake-usgs",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "countries": [
+          "SS"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=3.40&maxlatitude=12.20&minlongitude=23.80&maxlongitude=35.90",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "USGS",
+      "termsUrl": "https://earthquake.usgs.gov/help/terms.php",
+      "status": "discovered",
+      "notes": "USGS FDSNWS GeoJSON event feed for South Sudan bbox. Confirmed 200 application/json."
+    },
+    {
+      "id": "ss-weather-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "countries": [
+          "SS"
+        ]
+      },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=4.85&longitude=31.58&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs",
+      "status": "discovered",
+      "notes": "Open-Meteo forecast for South Sudan (4.85, 31.58). Confirmed 200 application/json."
+    },
+    {
+      "id": "ss-airquality-openmeteo",
+      "authority": "Open-Meteo Air Quality",
+      "coverage": {
+        "countries": [
+          "SS"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=4.85&longitude=31.58&current=pm2_5,pm10,ozone,us_aqi",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/air-quality-api",
+      "status": "discovered",
+      "notes": "Open-Meteo air quality (PM2.5/PM10/O3/AQI) for South Sudan. Confirmed 200 application/json."
+    },
+    {
+      "id": "ss-flood-openmeteo",
+      "authority": "Open-Meteo Flood / Global Flood API",
+      "coverage": {
+        "countries": [
+          "SS"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://flood-api.open-meteo.com/v1/flood?latitude=4.85&longitude=31.58&daily=river_discharge",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/flood-api",
+      "status": "discovered",
+      "notes": "Open-Meteo flood/river-discharge API for South Sudan. Confirmed 200 application/json."
+    },
+    {
+      "id": "ss-wildfire-firms",
+      "authority": "NASA FIRMS",
+      "coverage": {
+        "countries": [
+          "SS"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "map-overlay",
+      "access": "api-key",
+      "format": "csv",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/3.40,23.80,12.20,35.90/1",
+      "refreshSeconds": 3600,
+      "proxyRequired": true,
+      "attribution": "NASA FIRMS",
+      "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
+      "status": "discovered",
+      "notes": "NASA FIRMS area API for South Sudan bbox. Returns 400 without MAP_KEY (confirmed). Requires API key."
+    },
+    {
+      "id": "ss-grid-eia",
+      "authority": "U.S. Energy Information Administration",
+      "coverage": {
+        "countries": [
+          "SS"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://api.eia.gov/v2/international/data/?api_key=MAP_KEY",
+      "refreshSeconds": 86400,
+      "proxyRequired": true,
+      "attribution": "EIA",
+      "termsUrl": "https://www.eia.gov/terms/",
+      "status": "discovered",
+      "notes": "EIA international electricity/energy data for South Sudan. Returns 403 without key (confirmed). Requires API key."
+    },
+    {
+      "id": "ss-multihazard-gdacs",
+      "authority": "GDACS — Global Disaster Alert and Coordination System",
+      "coverage": {
+        "countries": [
+          "SS"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://www.gdacs.org/xml/rss.xml",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "GDACS",
+      "termsUrl": "https://www.gdacs.org/terms.aspx",
+      "status": "discovered",
+      "notes": "GDACS global multi-hazard RSS/XML feed, filterable to South Sudan alerts. Confirmed 200 text/xml."
+    }
+  ]
+}

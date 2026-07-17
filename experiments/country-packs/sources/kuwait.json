@@ -1,0 +1,186 @@
+{
+  "country": "KW",
+  "name": "Kuwait",
+  "sources": [
+    {
+      "id": "kw-earthquake-emsc",
+      "authority": "EMSC / European-Mediterranean Seismological Centre",
+      "coverage": {
+        "countries": [
+          "KW"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.seismicportal.eu/fdsnws/event/1/query?format=json&minlat=28.50&maxlat=30.20&minlon=46.50&maxlon=48.50&limit=100",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "EMSC",
+      "termsUrl": "https://www.seismicportal.eu/terms_of_use.html",
+      "status": "discovered",
+      "notes": "EMSC FDSNWS event query constrained to Kuwait bbox. Confirmed 200 application/json."
+    },
+    {
+      "id": "kw-earthquake-usgs",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "countries": [
+          "KW"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=28.50&maxlatitude=30.20&minlongitude=46.50&maxlongitude=48.50",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "USGS",
+      "termsUrl": "https://earthquake.usgs.gov/help/terms.php",
+      "status": "discovered",
+      "notes": "USGS FDSNWS GeoJSON event feed for Kuwait bbox. Confirmed 200 application/json."
+    },
+    {
+      "id": "kw-weather-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "countries": [
+          "KW"
+        ]
+      },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=29.31&longitude=47.48&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs",
+      "status": "discovered",
+      "notes": "Open-Meteo forecast for Kuwait (29.31, 47.48). Confirmed 200 application/json."
+    },
+    {
+      "id": "kw-airquality-openmeteo",
+      "authority": "Open-Meteo Air Quality",
+      "coverage": {
+        "countries": [
+          "KW"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=29.31&longitude=47.48&current=pm2_5,pm10,ozone,us_aqi",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/air-quality-api",
+      "status": "discovered",
+      "notes": "Open-Meteo air quality (PM2.5/PM10/O3/AQI) for Kuwait. Confirmed 200 application/json."
+    },
+    {
+      "id": "kw-flood-openmeteo",
+      "authority": "Open-Meteo Flood / Global Flood API",
+      "coverage": {
+        "countries": [
+          "KW"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://flood-api.open-meteo.com/v1/flood?latitude=29.31&longitude=47.48&daily=river_discharge",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/flood-api",
+      "status": "discovered",
+      "notes": "Open-Meteo flood/river-discharge API for Kuwait. Confirmed 200 application/json."
+    },
+    {
+      "id": "kw-marine-openmeteo",
+      "authority": "Open-Meteo Marine",
+      "coverage": {
+        "countries": [
+          "KW"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://marine-api.open-meteo.com/v1/marine?latitude=29.31&longitude=47.48&current=wave_height,wave_period,wind_wave_height",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/marine-weather-api",
+      "status": "discovered",
+      "notes": "Open-Meteo marine waves for Kuwait coast. Confirmed 200 application/json."
+    },
+    {
+      "id": "kw-wildfire-firms",
+      "authority": "NASA FIRMS",
+      "coverage": {
+        "countries": [
+          "KW"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "map-overlay",
+      "access": "api-key",
+      "format": "csv",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/28.50,46.50,30.20,48.50/1",
+      "refreshSeconds": 3600,
+      "proxyRequired": true,
+      "attribution": "NASA FIRMS",
+      "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
+      "status": "discovered",
+      "notes": "NASA FIRMS area API for Kuwait bbox. Returns 400 without MAP_KEY (confirmed). Requires API key."
+    },
+    {
+      "id": "kw-grid-eia",
+      "authority": "U.S. Energy Information Administration",
+      "coverage": {
+        "countries": [
+          "KW"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://api.eia.gov/v2/international/data/?api_key=MAP_KEY",
+      "refreshSeconds": 86400,
+      "proxyRequired": true,
+      "attribution": "EIA",
+      "termsUrl": "https://www.eia.gov/terms/",
+      "status": "discovered",
+      "notes": "EIA international electricity/energy data for Kuwait. Returns 403 without key (confirmed). Requires API key."
+    },
+    {
+      "id": "kw-multihazard-gdacs",
+      "authority": "GDACS — Global Disaster Alert and Coordination System",
+      "coverage": {
+        "countries": [
+          "KW"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://www.gdacs.org/xml/rss.xml",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "GDACS",
+      "termsUrl": "https://www.gdacs.org/terms.aspx",
+      "status": "discovered",
+      "notes": "GDACS global multi-hazard RSS/XML feed, filterable to Kuwait alerts. Confirmed 200 text/xml."
+    }
+  ]
+}

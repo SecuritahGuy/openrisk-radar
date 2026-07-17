@@ -1,0 +1,186 @@
+{
+  "country": "AW",
+  "name": "Aruba",
+  "sources": [
+    {
+      "id": "aw-earthquake-emsc",
+      "authority": "EMSC / European-Mediterranean Seismological Centre",
+      "coverage": {
+        "countries": [
+          "AW"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.seismicportal.eu/fdsnws/event/1/query?format=json&minlat=12.40&maxlat=12.60&minlon=-70.10&maxlon=-69.90&limit=100",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "EMSC",
+      "termsUrl": "https://www.seismicportal.eu/terms_of_use.html",
+      "status": "discovered",
+      "notes": "EMSC FDSNWS event query constrained to Aruba bbox. Confirmed 200 application/json."
+    },
+    {
+      "id": "aw-earthquake-usgs",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "countries": [
+          "AW"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=12.40&maxlatitude=12.60&minlongitude=-70.10&maxlongitude=-69.90",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "USGS",
+      "termsUrl": "https://earthquake.usgs.gov/help/terms.php",
+      "status": "discovered",
+      "notes": "USGS FDSNWS GeoJSON event feed for Aruba bbox. Confirmed 200 application/json."
+    },
+    {
+      "id": "aw-weather-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "countries": [
+          "AW"
+        ]
+      },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=12.52&longitude=-70.03&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs",
+      "status": "discovered",
+      "notes": "Open-Meteo forecast for Aruba (12.52, -70.03). Confirmed 200 application/json."
+    },
+    {
+      "id": "aw-airquality-openmeteo",
+      "authority": "Open-Meteo Air Quality",
+      "coverage": {
+        "countries": [
+          "AW"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=12.52&longitude=-70.03&current=pm2_5,pm10,ozone,us_aqi",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/air-quality-api",
+      "status": "discovered",
+      "notes": "Open-Meteo air quality (PM2.5/PM10/O3/AQI) for Aruba. Confirmed 200 application/json."
+    },
+    {
+      "id": "aw-flood-openmeteo",
+      "authority": "Open-Meteo Flood / Global Flood API",
+      "coverage": {
+        "countries": [
+          "AW"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://flood-api.open-meteo.com/v1/flood?latitude=12.52&longitude=-70.03&daily=river_discharge",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/flood-api",
+      "status": "discovered",
+      "notes": "Open-Meteo flood/river-discharge API for Aruba. Confirmed 200 application/json."
+    },
+    {
+      "id": "aw-marine-openmeteo",
+      "authority": "Open-Meteo Marine",
+      "coverage": {
+        "countries": [
+          "AW"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://marine-api.open-meteo.com/v1/marine?latitude=12.52&longitude=-70.03&current=wave_height,wave_period,wind_wave_height",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/marine-weather-api",
+      "status": "discovered",
+      "notes": "Open-Meteo marine waves for Aruba coast. Confirmed 200 application/json."
+    },
+    {
+      "id": "aw-wildfire-firms",
+      "authority": "NASA FIRMS",
+      "coverage": {
+        "countries": [
+          "AW"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "map-overlay",
+      "access": "api-key",
+      "format": "csv",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/12.40,-70.10,12.60,-69.90/1",
+      "refreshSeconds": 3600,
+      "proxyRequired": true,
+      "attribution": "NASA FIRMS",
+      "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
+      "status": "discovered",
+      "notes": "NASA FIRMS area API for Aruba bbox. Returns 400 without MAP_KEY (confirmed). Requires API key."
+    },
+    {
+      "id": "aw-grid-eia",
+      "authority": "U.S. Energy Information Administration",
+      "coverage": {
+        "countries": [
+          "AW"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://api.eia.gov/v2/international/data/?api_key=MAP_KEY",
+      "refreshSeconds": 86400,
+      "proxyRequired": true,
+      "attribution": "EIA",
+      "termsUrl": "https://www.eia.gov/terms/",
+      "status": "discovered",
+      "notes": "EIA international electricity/energy data for Aruba. Returns 403 without key (confirmed). Requires API key."
+    },
+    {
+      "id": "aw-multihazard-gdacs",
+      "authority": "GDACS — Global Disaster Alert and Coordination System",
+      "coverage": {
+        "countries": [
+          "AW"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://www.gdacs.org/xml/rss.xml",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "GDACS",
+      "termsUrl": "https://www.gdacs.org/terms.aspx",
+      "status": "discovered",
+      "notes": "GDACS global multi-hazard RSS/XML feed, filterable to Aruba alerts. Confirmed 200 text/xml."
+    }
+  ]
+}

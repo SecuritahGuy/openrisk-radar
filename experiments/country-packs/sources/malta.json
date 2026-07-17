@@ -5,11 +5,15 @@
     {
       "id": "mt-meteoalarm-warnings",
       "authority": "Meteoalarm (Malta Meteorological Office)",
-      "coverage": { "countries": ["MT"] },
+      "coverage": {
+        "countries": [
+          "MT"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "atom",
+      "format": "rss",
       "endpoint": "https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-malta",
       "refreshSeconds": 600,
       "proxyRequired": false,
@@ -21,7 +25,11 @@
     {
       "id": "mt-usgs-earthquake",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["MT"] },
+      "coverage": {
+        "countries": [
+          "MT"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +45,11 @@
     {
       "id": "mt-airquality-gov",
       "authority": "Malta Environment & Resources Authority (ERA) — Air Quality",
-      "coverage": { "countries": ["MT"] },
+      "coverage": {
+        "countries": [
+          "MT"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "map-overlay",
       "access": "public",
@@ -53,7 +65,11 @@
     {
       "id": "mt-enemalta-grid",
       "authority": "Enemalta plc (Malta electricity operator)",
-      "coverage": { "countries": ["MT"] },
+      "coverage": {
+        "countries": [
+          "MT"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "mt-wsc-water",
       "authority": "Water Services Corporation (WSC), Malta",
-      "coverage": { "countries": ["MT"] },
+      "coverage": {
+        "countries": [
+          "MT"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",

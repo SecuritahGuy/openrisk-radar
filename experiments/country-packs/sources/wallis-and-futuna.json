@@ -1,0 +1,186 @@
+{
+  "country": "WF",
+  "name": "Wallis and Futuna",
+  "sources": [
+    {
+      "id": "wf-earthquake-emsc",
+      "authority": "EMSC / European-Mediterranean Seismological Centre",
+      "coverage": {
+        "countries": [
+          "WF"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.seismicportal.eu/fdsnws/event/1/query?format=json&minlat=-14.40&maxlat=-13.20&minlon=-178.00&maxlon=-176.00&limit=100",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "EMSC",
+      "termsUrl": "https://www.seismicportal.eu/terms_of_use.html",
+      "status": "discovered",
+      "notes": "EMSC FDSNWS event query constrained to Wallis and Futuna bbox. Confirmed 200 application/json."
+    },
+    {
+      "id": "wf-earthquake-usgs",
+      "authority": "USGS Earthquake Hazards Program",
+      "coverage": {
+        "countries": [
+          "WF"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=-14.40&maxlatitude=-13.20&minlongitude=-178.00&maxlongitude=-176.00",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "USGS",
+      "termsUrl": "https://earthquake.usgs.gov/help/terms.php",
+      "status": "discovered",
+      "notes": "USGS FDSNWS GeoJSON event feed for Wallis and Futuna bbox. Confirmed 200 application/json."
+    },
+    {
+      "id": "wf-weather-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "countries": [
+          "WF"
+        ]
+      },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=-13.77&longitude=-176.20&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs",
+      "status": "discovered",
+      "notes": "Open-Meteo forecast for Wallis and Futuna (-13.77, -176.20). Confirmed 200 application/json."
+    },
+    {
+      "id": "wf-airquality-openmeteo",
+      "authority": "Open-Meteo Air Quality",
+      "coverage": {
+        "countries": [
+          "WF"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=-13.77&longitude=-176.20&current=pm2_5,pm10,ozone,us_aqi",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/air-quality-api",
+      "status": "discovered",
+      "notes": "Open-Meteo air quality (PM2.5/PM10/O3/AQI) for Wallis and Futuna. Confirmed 200 application/json."
+    },
+    {
+      "id": "wf-flood-openmeteo",
+      "authority": "Open-Meteo Flood / Global Flood API",
+      "coverage": {
+        "countries": [
+          "WF"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://flood-api.open-meteo.com/v1/flood?latitude=-13.77&longitude=-176.20&daily=river_discharge",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/flood-api",
+      "status": "discovered",
+      "notes": "Open-Meteo flood/river-discharge API for Wallis and Futuna. Confirmed 200 application/json."
+    },
+    {
+      "id": "wf-marine-openmeteo",
+      "authority": "Open-Meteo Marine",
+      "coverage": {
+        "countries": [
+          "WF"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://marine-api.open-meteo.com/v1/marine?latitude=-13.77&longitude=-176.20&current=wave_height,wave_period,wind_wave_height",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/marine-weather-api",
+      "status": "discovered",
+      "notes": "Open-Meteo marine waves for Wallis and Futuna coast. Confirmed 200 application/json."
+    },
+    {
+      "id": "wf-wildfire-firms",
+      "authority": "NASA FIRMS",
+      "coverage": {
+        "countries": [
+          "WF"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "map-overlay",
+      "access": "api-key",
+      "format": "csv",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/-14.40,-178.00,-13.20,-176.00/1",
+      "refreshSeconds": 3600,
+      "proxyRequired": true,
+      "attribution": "NASA FIRMS",
+      "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
+      "status": "discovered",
+      "notes": "NASA FIRMS area API for Wallis and Futuna bbox. Returns 400 without MAP_KEY (confirmed). Requires API key."
+    },
+    {
+      "id": "wf-grid-eia",
+      "authority": "U.S. Energy Information Administration",
+      "coverage": {
+        "countries": [
+          "WF"
+        ]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://api.eia.gov/v2/international/data/?api_key=MAP_KEY",
+      "refreshSeconds": 86400,
+      "proxyRequired": true,
+      "attribution": "EIA",
+      "termsUrl": "https://www.eia.gov/terms/",
+      "status": "discovered",
+      "notes": "EIA international electricity/energy data for Wallis and Futuna. Returns 403 without key (confirmed). Requires API key."
+    },
+    {
+      "id": "wf-multihazard-gdacs",
+      "authority": "GDACS — Global Disaster Alert and Coordination System",
+      "coverage": {
+        "countries": [
+          "WF"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://www.gdacs.org/xml/rss.xml",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "GDACS",
+      "termsUrl": "https://www.gdacs.org/terms.aspx",
+      "status": "discovered",
+      "notes": "GDACS global multi-hazard RSS/XML feed, filterable to Wallis and Futuna alerts. Confirmed 200 text/xml."
+    }
+  ]
+}

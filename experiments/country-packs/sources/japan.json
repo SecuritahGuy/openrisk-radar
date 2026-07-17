@@ -11,7 +11,7 @@
       "access": "public",
       "format": "json",
       "endpoint": "https://api.wolfx.jp/jma_eew.json",
-      "refreshSeconds": 30,
+      "refreshSeconds": 60,
       "proxyRequired": false,
       "attribution": "Japan Meteorological Agency / Wolfx",
       "termsUrl": "https://wolfx.jp/apidoc_en",

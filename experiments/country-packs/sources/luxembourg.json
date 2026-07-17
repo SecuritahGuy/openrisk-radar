@@ -5,7 +5,11 @@
     {
       "id": "lu-meteolux-warnings",
       "authority": "MeteoLux (Luxembourg Meteorological Administration)",
-      "coverage": { "countries": ["LU"] },
+      "coverage": {
+        "countries": [
+          "LU"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "lu-meteolux-observations",
       "authority": "MeteoLux (Luxembourg Meteorological Administration)",
-      "coverage": { "countries": ["LU"] },
+      "coverage": {
+        "countries": [
+          "LU"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "map-overlay",
       "access": "public",
@@ -37,11 +45,15 @@
     {
       "id": "lu-meteoalarm-warnings",
       "authority": "Meteoalarm (MeteoLux)",
-      "coverage": { "countries": ["LU"] },
+      "coverage": {
+        "countries": [
+          "LU"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "atom",
+      "format": "rss",
       "endpoint": "https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-luxembourg",
       "refreshSeconds": 600,
       "proxyRequired": false,
@@ -53,7 +65,11 @@
     {
       "id": "lu-usgs-earthquake",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["LU"] },
+      "coverage": {
+        "countries": [
+          "LU"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "lu-airquality-portal",
       "authority": "Administration de l'environnement (AGE) — Luxembourg Air Quality",
-      "coverage": { "countries": ["LU"] },
+      "coverage": {
+        "countries": [
+          "LU"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "map-overlay",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "lu-creos-grid",
       "authority": "Creos Luxembourg (electricity & gas grid operator)",
-      "coverage": { "countries": ["LU"] },
+      "coverage": {
+        "countries": [
+          "LU"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",

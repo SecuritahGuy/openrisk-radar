@@ -5,11 +5,15 @@
     {
       "id": "cy-meteoalarm-warnings",
       "authority": "Meteoalarm (Cyprus Meteorological Service)",
-      "coverage": { "countries": ["CY"] },
+      "coverage": {
+        "countries": [
+          "CY"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "atom",
+      "format": "rss",
       "endpoint": "https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-cyprus",
       "refreshSeconds": 600,
       "proxyRequired": false,
@@ -21,7 +25,11 @@
     {
       "id": "cy-usgs-earthquake",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["CY"] },
+      "coverage": {
+        "countries": [
+          "CY"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +45,11 @@
     {
       "id": "cy-airquality-gov",
       "authority": "Department of Labour Inspection — Air Quality Monitoring Network",
-      "coverage": { "countries": ["CY"] },
+      "coverage": {
+        "countries": [
+          "CY"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "map-overlay",
       "access": "public",
@@ -53,7 +65,11 @@
     {
       "id": "cy-eac-grid",
       "authority": "Electricity Authority of Cyprus (EAC)",
-      "coverage": { "countries": ["CY"] },
+      "coverage": {
+        "countries": [
+          "CY"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "cy-wdd-water",
       "authority": "Water Development Department (WDD), Cyprus",
-      "coverage": { "countries": ["CY"] },
+      "coverage": {
+        "countries": [
+          "CY"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",

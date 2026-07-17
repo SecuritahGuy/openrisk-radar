@@ -5,11 +5,15 @@
     {
       "id": "ch-sed-earthquakes",
       "authority": "Swiss Seismological Service (SED) at ETH Zurich",
-      "coverage": { "countries": ["CH"] },
+      "coverage": {
+        "countries": [
+          "CH"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "quakeml",
+      "format": "xml",
       "endpoint": "https://eida.ethz.ch/fdsnws/event/1/query?format=text&limit=50",
       "refreshSeconds": 300,
       "proxyRequired": false,
@@ -21,7 +25,11 @@
     {
       "id": "ch-slf-avalanche",
       "authority": "WSL Institute for Snow and Avalanche Research SLF",
-      "coverage": { "countries": ["CH"] },
+      "coverage": {
+        "countries": [
+          "CH"
+        ]
+      },
       "capability": "avalanche",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +45,11 @@
     {
       "id": "ch-meteoswiss-stations",
       "authority": "MeteoSwiss (Federal Office of Meteorology and Climatology)",
-      "coverage": { "countries": ["CH"] },
+      "coverage": {
+        "countries": [
+          "CH"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -53,7 +65,11 @@
     {
       "id": "ch-swissgrid-grid",
       "authority": "Swissgrid (Swiss TSO)",
-      "coverage": { "countries": ["CH"] },
+      "coverage": {
+        "countries": [
+          "CH"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",
@@ -69,7 +85,11 @@
     {
       "id": "ch-foen-water",
       "authority": "Federal Office for the Environment FOEN (BAFU)",
-      "coverage": { "countries": ["CH"] },
+      "coverage": {
+        "countries": [
+          "CH"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "ch-natural-hazards-portal",
       "authority": "Swiss Federal Office for Civil Protection FOCP (PLANAT)",
-      "coverage": { "countries": ["CH"] },
+      "coverage": {
+        "countries": [
+          "CH"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "map-overlay",
       "access": "public",

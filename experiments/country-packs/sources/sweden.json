@@ -5,8 +5,12 @@
     {
       "id": "se-smhi-metobs",
       "authority": "SMHI (Sveriges Meteorologiska och Hydrologiska Institut)",
-      "coverage": { "countries": ["SE"] },
-      "capability": "weather",
+      "coverage": {
+        "countries": [
+          "SE"
+        ]
+      },
+      "capability": "road-weather",
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
@@ -21,7 +25,11 @@
     {
       "id": "se-smhi-hydroobs",
       "authority": "SMHI (Sveriges Meteorologiska och Hydrologiska Institut)",
-      "coverage": { "countries": ["SE"] },
+      "coverage": {
+        "countries": [
+          "SE"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -37,7 +45,11 @@
     {
       "id": "se-smhi-ocobs",
       "authority": "SMHI (Sveriges Meteorologiska och Hydrologiska Institut)",
-      "coverage": { "countries": ["SE"] },
+      "coverage": {
+        "countries": [
+          "SE"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -53,8 +65,12 @@
     {
       "id": "se-smhi-warnings-test",
       "authority": "SMHI (Sveriges Meteorologiska och Hydrologiska Institut)",
-      "coverage": { "countries": ["SE"] },
-      "capability": "weather",
+      "coverage": {
+        "countries": [
+          "SE"
+        ]
+      },
+      "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
       "format": "json",
@@ -69,7 +85,11 @@
     {
       "id": "se-usgs-earthquakes",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["SE"] },
+      "coverage": {
+        "countries": [
+          "SE"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "se-svenska-kraftnat-grid",
       "authority": "Svenska kraftnät (Svk)",
-      "coverage": { "countries": ["SE"] },
+      "coverage": {
+        "countries": [
+          "SE"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,7 +125,11 @@
     {
       "id": "se-naturvardsverket-airquality-sos",
       "authority": "Naturvårdsverket (Swedish EPA) / SMHI",
-      "coverage": { "countries": ["SE"] },
+      "coverage": {
+        "countries": [
+          "SE"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",

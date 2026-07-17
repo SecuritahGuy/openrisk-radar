@@ -42,7 +42,7 @@
       "outputModel": "risk-event",
       "access": "public",
       "format": "xml",
-      "endpoint": "http://www.ign.es/ign/RssTools/sismologia.xml",
+      "endpoint": "https://www.ign.es/ign/RssTools/sismologia.xml",
       "refreshSeconds": 300,
       "proxyRequired": false,
       "attribution": "Instituto Geográfico Nacional (IGN)",

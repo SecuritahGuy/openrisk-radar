@@ -5,23 +5,31 @@
     {
       "id": "mx-conafor-wildfire",
       "authority": "CONAFOR (Comisión Nacional Forestal)",
-      "coverage": { "countries": ["MX"] },
+      "coverage": {
+        "countries": [
+          "MX"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "wfs",
-        "endpoint": "https://idefor.cnf.gob.mx/geoserver/wfs?service=WFS&version=2.0.0&request=GetCapabilities",
-        "refreshSeconds": 3600,
-        "proxyRequired": false,
-        "attribution": "CONAFOR / Gobierno de México",
-        "termsUrl": "https://idefor.cnf.gob.mx/",
-        "status": "discovered",
-        "notes": "CONAFOR GeoServer WFS (workspace is root, not /public/). Forest fire perimeters and risk cartography. Available layers include geonode:incendios_forestales types (yearly polygons named _2024_incendios_forestales etc). Query with typeName=geonode:_2024_incendios_forestales. Also WMS at same base."
+      "format": "xml",
+      "endpoint": "https://idefor.cnf.gob.mx/geoserver/wfs?service=WFS&version=2.0.0&request=GetCapabilities",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "CONAFOR / Gobierno de México",
+      "termsUrl": "https://idefor.cnf.gob.mx/",
+      "status": "discovered",
+      "notes": "CONAFOR GeoServer WFS (workspace is root, not /public/). Forest fire perimeters and risk cartography. Available layers include geonode:incendios_forestales types (yearly polygons named _2024_incendios_forestales etc). Query with typeName=geonode:_2024_incendios_forestales. Also WMS at same base."
     },
     {
       "id": "mx-ssn-earthquakes",
       "authority": "Servicio Sismológico Nacional (UNAM)",
-      "coverage": { "countries": ["MX"] },
+      "coverage": {
+        "countries": [
+          "MX"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +45,11 @@
     {
       "id": "mx-conagua-water",
       "authority": "CONAGUA (Comisión Nacional del Agua)",
-      "coverage": { "countries": ["MX"] },
+      "coverage": {
+        "countries": [
+          "MX"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -53,7 +65,11 @@
     {
       "id": "mx-smn-weather",
       "authority": "Servicio Meteorológico Nacional (SMN)",
-      "coverage": { "countries": ["MX"] },
+      "coverage": {
+        "countries": [
+          "MX"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "mx-usgs-earthquakes",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["MX"] },
+      "coverage": {
+        "countries": [
+          "MX"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",

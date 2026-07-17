@@ -5,7 +5,11 @@
     {
       "id": "in-imd-weather",
       "authority": "India Meteorological Department (IMD)",
-      "coverage": { "countries": ["IN"] },
+      "coverage": {
+        "countries": [
+          "IN"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "in-usgs-earthquake",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["IN"] },
+      "coverage": {
+        "countries": [
+          "IN"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +45,11 @@
     {
       "id": "in-nasa-firms-wildfire",
       "authority": "NASA LANCE FIRMS",
-      "coverage": { "countries": ["IN"] },
+      "coverage": {
+        "countries": [
+          "IN"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "risk-event",
       "access": "public",
@@ -53,7 +65,11 @@
     {
       "id": "in-nasa-viirs-wildfire",
       "authority": "NASA LANCE FIRMS",
-      "coverage": { "countries": ["IN"] },
+      "coverage": {
+        "countries": [
+          "IN"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "risk-event",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "in-cwc-flood-forecast",
       "authority": "Central Water Commission (CWC) Flood Forecasting",
-      "coverage": { "countries": ["IN"] },
+      "coverage": {
+        "countries": [
+          "IN"
+        ]
+      },
       "capability": "water",
       "outputModel": "risk-event",
       "access": "public",
@@ -79,13 +99,17 @@
       "proxyRequired": true,
       "attribution": "Central Water Commission, India",
       "termsUrl": "https://ffs.india-water.gov.in/",
-      "status": "broken",
+      "status": "error",
       "notes": "CWC Flood Forecasting portal. ffs.india-water.gov.in and aff.india-water.gov.in confirmed unreachable (DNS/transport errors). inf.cwc.gov.in returns 401 (requires auth). CWC flood warnings were severely impacted in June 2026 monsoon. NWDP CKAN (nwdp.nwic.gov.in) is the primary working alternative — serves CWC telemetry river water level data as CSV via CKAN API. Also see in-nwdp-cwc-river-level for direct data access."
     },
     {
       "id": "in-nwdp-water-data",
       "authority": "National Water Data Portal (NWIC)",
-      "coverage": { "countries": ["IN"] },
+      "coverage": {
+        "countries": [
+          "IN"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,7 +125,11 @@
     {
       "id": "in-nwdp-cwc-river-level",
       "authority": "National Water Data Portal (NWIC) / CWC",
-      "coverage": { "countries": ["IN"] },
+      "coverage": {
+        "countries": [
+          "IN"
+        ]
+      },
       "capability": "water",
       "outputModel": "risk-event",
       "access": "public",
@@ -117,7 +145,11 @@
     {
       "id": "in-cpcb-air-quality",
       "authority": "Central Pollution Control Board (CPCB)",
-      "coverage": { "countries": ["IN"] },
+      "coverage": {
+        "countries": [
+          "IN"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "api-key",
@@ -133,7 +165,11 @@
     {
       "id": "in-incois-tsunami",
       "authority": "INCOIS (Indian National Centre for Ocean Information Services)",
-      "coverage": { "countries": ["IN"] },
+      "coverage": {
+        "countries": [
+          "IN"
+        ]
+      },
       "capability": "marine",
       "outputModel": "risk-event",
       "access": "public",

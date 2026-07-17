@@ -5,7 +5,11 @@
     {
       "id": "is-vedur-quakes",
       "authority": "Icelandic Meteorological Office (Veðurstofa Íslands)",
-      "coverage": { "countries": ["IS"] },
+      "coverage": {
+        "countries": [
+          "IS"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "is-vedur-cap-warnings",
       "authority": "Icelandic Meteorological Office (Veðurstofa Íslands)",
-      "coverage": { "countries": ["IS"] },
+      "coverage": {
+        "countries": [
+          "IS"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,11 +45,15 @@
     {
       "id": "is-meteoalarm-warnings",
       "authority": "Meteoalarm (Icelandic Met Office)",
-      "coverage": { "countries": ["IS"] },
+      "coverage": {
+        "countries": [
+          "IS"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "atom",
+      "format": "rss",
       "endpoint": "https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-iceland",
       "refreshSeconds": 600,
       "proxyRequired": false,
@@ -53,7 +65,11 @@
     {
       "id": "is-vedur-observations",
       "authority": "Icelandic Meteorological Office (Veðurstofa Íslands)",
-      "coverage": { "countries": ["IS"] },
+      "coverage": {
+        "countries": [
+          "IS"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "map-overlay",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "is-avalanche-bulletin",
       "authority": "Icelandic Meteorological Office — Avalanche Section",
-      "coverage": { "countries": ["IS"] },
+      "coverage": {
+        "countries": [
+          "IS"
+        ]
+      },
       "capability": "avalanche",
       "outputModel": "risk-event",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "is-landsnet-grid",
       "authority": "Landsnet hf (Iceland transmission system operator)",
-      "coverage": { "countries": ["IS"] },
+      "coverage": {
+        "countries": [
+          "IS"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,7 +125,11 @@
     {
       "id": "is-vedur-water-glaciers",
       "authority": "Icelandic Meteorological Office — Hydrology & Glaciers",
-      "coverage": { "countries": ["IS"] },
+      "coverage": {
+        "countries": [
+          "IS"
+        ]
+      },
       "capability": "water",
       "outputModel": "map-overlay",
       "access": "public",
@@ -117,7 +145,11 @@
     {
       "id": "is-airquality-ust",
       "authority": "Umhverfisstofnun (Icelandic Environment Agency)",
-      "coverage": { "countries": ["IS"] },
+      "coverage": {
+        "countries": [
+          "IS"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "map-overlay",
       "access": "public",

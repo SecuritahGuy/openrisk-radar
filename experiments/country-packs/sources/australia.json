@@ -5,7 +5,14 @@
     {
       "id": "au-rfs-nsw-fire-incidents",
       "authority": "NSW Rural Fire Service",
-      "coverage": { "countries": ["AU"], "regions": ["NSW"] },
+      "coverage": {
+        "countries": [
+          "AU"
+        ],
+        "regions": [
+          "NSW"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +28,14 @@
     {
       "id": "au-geoscience-earthquakes",
       "authority": "Geoscience Australia",
-      "coverage": { "countries": ["AU"], "regions": ["nearby"] },
+      "coverage": {
+        "countries": [
+          "AU"
+        ],
+        "regions": [
+          "nearby"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +51,11 @@
     {
       "id": "au-bom-weather",
       "authority": "Bureau of Meteorology (BOM)",
-      "coverage": { "countries": ["AU"] },
+      "coverage": {
+        "countries": [
+          "AU"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -53,7 +71,11 @@
     {
       "id": "au-bom-marine",
       "authority": "Bureau of Meteorology (marine)",
-      "coverage": { "countries": ["AU"] },
+      "coverage": {
+        "countries": [
+          "AU"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +91,11 @@
     {
       "id": "au-aemo-grid",
       "authority": "Australian Energy Market Operator (AEMO)",
-      "coverage": { "countries": ["AU"] },
+      "coverage": {
+        "countries": [
+          "AU"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,11 +111,15 @@
     {
       "id": "au-myfirewatch-hotspots",
       "authority": "Landgate WA (MyFireWatch)",
-      "coverage": { "countries": ["AU"] },
+      "coverage": {
+        "countries": [
+          "AU"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "wfs",
+      "format": "xml",
       "endpoint": "https://srss-ows-2.landgate.wa.gov.au/wxs/myfirewatch.php?service=WFS&version=2.0.0&request=GetCapabilities",
       "refreshSeconds": 600,
       "proxyRequired": false,

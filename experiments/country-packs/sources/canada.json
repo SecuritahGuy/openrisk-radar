@@ -90,7 +90,7 @@
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "csv",
-      "endpoint": "http://reports.ieso.ca/public/SupplyOverview/PUB_SupplyOverview.xml",
+      "endpoint": "https://reports.ieso.ca/public/SupplyOverview/PUB_SupplyOverview.xml",
       "refreshSeconds": 300,
       "proxyRequired": false,
       "attribution": "IESO Ontario",
