@@ -143,6 +143,26 @@
       "termsUrl": "https://waterdata.usgs.gov/tx/",
       "status": "validated",
       "notes": "USGS instantaneous values for TX. Streamflow, gage height, temperature for major river basins including Rio Grande, Brazos, Colorado, Trinity. JSON with site info, variable, and time-series values. No key required."
+    },
+    {
+      "id": "tx-water-twdb",
+      "authority": "Texas Water Development Board",
+      "coverage": {
+        "states": [
+          "TX"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://www.waterdatafortexas.org/reservoirs/statewide/recent-conditions.geojson",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Texas Water Development Board",
+      "termsUrl": "https://www.waterdatafortexas.org/",
+      "status": "validated",
+      "notes": "TWDB reservoir conditions via Water Data For Texas. Returns GeoJSON with 122+ reservoirs. Properties: full_name, short_name, percent_full, elevation, conservation_capacity, conservation_storage, volume. State agency open data. Also available: groundwater, drought, coastal pages at waterdatafortexas.org."
     }
   ]
 }

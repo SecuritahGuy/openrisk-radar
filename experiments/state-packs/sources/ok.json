@@ -121,6 +121,26 @@
       "termsUrl": "https://earthquake.usgs.gov/",
       "status": "validated",
       "notes": "USGS FDSN Event API for OK (induced seismicity from oil/gas). Major earthquake swarms in central OK. Bounding box covers OK."
+    },
+    {
+      "id": "ok-mesonet-weather",
+      "authority": "Oklahoma Mesonet / Oklahoma Climatological Survey",
+      "coverage": {
+        "states": [
+          "OK"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://www.mesonet.org/data/public/mesonet/current/current.csv.txt",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Oklahoma Mesonet / Oklahoma Climatological Survey",
+      "termsUrl": "https://www.mesonet.org/",
+      "status": "validated",
+      "notes": "Oklahoma Mesonet current observations from 120+ stations statewide. CSV format: STID,NAME,ST,LAT,LON,TAIR,TDEW,RELH,WDIR,WSPD,WMAX,PRES,TMAX,TMIN,RAIN. Real-time weather data updated every 5 minutes. Also available as MDF/XMDF/WXC formats at mesonet.org/data/public/mesonet/current/. Public data from OK state legislature-funded network. No API key required."
     }
   ]
 }

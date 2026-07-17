@@ -141,6 +141,46 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS marine/coastal zone alerts for HI. Central Pacific Hurricane Center (CPHC) for hurricane threat. High surf, coastal flooding."
+    },
+    {
+      "id": "hi-ptwc-tsunami",
+      "authority": "NOAA Pacific Tsunami Warning Center",
+      "coverage": {
+        "states": [
+          "HI"
+        ]
+      },
+      "capability": "tsunami",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://www.tsunami.gov/events/xml/PHEBCAP.xml",
+      "refreshSeconds": 60,
+      "proxyRequired": false,
+      "attribution": "NOAA Pacific Tsunami Warning Center",
+      "termsUrl": "https://www.tsunami.gov/",
+      "status": "validated",
+      "notes": "PTWC Common Alerting Protocol (CAP) feed. Covers HI and Pacific basin. Also available: PHEBAtom.xml (Atom feed) and PHEBTEX.xml (TEX format). NTWC (PAAQ prefix) covers AK and mainland US. PTWC is authoritative for HI tsunami warnings."
+    },
+    {
+      "id": "hi-hvo-vog",
+      "authority": "USGS Hawaiian Volcano Observatory / HI DOH",
+      "coverage": {
+        "states": [
+          "HI"
+        ]
+      },
+      "capability": "volcano",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&maxlatitude=22.3&minlatitude=18.9&maxlongitude=-154.8&minlongitude=-160.3",
+      "refreshSeconds": 120,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey / Hawaiian Volcano Observatory",
+      "termsUrl": "https://www.usgs.gov/observatories/hvo",
+      "status": "discovered",
+      "notes": "HVO monitors Kilauea, Mauna Loa, Hualalai, and Haleakala. Earthquake API captures volcanic seismic swarms and eruptions via HI bounding box. HI DOH tracks vog (volcanic smog) air quality. Existing hi-usgs-earthquake covers this; added as volcano capability."
     }
   ]
 }

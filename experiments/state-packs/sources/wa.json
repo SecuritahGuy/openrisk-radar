@@ -161,6 +161,46 @@
       "termsUrl": "https://waterdata.usgs.gov/wa/",
       "status": "validated",
       "notes": "USGS instantaneous values for WA. Streamflow, gage height, temperature."
+    },
+    {
+      "id": "wa-dnr-wildfire-perimeters",
+      "authority": "WA Department of Natural Resources",
+      "coverage": {
+        "states": [
+          "WA"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://services3.arcgis.com/0IbpLwS460cn4psv/arcgis/rest/services/WA_Dnr_lrg_fires/FeatureServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Washington State Department of Natural Resources",
+      "termsUrl": "https://www.dnr.wa.gov/protection/wildfire",
+      "status": "validated",
+      "notes": "WA DNR Large Fires FeatureServer on ArcGIS Online. Single feature layer (id=0). Fields include fire name, acres, cause, discovered date, contained date, county. Supports f=geojson export. Covers historic large fires in WA state."
+    },
+    {
+      "id": "wa-airnow-airquality",
+      "authority": "WA Ecology / US EPA AirNow",
+      "coverage": {
+        "states": [
+          "WA"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://www.airnowapi.org/aq/observation/zipCode/current/",
+      "refreshSeconds": 3600,
+      "proxyRequired": true,
+      "attribution": "US Environmental Protection Agency / AirNow",
+      "termsUrl": "https://www.airnowapi.org/",
+      "status": "validated",
+      "notes": "AirNow API from EPA/WA Ecology. Requires free API key from airnowapi.org. Query params: zipCode, format=application/json, API_KEY. Returns current AQI for WA zip codes including Seattle, Spokane, Tacoma."
     }
   ]
 }

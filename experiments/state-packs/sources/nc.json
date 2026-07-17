@@ -23,6 +23,26 @@
       "notes": "NCDOT traffic incidents ArcGIS FeatureServer on public ArcGIS Online (gis11.services.ncdot.gov internal-only). Active incidents with location, type, severity, description. Also cameras at same org: NCDOT_Traffic_Cameras FeatureServer."
     },
     {
+      "id": "nc-ncfs-wildfire-perimeters",
+      "authority": "NC Forest Service (NCDA&CS)",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://www.ncmhtd.com/arcgis/rest/services/AG_FS/FARS_dev/FeatureServer/0",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NC Forest Service / NCDA&CS",
+      "termsUrl": "https://www.ncagr.gov/divisions/nc-forest-service",
+      "status": "validated",
+      "notes": "NC Forest Service FARS (Fire and Resource Assessment System) FeatureServer. Fire area perimeters (polygons) with FIREID and AREATYPE (FORESTED/NON-FORESTED). Supports f=geojson."
+    },
+    {
       "id": "nc-wildfire-ncfs",
       "authority": "NC Forest Service (NCDA&CS)",
       "coverage": {
@@ -101,6 +121,46 @@
       "termsUrl": "https://outagemap.duke-energy.com/",
       "status": "validated",
       "notes": "Duke Energy public ArcGIS outage FeatureServer. Layers: Outage Points by Affected Customers (0), Outages by County (1). Also ReadyNC power outages at spartagis.ncem.org/arcgis/rest/services/Public/ReadyNC_PowerOutages."
+    },
+    {
+      "id": "nc-emergency-evacuation",
+      "authority": "NC Emergency Management (ReadyNC)",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://spartagis.ncem.org/arcgis/rest/services/Public/ReadyNC_CountyImpact_StateOfEmergency/MapServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "North Carolina Emergency Management",
+      "termsUrl": "https://www.ncdps.gov/our-organization/emergency-management",
+      "status": "validated",
+      "notes": "ReadyNC ArcGIS MapServer. Layer 0: State of Emergency by county (StateofEmergency, MandatoryEvac, VoluntaryEvac, EvacuationType, IncidentName, Deaths). Related: ReadyNC_CountyImpact_Evacuation/MapServer (layers 0-1: State of Emergency and Evacuation Status), ReadyNC_PROD_Mandatory_Evacuations_180/MapServer (evacuation zones), HurricaneEvacStudyZones/MapServer. Supports f=geojson."
+    },
+    {
+      "id": "nc-flood-hazard-zones",
+      "authority": "NC Emergency Management (FRIS)",
+      "coverage": {
+        "states": [
+          "NC"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://spartagis.ncem.org/arcgis/rest/services/Public/FRIS_FloodZones/MapServer/2",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "North Carolina Emergency Management / FRIS",
+      "termsUrl": "https://fris.nc.gov/",
+      "status": "validated",
+      "notes": "NC Flood Risk Information System (FRIS) flood hazard areas. Layer 2: Flood Hazard Areas with STATIC_BFE (Base Flood Elevation), DEPTH, VELOCITY, SFHA_TF (Special Flood Hazard Area flag), ZONE_LID, ZONSUB_LID. Also Layer 0: Stream Centerlines and Layer 1: Flood Hazard Lines. Supports f=geojson."
     },
     {
       "id": "nc-beach-monitoring",

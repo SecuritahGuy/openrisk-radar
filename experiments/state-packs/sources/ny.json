@@ -184,6 +184,26 @@
       "notes": "NWS API active alerts for NY. Winter storms, severe storms, flood, lake effect snow. GeoJSON."
     },
     {
+      "id": "ny-dec-env-monitoring",
+      "authority": "New York State DEC",
+      "coverage": {
+        "states": [
+          "NY"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://gisservices.dec.ny.gov/arcgis/rest/services/dil/dil_env_monitoring/MapServer",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "New York State Department of Environmental Conservation",
+      "termsUrl": "https://www.dec.ny.gov/",
+      "status": "validated",
+      "notes": "DEC Info Locator Environmental Monitoring. Layer 6: Air Quality Monitoring Stations (locations, county, public notes). Layer 7: Community Air Quality Screening Reports. Layer 0-3: Priority Waterbody Lists (Lakes, Estuaries, Streams, Shorelines). Layer 8: Lake Monitoring Reports. Layer 9: Aquatic Biological Monitoring. Layer 10: Aquatic Toxicity Monitoring. Supports f=geojson."
+    },
+    {
       "id": "ny-water-usgs",
       "authority": "USGS New York Water Science Center",
       "coverage": {

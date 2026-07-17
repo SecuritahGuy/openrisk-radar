@@ -161,6 +161,66 @@
       "termsUrl": "https://waterdata.usgs.gov/or/",
       "status": "validated",
       "notes": "USGS instantaneous values for OR. Streamflow, gage height, temperature."
+    },
+    {
+      "id": "or-airnow-airquality",
+      "authority": "OR DEQ / US EPA AirNow",
+      "coverage": {
+        "states": [
+          "OR"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://www.airnowapi.org/aq/observation/zipCode/current/",
+      "refreshSeconds": 3600,
+      "proxyRequired": true,
+      "attribution": "US Environmental Protection Agency / AirNow",
+      "termsUrl": "https://www.airnowapi.org/",
+      "status": "validated",
+      "notes": "AirNow API from EPA. OR DEQ air quality data feeds into AirNow. Requires free API key from airnowapi.org. Query params: zipCode, format=application/json, API_KEY. Returns current AQI for OR zip codes."
+    },
+    {
+      "id": "or-odf-wildfire",
+      "authority": "Oregon Department of Forestry",
+      "coverage": {
+        "states": [
+          "OR"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://odf-oregon.hub.arcgis.com/",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Oregon Department of Forestry",
+      "termsUrl": "https://odf-oregon.hub.arcgis.com/",
+      "status": "discovered",
+      "notes": "ODF ArcGIS Hub at odf-oregon.hub.arcgis.com. Contains ODF data. No specific FeatureServer endpoint confirmed; hub requires browsing for active fire services. ODF fire data typically includes perimeters, restrictions, and danger ratings."
+    },
+    {
+      "id": "or-wrd-water",
+      "authority": "Oregon Water Resources Department",
+      "coverage": {
+        "states": [
+          "OR"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://apps.wrd.state.or.us/apps/misc/wr_api/",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Oregon Water Resources Department",
+      "termsUrl": "https://www.oregon.gov/owrd/",
+      "status": "discovered",
+      "notes": "OWRD web API at apps.wrd.state.or.us. Reports 403 without auth. May require data request. OWRD manages surface and groundwater rights, streamflow, and water availability. Alternative: USGS NWIS for OR streamflow (already included)."
     }
   ]
 }

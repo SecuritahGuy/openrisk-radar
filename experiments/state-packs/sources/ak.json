@@ -161,6 +161,46 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS marine/coastal zone alerts for AK. Extensive coastline: Gulf of AK, Bering Sea, Aleutians, Arctic Ocean. NHC for hurricane threat in southern AK waters."
+    },
+    {
+      "id": "ak-ntwc-tsunami",
+      "authority": "NOAA National Tsunami Warning Center",
+      "coverage": {
+        "states": [
+          "AK"
+        ]
+      },
+      "capability": "tsunami",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://www.tsunami.gov/events/xml/PAAQCAP.xml",
+      "refreshSeconds": 60,
+      "proxyRequired": false,
+      "attribution": "NOAA National Tsunami Warning Center",
+      "termsUrl": "https://www.tsunami.gov/",
+      "status": "validated",
+      "notes": "NTWC Common Alerting Protocol (CAP) feed. Covers AK, US West Coast, and Canada. Also available: PAAQAtom.xml (Atom feed) and PAAQTEX.xml (TEX format). PTWC (PHEB prefix) covers HI and Pacific. AK is most tsunami-vulnerable US state."
+    },
+    {
+      "id": "ak-avo-volcano",
+      "authority": "USGS Alaska Volcano Observatory",
+      "coverage": {
+        "states": [
+          "AK"
+        ]
+      },
+      "capability": "volcano",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "rss",
+      "endpoint": "https://www.usgs.gov/observatories/avo/volcano-hazards-program-data",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey / Alaska Volcano Observatory",
+      "termsUrl": "https://www.usgs.gov/observatories/avo",
+      "status": "discovered",
+      "notes": "AVO monitors AK volcanoes (Aleutian Arc). USGS observatory page at usgs.gov. No public REST API found. Activity info at avo.alaska.edu/activity/. Volcano Notification Service (VNS) at volcanoes.usgs.gov/vns2/ for subscriptions. Existing ak-usgs-earthquake covers volcanic quakes."
     }
   ]
 }

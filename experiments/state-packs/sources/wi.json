@@ -103,6 +103,46 @@
       "notes": "USGS instantaneous values for WI. Streamflow, gage height, temperature for Mississippi, Wisconsin, Fox, Menominee, and Rock River basins. JSON with site info, variable, and time-series values. No key required."
     },
     {
+      "id": "wi-dnr-fire-danger",
+      "authority": "Wisconsin DNR Forestry",
+      "coverage": {
+        "states": [
+          "WI"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://dnrmaps.wi.gov/arcgis/rest/services/FR_WIS_BURN/FR_WIS_BURN_MAP_EXT/MapServer",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "Wisconsin Department of Natural Resources",
+      "termsUrl": "https://dnr.wisconsin.gov/topic/ForestFire",
+      "status": "validated",
+      "notes": "WisBURN MapServer with 17 layers. Layer 13: Current Fire Danger — county polygons with DANGER_RATING_CODE (1-5) and DANGER_RATING_NAME (LOW/MODERATE/HIGH/VERY HIGH/EXTREME). Layer 0: Wildfires (Today). Layer 1: Prescribed Burns (Today). Updated every 5 minutes. Supports f=geojson."
+    },
+    {
+      "id": "wi-dnr-water-quality",
+      "authority": "Wisconsin DNR Water Quality",
+      "coverage": {
+        "states": [
+          "WI"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://dnrmaps.wi.gov/arcgis/rest/services/WT_Condition_Viewer/WY_CWA_STATION_RESULTS/MapServer",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Wisconsin Department of Natural Resources",
+      "termsUrl": "https://dnr.wisconsin.gov/",
+      "status": "validated",
+      "notes": "Water quality CWA station results. Layers include: E. coli Station Results (34), TP Lake/River Stream Results (0,5), Chl-a Results (6,28), Temperature (40), Chloride (41), Wadeable/Nonwadeable mIBI Results (29,30), Fish IBI Results (31). Also monitoring stations with recent 10-yr data at WT_SWDV/WY_MONITORING_STATIONS_AND_DATA/MapServer/3."
+    },
+    {
       "id": "wi-wildfire-firms",
       "authority": "NASA FIRMS",
       "coverage": {

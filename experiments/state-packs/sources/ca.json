@@ -162,6 +162,46 @@
       "termsUrl": "https://waterdata.usgs.gov/ca/",
       "status": "validated",
       "notes": "USGS instantaneous values for CA. Streamflow, gage height, temperature. Large state — many active gages."
+    },
+    {
+      "id": "ca-airnow-airquality",
+      "authority": "US EPA / AirNow",
+      "coverage": {
+        "states": [
+          "CA"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://www.airnowapi.org/aq/observation/zipCode/current/",
+      "refreshSeconds": 3600,
+      "proxyRequired": true,
+      "attribution": "US Environmental Protection Agency / AirNow",
+      "termsUrl": "https://www.airnowapi.org/",
+      "status": "validated",
+      "notes": "AirNow API from EPA. Requires free API key from airnowapi.org. Query params: zipCode, format=application/json, API_KEY. Returns current AQI, O3, PM2.5, PM10. Covers all CA zip codes. Public domain federal data."
+    },
+    {
+      "id": "ca-usgs-landslides",
+      "authority": "USGS Landslide Hazards Program",
+      "coverage": {
+        "states": [
+          "CA"
+        ]
+      },
+      "capability": "landslide",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&eventtype=landslide&maxlatitude=42&minlatitude=32.5&maxlongitude=-114.1&minlongitude=-124.4",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://landslides.usgs.gov/",
+      "status": "validated",
+      "notes": "USGS FDSN Event API filtered for landslide events in CA bounding box. Includes debris flows, mudslides, rockfalls. Same endpoint as earthquake API with eventtype filter. Public domain."
     }
   ]
 }

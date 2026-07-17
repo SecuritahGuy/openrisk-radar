@@ -141,6 +141,26 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS marine zone alerts for LA coast (Gulf of Mexico). Also NHC CurrentStorms.json for hurricane threat."
+    },
+    {
+      "id": "la-cpra-coastal",
+      "authority": "LA Coastal Protection and Restoration Authority",
+      "coverage": {
+        "states": [
+          "LA"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://cims.coastal.la.gov/",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "Louisiana Coastal Protection and Restoration Authority",
+      "termsUrl": "https://cims.coastal.la.gov/",
+      "status": "discovered",
+      "notes": "CPRA Coastal Information Management System. Web portal with coastal data, restoration project tracking. Also: GOHSEP emergency management at gohsep.la.gov for alerts/emergency info, LDEQ at deq.louisiana.gov for environmental quality. No public ArcGIS REST services or machine-readable APIs found for these agencies. LDEQ GIS server not responding."
     }
   ]
 }

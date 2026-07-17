@@ -121,6 +121,26 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS API active alerts for NM. Severe weather, heat, dust storms, winter weather. GeoJSON with polygon geometry, severity, headline, description. No key required. Complement to nm-wildfire-nws (same endpoint, wildfire focus)."
+    },
+    {
+      "id": "nm-bureau-geology-hazards",
+      "authority": "NM Bureau of Geology and Mineral Resources",
+      "coverage": {
+        "states": [
+          "NM"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "research-required",
+      "format": "html",
+      "endpoint": "https://geoinfo.nmt.edu/hazards/",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "New Mexico Bureau of Geology and Mineral Resources",
+      "termsUrl": "https://geoinfo.nmt.edu/",
+      "status": "discovered",
+      "notes": "NMBGMR Geologic Hazards portal. Covers earthquakes, arroyos/erosion, collapsible soils, arsenic, radon. Data repository at geoinfo.nmt.edu/repository/ has downloadable datasets. RGIS (Resource Geographic Information System) at rgis.unm.edu. GStoRE data framework at gstore.unm.edu requires login. NM Environment Dept air quality at env.nm.gov/air-quality/ was returning 503."
     }
   ]
 }

@@ -121,6 +121,26 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS API active alerts for AZ. Includes fire weather, red flag, excessive heat, dust storms, air quality. GeoJSON with polygon geometry, severity, headline, description."
+    },
+    {
+      "id": "az-geological-survey",
+      "authority": "Arizona Geological Survey",
+      "coverage": {
+        "states": [
+          "AZ"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "map-overlay",
+      "access": "research-required",
+      "format": "arcgis",
+      "endpoint": "https://azgeo.az.gov/arcgis/rest/services/Geology/azgs_earthquake_epicenters_dd/FeatureServer",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "Arizona Geological Survey",
+      "termsUrl": "https://azgs.arizona.edu/",
+      "status": "discovered",
+      "notes": "AZGS earthquake epicenters via AZGEO ArcGIS FeatureServer. Also available: WaterResources/azwater_water_use and FloodHazard/azflood_hazard_areas. FeatureServer endpoints exist but query operations return 500 — may require token authentication. The AZ Flood Warning System at floodwarning.az.gov does not expose a public API."
     }
   ]
 }
