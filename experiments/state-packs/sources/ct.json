@@ -141,6 +141,66 @@
       "termsUrl": "https://api.weather.gov/",
       "status": "validated",
       "notes": "NWS coastal/marine zone alerts for CT (Long Island Sound). Hurricane threat. Storm surge, coastal flooding."
+    },
+    {
+      "id": "ct-nhc-hurricane",
+      "authority": "NOAA National Hurricane Center",
+      "coverage": {
+        "states": [
+          "CT"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.nhc.noaa.gov/CurrentStorms.json",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "NOAA National Hurricane Center",
+      "termsUrl": "https://www.nhc.noaa.gov/",
+      "status": "validated",
+      "notes": "NHC Current Storms JSON feed. Active Atlantic and Eastern Pacific tropical storms, hurricanes, and disturbances."
+    },
+    {
+      "id": "ct-weather-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "states": [
+          "CT"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=41.76&longitude=-72.68&current=temperature_2m,precipitation,weather_code",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/terms",
+      "status": "validated",
+      "notes": "Open-Meteo free weather forecast API. Current conditions: temperature, precipitation, weather code (WMO). CC BY 4.0."
+    },
+    {
+      "id": "ct-airquality-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "states": [
+          "CT"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=41.76&longitude=-72.68&current=pm2_5,pm10,us_aqi",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/terms",
+      "status": "validated",
+      "notes": "Open-Meteo air quality API. Current PM2.5, PM10, US AQI. CC BY 4.0."
     }
   ]
 }

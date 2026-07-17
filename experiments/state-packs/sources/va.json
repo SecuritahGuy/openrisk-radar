@@ -181,6 +181,46 @@
       "termsUrl": "https://waterdata.usgs.gov/va/",
       "status": "validated",
       "notes": "USGS instantaneous values for VA. Streamflow, gage height, temperature."
+    },
+    {
+      "id": "va-nhc-hurricane",
+      "authority": "NOAA National Hurricane Center",
+      "coverage": {
+        "states": [
+          "VA"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.nhc.noaa.gov/CurrentStorms.json",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "NOAA National Hurricane Center",
+      "termsUrl": "https://www.nhc.noaa.gov/",
+      "status": "validated",
+      "notes": "NHC Current Storms JSON feed. Active Atlantic and Eastern Pacific tropical storms, hurricanes, and disturbances."
+    },
+    {
+      "id": "va-weather-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "states": [
+          "VA"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=37.54&longitude=-77.44&current=temperature_2m,precipitation,weather_code",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/terms",
+      "status": "validated",
+      "notes": "Open-Meteo free weather forecast API. Current conditions: temperature, precipitation, weather code (WMO). CC BY 4.0."
     }
   ]
 }

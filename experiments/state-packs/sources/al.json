@@ -121,6 +121,66 @@
       "termsUrl": "https://earthquake.usgs.gov/",
       "status": "validated",
       "notes": "USGS FDSN Event API for AL. Bounding box covers AL. Returns magnitude, place, time, depth, coordinates, url."
+    },
+    {
+      "id": "al-nhc-hurricane",
+      "authority": "NOAA National Hurricane Center",
+      "coverage": {
+        "states": [
+          "AL"
+        ]
+      },
+      "capability": "marine",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.nhc.noaa.gov/CurrentStorms.json",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "NOAA National Hurricane Center",
+      "termsUrl": "https://www.nhc.noaa.gov/",
+      "status": "validated",
+      "notes": "NHC Current Storms JSON feed. Active Atlantic and Eastern Pacific tropical storms, hurricanes, and disturbances."
+    },
+    {
+      "id": "al-weather-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "states": [
+          "AL"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=32.38&longitude=-86.30&current=temperature_2m,precipitation,weather_code",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/terms",
+      "status": "validated",
+      "notes": "Open-Meteo free weather forecast API. Current conditions: temperature, precipitation, weather code (WMO). CC BY 4.0."
+    },
+    {
+      "id": "al-airquality-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "states": [
+          "AL"
+        ]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=32.38&longitude=-86.30&current=pm2_5,pm10,us_aqi",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/terms",
+      "status": "validated",
+      "notes": "Open-Meteo air quality API. Current PM2.5, PM10, US AQI. CC BY 4.0."
     }
   ]
 }
