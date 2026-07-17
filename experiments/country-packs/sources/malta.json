@@ -43,26 +43,6 @@
       "notes": "FDSNWS earthquake query bounded to the Maltese Islands bbox. Malta lies in a moderate seismic region; USGS used as authoritative fallback (no public national seismic real-time API)."
     },
     {
-      "id": "mt-airquality-gov",
-      "authority": "Malta Environment & Resources Authority (ERA) — Air Quality",
-      "coverage": {
-        "countries": [
-          "MT"
-        ]
-      },
-      "capability": "environmental-health",
-      "outputModel": "map-overlay",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://airquality.gov.mt/",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "AirQuality.gov.mt (ERA Malta)",
-      "termsUrl": "https://airquality.gov.mt/",
-      "status": "discovered",
-      "notes": "Malta national air-quality portal with live pollutant readings (PM, O3, NO2) from the island-wide monitoring network."
-    },
-    {
       "id": "mt-enemalta-grid",
       "authority": "Enemalta plc (Malta electricity operator)",
       "coverage": {

@@ -5,7 +5,11 @@
     {
       "id": "lt-meteoalarm-warnings",
       "authority": "Lithuanian Hydrometeorological Service (LHMT) via MeteoAlarm",
-      "coverage": { "countries": ["LT"] },
+      "coverage": {
+        "countries": [
+          "LT"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "lt-meteolt-forecasts",
       "authority": "Lithuanian Hydrometeorological Service (LHMT)",
-      "coverage": { "countries": ["LT"] },
+      "coverage": {
+        "countries": [
+          "LT"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -32,12 +40,16 @@
       "attribution": "Lithuanian Hydrometeorological Service",
       "termsUrl": "https://api.meteo.lt/",
       "status": "discovered",
-      "notes": "LHMT official open API — 7-day hourly weather forecasts per place (Harmonie/ECMWF). Forecasts are enriched with active weather warnings. Endpoint verified 200. List places at /v1/places."
+      "notes": "LHMT official open API \u2014 7-day hourly weather forecasts per place (Harmonie/ECMWF). Forecasts are enriched with active weather warnings. Endpoint verified 200. List places at /v1/places."
     },
     {
       "id": "lt-meteolt-stations",
       "authority": "Lithuanian Hydrometeorological Service (LHMT)",
-      "coverage": { "countries": ["LT"] },
+      "coverage": {
+        "countries": [
+          "LT"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -53,7 +65,14 @@
     {
       "id": "lt-usgs-earthquakes",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["LT"], "regions": ["LT-bbox"] },
+      "coverage": {
+        "countries": [
+          "LT"
+        ],
+        "regions": [
+          "LT-bbox"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -67,25 +86,13 @@
       "notes": "FDSN event web service filtered to the Lithuanian land bbox (53.9-56.5 N, 20.9-26.8 E). Lithuania has very low seismicity; USGS feed is the fallback authoritative source for regional tectonic events."
     },
     {
-      "id": "lt-litgrid-grid",
-      "authority": "Litgrid AB — Lithuanian TSO",
-      "coverage": { "countries": ["LT"] },
-      "capability": "grid",
-      "outputModel": "supplemental-signal",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://www.litgrid.eu/en",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "Litgrid AB",
-      "termsUrl": "https://www.litgrid.eu/",
-      "status": "discovered",
-      "notes": "Lithuanian electricity transmission system operator open data — grid load, generation, cross-border exchange (with Sweden, Poland, Latvia, Estonia) and prices. Endpoint verified 200. ENTSO-E Transparency Platform also covers Litgrid (see lt-entsoe-grid)."
-    },
-    {
       "id": "lt-entsoe-grid",
       "authority": "ENTSO-E Transparency Platform",
-      "coverage": { "countries": ["LT"] },
+      "coverage": {
+        "countries": [
+          "LT"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",
@@ -99,41 +106,13 @@
       "notes": "ENTSO-E RESTful API for the Lithuanian control area (Litgrid, domain 10Y1001A1001A50B). Requires a free registered security token (api-key). Provides load, generation, cross-border physical flows and day-ahead prices."
     },
     {
-      "id": "lt-gamta-airquality",
-      "authority": "Lithuanian Environmental Protection Agency (APVA) / gamta.lt",
-      "coverage": { "countries": ["LT"] },
-      "capability": "environmental-health",
-      "outputModel": "supplemental-signal",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://www.gamta.lt/cms/index?lang=en",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "Lithuanian Environmental Protection Agency",
-      "termsUrl": "https://www.gamta.lt/",
-      "status": "discovered",
-      "notes": "gamta.lt national environmental portal — air quality (PM, NO2, O3, SO2), water and radiation monitoring across Lithuania. Public open data; endpoint verified 200 (redirect to portal)."
-    },
-    {
-      "id": "lt-vanduo-water",
-      "authority": "Lithuanian Hydrometeorological Service / gamta.lt waters",
-      "coverage": { "countries": ["LT"] },
-      "capability": "water",
-      "outputModel": "supplemental-signal",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://www.vanduo.gamta.lt/",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "Lithuanian Environmental Protection Agency",
-      "termsUrl": "https://www.gamta.lt/",
-      "status": "discovered",
-      "notes": "Lithuanian water (vanduo.gamta.lt) hydrology portal — river levels, flows, lake and groundwater monitoring. Public open data; complement to LHMT station API (lt-meteolt-stations)."
-    },
-    {
       "id": "lt-gdacs-multihazard",
       "authority": "GDACS (Global Disaster Alert and Coordination System)",
-      "coverage": { "countries": ["LT"] },
+      "coverage": {
+        "countries": [
+          "LT"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",

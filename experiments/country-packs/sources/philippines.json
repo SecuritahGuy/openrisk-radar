@@ -5,7 +5,11 @@
     {
       "id": "ph-emsc-earthquake",
       "authority": "EMSC (European-Mediterranean Seismological Centre)",
-      "coverage": { "countries": ["PH"] },
+      "coverage": {
+        "countries": [
+          "PH"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "ph-usgs-earthquake",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["PH"] },
+      "coverage": {
+        "countries": [
+          "PH"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +45,11 @@
     {
       "id": "ph-open-meteo-weather",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["PH"] },
+      "coverage": {
+        "countries": [
+          "PH"
+        ]
+      },
       "capability": "road-weather",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -53,7 +65,11 @@
     {
       "id": "ph-open-meteo-flood",
       "authority": "Open-Meteo Flood API",
-      "coverage": { "countries": ["PH"] },
+      "coverage": {
+        "countries": [
+          "PH"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "ph-open-meteo-air-quality",
       "authority": "Open-Meteo Air Quality API",
-      "coverage": { "countries": ["PH"] },
+      "coverage": {
+        "countries": [
+          "PH"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "ph-open-meteo-marine",
       "authority": "Open-Meteo Marine API",
-      "coverage": { "countries": ["PH"] },
+      "coverage": {
+        "countries": [
+          "PH"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,7 +125,11 @@
     {
       "id": "ph-nasa-firms-wildfire",
       "authority": "NASA FIRMS (Fire Information for Resource Management System)",
-      "coverage": { "countries": ["PH"] },
+      "coverage": {
+        "countries": [
+          "PH"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "map-overlay",
       "access": "api-key",
@@ -117,7 +145,11 @@
     {
       "id": "ph-eia-grid",
       "authority": "U.S. Energy Information Administration (EIA) International",
-      "coverage": { "countries": ["PH"] },
+      "coverage": {
+        "countries": [
+          "PH"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",
@@ -133,7 +165,11 @@
     {
       "id": "ph-pagasa-georisk-mapsrv",
       "authority": "PAGASA / DOST GeoRisk Philippines (ArcGIS Server)",
-      "coverage": { "countries": ["PH"] },
+      "coverage": {
+        "countries": [
+          "PH"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "map-overlay",
       "access": "public",
@@ -143,8 +179,8 @@
       "proxyRequired": false,
       "attribution": "PAGASA / DOST GeoRisk Philippines",
       "termsUrl": "https://portal.georisk.gov.ph/",
-      "status": "discovered",
-      "notes": "PAGASA ArcGIS MapServer (Dams, rainfall, hazard layers). ?f=json returns service metadata; layer/query endpoints export weather and flood hazard overlays. Public, confirmed HTTP 200 application/json;charset=UTF-8."
+      "status": "research",
+      "notes": "PAGASA ArcGIS MapServer (Dams, rainfall, hazard layers). ?f=json returns service metadata; layer/query endpoints export weather and flood hazard overlays. Public, confirmed HTTP 200 application/json;charset=UTF-8. [unreachable in validation; re-verify]"
     }
   ]
 }

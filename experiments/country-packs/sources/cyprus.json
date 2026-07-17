@@ -44,7 +44,7 @@
     },
     {
       "id": "cy-airquality-gov",
-      "authority": "Department of Labour Inspection — Air Quality Monitoring Network",
+      "authority": "Department of Labour Inspection \u2014 Air Quality Monitoring Network",
       "coverage": {
         "countries": [
           "CY"
@@ -61,46 +61,6 @@
       "termsUrl": "https://www.airquality.gov.cy/",
       "status": "discovered",
       "notes": "Cyprus national air-quality monitoring network portal with live PM10/PM2.5/O3/NO2 readings per station. HTML portal (underlying station data is published by the Department of Labour Inspection)."
-    },
-    {
-      "id": "cy-eac-grid",
-      "authority": "Electricity Authority of Cyprus (EAC)",
-      "coverage": {
-        "countries": [
-          "CY"
-        ]
-      },
-      "capability": "grid",
-      "outputModel": "supplemental-signal",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://www.eac.com.cy/",
-      "refreshSeconds": 1800,
-      "proxyRequired": false,
-      "attribution": "Electricity Authority of Cyprus",
-      "termsUrl": "https://www.eac.com.cy/",
-      "status": "discovered",
-      "notes": "National electricity transmission/distribution operator. Outage, load and infrastructure information published via the corporate portal; real-time system data is not openly API-exposed."
-    },
-    {
-      "id": "cy-wdd-water",
-      "authority": "Water Development Department (WDD), Cyprus",
-      "coverage": {
-        "countries": [
-          "CY"
-        ]
-      },
-      "capability": "water",
-      "outputModel": "supplemental-signal",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://www.wdd.gov.cy/",
-      "refreshSeconds": 86400,
-      "proxyRequired": false,
-      "attribution": "Cyprus Water Development Department",
-      "termsUrl": "https://www.wdd.gov.cy/",
-      "status": "discovered",
-      "notes": "National water authority responsible for dams, reservoirs and water-supply planning. Portal provides reservoir levels and drought/water-scarcity bulletins rather than a real-time feed."
     }
   ]
 }

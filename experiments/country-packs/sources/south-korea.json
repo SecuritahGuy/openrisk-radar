@@ -5,7 +5,11 @@
     {
       "id": "kr-open-meteo-weather",
       "authority": "Open-Meteo (KMA model data)",
-      "coverage": { "countries": ["KR"] },
+      "coverage": {
+        "countries": [
+          "KR"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "kr-kma-weather-alerts",
       "authority": "KMA (Korea Meteorological Administration)",
-      "coverage": { "countries": ["KR"] },
+      "coverage": {
+        "countries": [
+          "KR"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "api-key",
@@ -37,7 +45,11 @@
     {
       "id": "kr-usgs-earthquake",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["KR"] },
+      "coverage": {
+        "countries": [
+          "KR"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -53,7 +65,11 @@
     {
       "id": "kr-kma-earthquake",
       "authority": "KMA Earthquake Information",
-      "coverage": { "countries": ["KR"] },
+      "coverage": {
+        "countries": [
+          "KR"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "api-key",
@@ -69,7 +85,11 @@
     {
       "id": "kr-open-meteo-flood",
       "authority": "Open-Meteo GloFAS (flood)",
-      "coverage": { "countries": ["KR"] },
+      "coverage": {
+        "countries": [
+          "KR"
+        ]
+      },
       "capability": "water",
       "outputModel": "risk-event",
       "access": "public",
@@ -83,41 +103,13 @@
       "notes": "Open-Meteo flood API via ECMWF GloFAS model. River discharge forecasts for Han River (Seoul). No API key for non-commercial use."
     },
     {
-      "id": "kr-kfs-wildfire",
-      "authority": "Korea Forest Service (KFS)",
-      "coverage": { "countries": ["KR"] },
-      "capability": "wildfire",
-      "outputModel": "risk-event",
-      "access": "api-key",
-      "format": "json",
-      "endpoint": "https://api.forest.go.kr/openapi/forestfire/todayForestFire",
-      "refreshSeconds": 600,
-      "proxyRequired": false,
-      "attribution": "Korea Forest Service",
-      "termsUrl": "https://www.forest.go.kr/",
-      "status": "discovered",
-      "notes": "KFS open API for current forest fire information. Requires free API key from data.go.kr. Returns locations, status, response details."
-    },
-    {
-      "id": "kr-kpx-grid",
-      "authority": "KPX (Korea Power Exchange)",
-      "coverage": { "countries": ["KR"] },
-      "capability": "grid",
-      "outputModel": "supplemental-signal",
-      "access": "api-key",
-      "format": "json",
-      "endpoint": "https://bigdata.kpx.or.kr/openapi/getGenerationBySource",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "KPX",
-      "termsUrl": "https://www.kpx.or.kr/",
-      "status": "discovered",
-      "notes": "KPX generation by source type API. Requires API key from data.go.kr. Returns MW generation by fuel type (nuclear, coal, LNG, hydro, renewable)."
-    },
-    {
       "id": "kr-khoa-tide",
       "authority": "KHOA / data.go.kr",
-      "coverage": { "countries": ["KR"] },
+      "coverage": {
+        "countries": [
+          "KR"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "api-key",
@@ -133,7 +125,11 @@
     {
       "id": "kr-airkorea-quality",
       "authority": "Air Korea / NIER",
-      "coverage": { "countries": ["KR"] },
+      "coverage": {
+        "countries": [
+          "KR"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "api-key",
@@ -149,7 +145,11 @@
     {
       "id": "kr-kma-marine",
       "authority": "KMA Marine Forecast",
-      "coverage": { "countries": ["KR"] },
+      "coverage": {
+        "countries": [
+          "KR"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "api-key",

@@ -5,7 +5,11 @@
     {
       "id": "lv-meteoalarm-warnings",
       "authority": "Latvian Environment, Geology and Meteorology Centre (LEGMC) via MeteoAlarm",
-      "coverage": { "countries": ["LV"] },
+      "coverage": {
+        "countries": [
+          "LV"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,14 @@
     {
       "id": "lv-usgs-earthquakes",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["LV"], "regions": ["LV-bbox"] },
+      "coverage": {
+        "countries": [
+          "LV"
+        ],
+        "regions": [
+          "LV-bbox"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +48,11 @@
     {
       "id": "lv-metelatvia-warnings",
       "authority": "Latvian Environment, Geology and Meteorology Centre (LEGMC / LVGMC)",
-      "coverage": { "countries": ["LV"] },
+      "coverage": {
+        "countries": [
+          "LV"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -53,7 +68,14 @@
     {
       "id": "lv-marine-meteo",
       "authority": "Latvian Environment, Geology and Meteorology Centre (LEGMC)",
-      "coverage": { "countries": ["LV"], "regions": ["Baltic-Sea"] },
+      "coverage": {
+        "countries": [
+          "LV"
+        ],
+        "regions": [
+          "Baltic-Sea"
+        ]
+      },
       "capability": "marine",
       "outputModel": "map-overlay",
       "access": "public",
@@ -64,28 +86,16 @@
       "attribution": "Latvian Environment, Geology and Meteorology Centre",
       "termsUrl": "https://marine.meteo.lv/",
       "status": "discovered",
-      "notes": "LEGMC open-access Baltic Sea marine data browser — marine meteorology forecasts, waves, ice and water levels for the Latvian coast (Gulf of Riga, Baltic proper). Public, part of CMEMS regional products."
-    },
-    {
-      "id": "lv-ast-grid",
-      "authority": "Augstsprieguma tīkls (AST) — Latvian TSO",
-      "coverage": { "countries": ["LV"] },
-      "capability": "grid",
-      "outputModel": "supplemental-signal",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://www.ast.lv/en",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "Augstsprieguma tīkls AS",
-      "termsUrl": "https://www.ast.lv/",
-      "status": "discovered",
-      "notes": "Latvian electricity transmission system operator open data — grid load, generation and cross-border exchange. Host may require browser-like UA. ENTSO-E Transparency Platform also covers AST (see lv-entsoe-grid)."
+      "notes": "LEGMC open-access Baltic Sea marine data browser \u2014 marine meteorology forecasts, waves, ice and water levels for the Latvian coast (Gulf of Riga, Baltic proper). Public, part of CMEMS regional products."
     },
     {
       "id": "lv-entsoe-grid",
       "authority": "ENTSO-E Transparency Platform",
-      "coverage": { "countries": ["LV"] },
+      "coverage": {
+        "countries": [
+          "LV"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",
@@ -101,7 +111,11 @@
     {
       "id": "lv-lvgmc-water",
       "authority": "Latvian Environment, Geology and Meteorology Centre (LEGMC / LVGMC)",
-      "coverage": { "countries": ["LV"] },
+      "coverage": {
+        "countries": [
+          "LV"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -117,7 +131,11 @@
     {
       "id": "lv-gdacs-multihazard",
       "authority": "GDACS (Global Disaster Alert and Coordination System)",
-      "coverage": { "countries": ["LV"] },
+      "coverage": {
+        "countries": [
+          "LV"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -129,22 +147,6 @@
       "termsUrl": "https://www.gdacs.org/disclaimer.aspx",
       "status": "discovered",
       "notes": "Multi-hazard (earthquake, flood, cyclone, volcano, drought) event list. Can filter by country=LV. Useful as a regional cross-check for earthquakes and large flood events affecting the Baltic region."
-    },
-    {
-      "id": "lv-airquality-riga",
-      "authority": "Riga City / Latvian Environment, Geology and Meteorology Centre",
-      "coverage": { "countries": ["LV"], "regions": ["Riga"] },
-      "capability": "environmental-health",
-      "outputModel": "supplemental-signal",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://gaisakvalitate.riga.lv/",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "Riga City Council / LEGMC",
-      "termsUrl": "https://gaisakvalitate.riga.lv/",
-      "status": "discovered",
-      "notes": "Riga air quality portal (gaisakvalitate.riga.lv) — PM, NO2, O3 and other pollutant measurements for the capital. Public open data; national air quality also available via LEGMC (videscentrs.lvgmc.lv)."
     }
   ]
 }

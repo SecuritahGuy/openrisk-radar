@@ -34,13 +34,13 @@
       "outputModel": "risk-event",
       "access": "public",
       "format": "geojson",
-      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=-8.70&maxlatitude=-5.60&minlongitude=176.00&maxlongitude=-179.00",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&latitude=-7.48&longitude=178.68&maxradius=15",
       "refreshSeconds": 600,
       "proxyRequired": false,
       "attribution": "USGS",
       "termsUrl": "https://earthquake.usgs.gov/help/terms.php",
       "status": "discovered",
-      "notes": "USGS FDSNWS GeoJSON event feed for Tuvalu bbox. Confirmed 200 application/json."
+      "notes": "USGS FDSNWS GeoJSON radial query around Tuvalu (avoids antimeridian bbox crossing). Confirmed 200 application/json."
     },
     {
       "id": "tv-weather-openmeteo",
@@ -164,7 +164,7 @@
     },
     {
       "id": "tv-multihazard-gdacs",
-      "authority": "GDACS — Global Disaster Alert and Coordination System",
+      "authority": "GDACS \u2014 Global Disaster Alert and Coordination System",
       "coverage": {
         "countries": [
           "TV"

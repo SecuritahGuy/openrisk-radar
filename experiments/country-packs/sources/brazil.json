@@ -4,8 +4,12 @@
   "sources": [
     {
       "id": "br-inmet-weather-alerts",
-      "authority": "INMET — Instituto Nacional de Meteorologia",
-      "coverage": { "countries": ["BR"] },
+      "authority": "INMET \u2014 Instituto Nacional de Meteorologia",
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "br-inmet-cap-alerts",
       "authority": "INMET WIS2",
-      "coverage": { "countries": ["BR"] },
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +45,11 @@
     {
       "id": "br-usp-earthquakes",
       "authority": "USP Centro de Sismologia (RSBR)",
-      "coverage": { "countries": ["BR"] },
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -52,8 +64,12 @@
     },
     {
       "id": "br-cprm-earthquakes",
-      "authority": "CPRM — Serviço Geológico do Brasil",
-      "coverage": { "countries": ["BR"] },
+      "authority": "CPRM \u2014 Servi\u00e7o Geol\u00f3gico do Brasil",
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -63,13 +79,17 @@
       "proxyRequired": true,
       "attribution": "CPRM / SGB",
       "termsUrl": "https://www.sgb.gov.br/",
-      "status": "discovered",
-      "notes": "CPRM earthquake locations ArcGIS MapServer. Supports GeoJSON output, max 1000 records per query. Brazilian seismographic network."
+      "status": "research",
+      "notes": "CPRM earthquake locations ArcGIS MapServer. Supports GeoJSON output, max 1000 records per query. Brazilian seismographic network. [unreachable in validation; re-verify]"
     },
     {
       "id": "br-ana-water-data",
-      "authority": "ANA — Agência Nacional de Águas",
-      "coverage": { "countries": ["BR"] },
+      "authority": "ANA \u2014 Ag\u00eancia Nacional de \u00c1guas",
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -80,12 +100,16 @@
       "attribution": "ANA",
       "termsUrl": "https://www.gov.br/ana/",
       "status": "discovered",
-      "notes": "ANA SOAP web service for hydrometeorological data. River level (cota), rainfall (chuva), streamflow (vazão) for ~5000 stations nationwide."
+      "notes": "ANA SOAP web service for hydrometeorological data. River level (cota), rainfall (chuva), streamflow (vaz\u00e3o) for ~5000 stations nationwide."
     },
     {
       "id": "br-inpe-wildfire",
-      "authority": "INPE — Programa Queimadas (BDQueimadas)",
-      "coverage": { "countries": ["BR"] },
+      "authority": "INPE \u2014 Programa Queimadas (BDQueimadas)",
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "risk-event",
       "access": "public",
@@ -100,8 +124,12 @@
     },
     {
       "id": "br-ons-grid-load",
-      "authority": "ONS — Operador Nacional do Sistema Elétrico",
-      "coverage": { "countries": ["BR"] },
+      "authority": "ONS \u2014 Operador Nacional do Sistema El\u00e9trico",
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -117,7 +145,11 @@
     {
       "id": "br-ons-open-data",
       "authority": "ONS Open Data Portal",
-      "coverage": { "countries": ["BR"] },
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -133,7 +165,11 @@
     {
       "id": "br-cptec-marine",
       "authority": "CPTEC/INPE",
-      "coverage": { "countries": ["BR"] },
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -148,8 +184,12 @@
     },
     {
       "id": "br-ibge-tide-gauges",
-      "authority": "IBGE — Rede Maregráfica Permanente",
-      "coverage": { "countries": ["BR"] },
+      "authority": "IBGE \u2014 Rede Maregr\u00e1fica Permanente",
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -165,7 +205,14 @@
     {
       "id": "br-cetesb-air-quality",
       "authority": "CETESB / QUALAR",
-      "coverage": { "countries": ["BR"], "regions": ["SP"] },
+      "coverage": {
+        "countries": [
+          "BR"
+        ],
+        "regions": [
+          "SP"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -180,8 +227,12 @@
     },
     {
       "id": "br-inmet-synop-obs",
-      "authority": "INMET — Instituto Nacional de Meteorologia (WIS2)",
-      "coverage": { "countries": ["BR"] },
+      "authority": "INMET \u2014 Instituto Nacional de Meteorologia (WIS2)",
+      "coverage": {
+        "countries": [
+          "BR"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",

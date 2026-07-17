@@ -4,8 +4,12 @@
   "sources": [
     {
       "id": "cz-chmi-warnings",
-      "authority": "Czech Hydrometeorological Institute (ČHMÚ)",
-      "coverage": { "countries": ["CZ"] },
+      "authority": "Czech Hydrometeorological Institute (\u010cHM\u00da)",
+      "coverage": {
+        "countries": [
+          "CZ"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -13,15 +17,19 @@
       "endpoint": "https://vystrahy-cr.chmi.cz/",
       "refreshSeconds": 600,
       "proxyRequired": false,
-      "attribution": "ČHMÚ",
+      "attribution": "\u010cHM\u00da",
       "termsUrl": "https://www.chmi.cz/predpoved-pocasi/system-integrovane-vystrazne-sluzby",
       "status": "discovered",
-      "notes": "ČHMÚ Integrated Warning Service (SIVS) portal. Warnings issued as CAP XML bulletins covering meteorological, hydrological (flood) and air-quality (SVRS smog) hazards. Human-facing warning map."
+      "notes": "\u010cHM\u00da Integrated Warning Service (SIVS) portal. Warnings issued as CAP XML bulletins covering meteorological, hydrological (flood) and air-quality (SVRS smog) hazards. Human-facing warning map."
     },
     {
       "id": "cz-chmi-swim",
-      "authority": "Czech Hydrometeorological Institute (ČHMÚ) — Aeronautical Meteorology",
-      "coverage": { "countries": ["CZ"] },
+      "authority": "Czech Hydrometeorological Institute (\u010cHM\u00da) \u2014 Aeronautical Meteorology",
+      "coverage": {
+        "countries": [
+          "CZ"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -29,15 +37,19 @@
       "endpoint": "https://swim.chmi.cz/api.php?action=list",
       "refreshSeconds": 600,
       "proxyRequired": false,
-      "attribution": "ČHMÚ",
+      "attribution": "\u010cHM\u00da",
       "termsUrl": "https://swim.chmi.cz/info.php",
       "status": "discovered",
       "notes": "MET-SWIM REST API: machine-readable aeronautical meteorological data (METAR, SPECI, TAF, SIGMET, aerodrome warnings) in IWXXM/XML. No auth, no rate limit for standard products."
     },
     {
       "id": "cz-chmi-air-quality",
-      "authority": "Czech Hydrometeorological Institute (ČHMÚ)",
-      "coverage": { "countries": ["CZ"] },
+      "authority": "Czech Hydrometeorological Institute (\u010cHM\u00da)",
+      "coverage": {
+        "countries": [
+          "CZ"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -45,15 +57,19 @@
       "endpoint": "https://opendata.chmi.cz/air_quality/now/",
       "refreshSeconds": 3600,
       "proxyRequired": false,
-      "attribution": "ČHMÚ",
+      "attribution": "\u010cHM\u00da",
       "termsUrl": "https://opendata.chmi.cz/air_quality/description_air_quality_opendata.pdf",
       "status": "discovered",
       "notes": "CHMI Open Data: air quality measurements (emission/immission data) updated hourly, under Creative Commons BY 4.0. Directory listing of data files in /now/ and /recent/."
     },
     {
       "id": "cz-chmi-hydrology",
-      "authority": "Czech Hydrometeorological Institute (ČHMÚ)",
-      "coverage": { "countries": ["CZ"] },
+      "authority": "Czech Hydrometeorological Institute (\u010cHM\u00da)",
+      "coverage": {
+        "countries": [
+          "CZ"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -61,15 +77,19 @@
       "endpoint": "https://opendata.chmi.cz/hydrology/",
       "refreshSeconds": 1800,
       "proxyRequired": false,
-      "attribution": "ČHMÚ",
+      "attribution": "\u010cHM\u00da",
       "termsUrl": "https://opendata.chmi.cz/",
       "status": "discovered",
       "notes": "CHMI Open Data: hydrological observations and products (river levels, flows) for Czechia. Open-data directory listing."
     },
     {
       "id": "cz-chmi-opendata",
-      "authority": "Czech Hydrometeorological Institute (ČHMÚ)",
-      "coverage": { "countries": ["CZ"] },
+      "authority": "Czech Hydrometeorological Institute (\u010cHM\u00da)",
+      "coverage": {
+        "countries": [
+          "CZ"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -77,7 +97,7 @@
       "endpoint": "https://www.chmi.cz/o-chmu/produkty-a-sluzby/data-a-vyhodnoceni",
       "refreshSeconds": 3600,
       "proxyRequired": false,
-      "attribution": "ČHMÚ",
+      "attribution": "\u010cHM\u00da",
       "termsUrl": "https://www.chmi.cz/o-chmu/produkty-a-sluzby/data-a-vyhodnoceni",
       "status": "discovered",
       "notes": "CHMI national hydrometeorological database and open-data catalogue entry point. Metadata on machine-readable datasets published on opendata.chmi.cz (CC BY 4.0)."
@@ -85,7 +105,11 @@
     {
       "id": "cz-usgs-earthquakes",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["CZ"] },
+      "coverage": {
+        "countries": [
+          "CZ"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -99,25 +123,13 @@
       "notes": "USGS FDSN event API filtered to Czechia bounding box. Czechia has no public large-magnitude national feed; USGS provides regional seismic coverage."
     },
     {
-      "id": "cz-pvl-water",
-      "authority": "Podniky povodí (River Basin Management Authorities)",
-      "coverage": { "countries": ["CZ"] },
-      "capability": "water",
-      "outputModel": "risk-event",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://www.pvl.cz/",
-      "refreshSeconds": 1800,
-      "proxyRequired": false,
-      "attribution": "Povodí labs/lužnice/ohře/odry/moravy",
-      "termsUrl": "https://www.pvl.cz/",
-      "status": "discovered",
-      "notes": "Czech river-basin management companies portal (flood forecasting, water levels, reservoir status). Umbrella site for the regional povodí authorities."
-    },
-    {
       "id": "cz-ceps-grid",
-      "authority": "ČEPS, a.s. (Czech Transmission System Operator)",
-      "coverage": { "countries": ["CZ"] },
+      "authority": "\u010cEPS, a.s. (Czech Transmission System Operator)",
+      "coverage": {
+        "countries": [
+          "CZ"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -125,7 +137,7 @@
       "endpoint": "https://www.ceps.cz/en",
       "refreshSeconds": 900,
       "proxyRequired": false,
-      "attribution": "ČEPS",
+      "attribution": "\u010cEPS",
       "termsUrl": "https://www.ceps.cz/",
       "status": "discovered",
       "notes": "Czech electricity transmission system operator. Publishes grid load, generation mix, and cross-border exchange data on its site."

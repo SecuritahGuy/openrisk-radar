@@ -27,7 +27,7 @@
     },
     {
       "id": "fr-open-meteo-weather",
-      "authority": "Open-Meteo (Météo-France AROME/ARPEGE models)",
+      "authority": "Open-Meteo (M\u00e9t\u00e9o-France AROME/ARPEGE models)",
       "coverage": {
         "countries": [
           "FR"
@@ -40,14 +40,14 @@
       "endpoint": "https://api.open-meteo.com/v1/meteofrance?latitude=48.85&longitude=2.35&current=temperature_2m,precipitation,wind_speed_10m,weather_code&hourly=temperature_2m,precipitation,wind_speed_10m,weather_code",
       "refreshSeconds": 900,
       "proxyRequired": false,
-      "attribution": "Open-Meteo / Météo-France",
+      "attribution": "Open-Meteo / M\u00e9t\u00e9o-France",
       "termsUrl": "https://open-meteo.com/en/docs/meteofrance-api",
       "status": "discovered",
-      "notes": "Free API aggregating Météo-France AROME (high-res, 1.3km) and ARPEGE (global) models. Supports current conditions, hourly/daily forecasts up to 4 days. No API key required. Good for forecast data but not official weather warnings (use Meteoalarm for alerts)."
+      "notes": "Free API aggregating M\u00e9t\u00e9o-France AROME (high-res, 1.3km) and ARPEGE (global) models. Supports current conditions, hourly/daily forecasts up to 4 days. No API key required. Good for forecast data but not official weather warnings (use Meteoalarm for alerts)."
     },
     {
       "id": "fr-meteoalarm-weather-warnings",
-      "authority": "EUMETNET / Météo-France (via Meteoalarm)",
+      "authority": "EUMETNET / M\u00e9t\u00e9o-France (via Meteoalarm)",
       "coverage": {
         "countries": [
           "FR"
@@ -63,11 +63,11 @@
       "attribution": "EUMETNET / Meteoalarm",
       "termsUrl": "https://www.meteoalarm.org/",
       "status": "discovered",
-      "notes": "Meteoalarm is the official European weather warning dissemination system. The HTML page for France shows current Météo-France vigilance levels. Backend API at meteoalarm.org/api/v1. CAP Atom feeds at feeds.meteoalarm.org. Covers all hazard types: wind, rain, thunderstorms, snow/ice, extreme temperatures, fog, avalanches, coastal events."
+      "notes": "Meteoalarm is the official European weather warning dissemination system. The HTML page for France shows current M\u00e9t\u00e9o-France vigilance levels. Backend API at meteoalarm.org/api/v1. CAP Atom feeds at feeds.meteoalarm.org. Covers all hazard types: wind, rain, thunderstorms, snow/ice, extreme temperatures, fog, avalanches, coastal events."
     },
     {
       "id": "fr-vigicrues-flood-territories",
-      "authority": "Service Central d'Hydrométéorologie et d'Appui à la Prévision des Inondations (SCHAPI)",
+      "authority": "Service Central d'Hydrom\u00e9t\u00e9orologie et d'Appui \u00e0 la Pr\u00e9vision des Inondations (SCHAPI)",
       "coverage": {
         "countries": [
           "FR"
@@ -82,8 +82,8 @@
       "proxyRequired": false,
       "attribution": "Vigicrues / SCHAPI",
       "termsUrl": "https://www.vigicrues.gouv.fr/",
-      "status": "discovered",
-      "notes": "Vigicrues flood monitoring API v1.1. Returns all flood warning territories in France (20 river basins) with codes and links for detailed status. Additional endpoints: StatEntVigiCru.json (station status), InfoVigiCru (GeoJSON), observations.json (real-time water levels), prevision.json (flood forecasts). Public API, no key required."
+      "status": "research",
+      "notes": "Vigicrues flood monitoring API v1.1. Returns all flood warning territories in France (20 river basins) with codes and links for detailed status. Additional endpoints: StatEntVigiCru.json (station status), InfoVigiCru (GeoJSON), observations.json (real-time water levels), prevision.json (flood forecasts). Public API, no key required. [unreachable in validation; re-verify]"
     },
     {
       "id": "fr-vigicrues-flood-observations",
@@ -102,8 +102,8 @@
       "proxyRequired": false,
       "attribution": "Vigicrues / SCHAPI",
       "termsUrl": "https://www.vigicrues.gouv.fr/",
-      "status": "discovered",
-      "notes": "Real-time water level and discharge observations from ~1700 Vigicrues measurement stations. Add ?GrdSimul=Q for discharge, ?GrdSimul=H for water height. Filter by station with CdStationHydro parameter. Data updated every 5-60 minutes. Historical depth 1 month."
+      "status": "research",
+      "notes": "Real-time water level and discharge observations from ~1700 Vigicrues measurement stations. Add ?GrdSimul=Q for discharge, ?GrdSimul=H for water height. Filter by station with CdStationHydro parameter. Data updated every 5-60 minutes. Historical depth 1 month. [unreachable in validation; re-verify]"
     },
     {
       "id": "fr-vigicrues-flood-predictions",
@@ -122,8 +122,8 @@
       "proxyRequired": false,
       "attribution": "Vigicrues / SCHAPI",
       "termsUrl": "https://www.vigicrues.gouv.fr/",
-      "status": "discovered",
-      "notes": "Flood predictions/previsions for Vigicrues monitoring stations. Returns list of stations with active forecasts including water level simulations. Use GrdSimul=Q for discharge. Filter by station with CdEntVigiCru and TypEntVigiCru (type 7 = station detail). Dates in ISO format."
+      "status": "research",
+      "notes": "Flood predictions/previsions for Vigicrues monitoring stations. Returns list of stations with active forecasts including water level simulations. Use GrdSimul=Q for discharge. Filter by station with CdEntVigiCru and TypEntVigiCru (type 7 = station detail). Dates in ISO format. [unreachable in validation; re-verify]"
     },
     {
       "id": "fr-hubeau-hydrometrie",
@@ -147,7 +147,7 @@
     },
     {
       "id": "fr-rte-eco2mix-grid",
-      "authority": "RTE (Réseau de Transport d'Électricité)",
+      "authority": "RTE (R\u00e9seau de Transport d'\u00c9lectricit\u00e9)",
       "coverage": {
         "countries": [
           "FR"
@@ -163,7 +163,7 @@
       "attribution": "RTE / ODRE",
       "termsUrl": "https://www.rte-france.com/eco2mix",
       "status": "discovered",
-      "notes": "RTE éCO2mix national real-time electricity data via OpenDataSoft (ODRE). Returns consumption, generation by source (nuclear, wind, solar, hydro, gas, coal, fuel, bioenergy), CO2 emissions, cross-border flows. 15-minute granularity. Also has regional/metro datasets. Consolidated data available in eco2mix-national-def dataset."
+      "notes": "RTE \u00e9CO2mix national real-time electricity data via OpenDataSoft (ODRE). Returns consumption, generation by source (nuclear, wind, solar, hydro, gas, coal, fuel, bioenergy), CO2 emissions, cross-border flows. 15-minute granularity. Also has regional/metro datasets. Consolidated data available in eco2mix-national-def dataset."
     },
     {
       "id": "fr-nasa-firms-wildfire",
@@ -187,7 +187,7 @@
     },
     {
       "id": "fr-open-meteo-marine",
-      "authority": "Open-Meteo Marine (Copernicus Marine / Météo-France models)",
+      "authority": "Open-Meteo Marine (Copernicus Marine / M\u00e9t\u00e9o-France models)",
       "coverage": {
         "countries": [
           "FR"
@@ -227,7 +227,7 @@
     },
     {
       "id": "fr-atmo-france-air-quality",
-      "authority": "Atmo France / Fédération ATMO",
+      "authority": "Atmo France / F\u00e9d\u00e9ration ATMO",
       "coverage": {
         "countries": [
           "FR"
@@ -247,8 +247,12 @@
     },
     {
       "id": "fr-brgm-installations-classees",
-      "authority": "BRGM (Bureau de Recherches Géologiques et Minières) / Géorisques",
-      "coverage": { "countries": ["FR"] },
+      "authority": "BRGM (Bureau de Recherches G\u00e9ologiques et Mini\u00e8res) / G\u00e9orisques",
+      "coverage": {
+        "countries": [
+          "FR"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -256,10 +260,10 @@
       "endpoint": "https://georisques.gouv.fr/api/v1/installations_classees?limite=1",
       "refreshSeconds": 86400,
       "proxyRequired": false,
-      "attribution": "BRGM / Géorisques",
+      "attribution": "BRGM / G\u00e9orisques",
       "termsUrl": "https://georisques.gouv.fr/",
       "status": "discovered",
-      "notes": "Géorisques OpenData API for classified industrial/seveso installations (ICPE) across France. ~137k records with geolocation, activity, and hazard class. Add code_insee= to filter by commune, or bbox for spatial query. Confirmed 200 application/json."
+      "notes": "G\u00e9orisques OpenData API for classified industrial/seveso installations (ICPE) across France. ~137k records with geolocation, activity, and hazard class. Add code_insee= to filter by commune, or bbox for spatial query. Confirmed 200 application/json."
     }
   ]
 }

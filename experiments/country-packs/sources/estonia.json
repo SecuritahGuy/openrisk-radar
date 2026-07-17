@@ -5,7 +5,11 @@
     {
       "id": "ee-meteoalarm-warnings",
       "authority": "Estonian Weather Service (Riiklik Ilmajaam) via MeteoAlarm",
-      "coverage": { "countries": ["EE"] },
+      "coverage": {
+        "countries": [
+          "EE"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,14 @@
     {
       "id": "ee-usgs-earthquakes",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["EE"], "regions": ["EE-bbox"] },
+      "coverage": {
+        "countries": [
+          "EE"
+        ],
+        "regions": [
+          "EE-bbox"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -35,25 +46,13 @@
       "notes": "FDSN event web service filtered to the Estonian land bbox (57.3-60.5 N, 21.0-28.2 E). Estonia has low seismicity but Baltic shield micro-tremors and regional events are recorded. No national seismological public API; USGS feed is the fallback authoritative source."
     },
     {
-      "id": "ee-elering-grid",
-      "authority": "Elering AS (Estonian TSO)",
-      "coverage": { "countries": ["EE"] },
-      "capability": "grid",
-      "outputModel": "supplemental-signal",
-      "access": "public",
-      "format": "json",
-      "endpoint": "https://dashboard.elering.ee/api/nps/estonia",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "Elering AS",
-      "termsUrl": "https://elering.ee/en",
-      "status": "discovered",
-      "notes": "Elering open data (Nordic/Baltic power system) — electricity balance, generation mix, cross-border flows and prices for Estonia. Host may require browser-like UA. ENTSO-E Transparency Platform also covers Elering (see ee-entsoe-grid)."
-    },
-    {
       "id": "ee-entsoe-grid",
       "authority": "ENTSO-E Transparency Platform",
-      "coverage": { "countries": ["EE"] },
+      "coverage": {
+        "countries": [
+          "EE"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",
@@ -69,7 +68,11 @@
     {
       "id": "ee-gdacs-multihazard",
       "authority": "GDACS (Global Disaster Alert and Coordination System)",
-      "coverage": { "countries": ["EE"] },
+      "coverage": {
+        "countries": [
+          "EE"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -81,22 +84,6 @@
       "termsUrl": "https://www.gdacs.org/disclaimer.aspx",
       "status": "discovered",
       "notes": "Multi-hazard (earthquake, flood, cyclone, volcano, drought) event list. Can filter by country=EE. Useful as a regional cross-check for earthquakes and large flood events affecting the Baltic region."
-    },
-    {
-      "id": "ee-keskkonnaagentuur-water-air",
-      "authority": "Estonian Environment Agency (Keskkonnaagentuur)",
-      "coverage": { "countries": ["EE"] },
-      "capability": "water",
-      "outputModel": "supplemental-signal",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://www.keskkonnaagentuur.ee/en",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "Estonian Environment Agency",
-      "termsUrl": "https://www.keskkonnaagentuur.ee/en",
-      "status": "discovered",
-      "notes": "Estonian Environment Agency portal for water level/flow observations, air quality and environmental monitoring. Public open data; structured feeds may require browsing the Estonian open data portal (opendata.riik.ee). Host may require browser-like UA."
     }
   ]
 }

@@ -4,7 +4,7 @@
   "sources": [
     {
       "id": "is-vedur-quakes",
-      "authority": "Icelandic Meteorological Office (Veðurstofa Íslands)",
+      "authority": "Icelandic Meteorological Office (Ve\u00f0urstofa \u00cdslands)",
       "coverage": {
         "countries": [
           "IS"
@@ -24,7 +24,7 @@
     },
     {
       "id": "is-vedur-cap-warnings",
-      "authority": "Icelandic Meteorological Office (Veðurstofa Íslands)",
+      "authority": "Icelandic Meteorological Office (Ve\u00f0urstofa \u00cdslands)",
       "coverage": {
         "countries": [
           "IS"
@@ -64,7 +64,7 @@
     },
     {
       "id": "is-vedur-observations",
-      "authority": "Icelandic Meteorological Office (Veðurstofa Íslands)",
+      "authority": "Icelandic Meteorological Office (Ve\u00f0urstofa \u00cdslands)",
       "coverage": {
         "countries": [
           "IS"
@@ -84,7 +84,7 @@
     },
     {
       "id": "is-avalanche-bulletin",
-      "authority": "Icelandic Meteorological Office — Avalanche Section",
+      "authority": "Icelandic Meteorological Office \u2014 Avalanche Section",
       "coverage": {
         "countries": [
           "IS"
@@ -100,7 +100,7 @@
       "attribution": "Icelandic Met Office",
       "termsUrl": "https://en.vedur.is/about-imo/the-web/conditions",
       "status": "discovered",
-      "notes": "Regional avalanche forecasts for five Icelandic areas (issued daily 1 Jan–1 Jun, 3x/week off-season). Official IMO avalanche bulletin site; authoritative national avalanche hazard source."
+      "notes": "Regional avalanche forecasts for five Icelandic areas (issued daily 1 Jan\u20131 Jun, 3x/week off-season). Official IMO avalanche bulletin site; authoritative national avalanche hazard source."
     },
     {
       "id": "is-landsnet-grid",
@@ -121,26 +121,6 @@
       "termsUrl": "https://www.landsnet.is/english/",
       "status": "discovered",
       "notes": "Iceland's electricity transmission-system operator. Publishes grid status, outages and system information via the corporate portal; underlying API (api.landsnet.is) requires validation before direct use."
-    },
-    {
-      "id": "is-vedur-water-glaciers",
-      "authority": "Icelandic Meteorological Office — Hydrology & Glaciers",
-      "coverage": {
-        "countries": [
-          "IS"
-        ]
-      },
-      "capability": "water",
-      "outputModel": "map-overlay",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://en.vedur.is/",
-      "refreshSeconds": 3600,
-      "proxyRequired": false,
-      "attribution": "Icelandic Met Office",
-      "termsUrl": "https://en.vedur.is/about-imo/the-web/conditions",
-      "status": "discovered",
-      "notes": "IMO hydrology & glacier monitoring: river discharge, glacial lagoon (jökulhlaup) and flood warnings. Portal aggregates real-time hydrological and volcanic-glacial hazard information for Iceland."
     },
     {
       "id": "is-airquality-ust",

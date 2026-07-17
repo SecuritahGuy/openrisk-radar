@@ -83,26 +83,6 @@
       "notes": "VIIRS NOAA-20 375m active fire detections for South Asia. Higher resolution than MODIS (375m vs 1km). Public CSV."
     },
     {
-      "id": "in-cwc-flood-forecast",
-      "authority": "Central Water Commission (CWC) Flood Forecasting",
-      "coverage": {
-        "countries": [
-          "IN"
-        ]
-      },
-      "capability": "water",
-      "outputModel": "risk-event",
-      "access": "public",
-      "format": "html",
-      "endpoint": "https://ffs.india-water.gov.in/",
-      "refreshSeconds": 3600,
-      "proxyRequired": true,
-      "attribution": "Central Water Commission, India",
-      "termsUrl": "https://ffs.india-water.gov.in/",
-      "status": "error",
-      "notes": "CWC Flood Forecasting portal. ffs.india-water.gov.in and aff.india-water.gov.in confirmed unreachable (DNS/transport errors). inf.cwc.gov.in returns 401 (requires auth). CWC flood warnings were severely impacted in June 2026 monsoon. NWDP CKAN (nwdp.nwic.gov.in) is the primary working alternative — serves CWC telemetry river water level data as CSV via CKAN API. Also see in-nwdp-cwc-river-level for direct data access."
-    },
-    {
       "id": "in-nwdp-water-data",
       "authority": "National Water Data Portal (NWIC)",
       "coverage": {
@@ -140,7 +120,7 @@
       "attribution": "Central Water Commission, India / NWIC",
       "termsUrl": "https://nwdp.nwic.gov.in/dataset/river-water-level-telemetry-hourly-central-water-commission-cwc",
       "status": "discovered",
-      "notes": "CKAN package_show for CWC river water level telemetry data (hourly). Returns JSON with 58 resources covering all river basins — Subernarekha, Brahmani, Mahanadi, Godavari, Krishna, Pennar, Cauvery, Tapi, Narmada, Mahi, Sabarmati, West/East flowing rivers, Yamuna. Data periods: 2021-2025 and 2026-2030 CSVs. Replace the NWDP FFS portal for real-time water levels."
+      "notes": "CKAN package_show for CWC river water level telemetry data (hourly). Returns JSON with 58 resources covering all river basins \u2014 Subernarekha, Brahmani, Mahanadi, Godavari, Krishna, Pennar, Cauvery, Tapi, Narmada, Mahi, Sabarmati, West/East flowing rivers, Yamuna. Data periods: 2021-2025 and 2026-2030 CSVs. Replace the NWDP FFS portal for real-time water levels."
     },
     {
       "id": "in-cpcb-air-quality",
@@ -165,7 +145,11 @@
     {
       "id": "in-incois-tsunami-past90",
       "authority": "INCOIS (Indian Tsunami Early Warning Centre)",
-      "coverage": { "countries": ["IN"] },
+      "coverage": {
+        "countries": [
+          "IN"
+        ]
+      },
       "capability": "tsunami",
       "outputModel": "risk-event",
       "access": "public",
