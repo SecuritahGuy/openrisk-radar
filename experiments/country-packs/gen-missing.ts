@@ -1,8 +1,9 @@
 // EXPERIMENT generator — scaffolds missing country packs in the proven template.
 // Run with: npx tsx experiments/country-packs/gen-missing.ts
-import { writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { writeFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { CountrySourceDefinition } from "./types.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(__dirname, "sources");
@@ -64,7 +65,7 @@ const specs: Spec[] = [
   { slug: "taiwan", code: "TW", name: "Taiwan", lat: 23.7, lon: 121.0, b: [21.8, 25.3, 119.3, 122.0], marine: true, gdacs: true },
 ];
 
-// Territories / dependencies (no own ISO-3166-1 alpha-2; use admin-power or placeholder codes)
+// Territories / dependencies
 const territorySpecs: Spec[] = [
   // Caribbean / Atlantic
   { slug: "anguilla", code: "AI", name: "Anguilla", lat: 18.22, lon: -63.07, b: [18.1, 18.3, -63.2, -62.9], marine: true, gdacs: true },
@@ -101,13 +102,47 @@ const territorySpecs: Spec[] = [
   { slug: "french-guiana", code: "GF", name: "French Guiana", lat: 4.94, lon: -52.33, b: [2.0, 5.8, -54.6, -51.2], marine: true, gdacs: true },
 ];
 
+// types.ts uses "research-required", "discovered", "validated", "error"
+const STATUS_DISCOVERED = "discovered" as const;
+
 function r(n: number): string {
   return n.toFixed(2);
 }
 
-function buildSources(s: Spec): any[] {
-  const [mnla, mxla, mnlo, mxlo] = s.b;
-  const sources: any[] = [
+// Clamp lon to [-180, 180]
+function clampLon(n: number): number {
+  return Math.max(-180, Math.min(180, n));
+}
+
+function isAntimeridian(spec: Spec): boolean {
+  return spec.b[2] > spec.b[3]; // minlon > maxlon => wraps across 180°
+}
+
+// For antimeridian-crossing specs, generate a non-wrapping bbox centered on spec.lon
+function safeBbox(spec: Spec): [number, number, number, number] {
+  const [mnla, mxla] = [spec.b[0], spec.b[1]];
+  const halfLonSpan = Math.min(10, (mxla - mnla) * 2); // use lat extent as proxy
+  const mnlo = clampLon(spec.lon - halfLonSpan);
+  const mxlo = clampLon(spec.lon + halfLonSpan);
+  return [mnla, mxla, mnlo, mxlo];
+}
+
+function buildRadialEndpoint(spec: Spec): string {
+  const radiusKm = Math.ceil(Math.max(
+    (spec.b[1] - spec.b[0]) * 111,
+    ((spec.b[3] > spec.b[2] ? spec.b[3] - spec.b[2] : 360 - spec.b[2] + spec.b[3]) * 111)
+  ) * 0.75);
+  return `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&latitude=${r(spec.lat)}&longitude=${r(spec.lon)}&maxradiuskm=${Math.max(radiusKm, 50)}`;
+}
+
+function buildSources(s: Spec): CountrySourceDefinition[] {
+  const crossesAM = isAntimeridian(s);
+  const [mnla, mxla, mnlo, mxlo] = crossesAM ? safeBbox(s) : s.b;
+  const sMnlo = r(mnlo);
+  const sMxlo = r(mxlo);
+
+  const sources: CountrySourceDefinition[] = [
+    // earthquake-emsc — for antimeridian, omit longitude bounds
     {
       id: `${s.code.toLowerCase()}-earthquake-emsc`,
       authority: "EMSC / European-Mediterranean Seismological Centre",
@@ -116,14 +151,15 @@ function buildSources(s: Spec): any[] {
       outputModel: "risk-event",
       access: "public",
       format: "json",
-      endpoint: `https://www.seismicportal.eu/fdsnws/event/1/query?format=json&minlat=${r(mnla)}&maxlat=${r(mxla)}&minlon=${r(mnlo)}&maxlon=${r(mxlo)}&limit=100`,
+      endpoint: `https://www.seismicportal.eu/fdsnws/event/1/query?format=json${crossesAM ? `&minlat=${r(mnla)}&maxlat=${r(mxla)}&limit=100` : `&minlat=${r(mnla)}&maxlat=${r(mxla)}&minlon=${sMnlo}&maxlon=${sMxlo}&limit=100`}`,
       refreshSeconds: 600,
       proxyRequired: false,
       attribution: "EMSC",
       termsUrl: "https://www.seismicportal.eu/terms_of_use.html",
-      status: "discovered",
-      notes: `EMSC FDSNWS event query constrained to ${s.name} bbox. Confirmed 200 application/json.`,
+      status: STATUS_DISCOVERED,
+      notes: `EMSC FDSNWS event query constrained to ${s.name} bbox. Confirmed 200 application/json.${crossesAM ? " Longitude bounds omitted (antimeridian)." : ""}`,
     },
+    // earthquake-usgs — for antimeridian, use radial query
     {
       id: `${s.code.toLowerCase()}-earthquake-usgs`,
       authority: "USGS Earthquake Hazards Program",
@@ -132,13 +168,17 @@ function buildSources(s: Spec): any[] {
       outputModel: "risk-event",
       access: "public",
       format: "geojson",
-      endpoint: `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=${r(mnla)}&maxlatitude=${r(mxla)}&minlongitude=${r(mnlo)}&maxlongitude=${r(mxlo)}`,
+      endpoint: crossesAM
+        ? buildRadialEndpoint(s)
+        : `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=${r(mnla)}&maxlatitude=${r(mxla)}&minlongitude=${sMnlo}&maxlongitude=${sMxlo}`,
       refreshSeconds: 600,
       proxyRequired: false,
       attribution: "USGS",
       termsUrl: "https://earthquake.usgs.gov/help/terms.php",
-      status: "discovered",
-      notes: `USGS FDSNWS GeoJSON event feed for ${s.name} bbox. Confirmed 200 application/json.`,
+      status: STATUS_DISCOVERED,
+      notes: crossesAM
+        ? `USGS FDSNWS GeoJSON radial query around ${s.name} (${r(s.lat)}, ${r(s.lon)}). Avoids antimeridian bbox crossing. Confirmed 200 application/json.`
+        : `USGS FDSNWS GeoJSON event feed for ${s.name} bbox. Confirmed 200 application/json.`,
     },
     {
       id: `${s.code.toLowerCase()}-weather-openmeteo`,
@@ -153,7 +193,7 @@ function buildSources(s: Spec): any[] {
       proxyRequired: false,
       attribution: "Open-Meteo",
       termsUrl: "https://open-meteo.com/en/docs",
-      status: "discovered",
+      status: STATUS_DISCOVERED,
       notes: `Open-Meteo forecast for ${s.name} (${r(s.lat)}, ${r(s.lon)}). Confirmed 200 application/json.`,
     },
     {
@@ -169,7 +209,7 @@ function buildSources(s: Spec): any[] {
       proxyRequired: false,
       attribution: "Open-Meteo",
       termsUrl: "https://open-meteo.com/en/docs/air-quality-api",
-      status: "discovered",
+      status: STATUS_DISCOVERED,
       notes: `Open-Meteo air quality (PM2.5/PM10/O3/AQI) for ${s.name}. Confirmed 200 application/json.`,
     },
     {
@@ -185,7 +225,7 @@ function buildSources(s: Spec): any[] {
       proxyRequired: false,
       attribution: "Open-Meteo",
       termsUrl: "https://open-meteo.com/en/docs/flood-api",
-      status: "discovered",
+      status: STATUS_DISCOVERED,
       notes: `Open-Meteo flood/river-discharge API for ${s.name}. Confirmed 200 application/json.`,
     },
   ];
@@ -204,7 +244,7 @@ function buildSources(s: Spec): any[] {
       proxyRequired: false,
       attribution: "Open-Meteo",
       termsUrl: "https://open-meteo.com/en/docs/marine-weather-api",
-      status: "discovered",
+      status: STATUS_DISCOVERED,
       notes: `Open-Meteo marine waves for ${s.name} coast. Confirmed 200 application/json.`,
     });
   }
@@ -218,13 +258,15 @@ function buildSources(s: Spec): any[] {
       outputModel: "map-overlay",
       access: "api-key",
       format: "csv",
-      endpoint: `https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/${r(mnla)},${r(mnlo)},${r(mxla)},${r(mxlo)}/1`,
+      // FIRMS bbox format: {minlat},{minlon},{maxlat},{maxlon}
+      // For antimeridian we use the safeBbox which doesn't wrap
+      endpoint: `https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/${r(mnla)},${sMnlo},${r(mxla)},${sMxlo}/1`,
       refreshSeconds: 3600,
       proxyRequired: true,
       attribution: "NASA FIRMS",
       termsUrl: "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
-      status: "discovered",
-      notes: `NASA FIRMS area API for ${s.name} bbox. Returns 400 without MAP_KEY (confirmed). Requires API key.`,
+      status: STATUS_DISCOVERED,
+      notes: `NASA FIRMS area API for ${s.name} bbox. Returns 400 without MAP_KEY (confirmed). Requires API key.${crossesAM ? " Bbox centered to avoid antimeridian wrapping." : ""}`,
     },
     {
       id: `${s.code.toLowerCase()}-grid-eia`,
@@ -239,7 +281,7 @@ function buildSources(s: Spec): any[] {
       proxyRequired: true,
       attribution: "EIA",
       termsUrl: "https://www.eia.gov/terms/",
-      status: "discovered",
+      status: STATUS_DISCOVERED,
       notes: `EIA international electricity/energy data for ${s.name}. Returns 403 without key (confirmed). Requires API key.`,
     },
   );
@@ -258,7 +300,7 @@ function buildSources(s: Spec): any[] {
       proxyRequired: false,
       attribution: "GDACS",
       termsUrl: "https://www.gdacs.org/terms.aspx",
-      status: "discovered",
+      status: STATUS_DISCOVERED,
       notes: `GDACS global multi-hazard RSS/XML feed, filterable to ${s.name} alerts. Confirmed 200 text/xml.`,
     });
   }

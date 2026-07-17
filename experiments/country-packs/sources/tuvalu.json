@@ -14,13 +14,13 @@
       "outputModel": "risk-event",
       "access": "public",
       "format": "json",
-      "endpoint": "https://www.seismicportal.eu/fdsnws/event/1/query?format=json&minlat=-8.70&maxlat=-5.60&minlon=176.00&maxlon=-179.00&limit=100",
+      "endpoint": "https://www.seismicportal.eu/fdsnws/event/1/query?format=json&minlat=-8.70&maxlat=-5.60&limit=100",
       "refreshSeconds": 600,
       "proxyRequired": false,
       "attribution": "EMSC",
       "termsUrl": "https://www.seismicportal.eu/terms_of_use.html",
       "status": "discovered",
-      "notes": "EMSC FDSNWS event query constrained to Tuvalu bbox. Confirmed 200 application/json."
+      "notes": "EMSC FDSNWS event query for Tuvalu. Longitude bounds omitted (antimeridian crossing). Confirmed 200 application/json."
     },
     {
       "id": "tv-earthquake-usgs",
@@ -134,13 +134,13 @@
       "outputModel": "map-overlay",
       "access": "api-key",
       "format": "csv",
-      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/-8.70,176.00,-5.60,-179.00/1",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/-8.70,172.48,-5.60,180.00/1",
       "refreshSeconds": 3600,
       "proxyRequired": true,
       "attribution": "NASA FIRMS",
       "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
-      "status": "discovered",
-      "notes": "NASA FIRMS area API for Tuvalu bbox. Returns 400 without MAP_KEY (confirmed). Requires API key."
+      "status": "research-required",
+      "notes": "NASA FIRMS area API for Tuvalu bbox (centered to avoid antimeridian wrapping). Returns 400 without MAP_KEY (confirmed). Requires API key."
     },
     {
       "id": "tv-grid-eia",
@@ -159,7 +159,7 @@
       "proxyRequired": true,
       "attribution": "EIA",
       "termsUrl": "https://www.eia.gov/terms/",
-      "status": "discovered",
+      "status": "research-required",
       "notes": "EIA international electricity/energy data for Tuvalu. Returns 403 without key (confirmed). Requires API key."
     },
     {
