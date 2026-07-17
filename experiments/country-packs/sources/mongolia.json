@@ -129,6 +129,22 @@
       "termsUrl": "https://www.gdacs.org/",
       "status": "discovered",
       "notes": "GDACS multi-hazard event list (earthquakes, floods, wildfires) as GeoJSON; filter by country in feature properties. Confirmed HTTP 200, content-type application/json; charset=utf-8."
+    },
+    {
+      "id": "mn-namem-forecast",
+      "authority": "NAMEM — Mongolian Agency for Meteorology and Environmental Monitoring (ЦУОШГ)",
+      "coverage": { "countries": ["MN"] },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://weather.gov.mn/api/get/forecasts",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "NAMEM / Цаг Уур, Орчны Шинжилгээний Газар",
+      "termsUrl": "https://weather.gov.mn/",
+      "status": "discovered",
+      "notes": "NAMEM national 5-day weather forecast for all Mongolian provinces in XML. Content-type header misreports as text/html but body is valid XML. CORS allowed (access-control-allow-origin: *). Confirmed HTTP 200."
     }
   ]
 }

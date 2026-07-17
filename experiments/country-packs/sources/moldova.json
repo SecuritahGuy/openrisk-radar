@@ -150,6 +150,54 @@
       "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/area/",
       "status": "discovered",
       "notes": "NASA FIRMS VIIRS active fire detections around a point (radius km). Confirmed HTTP 400 with a placeholder key, so a free MAP_KEY is required (register at firms.modaps.eosdis.nasa.gov/api/map_key/). Returns CSV of fire hotspots."
+    },
+    {
+      "id": "md-flood-openmeteo",
+      "authority": "Open-Meteo Flood / Global Flood API",
+      "coverage": { "countries": ["MD"] },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://flood-api.open-meteo.com/v1/flood?latitude=47.0&longitude=28.9&daily=river_discharge",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/flood-api",
+      "status": "discovered",
+      "notes": "Open-Meteo flood/river-discharge API for Moldova (Nistru/Prut basins). Confirmed 200 application/json."
+    },
+    {
+      "id": "md-marine-openmeteo",
+      "authority": "Open-Meteo Marine",
+      "coverage": { "countries": ["MD"] },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://marine-api.open-meteo.com/v1/marine?latitude=46.0&longitude=30.0&current=wave_height,wave_period,wind_wave_height",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/marine-weather-api",
+      "status": "discovered",
+      "notes": "Open-Meteo marine (wave height/period) for Moldova's Black Sea coast approach. Confirmed 200 application/json. Landlocked but accesses sea via Danube delta."
+    },
+    {
+      "id": "md-grid-eia",
+      "authority": "U.S. Energy Information Administration",
+      "coverage": { "countries": ["MD"] },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://api.eia.gov/v2/international/data/?api_key=MAP_KEY",
+      "refreshSeconds": 86400,
+      "proxyRequired": true,
+      "attribution": "EIA",
+      "termsUrl": "https://www.eia.gov/terms/",
+      "status": "discovered",
+      "notes": "EIA international electricity/energy data for Moldova. Returns 403 without key (confirmed). Requires API key."
     }
   ]
 }

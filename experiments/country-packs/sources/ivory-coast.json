@@ -129,6 +129,22 @@
       "termsUrl": "https://www.eia.gov/terms/",
       "status": "discovered",
       "notes": "EIA international electricity/energy data for Côte d'Ivoire. Returns 403 without key (confirmed). Requires API key."
+    },
+    {
+      "id": "ci-gdacs-multihazard",
+      "authority": "GDACS (Global Disaster Alert and Coordination System)",
+      "coverage": { "countries": ["CI"] },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.gdacs.org/api/events/geteventlist/SEARCH?eventtypes=EQ;FL;TC;DR;WF&bbox=-8.6,4.3,-2.5,10.7",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "GDACS / JRC / USGS / NOAA",
+      "termsUrl": "https://www.gdacs.org/",
+      "status": "discovered",
+      "notes": "GDACS multi-hazard event list filtered to Côte d'Ivoire bbox. Confirmed 200 application/json. Covers earthquakes, floods, tropical cyclones, droughts, and wildfires."
     }
   ]
 }

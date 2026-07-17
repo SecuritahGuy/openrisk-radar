@@ -181,6 +181,22 @@
       "termsUrl": "https://www.gdacs.org/terms.aspx",
       "status": "discovered",
       "notes": "GDACS global multi-hazard RSS/XML feed, filterable to Puerto Rico alerts. Confirmed 200 text/xml."
+    },
+    {
+      "id": "pr-nws-alerts",
+      "authority": "National Weather Service (NWS) / NOAA — API Gateway",
+      "coverage": { "countries": ["PR"] },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active?area=PR",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "National Weather Service",
+      "termsUrl": "https://www.weather.gov/",
+      "status": "discovered",
+      "notes": "NWS active alerts (watches/warnings/advisories) for Puerto Rico in GeoJSON format. Covers tropical cyclones, floods, marine, and other hazards. Confirmed HTTP 200, content-type application/geo+json."
     }
   ]
 }

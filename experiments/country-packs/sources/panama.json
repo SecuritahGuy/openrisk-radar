@@ -129,6 +129,22 @@
       "termsUrl": "https://www.eia.gov/terms/",
       "status": "discovered",
       "notes": "EIA international electricity/energy statistics for Panama. Requires api_key (returns 403 without). Confirmed HTTP 403 without key; API-key protected."
+    },
+    {
+      "id": "pa-imhpa-weather-csv",
+      "authority": "IMHPA — Instituto de Meteorología e Hidrología de Panamá",
+      "coverage": { "countries": ["PA"] },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://www.imhpa.gob.pa/es/datos-diarios?estacion=1&mes=6&ano=2026&csv=1",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "IMHPA / ETESA",
+      "termsUrl": "https://www.imhpa.gob.pa/",
+      "status": "discovered",
+      "notes": "IMHPA daily weather observations (temperature, precipitation, wind) in CSV format for Panama. National meteorological service data. Confirmed HTTP 200, content-type text/csv. Endpoint pattern: estacion, mes, ano parameters."
     }
   ]
 }
