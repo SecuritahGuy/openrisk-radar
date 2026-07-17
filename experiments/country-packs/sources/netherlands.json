@@ -129,6 +129,38 @@
       "termsUrl": "https://rijkswaterstaatdata.nl/waterdata/",
       "status": "discovered",
       "notes": "Rijkswaterstaat WFS (legacy) for water measurement locations with latest observations. Feature types: locaties, locatiesmetlaatstewaarneming. OGC WFS 1.1.0. Supports XML filter. Note: being superseded by new ddapi20 JSON endpoints."
+    },
+    {
+      "id": "nl-pdok-flood-events",
+      "authority": "PDOK / Rijkswaterstaat",
+      "coverage": { "countries": ["NL"] },
+      "capability": "water",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.pdok.nl/rws/overstromingen-gebeurtenis/ogc/v1/collections/observed_event/items?limit=1",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "PDOK / Rijkswaterstaat",
+      "termsUrl": "https://www.pdok.nl/introductie/-/article/overstromingen-gebeurtenis",
+      "status": "discovered",
+      "notes": "PDOK OGC API for flood events (overstromingen). Collection 'observed_event' returns GeoJSON features with flood event type, location, status and time range. Public, no auth. Verified 200 application/geo+json."
+    },
+    {
+      "id": "nl-knmi-fdsn-earthquakes",
+      "authority": "KNMI (Koninklijk Nederlands Meteorologisch Instituut) — Data Platform",
+      "coverage": { "countries": ["NL"] },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.dataplatform.knmi.nl/fdsnws/event/1/query?format=json&limit=20",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "KNMI",
+      "termsUrl": "https://api.dataplatform.knmi.nl/open-data/docs/",
+      "status": "discovered",
+      "notes": "KNMI FDSNWS event service via api.dataplatform.knmi.nl. Returns FDSN JSON event feed for Netherlands and neighbouring regions. Covers induced seismicity (Groningen) and natural events. Verified 200 application/json."
     }
   ]
 }

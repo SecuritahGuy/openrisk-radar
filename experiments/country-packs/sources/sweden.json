@@ -141,6 +141,22 @@
       "termsUrl": "https://www.naturvardsverket.se/amnesomraden/luft/statistik--utslapp-och-halter/luftkvaliteten-i-realtid-och-preliminar-statistik",
       "status": "discovered",
       "notes": "Swedish national air quality data via OGC SOS 2.0. Hosted by SMHI as data host for Naturvårdsverket. Provides near real-time and historical data for PM10, PM2.5, NO2, O3, SO2, CO, benzene, PAH, metals from Swedish monitoring stations. Also accessible via SOS REST interface and WMS."
+    },
+    {
+      "id": "se-msb-krisinformation",
+      "authority": "MSB (Swedish Civil Contingencies Agency)",
+      "coverage": { "countries": ["SE"] },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.krisinformation.se/v3/news",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "MSB (Myndigheten för samhällsskydd och beredskap)",
+      "termsUrl": "https://api.krisinformation.se/swagger/index.html",
+      "status": "discovered",
+      "notes": "MSB crisis information news feed for Sweden. Returns JSON with crisis/emergency news items from Swedish authorities. Parameter ?count= limits results. Returns empty array when no active events. Verified 200 application/json."
     }
   ]
 }

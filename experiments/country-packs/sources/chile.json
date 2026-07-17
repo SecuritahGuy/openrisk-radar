@@ -129,6 +129,22 @@
       "termsUrl": "https://www.eia.gov/opendata/",
       "status": "discovered",
       "notes": "EIA international electricity data for Chile. Confirmed HTTP 403 without api_key → requires free EIA API key. Monthly generation/consumption indicators."
+    },
+    {
+      "id": "cl-shoa-tsunami",
+      "authority": "SHOA — Servicio Hidrográfico y Oceanográfico de la Armada de Chile",
+      "coverage": { "countries": ["CL"] },
+      "capability": "tsunami",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://arcgiswebad.bcn.cl/arcgis/rest/services/SIIT/Tsunamis/FeatureServer/0/query?f=geojson&where=1%3D1&outFields=*&returnGeometry=true",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "SHOA / BCN",
+      "termsUrl": "https://www.shoa.cl/",
+      "status": "discovered",
+      "notes": "SHOA Principales Tsunamis historical catalog via BCN ArcGIS FeatureServer. Point features with date, magnitude (ms), depth, wave height (olam), location. Confirmed 200 application/geo+json."
     }
   ]
 }

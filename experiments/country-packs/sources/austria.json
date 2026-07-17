@@ -97,6 +97,22 @@
       "termsUrl": "https://transparency.apg.at/",
       "status": "validated",
       "notes": "APG market transparency data: actual total load, load forecast, capacity margin and consumption-unit unavailabilities for the Austrian control area, per EU Transparency Regulation 543/2013. A free public REST API is available on request (registration required) — hence api-key. All data is also mirrored on the ENTSO-E Transparency Platform."
+    },
+    {
+      "id": "at-geosphere-tawes",
+      "authority": "GeoSphere Austria (formerly ZAMG)",
+      "coverage": { "countries": ["AT"] },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://dataset.api.hub.geosphere.at/v1/station/current/tawes-v1-10min?station_ids=11012&parameters=TL,RF,DD,FF,RR,SO",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "GeoSphere Austria",
+      "termsUrl": "https://dataset.api.hub.geosphere.at/v1/docs/",
+      "status": "discovered",
+      "notes": "GeoSphere Austria TAWES (automatic weather station) current observations. Returns GeoJSON FeatureCollection with air temperature (TL), humidity (RF), wind direction/speed (DD/FF), precipitation (RR), sunshine (SO) for station 11012 (Wels). Requires station_ids and parameters query params. Verified 200 application/json."
     }
   ]
 }

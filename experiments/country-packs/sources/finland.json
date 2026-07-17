@@ -97,6 +97,38 @@
       "termsUrl": "https://en.ilmatieteenlaitos.fi/open-data",
       "status": "discovered",
       "notes": "FMI open data WFS GetCapabilities — root of all observation/forecast stored queries (weather, air quality, waves, lightning, earthquakes, road weather). Browse storedquery_id catalog for additional layers."
+    },
+    {
+      "id": "fi-fmi-observations-weather",
+      "authority": "Finnish Meteorological Institute (FMI)",
+      "coverage": { "countries": ["FI"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "http://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=GetFeature&storedquery_id=fmi::observations::weather::multipointcoverage&bbox=19,59,32,71",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "Finnish Meteorological Institute",
+      "termsUrl": "https://en.ilmatieteenlaitos.fi/open-data",
+      "status": "discovered",
+      "notes": "FMI weather observations multipoint coverage WFS for Finland. Returns temperature, wind, precipitation, humidity, pressure from weather stations. Bbox covers mainland Finland. Verified 200 text/xml."
+    },
+    {
+      "id": "fi-fmi-observations-road",
+      "authority": "Finnish Meteorological Institute (FMI)",
+      "coverage": { "countries": ["FI"] },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "http://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=GetFeature&storedquery_id=livi::observations::road::finland::multipointcoverage&bbox=21,60,31,70",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "Finnish Meteorological Institute",
+      "termsUrl": "https://en.ilmatieteenlaitos.fi/open-data",
+      "status": "discovered",
+      "notes": "FMI road weather observations (surface temperature, friction, road condition) for Finnish road network. Verified 200 text/xml."
     }
   ]
 }

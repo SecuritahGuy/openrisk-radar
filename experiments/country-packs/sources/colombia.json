@@ -129,6 +129,22 @@
       "termsUrl": "https://www.eia.gov/opendata/",
       "status": "discovered",
       "notes": "EIA international electricity data for Colombia. Confirmed HTTP 403 without api_key → requires free EIA API key. Monthly generation/consumption indicators."
+    },
+    {
+      "id": "co-sgc-earthquake",
+      "authority": "SGC — Servicio Geológico Colombiano",
+      "coverage": { "countries": ["CO"] },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://srvags.sgc.gov.co/arcgis/rest/services/catalogo_sismos/catalogo_de_sismos_2/FeatureServer/0/query?f=geojson&where=1%3D1&outFields=*&returnGeometry=true",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "SGC Colombia",
+      "termsUrl": "https://www.sgc.gov.co/",
+      "status": "discovered",
+      "notes": "SGC earthquake catalog (catalogo_sismos) via ArcGIS FeatureServer. Returns GeoJSON with magnitude (ESP_MAGNITUD), depth (ESP_PROFUNDIDAD), lat/lon, and date (ESP_FECHA_LONG). Confirmed 200 application/geo+json. ~16k records, limited to 1000 per query."
     }
   ]
 }

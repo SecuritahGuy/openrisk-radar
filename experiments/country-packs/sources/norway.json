@@ -129,6 +129,22 @@
       "termsUrl": "https://www.statnett.no/",
       "status": "discovered",
       "notes": "Production and consumption / power balance data for the Norwegian grid (driftsdata REST API). Useful as a grid-stability supplemental signal."
+    },
+    {
+      "id": "no-nve-hydapi",
+      "authority": "Norwegian Water Resources and Energy Directorate (NVE)",
+      "coverage": { "countries": ["NO"] },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://hydapi.nve.no/api/v1/Observations",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "NVE (Norges vassdrags- og energidirektorat)",
+      "termsUrl": "https://hydapi.nve.no/UserDocumentation/",
+      "status": "discovered",
+      "notes": "NVE Hydrological Data API (HydAPI) for historical and real-time observations of water level, discharge, temperature, snow, and ice. Returns 401 without API key (confirmed). Requires API key registration at hydapi.nve.no."
     }
   ]
 }

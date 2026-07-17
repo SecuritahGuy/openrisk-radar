@@ -97,6 +97,38 @@
       "termsUrl": "https://www.miljoeportal.dk/",
       "status": "discovered",
       "notes": "Danish environmental portal hosting air quality and environmental map layers (DCE Aarhus University manages national air quality monitoring). Web portal; structured data also exposed via the Arealinformation API / OData endpoints."
+    },
+    {
+      "id": "dk-dmi-harmonie-forecast",
+      "authority": "Danish Meteorological Institute (DMI)",
+      "coverage": { "countries": ["DK"] },
+      "capability": "environmental-health",
+      "outputModel": "map-overlay",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://opendataapi.dmi.dk/v1/forecastdata/collections/harmonie_dini_sf/items",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Danish Meteorological Institute",
+      "termsUrl": "https://www.dmi.dk/frie-data/",
+      "status": "discovered",
+      "notes": "DMI HARMONIE DINI_SF weather model forecast data in STAC API format. GeoJSON FeatureCollection with GRIB file asset references for temperature, wind, precipitation, pressure. Verified 200 application/json."
+    },
+    {
+      "id": "dk-dmi-oceanobs-items",
+      "authority": "Danish Meteorological Institute (DMI)",
+      "coverage": { "countries": ["DK"] },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://opendataapi.dmi.dk/v2/oceanObs/collections/observation/items",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Danish Meteorological Institute",
+      "termsUrl": "https://www.dmi.dk/frie-data/",
+      "status": "discovered",
+      "notes": "DMI ocean observation data items (OGC API Features) — sea temperature, salinity, water level, ice conditions from Danish waters. GeoJSON output. Verified 200 application/json."
     }
   ]
 }

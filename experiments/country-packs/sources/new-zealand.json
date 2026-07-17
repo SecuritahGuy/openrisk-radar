@@ -145,6 +145,22 @@
       "termsUrl": "https://firms.modaps.eosdis.nasa.gov/",
       "status": "discovered",
       "notes": "NASA FIRMS API v4 area query for active fire detections. Requires free MAP_KEY from earthdata.nasa.gov. Returns VIIRS 375m CSV. Filter by NZ bounding box: min_lat=-48&min_lon=165&max_lat=-33&max_lon=180."
+    },
+    {
+      "id": "nz-geonet-wfs-quakes",
+      "authority": "GNS Science (GeoNet)",
+      "coverage": { "countries": ["NZ"] },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://wfs.geonet.org.nz/geonet/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=geonet:quake_search_v1&outputFormat=json",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "GNS Science / GeoNet",
+      "termsUrl": "https://www.geonet.org.nz/",
+      "status": "discovered",
+      "notes": "GeoNet OGC WFS earthquake catalogue search. Returns GeoJSON with origin time, magnitude, depth, location, phase/station counts. Supports CQL filters for time, magnitude, and spatial bbox. Confirmed 200 application/vnd.geo+json."
     }
   ]
 }

@@ -141,6 +141,22 @@
       "termsUrl": "https://www.ceps.cz/",
       "status": "discovered",
       "notes": "Czech electricity transmission system operator. Publishes grid load, generation mix, and cross-border exchange data on its site."
+    },
+    {
+      "id": "cz-chmi-forecast",
+      "authority": "Czech Hydrometeorological Institute (ČHMÚ)",
+      "coverage": { "countries": ["CZ"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://opendata.chmi.cz/meteorology/weather/forecast/now/web_pCH1tx_RPCB_171500.json",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "ČHMÚ",
+      "termsUrl": "https://opendata.chmi.cz/",
+      "status": "discovered",
+      "notes": "ČHMÚ open-data weather forecast in GeoJSON format. Contains regional text forecasts (RPCB region) with weather phenomena, temperature, wind and hazard language. Files published daily in /meteorology/weather/forecast/now/. Filename is date-stamped (YYMMDD). Verified 200 application/json."
     }
   ]
 }

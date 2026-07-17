@@ -121,6 +121,38 @@
       "termsUrl": "https://www.natural-hazards.ch/",
       "status": "validated",
       "notes": "Swiss national natural-hazards portal aggregating flood, storm, forest-fire, earthquake and other hazard information from FOEN, MeteoSwiss, SLF and cantonal authorities. Returns 200."
+    },
+    {
+      "id": "ch-meteoswiss-observations",
+      "authority": "MeteoSwiss (Federal Office of Meteorology and Climatology)",
+      "coverage": { "countries": ["CH"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://data.geo.admin.ch/ch.meteoschweiz.messwerte-lufttemperatur-10min/ch.meteoschweiz.messwerte-lufttemperatur-10min_en.json",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "MeteoSwiss / Federal Office of Meteorology and Climatology",
+      "termsUrl": "https://opendatadocs.meteoswiss.ch/",
+      "status": "discovered",
+      "notes": "MeteoSwiss 10-minute air temperature observations from the SwissMetNet automatic station network. Static GeoJSON file on geo.admin.ch S3, updated every 10 minutes. Covers ~170 stations with current temperature in °C. Verified 200."
+    },
+    {
+      "id": "ch-meteoswiss-precipitation",
+      "authority": "MeteoSwiss (Federal Office of Meteorology and Climatology)",
+      "coverage": { "countries": ["CH"] },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://data.geo.admin.ch/ch.meteoschweiz.messwerte-niederschlag-10min/ch.meteoschweiz.messwerte-niederschlag-10min_en.json",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "MeteoSwiss / Federal Office of Meteorology and Climatology",
+      "termsUrl": "https://opendatadocs.meteoswiss.ch/",
+      "status": "discovered",
+      "notes": "MeteoSwiss 10-minute precipitation (niederschlag) observations from the SwissMetNet network. Static GeoJSON file on geo.admin.ch S3, updated every 10 minutes. Verified 200."
     }
   ]
 }
