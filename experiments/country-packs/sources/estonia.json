@@ -100,6 +100,132 @@
       "termsUrl": "https://dashboard.elering.ee/assets/api-doc.html",
       "status": "discovered",
       "notes": "Elering NPS (Nord Pool Spot) electricity day-ahead price API for Estonia's control area. Returns 15-minute interval prices in EUR/MWh. Public, no API key required. Also provides cross-border flow data for Latvian/Lithuanian interconnection. Confirmed 200 application/json."
+    },
+    {
+      "id": "ee-weather-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "countries": ["EE"]
+      },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=59.44&longitude=24.75&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs",
+      "status": "discovered",
+      "notes": "Open-Meteo forecast for Estonia (59.44, 24.75). Confirmed 200 application/json."
+    },
+    {
+      "id": "ee-airquality-openmeteo",
+      "authority": "Open-Meteo Air Quality",
+      "coverage": {
+        "countries": ["EE"]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=59.44&longitude=24.75&current=pm2_5,pm10,ozone,us_aqi",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/air-quality-api",
+      "status": "discovered",
+      "notes": "Open-Meteo air quality (PM2.5/PM10/O3/AQI) for Estonia. Confirmed 200 application/json."
+    },
+    {
+      "id": "ee-flood-openmeteo",
+      "authority": "Open-Meteo Flood / Global Flood API",
+      "coverage": {
+        "countries": ["EE"]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://flood-api.open-meteo.com/v1/flood?latitude=59.44&longitude=24.75&daily=river_discharge",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/flood-api",
+      "status": "discovered",
+      "notes": "Open-Meteo flood/river-discharge API for Estonia. Confirmed 200 application/json."
+    },
+    {
+      "id": "ee-marine-openmeteo",
+      "authority": "Open-Meteo Marine",
+      "coverage": {
+        "countries": ["EE"]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://marine-api.open-meteo.com/v1/marine?latitude=59.44&longitude=24.75&current=wave_height,wave_period,wind_wave_height",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/marine-weather-api",
+      "status": "discovered",
+      "notes": "Open-Meteo marine waves for Estonia coast. Confirmed 200 application/json."
+    },
+    {
+      "id": "ee-earthquake-emsc",
+      "authority": "EMSC / European-Mediterranean Seismological Centre",
+      "coverage": {
+        "countries": ["EE"]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.seismicportal.eu/fdsnws/event/1/query?format=json&minlat=57.3&maxlat=60.5&minlon=21.0&maxlon=28.2&limit=100",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "EMSC",
+      "termsUrl": "https://www.seismicportal.eu/terms_of_use.html",
+      "status": "discovered",
+      "notes": "EMSC FDSNWS event query constrained to Estonia bbox. Confirmed 200 application/json."
+    },
+    {
+      "id": "ee-wildfire-firms",
+      "authority": "NASA FIRMS",
+      "coverage": {
+        "countries": ["EE"]
+      },
+      "capability": "wildfire",
+      "outputModel": "map-overlay",
+      "access": "api-key",
+      "format": "csv",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/57.3,21.0,60.5,28.2/1",
+      "refreshSeconds": 3600,
+      "proxyRequired": true,
+      "attribution": "NASA FIRMS",
+      "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
+      "status": "discovered",
+      "notes": "NASA FIRMS area API for Estonia bbox. Returns 400 without MAP_KEY (confirmed). Requires API key."
+    },
+    {
+      "id": "ee-grid-eia",
+      "authority": "U.S. Energy Information Administration",
+      "coverage": {
+        "countries": ["EE"]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://api.eia.gov/v2/international/data/?api_key=MAP_KEY",
+      "refreshSeconds": 86400,
+      "proxyRequired": true,
+      "attribution": "EIA",
+      "termsUrl": "https://www.eia.gov/terms/",
+      "status": "discovered",
+      "notes": "EIA international electricity/energy data for Estonia. Returns 403 without key (confirmed). Requires API key."
     }
   ]
 }

@@ -129,6 +129,22 @@
       "termsUrl": "https://www.eia.gov/terms/",
       "status": "discovered",
       "notes": "EIA international electricity/energy statistics for Cuba. Requires api_key (returns 403 without). Confirmed HTTP 403 without key; API-key protected."
+    },
+    {
+      "id": "cu-gdacs",
+      "authority": "GDACS \u2014 Global Disaster Alert and Coordination System (EC JRC)",
+      "coverage": { "countries": ["CU"] },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.gdacs.org/gdacsapi/api/events/geteventlist/EVENTS4APP?fromdate=2020-01-01",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "GDACS / EC JRC",
+      "termsUrl": "https://www.gdacs.org/disclaimer.aspx",
+      "status": "discovered",
+      "notes": "GDACS multi-hazard event list (earthquake, hurricane, flood). Global feed; filter by country client-side. Confirmed HTTP 200, content-type application/json; charset=utf-8."
     }
   ]
 }

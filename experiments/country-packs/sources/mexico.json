@@ -102,6 +102,132 @@
       "status": "discovered",
       "priority": "primary",
       "notes": "USGS earthquake feed filtered to Mexico bounding box. Primary source for MX earthquakes (SSN endpoint unreliable). Returns GeoJSON with magnitude, depth, location. Also all day at /query?format=geojson&starttime=2026-07-15&endtime=2026-07-16&minlatitude=14&maxlatitude=33&minlongitude=-118&maxlongitude=-86."
+    },
+    {
+      "id": "mx-weather-openmeteo",
+      "authority": "Open-Meteo",
+      "coverage": {
+        "countries": ["MX"]
+      },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=19.43&longitude=-99.13&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs",
+      "status": "discovered",
+      "notes": "Open-Meteo forecast for Mexico (19.43, -99.13). Confirmed 200 application/json."
+    },
+    {
+      "id": "mx-airquality-openmeteo",
+      "authority": "Open-Meteo Air Quality",
+      "coverage": {
+        "countries": ["MX"]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=19.43&longitude=-99.13&current=pm2_5,pm10,ozone,us_aqi",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/air-quality-api",
+      "status": "discovered",
+      "notes": "Open-Meteo air quality (PM2.5/PM10/O3/AQI) for Mexico. Confirmed 200 application/json."
+    },
+    {
+      "id": "mx-flood-openmeteo",
+      "authority": "Open-Meteo Flood / Global Flood API",
+      "coverage": {
+        "countries": ["MX"]
+      },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://flood-api.open-meteo.com/v1/flood?latitude=19.43&longitude=-99.13&daily=river_discharge",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/flood-api",
+      "status": "discovered",
+      "notes": "Open-Meteo flood/river-discharge API for Mexico. Confirmed 200 application/json."
+    },
+    {
+      "id": "mx-marine-openmeteo",
+      "authority": "Open-Meteo Marine",
+      "coverage": {
+        "countries": ["MX"]
+      },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://marine-api.open-meteo.com/v1/marine?latitude=20.70&longitude=-96.93&current=wave_height,wave_period,wind_wave_height",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/marine-weather-api",
+      "status": "discovered",
+      "notes": "Open-Meteo marine waves for Mexico coast. Confirmed 200 application/json."
+    },
+    {
+      "id": "mx-wildfire-firms",
+      "authority": "NASA FIRMS",
+      "coverage": {
+        "countries": ["MX"]
+      },
+      "capability": "wildfire",
+      "outputModel": "map-overlay",
+      "access": "api-key",
+      "format": "csv",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/MAP_KEY/VIIRS_SNPP_NRT/14,-118,33,-86/1",
+      "refreshSeconds": 3600,
+      "proxyRequired": true,
+      "attribution": "NASA FIRMS",
+      "termsUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/",
+      "status": "discovered",
+      "notes": "NASA FIRMS area API for Mexico bbox. Returns 400 without MAP_KEY (confirmed). Requires API key."
+    },
+    {
+      "id": "mx-grid-eia",
+      "authority": "U.S. Energy Information Administration",
+      "coverage": {
+        "countries": ["MX"]
+      },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://api.eia.gov/v2/international/data/?api_key=MAP_KEY",
+      "refreshSeconds": 86400,
+      "proxyRequired": true,
+      "attribution": "EIA",
+      "termsUrl": "https://www.eia.gov/terms/",
+      "status": "discovered",
+      "notes": "EIA international electricity/energy data for Mexico. Returns 403 without key (confirmed). Requires API key."
+    },
+    {
+      "id": "mx-multihazard-gdacs",
+      "authority": "GDACS — Global Disaster Alert and Coordination System",
+      "coverage": {
+        "countries": ["MX"]
+      },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://www.gdacs.org/xml/rss.xml",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "GDACS",
+      "termsUrl": "https://www.gdacs.org/terms.aspx",
+      "status": "discovered",
+      "notes": "GDACS global multi-hazard RSS/XML feed, filterable to Mexico alerts. Confirmed 200 text/xml."
     }
   ]
 }
