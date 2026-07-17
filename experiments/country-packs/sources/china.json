@@ -129,6 +129,38 @@
       "termsUrl": "https://www.gdacs.org/",
       "status": "discovered",
       "notes": "GDACS multi-hazard event list (earthquakes, floods, wildfires) as GeoJSON; filter by country in feature properties. Confirmed HTTP 200, content-type application/json; charset=utf-8."
+    },
+    {
+      "id": "cn-cenc-earthquake-list",
+      "authority": "China Earthquake Networks Center (CENC) via Wolfx",
+      "coverage": { "countries": ["CN"] },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.wolfx.jp/cenc_eqlist.json",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "CENC / China Earthquake Administration via Wolfx",
+      "termsUrl": "https://wolfx.jp/apidoc_en",
+      "status": "discovered",
+      "notes": "CENC reviewed earthquake list (latest events) via third-party Wolfx mirror. Fields: EventID, time, ReportTime, location/placeName, magnitude, depth. Public, confirmed HTTP 200 application/json."
+    },
+    {
+      "id": "cn-cenc-eew",
+      "authority": "China Earthquake Networks Center (CENC) via Wolfx",
+      "coverage": { "countries": ["CN"] },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.wolfx.jp/cenc_eew.json",
+      "refreshSeconds": 60,
+      "proxyRequired": false,
+      "attribution": "CENC / China Earthquake Administration via Wolfx",
+      "termsUrl": "https://wolfx.jp/apidoc_en",
+      "status": "discovered",
+      "notes": "CENC Earthquake Early Warning push feed via Wolfx mirror. Fields: EventID, ReportTime, ReportNum, OriginTime, HypoCenter, Latitude, Longitude, magnitude. Public, confirmed HTTP 200 application/json."
     }
   ]
 }

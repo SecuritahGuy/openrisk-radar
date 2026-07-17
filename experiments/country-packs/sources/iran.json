@@ -115,6 +115,22 @@
       "notes": "Confirmed HTTP 400 text/plain without MAP_KEY (API key required). Area active-fire query for the Iran bounding box (minlon,minlat,maxlon,maxlat)."
     },
     {
+      "id": "ir-observations-irimo-wis2",
+      "authority": "Iran Meteorological Organization (IRIMO) via WMO WIS2 GDC",
+      "coverage": { "countries": ["IR"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://wis2-gdc.weather.gc.ca/collections/wis2-discovery-metadata/items/urn:wmo:md:ir-irimo:core.surface-based-observations.daily",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "IRIMO / WMO WIS2 GDC",
+      "termsUrl": "https://wis2-gdc.weather.gc.ca/",
+      "status": "discovered",
+      "notes": "IRIMO daily surface-based observations discovery metadata (WIS2 GDC, GeoJSON Feature). Confirmed 200 application/json. National meteorological observations feed mirrored via GDC."
+    },
+    {
       "id": "ir-grid-eia",
       "authority": "US Energy Information Administration (EIA) — international electricity",
       "coverage": { "countries": ["IR"] },

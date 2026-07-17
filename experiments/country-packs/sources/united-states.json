@@ -1,0 +1,54 @@
+{
+  "country": "US",
+  "name": "United States",
+  "sources": [
+    {
+      "id": "us-nws-alerts",
+      "authority": "NOAA / National Weather Service",
+      "coverage": { "countries": ["US"] },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://api.weather.gov/alerts/active",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "NOAA / National Weather Service",
+      "termsUrl": "https://www.weather.gov/disclaimer",
+      "status": "discovered",
+      "notes": "NWS active alerts GeoJSON feed (national). Requires a User-Agent header per NWS API policy. Returns active weather warnings, watches, and advisories with geometry across the US."
+    },
+    {
+      "id": "us-usgs-water-services",
+      "authority": "USGS Water Services (NWIS)",
+      "coverage": { "countries": ["US"] },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://waterservices.usgs.gov/nwis/iv/?format=json&sites=02146470&parameterCd=00060,00065",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "US Geological Survey",
+      "termsUrl": "https://waterservices.usgs.gov/",
+      "status": "discovered",
+      "notes": "USGS NWIS Instantaneous Values (IV) for real-time streamflow (00060) and gage height (00065). Replicate with any USGS gaging site id for nationwide river/stream monitoring."
+    },
+    {
+      "id": "us-noaa-coops-tides",
+      "authority": "NOAA Center for Operational Oceanographic Products and Services (CO-OPS)",
+      "coverage": { "countries": ["US"] },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_level&station=9414290&format=json&units=metric&time_zone=gmt&datum=MLLW&date=latest",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "NOAA CO-OPS / NOS",
+      "termsUrl": "https://api.tidesandcurrents.noaa.gov/api/prod/",
+      "status": "discovered",
+      "notes": "NOAA Tides & Currents latest water level for station 9414290 (San Francisco). Requires units, time_zone, and datum params. Swap station id for any US coastal/ Great Lakes gauge."
+    }
+  ]
+}

@@ -129,6 +129,22 @@
       "termsUrl": "https://www.eia.gov/international/",
       "status": "discovered",
       "notes": "EIA International data API requires api_key (HTTP 403 without). Philippines electricity generation indicator."
+    },
+    {
+      "id": "ph-pagasa-georisk-mapsrv",
+      "authority": "PAGASA / DOST GeoRisk Philippines (ArcGIS Server)",
+      "coverage": { "countries": ["PH"] },
+      "capability": "environmental-health",
+      "outputModel": "map-overlay",
+      "access": "public",
+      "format": "arcgis",
+      "endpoint": "https://portal.georisk.gov.ph/arcgis/rest/services/PAGASA/PAGASA/MapServer?f=json",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "PAGASA / DOST GeoRisk Philippines",
+      "termsUrl": "https://portal.georisk.gov.ph/",
+      "status": "discovered",
+      "notes": "PAGASA ArcGIS MapServer (Dams, rainfall, hazard layers). ?f=json returns service metadata; layer/query endpoints export weather and flood hazard overlays. Public, confirmed HTTP 200 application/json;charset=UTF-8."
     }
   ]
 }

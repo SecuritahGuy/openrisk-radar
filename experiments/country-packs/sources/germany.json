@@ -97,6 +97,22 @@
       "termsUrl": "https://geofon.gfz-potsdam.de/",
       "status": "discovered",
       "notes": "GFZ GeoFon earthquake feed. Atom/GeoRSS format. Returns recent earthquakes worldwide with magnitude, depth, location. Also JSON via query API at geofon.gfz-potsdam.de/fdsnws/event/1/query?format=geojson."
+    },
+    {
+      "id": "de-pegelonline-stations",
+      "authority": "Wasserstraßen- und Schifffahrtsverwaltung des Bundes (WSV) - PEGELONLINE",
+      "coverage": { "countries": ["DE"] },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.pegelonline.wsv.de/webservices/rest-api/v2/stations.json",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "PEGELONLINE / WSV",
+      "termsUrl": "https://www.pegelonline.wsv.de/webservices/rest-api/v2/",
+      "status": "discovered",
+      "notes": "PEGELONLINE REST API listing all ~7,000 German federal waterway gauge stations (rivers/canals) with metadata. Per-station measurements at /stations/{uuid}/measurements.json. Confirmed 200 application/json."
     }
   ]
 }

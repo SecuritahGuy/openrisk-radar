@@ -115,6 +115,22 @@
       "notes": "NASA FIRMS area API for Nigeria bbox. Returns 400 without MAP_KEY (confirmed). Requires API key."
     },
     {
+      "id": "ng-observations-nimet-wis2",
+      "authority": "Nigerian Meteorological Agency (NiMet) — WIS2",
+      "coverage": { "countries": ["NG"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://wis2.nimet.gov.ng/oapi/collections/urn:wmo:md:ng-nimet:surface-based-observations.synop/items",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "NiMet (WMO WIS2)",
+      "termsUrl": "https://wis2.nimet.gov.ng/",
+      "status": "discovered",
+      "notes": "NiMet WIS2 OAPI GeoJSON SYNOP surface observations (FeatureCollection). Confirmed 200 application/json. National meteorological observations feed."
+    },
+    {
       "id": "ng-grid-eia",
       "authority": "U.S. Energy Information Administration",
       "coverage": { "countries": ["NG"] },

@@ -65,6 +65,22 @@
       "termsUrl": "https://www.metoffice.gov.uk/",
       "status": "discovered",
       "notes": "Met Office marine forecasts. Also shipping forecast RSS at metoffice.gov.uk/weather/data/wxfcs/marine-rss/."
+    },
+    {
+      "id": "gb-ea-stations",
+      "authority": "UK Environment Agency / Defra",
+      "coverage": { "countries": ["GB"] },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://environment.data.gov.uk/flood-monitoring/id/stations.json",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "UK Environment Agency",
+      "termsUrl": "https://environment.data.gov.uk/flood-monitoring/doc/reference",
+      "status": "discovered",
+      "notes": "Catalog of all ~3,600 Environment Agency flood monitoring stations with metadata (river/coastal, measures, catchment, lat/lon). Pair with /id/stations/{id}/readings for real-time levels. Confirmed 200 application/json."
     }
   ]
 }

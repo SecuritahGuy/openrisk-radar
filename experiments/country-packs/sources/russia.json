@@ -161,6 +161,26 @@
       "termsUrl": "https://energy-charts.info/about",
       "status": "discovered",
       "notes": "Endpoint verified reachable (200 json for supported countries e.g. DE). Russia is not in the default coverage set so this is a documented fallback requiring verification of country support; mark api-key per grid guidance."
+    },
+    {
+      "id": "ru-earthquake-emsd",
+      "authority": "EMSD (Единая система сейсмологических наблюдений)",
+      "coverage": {
+        "countries": [
+          "RU"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://sdis.emsd.ru/fdsnws/event/1/query?format=json&limit=20",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "EMSD / SDS",
+      "termsUrl": "https://sdis.emsd.ru/",
+      "status": "discovered",
+      "notes": "Confirmed HTTP 200 application/geo+json. Russian national seismic network FDSN event feed (primary domestic source). Returns event_id, origin time, lat/lon, depth, Ks/Ml magnitudes. http redirects to https; use https."
     }
   ]
 }

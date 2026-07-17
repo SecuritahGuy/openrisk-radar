@@ -99,6 +99,22 @@
       "notes": "NASA FIRMS area API for Ethiopia bbox. Returns 400 without MAP_KEY (confirmed). Requires API key."
     },
     {
+      "id": "et-flood-icpac",
+      "authority": "IGAD Climate Prediction and Applications Centre (ICPAC)",
+      "coverage": { "countries": ["ET"] },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://floodwatch.icpac.net/api/flood/situation-summary",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "ICPAC (IGAD)",
+      "termsUrl": "https://floodwatch.icpac.net/",
+      "status": "discovered",
+      "notes": "ICPAC East Africa Flood Watch situation-summary (risk_counts by severity across East Africa incl. Ethiopia). Confirmed 200 application/json."
+    },
+    {
       "id": "et-grid-eia",
       "authority": "U.S. Energy Information Administration",
       "coverage": { "countries": ["ET"] },

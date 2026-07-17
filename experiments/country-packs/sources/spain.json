@@ -65,6 +65,22 @@
       "termsUrl": "https://www.ign.es/web/ign/portal/ultimos-terremotos",
       "status": "discovered",
       "notes": "INSPIRE WMS for seismic information. Layers: Ultimos10dias, Ultimos30dias, Ultimos365dias, NZ.ObservedEvent (full catalog), GE.Geophysics.seismologicalStation, HazardArea. Supports GeoJSON output format. CC BY 4.0 license."
+    },
+    {
+      "id": "es-aemet-climatological-stations",
+      "authority": "AEMET (Agencia Estatal de Meteorología)",
+      "coverage": { "countries": ["ES"] },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://opendata.aemet.es/opendata/api/valores/climatologicos/inventarioestaciones/todasestaciones/",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "AEMET",
+      "termsUrl": "https://opendata.aemet.es/opendata/",
+      "status": "discovered",
+      "notes": "AEMET OpenData REST API. Endpoint resolves (200) but returns estado 401 without a free JWT api_key. Register at opendata.aemet.es for a key and append ?api_key=<JWT>. Returns station inventory and climatological observations. Verified 200 path; key required."
     }
   ]
 }

@@ -49,6 +49,29 @@
       "notes": "Geoscience Australia recent earthquakes Atom feed. Also KML at earthquakes.ga.gov.au/earthquakes/feed/kml/. For JSON, check data.gov.au dataset 'recent-earthquakes' via CKAN API."
     },
     {
+      "id": "au-geoscience-earthquakes-wfs",
+      "authority": "Geoscience Australia",
+      "coverage": {
+        "countries": [
+          "AU"
+        ],
+        "regions": [
+          "nearby"
+        ]
+      },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://earthquakes.ga.gov.au/geoserver/earthquakes/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=earthquakes:earthquakes&outputFormat=application/json",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "Geoscience Australia",
+      "termsUrl": "https://earthquakes.ga.gov.au/",
+      "status": "discovered",
+      "notes": "Geoscience Australia earthquakes GeoServer WFS (GetFeature, GeoJSON). Returns national/proximal earthquake features with magnitude, depth, time, location. Confirmed HTTP 200 application/json. Keyless alternative to the Atom feed."
+    },
+    {
       "id": "au-bom-weather",
       "authority": "Bureau of Meteorology (BOM)",
       "coverage": {

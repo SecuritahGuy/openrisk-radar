@@ -67,6 +67,38 @@
       "notes": "JMA typhoon information. Tracks, forecasts, and warnings for tropical cyclones affecting Japan. Also Digital Typhoon at agora.ex.nii.ac.jp/digital-typhoon/ for historical data."
     },
     {
+      "id": "jp-jma-earthquake-list-official",
+      "authority": "Japan Meteorological Agency",
+      "coverage": { "countries": ["JP"] },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.jma.go.jp/bosai/quake/data/list.json",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "Japan Meteorological Agency",
+      "termsUrl": "https://www.jma.go.jp/",
+      "status": "discovered",
+      "notes": "Official JMA bosai earthquake report list (直近の地震情報). Array of recent events with origin time, epicenter, magnitude, depth, seismic intensity. Confirmed HTTP 200 application/json. Primary national seismic feed."
+    },
+    {
+      "id": "jp-jma-volcano-warning",
+      "authority": "Japan Meteorological Agency",
+      "coverage": { "countries": ["JP"] },
+      "capability": "volcano",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://www.jma.go.jp/bosai/volcano/data/warning.json",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "Japan Meteorological Agency",
+      "termsUrl": "https://www.jma.go.jp/",
+      "status": "discovered",
+      "notes": "Official JMA volcanic warning/forecast feed (噴火警報・予報). Array of active volcano warnings with alert level, target municipalities, and volcano names. Confirmed HTTP 200 application/json."
+    },
+    {
       "id": "jp-occto-grid",
       "authority": "OCCTO (Organization for Cross-regional Coordination of Transmission Operators)",
       "coverage": { "countries": ["JP"] },

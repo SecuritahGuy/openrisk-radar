@@ -145,6 +145,54 @@
       "termsUrl": "https://open-meteo.com/en/terms",
       "status": "discovered",
       "notes": "Open-Meteo Marine API sampled off Jakarta: significant wave height, direction and period. Keyless marine/coastal hazard signal. Confirmed HTTP 200, content-type application/json; charset=utf-8."
+    },
+    {
+      "id": "id-bmkg-gempaterkini",
+      "authority": "BMKG — Badan Meteorologi, Klimatologi, dan Geofisika",
+      "coverage": { "countries": ["ID"] },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "BMKG",
+      "termsUrl": "https://www.bmkg.go.id/",
+      "status": "discovered",
+      "notes": "BMKG latest earthquakes feed (Infogempa.gempa array). Fields: Tanggal, Jam, DateTime, Coordinates, Magnitude, Kedalaman, Wilayah. Public, confirmed HTTP 200 application/json. Complements id-bmkg-earthquake (autogempa)."
+    },
+    {
+      "id": "id-bmkg-rest-earthquake-latest",
+      "authority": "BMKG (unofficial REST mirror by bmkg-restapi.vercel.app)",
+      "coverage": { "countries": ["ID"] },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://bmkg-restapi.vercel.app/v1/earthquake/latest",
+      "refreshSeconds": 300,
+      "proxyRequired": false,
+      "attribution": "BMKG (via bmkg-restapi.vercel.app mirror)",
+      "termsUrl": "https://www.bmkg.go.id/",
+      "status": "discovered",
+      "notes": "Third-party BMKG mirror of latest earthquake. Fields: datetime, magnitude, depth_km, lat, lon, region. Public, confirmed HTTP 200 application/json. Unofficial mirror — verify availability."
+    },
+    {
+      "id": "id-bmkg-rest-nowcast",
+      "authority": "BMKG (unofficial REST mirror by bmkg-restapi.vercel.app)",
+      "coverage": { "countries": ["ID"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://bmkg-restapi.vercel.app/v1/nowcast",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "BMKG (via bmkg-restapi.vercel.app mirror)",
+      "termsUrl": "https://www.bmkg.go.id/",
+      "status": "discovered",
+      "notes": "BMKG nowcast/short-term rainfall warnings by province (code, province, description, time). Public, confirmed HTTP 200 application/json. Unofficial mirror — verify availability."
     }
   ]
 }

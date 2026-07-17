@@ -115,6 +115,22 @@
       "notes": "NASA FIRMS area API for Kenya bbox. Returns 400 without MAP_KEY (confirmed). Requires API key."
     },
     {
+      "id": "ke-flood-icpac",
+      "authority": "IGAD Climate Prediction and Applications Centre (ICPAC)",
+      "coverage": { "countries": ["KE"] },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://floodwatch.icpac.net/api/flood/situation-summary",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "ICPAC (IGAD)",
+      "termsUrl": "https://floodwatch.icpac.net/",
+      "status": "discovered",
+      "notes": "ICPAC East Africa Flood Watch situation-summary (risk_counts by severity across East Africa incl. Kenya). Confirmed 200 application/json."
+    },
+    {
       "id": "ke-grid-eia",
       "authority": "U.S. Energy Information Administration",
       "coverage": { "countries": ["KE"] },

@@ -163,24 +163,20 @@
       "notes": "Real-time AQI from CPCB stations nationwide. PM2.5, PM10, NO2, SO2, CO, O3, NH3. Free API key from data.gov.in."
     },
     {
-      "id": "in-incois-tsunami",
-      "authority": "INCOIS (Indian National Centre for Ocean Information Services)",
-      "coverage": {
-        "countries": [
-          "IN"
-        ]
-      },
-      "capability": "marine",
+      "id": "in-incois-tsunami-past90",
+      "authority": "INCOIS (Indian Tsunami Early Warning Centre)",
+      "coverage": { "countries": ["IN"] },
+      "capability": "tsunami",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "html",
-      "endpoint": "https://incois.gov.in/",
+      "format": "geojson",
+      "endpoint": "https://tsunami.incois.gov.in/itews/DSSProducts/OPR/past90days.json",
       "refreshSeconds": 3600,
       "proxyRequired": false,
-      "attribution": "Ministry of Earth Sciences / INCOIS",
-      "termsUrl": "https://incois.gov.in/",
+      "attribution": "Ministry of Earth Sciences / INCOIS ITEWC",
+      "termsUrl": "https://tsunami.incois.gov.in/",
       "status": "discovered",
-      "notes": "INCOIS main site works. Key sub-services: (1) Ocean State Forecast at /site/services/osf.jsp — 5-10 day wave/wind/current/SST forecasts. (2) RSMC NetCDF data download at /oceanservices/rsmc_download.jsp — daily WW3 wave and HYCOM current NetCDF via THREDDS at /thredds/catalog.html. (3) Location-specific forecasts at /site/services/LSFImages.jsp — GIF images for fish landing centres. (4) Port/harbour forecasts at sarat.incois.gov.in/OSF/. (5) ESSDP data portal at /essdp/ — 1,047 MoES datasets. Subdomains tsunami.incois.gov.in, erddap.incois.gov.in, las.incois.gov.in, io50.incois.gov.in are unreachable."
+      "notes": "ITEWC past-90-days tsunami bulletins as GeoJSON FeatureCollection (BULNO, ORIGINTIME, magnitude, hypocenter). Public, no API key. Indian Ocean tsunami event history/verification feed."
     }
   ]
 }

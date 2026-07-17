@@ -177,6 +177,22 @@
       "termsUrl": "https://cetesb.sp.gov.br/",
       "status": "discovered",
       "notes": "CETESB QUALAR air quality ArcGIS REST service. 48h hourly CO, MP10, MP2.5, NO2, O3, SO2 for Sao Paulo state stations."
+    },
+    {
+      "id": "br-inmet-synop-obs",
+      "authority": "INMET — Instituto Nacional de Meteorologia (WIS2)",
+      "coverage": { "countries": ["BR"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://wis2bra.inmet.gov.br/oapi/collections/urn:wmo:md:br-inmet:synop/items",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "INMET / WMO WIS2",
+      "termsUrl": "https://wis2bra.inmet.gov.br/",
+      "status": "discovered",
+      "notes": "INMET WIS2 SYNOP surface observations as GeoJSON FeatureCollection (station coords + pressure/temp/wind phenomena). Complements the alerts collections already in the pack."
     }
   ]
 }

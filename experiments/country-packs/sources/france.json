@@ -244,6 +244,22 @@
       "termsUrl": "https://www.atmo-france.org/",
       "status": "discovered",
       "notes": "National ATMO air quality index by commune. WFS OGC service returning daily air quality scores per commune. Fields: code_qual (index 1-10), code_no2, code_o3, code_pm10, code_pm25, code_so2, lib_qual (label), source (local AASQA). Daily updates at ~14:00. ODbL license. Also available as CSV via data.gouv.fr. REST API at admindata.atmo-france.org (documented)."
+    },
+    {
+      "id": "fr-brgm-installations-classees",
+      "authority": "BRGM (Bureau de Recherches Géologiques et Minières) / Géorisques",
+      "coverage": { "countries": ["FR"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://georisques.gouv.fr/api/v1/installations_classees?limite=1",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "BRGM / Géorisques",
+      "termsUrl": "https://georisques.gouv.fr/",
+      "status": "discovered",
+      "notes": "Géorisques OpenData API for classified industrial/seveso installations (ICPE) across France. ~137k records with geolocation, activity, and hazard class. Add code_insee= to filter by commune, or bbox for spatial query. Confirmed 200 application/json."
     }
   ]
 }

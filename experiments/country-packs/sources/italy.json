@@ -97,6 +97,22 @@
       "termsUrl": "https://developer.terna.it/",
       "status": "discovered",
       "notes": "Terna Open API for Italian electricity system total demand by bidding zone. Requires OAuth 2.0 Bearer token. Also available: generation by source (/generation/v2.0/electrical-energy-by-source), demand coverage, cross-border flows. Free registration at developer.terna.it."
+    },
+    {
+      "id": "it-ispra-sdi-pnacc-wfs",
+      "authority": "ISPRA - Istituto Superiore per la Protezione e la Ricerca Ambientale (SDI)",
+      "coverage": { "countries": ["IT"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://sdi.isprambiente.it/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeName=pnacc:Clima_PT1&count=1&outputFormat=application/json",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "ISPRA - PNACC (Piano Nazionale di Adattamento ai Cambiamenti Climatici)",
+      "termsUrl": "https://sdi.isprambiente.it/geoserver/web/",
+      "status": "discovered",
+      "notes": "ISPRA Spatial Data Infrastructure WFS for the National Climate Change Adaptation Plan (PNACC) precipitation/climate grid layers. Confirmed 200 application/json (GetFeature on pnacc:Clima_PT1). Other layers: pnacc:pnacc_prec_cumulata_mesi_est_inv (seasonal cumulative precipitation)."
     }
   ]
 }
