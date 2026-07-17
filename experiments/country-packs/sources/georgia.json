@@ -5,7 +5,11 @@
     {
       "id": "ge-earthquake-usgs-bbox",
       "authority": "US Geological Survey (USGS)",
-      "coverage": { "countries": ["GE"] },
+      "coverage": {
+        "countries": [
+          "GE"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "ge-earthquake-emsc-bbox",
       "authority": "EMSC / European-Mediterranean Seismological Centre",
-      "coverage": { "countries": ["GE"] },
+      "coverage": {
+        "countries": [
+          "GE"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,8 +45,12 @@
     {
       "id": "ge-weather-open-meteo",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["GE"] },
-      "capability": "wildfire",
+      "coverage": {
+        "countries": [
+          "GE"
+        ]
+      },
+      "capability": "road-weather",
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
@@ -53,7 +65,11 @@
     {
       "id": "ge-air-quality-open-meteo",
       "authority": "Open-Meteo (CAMs)",
-      "coverage": { "countries": ["GE"] },
+      "coverage": {
+        "countries": [
+          "GE"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "ge-marine-open-meteo",
       "authority": "Open-Meteo (ECMWF/GFS waves)",
-      "coverage": { "countries": ["GE"] },
+      "coverage": {
+        "countries": [
+          "GE"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "ge-flood-open-meteo",
       "authority": "Open-Meteo (GloFAS)",
-      "coverage": { "countries": ["GE"] },
+      "coverage": {
+        "countries": [
+          "GE"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,7 +125,11 @@
     {
       "id": "ge-grid-eia",
       "authority": "US Energy Information Administration (EIA) — international electricity",
-      "coverage": { "countries": ["GE"] },
+      "coverage": {
+        "countries": [
+          "GE"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",

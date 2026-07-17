@@ -5,7 +5,11 @@
     {
       "id": "am-earthquake-usgs-bbox",
       "authority": "US Geological Survey (USGS)",
-      "coverage": { "countries": ["AM"] },
+      "coverage": {
+        "countries": [
+          "AM"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "am-earthquake-emsc-bbox",
       "authority": "EMSC / European-Mediterranean Seismological Centre",
-      "coverage": { "countries": ["AM"] },
+      "coverage": {
+        "countries": [
+          "AM"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,8 +45,12 @@
     {
       "id": "am-weather-open-meteo",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["AM"] },
-      "capability": "wildfire",
+      "coverage": {
+        "countries": [
+          "AM"
+        ]
+      },
+      "capability": "road-weather",
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
@@ -53,7 +65,11 @@
     {
       "id": "am-air-quality-open-meteo",
       "authority": "Open-Meteo (CAMs)",
-      "coverage": { "countries": ["AM"] },
+      "coverage": {
+        "countries": [
+          "AM"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "am-flood-open-meteo",
       "authority": "Open-Meteo (GloFAS)",
-      "coverage": { "countries": ["AM"] },
+      "coverage": {
+        "countries": [
+          "AM"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "am-wildfire-nasa-firms",
       "authority": "NASA FIRMS (Fire Information for Resource Management System)",
-      "coverage": { "countries": ["AM"] },
+      "coverage": {
+        "countries": [
+          "AM"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "map-overlay",
       "access": "api-key",
@@ -101,7 +125,11 @@
     {
       "id": "am-grid-eia",
       "authority": "US Energy Information Administration (EIA) — international electricity",
-      "coverage": { "countries": ["AM"] },
+      "coverage": {
+        "countries": [
+          "AM"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",

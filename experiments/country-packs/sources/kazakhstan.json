@@ -5,7 +5,11 @@
     {
       "id": "kz-earthquake-emsc-bbox",
       "authority": "EMSC / European-Mediterranean Seismological Centre",
-      "coverage": { "countries": ["KZ"] },
+      "coverage": {
+        "countries": [
+          "KZ"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "kz-earthquake-usgs-bbox",
       "authority": "US Geological Survey (USGS)",
-      "coverage": { "countries": ["KZ"] },
+      "coverage": {
+        "countries": [
+          "KZ"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,8 +45,12 @@
     {
       "id": "kz-weather-open-meteo",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["KZ"] },
-      "capability": "wildfire",
+      "coverage": {
+        "countries": [
+          "KZ"
+        ]
+      },
+      "capability": "road-weather",
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
@@ -53,7 +65,11 @@
     {
       "id": "kz-air-quality-open-meteo",
       "authority": "Open-Meteo (CAMs)",
-      "coverage": { "countries": ["KZ"] },
+      "coverage": {
+        "countries": [
+          "KZ"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "kz-flood-open-meteo",
       "authority": "Open-Meteo (GloFAS)",
-      "coverage": { "countries": ["KZ"] },
+      "coverage": {
+        "countries": [
+          "KZ"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "kz-marine-open-meteo",
       "authority": "Open-Meteo (ECMWF/GFS waves)",
-      "coverage": { "countries": ["KZ"] },
+      "coverage": {
+        "countries": [
+          "KZ"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,7 +125,11 @@
     {
       "id": "kz-wildfire-nasa-firms",
       "authority": "NASA FIRMS (MODAPS)",
-      "coverage": { "countries": ["KZ"] },
+      "coverage": {
+        "countries": [
+          "KZ"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "map-overlay",
       "access": "api-key",
@@ -117,7 +145,11 @@
     {
       "id": "kz-grid-energy-charts",
       "authority": "energy-charts.info (Fraunhofer ISE)",
-      "coverage": { "countries": ["KZ"] },
+      "coverage": {
+        "countries": [
+          "KZ"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",

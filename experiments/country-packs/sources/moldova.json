@@ -5,7 +5,11 @@
     {
       "id": "md-meteoalarm-warnings",
       "authority": "Meteoalarm (EUMETNET)",
-      "coverage": { "countries": ["MD"] },
+      "coverage": {
+        "countries": [
+          "MD"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,14 @@
     {
       "id": "md-emsc-earthquakes",
       "authority": "EMSC (European-Mediterranean Seismological Centre)",
-      "coverage": { "countries": ["MD"], "regions": ["bbox 45-49N, 26-30E"] },
+      "coverage": {
+        "countries": [
+          "MD"
+        ],
+        "regions": [
+          "bbox 45-49N, 26-30E"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +48,14 @@
     {
       "id": "md-usgs-earthquakes",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["MD"], "regions": ["bbox 45-49N, 26-30E"] },
+      "coverage": {
+        "countries": [
+          "MD"
+        ],
+        "regions": [
+          "bbox 45-49N, 26-30E"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -53,7 +71,11 @@
     {
       "id": "md-open-meteo-air-quality",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["MD"] },
+      "coverage": {
+        "countries": [
+          "MD"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +91,11 @@
     {
       "id": "md-open-meteo-weather",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["MD"] },
+      "coverage": {
+        "countries": [
+          "MD"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,8 +111,15 @@
     {
       "id": "md-gdacs-multihazard",
       "authority": "GDACS (Global Disaster Alert and Coordination System)",
-      "coverage": { "countries": ["MD"], "regions": ["bbox 26-30E, 45-49N"] },
-      "capability": "wildfire",
+      "coverage": {
+        "countries": [
+          "MD"
+        ],
+        "regions": [
+          "bbox 26-30E, 45-49N"
+        ]
+      },
+      "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
       "format": "json",
@@ -101,7 +134,11 @@
     {
       "id": "md-nasa-firms-fires",
       "authority": "NASA FIRMS (Fire Information for Resource Management System)",
-      "coverage": { "countries": ["MD"] },
+      "coverage": {
+        "countries": [
+          "MD"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "map-overlay",
       "access": "api-key",

@@ -5,7 +5,11 @@
     {
       "id": "az-earthquake-usgs-bbox",
       "authority": "US Geological Survey (USGS)",
-      "coverage": { "countries": ["AZ"] },
+      "coverage": {
+        "countries": [
+          "AZ"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "az-earthquake-emsc-bbox",
       "authority": "EMSC / European-Mediterranean Seismological Centre",
-      "coverage": { "countries": ["AZ"] },
+      "coverage": {
+        "countries": [
+          "AZ"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,8 +45,12 @@
     {
       "id": "az-weather-open-meteo",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["AZ"] },
-      "capability": "wildfire",
+      "coverage": {
+        "countries": [
+          "AZ"
+        ]
+      },
+      "capability": "road-weather",
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
@@ -53,7 +65,11 @@
     {
       "id": "az-air-quality-open-meteo",
       "authority": "Open-Meteo (CAMs)",
-      "coverage": { "countries": ["AZ"] },
+      "coverage": {
+        "countries": [
+          "AZ"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "az-flood-open-meteo",
       "authority": "Open-Meteo (GloFAS)",
-      "coverage": { "countries": ["AZ"] },
+      "coverage": {
+        "countries": [
+          "AZ"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "az-marine-open-meteo",
       "authority": "Open-Meteo (ECMWF/GFS waves)",
-      "coverage": { "countries": ["AZ"] },
+      "coverage": {
+        "countries": [
+          "AZ"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,7 +125,11 @@
     {
       "id": "az-wildfire-nasa-firms",
       "authority": "NASA FIRMS (Fire Information for Resource Management System)",
-      "coverage": { "countries": ["AZ"] },
+      "coverage": {
+        "countries": [
+          "AZ"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "map-overlay",
       "access": "api-key",
@@ -117,7 +145,11 @@
     {
       "id": "az-grid-eia",
       "authority": "US Energy Information Administration (EIA) — international electricity",
-      "coverage": { "countries": ["AZ"] },
+      "coverage": {
+        "countries": [
+          "AZ"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",

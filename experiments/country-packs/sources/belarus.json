@@ -5,7 +5,14 @@
     {
       "id": "by-emsc-earthquakes",
       "authority": "EMSC (European-Mediterranean Seismological Centre)",
-      "coverage": { "countries": ["BY"], "regions": ["bbox 51-57N, 23-33E"] },
+      "coverage": {
+        "countries": [
+          "BY"
+        ],
+        "regions": [
+          "bbox 51-57N, 23-33E"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +28,14 @@
     {
       "id": "by-usgs-earthquakes",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["BY"], "regions": ["bbox 51-57N, 23-33E"] },
+      "coverage": {
+        "countries": [
+          "BY"
+        ],
+        "regions": [
+          "bbox 51-57N, 23-33E"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +51,11 @@
     {
       "id": "by-open-meteo-weather",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["BY"] },
+      "coverage": {
+        "countries": [
+          "BY"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -53,7 +71,11 @@
     {
       "id": "by-open-meteo-air-quality",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["BY"] },
+      "coverage": {
+        "countries": [
+          "BY"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,8 +91,15 @@
     {
       "id": "by-gdacs-multihazard",
       "authority": "GDACS (Global Disaster Alert and Coordination System)",
-      "coverage": { "countries": ["BY"], "regions": ["bbox 23-33E, 51-57N"] },
-      "capability": "wildfire",
+      "coverage": {
+        "countries": [
+          "BY"
+        ],
+        "regions": [
+          "bbox 23-33E, 51-57N"
+        ]
+      },
+      "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
       "format": "json",
@@ -85,7 +114,11 @@
     {
       "id": "by-nasa-firms-fires",
       "authority": "NASA FIRMS (Fire Information for Resource Management System)",
-      "coverage": { "countries": ["BY"] },
+      "coverage": {
+        "countries": [
+          "BY"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "map-overlay",
       "access": "api-key",

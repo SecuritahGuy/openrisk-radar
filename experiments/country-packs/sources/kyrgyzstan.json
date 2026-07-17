@@ -5,7 +5,11 @@
     {
       "id": "kg-earthquake-usgs-bbox",
       "authority": "US Geological Survey (USGS)",
-      "coverage": { "countries": ["KG"] },
+      "coverage": {
+        "countries": [
+          "KG"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "kg-earthquake-emsc-bbox",
       "authority": "EMSC / European-Mediterranean Seismological Centre",
-      "coverage": { "countries": ["KG"] },
+      "coverage": {
+        "countries": [
+          "KG"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,8 +45,12 @@
     {
       "id": "kg-weather-open-meteo",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["KG"] },
-      "capability": "wildfire",
+      "coverage": {
+        "countries": [
+          "KG"
+        ]
+      },
+      "capability": "road-weather",
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
@@ -53,7 +65,11 @@
     {
       "id": "kg-air-quality-open-meteo",
       "authority": "Open-Meteo (CAMs)",
-      "coverage": { "countries": ["KG"] },
+      "coverage": {
+        "countries": [
+          "KG"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "kg-flood-open-meteo",
       "authority": "Open-Meteo (GloFAS)",
-      "coverage": { "countries": ["KG"] },
+      "coverage": {
+        "countries": [
+          "KG"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "kg-marine-open-meteo",
       "authority": "Open-Meteo (ECMWF/GFS waves)",
-      "coverage": { "countries": ["KG"] },
+      "coverage": {
+        "countries": [
+          "KG"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,7 +125,11 @@
     {
       "id": "kg-wildfire-nasa-firms",
       "authority": "NASA FIRMS",
-      "coverage": { "countries": ["KG"] },
+      "coverage": {
+        "countries": [
+          "KG"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "map-overlay",
       "access": "api-key",
@@ -117,7 +145,11 @@
     {
       "id": "kg-grid-eia-international",
       "authority": "US Energy Information Administration (EIA) — international electricity",
-      "coverage": { "countries": ["KG"] },
+      "coverage": {
+        "countries": [
+          "KG"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",

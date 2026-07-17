@@ -5,7 +5,11 @@
     {
       "id": "uz-earthquake-usgs-bbox",
       "authority": "US Geological Survey (USGS)",
-      "coverage": { "countries": ["UZ"] },
+      "coverage": {
+        "countries": [
+          "UZ"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "uz-earthquake-emsc-bbox",
       "authority": "EMSC / European-Mediterranean Seismological Centre",
-      "coverage": { "countries": ["UZ"] },
+      "coverage": {
+        "countries": [
+          "UZ"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,8 +45,12 @@
     {
       "id": "uz-weather-open-meteo",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["UZ"] },
-      "capability": "wildfire",
+      "coverage": {
+        "countries": [
+          "UZ"
+        ]
+      },
+      "capability": "road-weather",
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
@@ -53,7 +65,11 @@
     {
       "id": "uz-air-quality-open-meteo",
       "authority": "Open-Meteo (CAMs)",
-      "coverage": { "countries": ["UZ"] },
+      "coverage": {
+        "countries": [
+          "UZ"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -69,7 +85,11 @@
     {
       "id": "uz-flood-open-meteo",
       "authority": "Open-Meteo (GloFAS)",
-      "coverage": { "countries": ["UZ"] },
+      "coverage": {
+        "countries": [
+          "UZ"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "uz-marine-open-meteo",
       "authority": "Open-Meteo (ECMWF/GFS waves)",
-      "coverage": { "countries": ["UZ"] },
+      "coverage": {
+        "countries": [
+          "UZ"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,7 +125,11 @@
     {
       "id": "uz-wildfire-nasa-firms",
       "authority": "NASA FIRMS",
-      "coverage": { "countries": ["UZ"] },
+      "coverage": {
+        "countries": [
+          "UZ"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "map-overlay",
       "access": "api-key",
@@ -117,7 +145,11 @@
     {
       "id": "uz-grid-eia-international",
       "authority": "US Energy Information Administration (EIA) — international electricity",
-      "coverage": { "countries": ["UZ"] },
+      "coverage": {
+        "countries": [
+          "UZ"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",

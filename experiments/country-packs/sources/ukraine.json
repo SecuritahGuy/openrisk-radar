@@ -5,7 +5,11 @@
     {
       "id": "ua-meteoalarm-warnings",
       "authority": "Meteoalarm (EUMETNET)",
-      "coverage": { "countries": ["UA"] },
+      "coverage": {
+        "countries": [
+          "UA"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,14 @@
     {
       "id": "ua-emsc-earthquakes",
       "authority": "EMSC (European-Mediterranean Seismological Centre)",
-      "coverage": { "countries": ["UA"], "regions": ["bbox 44-53N, 22-41E"] },
+      "coverage": {
+        "countries": [
+          "UA"
+        ],
+        "regions": [
+          "bbox 44-53N, 22-41E"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +48,14 @@
     {
       "id": "ua-usgs-earthquakes",
       "authority": "USGS Earthquake Hazards Program",
-      "coverage": { "countries": ["UA"], "regions": ["bbox 44-53N, 22-41E"] },
+      "coverage": {
+        "countries": [
+          "UA"
+        ],
+        "regions": [
+          "bbox 44-53N, 22-41E"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -53,7 +71,11 @@
     {
       "id": "ua-alerts-air-raid",
       "authority": "alerts.in.ua (Ministry of Digital Transformation of Ukraine)",
-      "coverage": { "countries": ["UA"] },
+      "coverage": {
+        "countries": [
+          "UA"
+        ]
+      },
       "capability": "evacuation",
       "outputModel": "risk-event",
       "access": "api-key",
@@ -69,7 +91,11 @@
     {
       "id": "ua-open-meteo-air-quality",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["UA"] },
+      "coverage": {
+        "countries": [
+          "UA"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +111,14 @@
     {
       "id": "ua-open-meteo-marine",
       "authority": "Open-Meteo (marine)",
-      "coverage": { "countries": ["UA"], "regions": ["Black Sea coast"] },
+      "coverage": {
+        "countries": [
+          "UA"
+        ],
+        "regions": [
+          "Black Sea coast"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,8 +134,15 @@
     {
       "id": "ua-gdacs-multihazard",
       "authority": "GDACS (Global Disaster Alert and Coordination System)",
-      "coverage": { "countries": ["UA"], "regions": ["bbox 22-41E, 44-53N"] },
-      "capability": "wildfire",
+      "coverage": {
+        "countries": [
+          "UA"
+        ],
+        "regions": [
+          "bbox 22-41E, 44-53N"
+        ]
+      },
+      "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
       "format": "json",
@@ -117,7 +157,11 @@
     {
       "id": "ua-nasa-firms-fires",
       "authority": "NASA FIRMS (Fire Information for Resource Management System)",
-      "coverage": { "countries": ["UA"] },
+      "coverage": {
+        "countries": [
+          "UA"
+        ]
+      },
       "capability": "wildfire",
       "outputModel": "map-overlay",
       "access": "api-key",

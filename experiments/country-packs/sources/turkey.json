@@ -5,7 +5,11 @@
     {
       "id": "tr-earthquake-usgs-bbox",
       "authority": "US Geological Survey (USGS)",
-      "coverage": { "countries": ["TR"] },
+      "coverage": {
+        "countries": [
+          "TR"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -21,7 +25,11 @@
     {
       "id": "tr-earthquake-emsc-bbox",
       "authority": "EMSC / European-Mediterranean Seismological Centre",
-      "coverage": { "countries": ["TR"] },
+      "coverage": {
+        "countries": [
+          "TR"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -37,7 +45,11 @@
     {
       "id": "tr-earthquake-kandilli",
       "authority": "Kandilli Observatory and Earthquake Research Institute (KOERI), Bogazici University",
-      "coverage": { "countries": ["TR"] },
+      "coverage": {
+        "countries": [
+          "TR"
+        ]
+      },
       "capability": "earthquake",
       "outputModel": "risk-event",
       "access": "public",
@@ -53,8 +65,12 @@
     {
       "id": "tr-weather-open-meteo",
       "authority": "Open-Meteo",
-      "coverage": { "countries": ["TR"] },
-      "capability": "wildfire",
+      "coverage": {
+        "countries": [
+          "TR"
+        ]
+      },
+      "capability": "road-weather",
       "outputModel": "supplemental-signal",
       "access": "public",
       "format": "json",
@@ -69,7 +85,11 @@
     {
       "id": "tr-air-quality-open-meteo",
       "authority": "Open-Meteo (CAMS)",
-      "coverage": { "countries": ["TR"] },
+      "coverage": {
+        "countries": [
+          "TR"
+        ]
+      },
       "capability": "environmental-health",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -85,7 +105,11 @@
     {
       "id": "tr-marine-open-meteo",
       "authority": "Open-Meteo (ECMWF/GFS waves)",
-      "coverage": { "countries": ["TR"] },
+      "coverage": {
+        "countries": [
+          "TR"
+        ]
+      },
       "capability": "marine",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -101,7 +125,11 @@
     {
       "id": "tr-flood-open-meteo",
       "authority": "Open-Meteo (GloFAS)",
-      "coverage": { "countries": ["TR"] },
+      "coverage": {
+        "countries": [
+          "TR"
+        ]
+      },
       "capability": "water",
       "outputModel": "supplemental-signal",
       "access": "public",
@@ -117,7 +145,11 @@
     {
       "id": "tr-grid-eia",
       "authority": "US Energy Information Administration (EIA) — international electricity",
-      "coverage": { "countries": ["TR"] },
+      "coverage": {
+        "countries": [
+          "TR"
+        ]
+      },
       "capability": "grid",
       "outputModel": "supplemental-signal",
       "access": "api-key",
