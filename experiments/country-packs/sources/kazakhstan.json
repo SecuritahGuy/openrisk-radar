@@ -161,6 +161,38 @@
       "termsUrl": "https://energy-charts.info/about",
       "status": "discovered",
       "notes": "Endpoint verified reachable (200 json for supported countries e.g. DE). Kazakhstan is not in the default coverage set so this is a documented fallback requiring verification of country support; mark api-key per grid guidance."
+    },
+    {
+      "id": "kz-weather-kazhydromet-wis2",
+      "authority": "RSE Kazhydromet — WIS2 / OGC API",
+      "coverage": { "countries": ["KZ"] },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "geojson",
+      "endpoint": "https://wis2box.kazhydromet.kz/oapi/collections/urn:wmo:md:kz-kazhydromet:core.surface-based-observations.synop/items?f=json&limit=100",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "RSE Kazhydromet",
+      "termsUrl": "https://www.kazhydromet.kz/en/meteo_db",
+      "status": "discovered",
+      "notes": "Confirmed HTTP 200 application/json (GeoJSON). WIS2/OGC API Features for synoptic surface observations (temperature, pressure, wind, humidity, precipitation) from Kazhydromet stations across Kazakhstan. Public, no auth required."
+    },
+    {
+      "id": "kz-multihazard-gdacs",
+      "authority": "GDACS — Global Disaster Alert and Coordination System",
+      "coverage": { "countries": ["KZ"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://www.gdacs.org/xml/rss_7d.xml",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "GDACS",
+      "termsUrl": "https://www.gdacs.org/terms.aspx",
+      "status": "discovered",
+      "notes": "GDACS global multi-hazard RSS/XML feed, filterable to Kazakhstan alerts. Confirmed 200 application/xml."
     }
   ]
 }

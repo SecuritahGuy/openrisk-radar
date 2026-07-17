@@ -129,6 +129,38 @@
       "termsUrl": "https://www.eia.gov/opendata/",
       "status": "discovered",
       "notes": "EIA international electricity data for Argentina. Confirmed HTTP 403 without api_key → requires free EIA API key. Monthly generation/consumption indicators."
+    },
+    {
+      "id": "ar-smn-weather-current",
+      "authority": "SMN — Servicio Meteorológico Nacional de Argentina",
+      "coverage": { "countries": ["AR"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://ssl.smn.gob.ar/dpd/zipopendata.php?dato=tiepre",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "SMN Argentina",
+      "termsUrl": "https://www.smn.gob.ar/",
+      "status": "discovered",
+      "notes": "SMN open data: Estado del Tiempo Presente (current weather). ZIP containing semicolon-delimited CSV of current observations (temp, humidity, pressure, wind, visibility) from all Argentine stations. Confirmed 200 application/octet-stream (ZIP with CSV text inside). Updated hourly."
+    },
+    {
+      "id": "ar-smn-alerts",
+      "authority": "SMN — Servicio Meteorológico Nacional de Argentina",
+      "coverage": { "countries": ["AR"] },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://ssl.smn.gob.ar/dpd/zipopendata.php?dato=alertas",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "SMN Argentina",
+      "termsUrl": "https://www.smn.gob.ar/",
+      "status": "discovered",
+      "notes": "SMN open data: Alertas Meteorológicas (weather warnings). ZIP containing semicolon-delimited CSV of active weather alerts. Confirmed 200 application/octet-stream. File may be empty when no active alerts."
     }
   ]
 }

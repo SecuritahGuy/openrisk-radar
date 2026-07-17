@@ -129,6 +129,38 @@
       "termsUrl": "https://www.eia.gov/terms/",
       "status": "discovered",
       "notes": "EIA international electricity/data API supports Saudi Arabia (countryId SAU) with an api_key parameter; endpoint requires a key."
+    },
+    {
+      "id": "sa-weather-ncm",
+      "authority": "National Center for Meteorology (NCM) — Saudi Arabia",
+      "coverage": { "countries": ["SA"] },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "api-key",
+      "format": "json",
+      "endpoint": "https://api-mm.ncm.gov.sa/2025-07-17T00:00:00Z--2025-07-18T00:00:00Z:PT6H/t_2m:C,precip_1h:mm,wind_speed_10m:ms/24.71,46.68/json",
+      "refreshSeconds": 1800,
+      "proxyRequired": false,
+      "attribution": "NCM Saudi Arabia",
+      "termsUrl": "https://www.ncm.gov.sa/en/services/our-services/direct-api-integration",
+      "status": "discovered",
+      "notes": "NCM REST1 API for historic/current/forecast weather data. Returns 401 without HTTP Basic Auth credentials (confirmed). Requires a registered NCM account. Point forecast for Riyadh; supports JSON, XML, CSV, NetCDF output."
+    },
+    {
+      "id": "sa-multihazard-gdacs",
+      "authority": "GDACS — Global Disaster Alert and Coordination System",
+      "coverage": { "countries": ["SA"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://www.gdacs.org/xml/rss_7d.xml",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "GDACS",
+      "termsUrl": "https://www.gdacs.org/terms.aspx",
+      "status": "discovered",
+      "notes": "GDACS global multi-hazard RSS/XML feed, filterable to Saudi Arabia alerts. Confirmed 200 application/xml."
     }
   ]
 }

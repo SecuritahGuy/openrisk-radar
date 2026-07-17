@@ -161,6 +161,54 @@
       "termsUrl": "https://www.gdacs.org/terms.aspx",
       "status": "discovered",
       "notes": "GDACS global multi-hazard RSS/XML feed, filterable to Slovenia alerts. Confirmed 200 text/xml."
+    },
+    {
+      "id": "si-arso-api",
+      "authority": "ARSO — Agencija Republike Slovenije za okolje (Slovenian Environment Agency)",
+      "coverage": { "countries": ["SI"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://vreme.arso.gov.si/api/1.0/nonlocation/",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "ARSO / Slovenian Environment Agency",
+      "termsUrl": "https://meteo.arso.gov.si/met/sl/service/",
+      "status": "discovered",
+      "notes": "ARSO official REST API — returns comprehensive FeatureCollection including weather observations (observation_si), water levels (observation_si_water), warnings (warning_si), air quality (observation_si_eco), forecasts (fcast_si_hint), aviation obs (observation_si_avio) and text forecasts (fcast_si_text). All data in JSON with GeoJSON geometry. Confirmed 200 application/json."
+    },
+    {
+      "id": "si-arso-observations-xml",
+      "authority": "ARSO — Slovenian Environment Agency",
+      "coverage": { "countries": ["SI"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/observation_si_latest.xml",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "ARSO / Slovenian Environment Agency",
+      "termsUrl": "https://meteo.arso.gov.si/uploads/meteo/help/sl/xml_service.html",
+      "status": "discovered",
+      "notes": "ARSO meteorological observations for all Slovenian stations in XML format. Temperature, humidity, pressure, wind speed/direction, precipitation, visibility, UV index, sunshine duration, water temperature and sea state. Updated every 10-60 minutes. Bilingual data. Confirmed 200 application/xml."
+    },
+    {
+      "id": "si-meteoalarm-json",
+      "authority": "Meteoalarm (via ARSO)",
+      "coverage": { "countries": ["SI"] },
+      "capability": "environmental-health",
+      "outputModel": "risk-event",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://feeds.meteoalarm.org/api/v1/warnings/feeds-slovenia/",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "Meteoalarm / ARSO",
+      "termsUrl": "https://www.meteoalarm.org/",
+      "status": "discovered",
+      "notes": "Meteoalarm machine-readable CAP-derived JSON warnings feed for Slovenia. Covers all hazard types (thunderstorm, wind, snow, heat, forest fire) with polygon geocodes and bilingual (sl/en) info. Sourced from ARSO. Confirmed 200 application/json."
     }
   ]
 }

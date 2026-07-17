@@ -129,6 +129,54 @@
       "termsUrl": "https://www.eia.gov/",
       "status": "discovered",
       "notes": "EIA international electricity/grid data for Uruguay. Requires api_key (HTTP 403 without). Confirmed application/json 403 without key."
+    },
+    {
+      "id": "uy-inumet-catalog",
+      "authority": "INUMET — Instituto Uruguayo de Meteorología",
+      "coverage": { "countries": ["UY"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://catalogodatos.gub.uy/api/3/action/organization_show?id=inumet&include_datasets=true",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "INUMET / Catálogo de Datos Abiertos de Uruguay",
+      "termsUrl": "https://catalogodatos.gub.uy/",
+      "status": "discovered",
+      "notes": "INUMET open data catalog via CKAN API. Returns metadata for all INUMET datasets (temperature, precipitation, pressure, humidity, wind, insolation) with resource URLs. Confirmed 200 application/json; charset=utf-8. Individual CSV/data files linked from catalog responses."
+    },
+    {
+      "id": "uy-inumet-temperature",
+      "authority": "INUMET — Instituto Uruguayo de Meteorología",
+      "coverage": { "countries": ["UY"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://catalogodatos.gub.uy/dataset/accd0e24-76be-4101-904b-81bb7d41ee88/resource/f800fc53-556b-4d1c-8bd6-28b41f9cf146/download/inumet_temperatura_del_aire.csv",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "INUMET",
+      "termsUrl": "https://catalogodatos.gub.uy/",
+      "status": "discovered",
+      "notes": "INUMET hourly temperature observations (semicolon CSV: fecha;estacion_id;temp_aire). Updated daily from automatic stations across Uruguay. Confirmed 200 text/csv (~13 MB)."
+    },
+    {
+      "id": "uy-inumet-precipitation",
+      "authority": "INUMET — Instituto Uruguayo de Meteorología",
+      "coverage": { "countries": ["UY"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://catalogodatos.gub.uy/dataset/fd896b11-4c04-4807-bae4-5373d65beea2/resource/cc785e9e-d9c8-4706-b013-9a6a5b0f7d01/download/inumet_precipitacion_acumulada_horaria.csv",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "INUMET",
+      "termsUrl": "https://catalogodatos.gub.uy/",
+      "status": "discovered",
+      "notes": "INUMET hourly accumulated precipitation observations (semicolon CSV). Updated daily. Confirmed 200 text/csv (~11 MB)."
     }
   ]
 }

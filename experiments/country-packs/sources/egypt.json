@@ -97,6 +97,22 @@
       "termsUrl": "https://www.eia.gov/terms/",
       "status": "discovered",
       "notes": "EIA international electricity/energy data for Egypt. Returns 403 without key (confirmed). Requires API key."
+    },
+    {
+      "id": "eg-ensn-earthquake",
+      "authority": "Egyptian National Seismological Network (ENSN) / NRIAG",
+      "coverage": { "countries": ["EG"] },
+      "capability": "earthquake",
+      "outputModel": "risk-event",
+      "access": "api-key",
+      "format": "seed",
+      "endpoint": "http://ensn.nriag.sci.eg/earthquakes/recent",
+      "refreshSeconds": 600,
+      "proxyRequired": false,
+      "attribution": "ENSN / NRIAG",
+      "termsUrl": "https://ensn.nriag.sci.eg/",
+      "status": "discovered",
+      "notes": "ENSN recent earthquake feed in SEED format (Standard for Exchange of Earthquake Data). Returns 401 without credentials (confirmed: 401 application/seed). Requires authentication."
     }
   ]
 }

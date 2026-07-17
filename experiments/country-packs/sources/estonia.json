@@ -84,6 +84,22 @@
       "termsUrl": "https://www.gdacs.org/disclaimer.aspx",
       "status": "discovered",
       "notes": "Multi-hazard (earthquake, flood, cyclone, volcano, drought) event list. Can filter by country=EE. Useful as a regional cross-check for earthquakes and large flood events affecting the Baltic region."
+    },
+    {
+      "id": "ee-elering-grid",
+      "authority": "Elering — Estonian TSO",
+      "coverage": { "countries": ["EE"] },
+      "capability": "grid",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://dashboard.elering.ee/api/nps/price?country=ee",
+      "refreshSeconds": 900,
+      "proxyRequired": false,
+      "attribution": "Elering",
+      "termsUrl": "https://dashboard.elering.ee/assets/api-doc.html",
+      "status": "discovered",
+      "notes": "Elering NPS (Nord Pool Spot) electricity day-ahead price API for Estonia's control area. Returns 15-minute interval prices in EUR/MWh. Public, no API key required. Also provides cross-border flow data for Latvian/Lithuanian interconnection. Confirmed 200 application/json."
     }
   ]
 }

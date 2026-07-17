@@ -147,6 +147,86 @@
       "termsUrl": "https://www.gdacs.org/disclaimer.aspx",
       "status": "discovered",
       "notes": "Multi-hazard (earthquake, flood, cyclone, volcano, drought) event list. Can filter by country=LV. Useful as a regional cross-check for earthquakes and large flood events affecting the Baltic region."
+    },
+    {
+      "id": "lv-lvgmc-flood-gis",
+      "authority": "Latvian Environment, Geology and Meteorology Centre (LVGMC/LEGMC)",
+      "coverage": {
+        "countries": [
+          "LV"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "map-overlay",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://geodata.lvgmc.lv/server/rest/services/Atvertie_dati/Juras_veja_pludi_100/MapServer/0/query?where=1%3D1&outFields=*&f=json",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "Latvian Environment, Geology and Meteorology Centre (LVGMC)",
+      "termsUrl": "https://geodata.lvgmc.lv/server/rest/services/Atvertie_dati/Juras_veja_pludi_100/MapServer?f=pjson",
+      "status": "discovered",
+      "notes": "LVGMC open-data ArcGIS REST service for 100-year sea wind flood risk zones. Returns ESRI JSON features with flood extent polygons for the Latvian coast (Baltic Sea, Gulf of Riga). Confirmed 200 application/json via f=json parameter. Part of the EU Floods Directive national flood risk assessment."
+    },
+    {
+      "id": "lv-lvgmc-spring-flood-gis",
+      "authority": "Latvian Environment, Geology and Meteorology Centre (LVGMC/LEGMC)",
+      "coverage": {
+        "countries": [
+          "LV"
+        ]
+      },
+      "capability": "water",
+      "outputModel": "map-overlay",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://geodata.lvgmc.lv/server/rest/services/Atvertie_dati/Pavasara_pali_100/MapServer/0/query?where=1%3D1&outFields=*&f=json",
+      "refreshSeconds": 86400,
+      "proxyRequired": false,
+      "attribution": "Latvian Environment, Geology and Meteorology Centre (LVGMC)",
+      "termsUrl": "https://geodata.lvgmc.lv/server/rest/services/Atvertie_dati/Pavasara_pali_100/MapServer?f=pjson",
+      "status": "discovered",
+      "notes": "LVGMC open-data ArcGIS REST service for 100-year spring flood risk zones. Returns ESRI JSON features with flood extent polygons for Latvian river basins. Confirmed 200 application/json via f=json. Part of the national flood risk management plan under the EU Floods Directive."
+    },
+    {
+      "id": "lv-lvgmc-meteo-operational-csv",
+      "authority": "Latvian Environment, Geology and Meteorology Centre (LVGMC/LEGMC)",
+      "coverage": {
+        "countries": [
+          "LV"
+        ]
+      },
+      "capability": "road-weather",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://data.gov.lv/dati/dataset/40d80be5-0c09-47c4-80f3-fad4bec19f33/resource/17460efb-ae99-4d1d-8144-1068f184b05d/download/meteo_operativie_dati.csv",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Latvian Environment, Geology and Meteorology Centre (LVGMC)",
+      "termsUrl": "https://data.gov.lv/dati/eng/dataset/hidrometeorologiskie-noverojumi",
+      "status": "discovered",
+      "notes": "LVGMC operational meteorological observations as CSV via the Latvian National Open Data Portal (data.gov.lv). Contains hourly station measurements (temperature, humidity, wind, precipitation) from the national meteo station network. Confirmed 200 text/csv."
+    },
+    {
+      "id": "lv-lvgmc-lightning-csv",
+      "authority": "Latvian Environment, Geology and Meteorology Centre (LVGMC/LEGMC)",
+      "coverage": {
+        "countries": [
+          "LV"
+        ]
+      },
+      "capability": "wildfire",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "csv",
+      "endpoint": "https://data.gov.lv/dati/dataset/1936ed28-16df-4588-819e-8a5143a50c81/resource/a264bfb4-f52f-41f7-93fc-04214f4a2b5b/download/zibens_rezgis_operativie_dati.csv",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Latvian Environment, Geology and Meteorology Centre (LVGMC)",
+      "termsUrl": "https://data.gov.lv/dati/eng/dataset/telpiskie-hidrometeorologiskie-noverojumi",
+      "status": "discovered",
+      "notes": "LVGMC operational lightning stroke grid data as CSV via the Latvian National Open Data Portal (data.gov.lv). Contains cloud-to-cloud and cloud-to-ground lightning discharge counts per grid cell. Confirmed 200 text/csv. Relevant for thunderstorm/fire-weather monitoring."
     }
   ]
 }

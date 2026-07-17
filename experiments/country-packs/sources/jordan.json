@@ -97,6 +97,54 @@
       "termsUrl": "https://www.eia.gov/terms/",
       "status": "discovered",
       "notes": "EIA international electricity/energy data for Jordan. Returns 403 without key (confirmed). Requires API key."
+    },
+    {
+      "id": "jo-flood-openmeteo",
+      "authority": "Open-Meteo Flood / Global Flood API",
+      "coverage": { "countries": ["JO"] },
+      "capability": "water",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://flood-api.open-meteo.com/v1/flood?latitude=31.9&longitude=35.9&daily=river_discharge",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/flood-api",
+      "status": "discovered",
+      "notes": "Open-Meteo flood/river-discharge API for Jordan (Amman). Confirmed 200 application/json."
+    },
+    {
+      "id": "jo-marine-openmeteo",
+      "authority": "Open-Meteo Marine",
+      "coverage": { "countries": ["JO"] },
+      "capability": "marine",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "json",
+      "endpoint": "https://marine-api.open-meteo.com/v1/marine?latitude=29.5&longitude=35.0&current=wave_height,wave_period,wind_wave_height",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "Open-Meteo",
+      "termsUrl": "https://open-meteo.com/en/docs/marine-weather-api",
+      "status": "discovered",
+      "notes": "Open-Meteo marine (wave height/period) for Jordan Gulf of Aqaba coast. Confirmed 200 application/json."
+    },
+    {
+      "id": "jo-multihazard-gdacs",
+      "authority": "GDACS — Global Disaster Alert and Coordination System",
+      "coverage": { "countries": ["JO"] },
+      "capability": "environmental-health",
+      "outputModel": "supplemental-signal",
+      "access": "public",
+      "format": "xml",
+      "endpoint": "https://www.gdacs.org/xml/rss_7d.xml",
+      "refreshSeconds": 3600,
+      "proxyRequired": false,
+      "attribution": "GDACS",
+      "termsUrl": "https://www.gdacs.org/terms.aspx",
+      "status": "discovered",
+      "notes": "GDACS global multi-hazard RSS/XML feed, filterable to Jordan alerts. Confirmed 200 application/xml."
     }
   ]
 }
