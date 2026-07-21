@@ -1,8 +1,15 @@
-export type EventSource = "NWS" | "NOAA" | "NOAA_TSUNAMI" | "NWPS" | "USGS" | "USGS_SHAKEMAP" | "USGS_WATER" | "UK_EA" | "VOLCANO" | "DROUGHT" | "FEMA" | "NIFC" | "SPC" | "NHC" | "GDACS" | "EONET" | "AIRNOW" | "COOPS" | "EMSC" | "SPACE_WEATHER" | "METEOALARM" | "WHO" | "GTM" | "DWD" | "GEONET";
-export type EventCategory = "Weather" | "Seismic" | "River Gauge" | "Disaster" | "Wildfire" | "Tropical" | "Volcanic" | "Drought" | "Ice" | "Landslide" | "Dust" | "Air Quality" | "Coastal Water" | "Space Weather" | "Pollen" | "UV Index";
+export type EventSource = "NWS" | "NOAA" | "NOAA_TSUNAMI" | "NWPS" | "USGS" | "USGS_SHAKEMAP" | "USGS_WATER" | "UK_EA" | "VOLCANO" | "DROUGHT" | "FEMA" | "NIFC" | "SPC" | "NHC" | "GDACS" | "EONET" | "AIRNOW" | "COOPS" | "EMSC" | "SPACE_WEATHER" | "METEOALARM" | "WHO" | "GTM" | "DWD" | "GEONET" | "REGIONAL" | "USDOT";
+export type EventCategory = "Weather" | "Seismic" | "River Gauge" | "Disaster" | "Wildfire" | "Transportation" | "Tropical" | "Volcanic" | "Drought" | "Ice" | "Landslide" | "Dust" | "Air Quality" | "Coastal Water" | "Space Weather" | "Pollen" | "UV Index";
 export type Severity = "Minor" | "Moderate" | "Severe" | "Extreme";
 export type GeometryType = "Point" | "Polygon" | "None";
 export type Confidence = "Source reported" | "Estimated" | "Unknown";
+
+export interface EventProvider {
+  id: string;
+  label: string;
+  authority: "local" | "state" | "federal" | "international";
+  attributionUrl: string;
+}
 
 export interface RiskEvent {
   id: string;
@@ -22,5 +29,6 @@ export interface RiskEvent {
   updatedAt: string;
   url: string | null;
   confidence: Confidence;
+  provider?: EventProvider;
   raw: Record<string, unknown>;
 }

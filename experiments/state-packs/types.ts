@@ -12,6 +12,10 @@ export type Capability =
   | "water"
   | "grid"
   | "environmental-health"
+  | "landslide"
+  | "tsunami"
+  | "volcano"
+  | "hazard"
   | "avalanche"
   | "marine"
   | "earthquake";
@@ -36,11 +40,15 @@ export type SourceStatus =
   | "validated"
   | "discovered"
   | "research-required"
+  | "research"
   | "error";
+
+export type AuthorityLevel = "local" | "state" | "federal" | "international" | "unknown";
 
 export interface StateSourceDefinition {
   id: string;
   authority: string;
+  authorityLevel?: AuthorityLevel;
   coverage: {
     states: string[];
     counties?: string[];
@@ -82,16 +90,19 @@ export const AUTHORITY_RANK: Record<string, number> = {
 };
 
 export function sourceAuthority(source: StateSourceDefinition): number {
-  switch (source.access) {
-    case "authenticated":
-      return AUTHORITY_RANK.state;
-    case "api-key":
-      return AUTHORITY_RANK.state - 5;
-    case "public":
-      return AUTHORITY_RANK.federal;
-    case "research-required":
-      return AUTHORITY_RANK.unknown;
+  if (source.authorityLevel) return AUTHORITY_RANK[source.authorityLevel];
+  const authority = source.authority.toLowerCase();
+  if (/\b(city|county|municipal|local)\b/.test(authority)) return AUTHORITY_RANK.local;
+  if (/\b(noaa|nws|usgs|fema|nifc|nasa|federal|national interagency)\b/.test(authority)) {
+    return AUTHORITY_RANK.federal;
   }
+  if (/\b(state|department|dept|dot|dnr|dec|dem|cal fire|office of emergency)\b/.test(authority)) {
+    return AUTHORITY_RANK.state;
+  }
+  if (/\b(united nations|international|global)\b/.test(authority)) {
+    return AUTHORITY_RANK.international;
+  }
+  return AUTHORITY_RANK.unknown;
 }
 
 export function compareAuthority(a: StateSourceDefinition, b: StateSourceDefinition): number {

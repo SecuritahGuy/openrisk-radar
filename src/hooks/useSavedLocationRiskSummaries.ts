@@ -11,6 +11,8 @@ import { fetchGdacsEvents } from "../services/gdacs";
 import { fetchEonetEvents } from "../services/eonet";
 import { fetchEmscEvents } from "../services/emsc";
 import { fetchMeteoalarmAlerts, supportsMeteoalarm } from "../services/meteoalarm";
+import { fetchRegionalEvents, supportsRegionalSources } from "../services/regionalSources";
+import { fetchTransportationEvents } from "../services/transportation";
 import type { Location, RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import {
@@ -108,7 +110,7 @@ async function fetchSavedLocationSummary(
   const radiusMiles = location.radiusMiles || 50;
   const radiusKm = toRadiusKm(radiusMiles);
   const resolvedLocation = toResolvedLocation(location);
-  const [nws, usgs, nifc, spc, nhc, gdacs, eonet, emsc, meteoalarm, weather] = await Promise.all([
+  const [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, meteoalarm, weather] = await Promise.all([
     settleEvents(
       "NWS",
       fetchNwsAlertsForPoint(location.latitude, location.longitude)
@@ -120,6 +122,28 @@ async function fetchSavedLocationSummary(
     settleEvents(
       "NIFC",
       fetchWildfires(location.latitude, location.longitude, radiusKm)
+    ),
+    settleEvents(
+      "Regional agencies",
+      location.country === "USA" && supportsRegionalSources(location.state)
+        ? fetchRegionalEvents(
+            location.state,
+            location.latitude,
+            location.longitude,
+            radiusKm
+          ).then((result) => result.events)
+        : Promise.resolve([])
+    ),
+    settleEvents(
+      "Transportation",
+      location.country === "USA"
+        ? fetchTransportationEvents(
+            location.state,
+            location.latitude,
+            location.longitude,
+            radiusKm
+          ).then((result) => result.events)
+        : Promise.resolve([])
     ),
     settleEvents(
       "SPC",
@@ -150,7 +174,7 @@ async function fetchSavedLocationSummary(
     settleWeather(location),
   ]);
 
-  const eventResults = [nws, usgs, nifc, spc, nhc, gdacs, eonet, emsc, meteoalarm];
+  const eventResults = [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, meteoalarm];
   const incidents = canonicalIncidentEvents(
     eventResults.flatMap((result) => result.events)
   );

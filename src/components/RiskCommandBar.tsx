@@ -7,6 +7,7 @@ import {
   attentionEvents,
   buildRiskSummary,
   distanceMiles,
+  eventSourceLabel,
   explainRiskScore,
   expiresLabel,
   formatDistance,
@@ -84,7 +85,7 @@ function AttentionCard({
             background: sourceColor(event.source),
           }}
         >
-          {sourceLabel(event.source)}
+          {eventSourceLabel(event)}
         </span>
         <span
           style={{
@@ -122,7 +123,7 @@ function AgreementEventRow({
           background: sourceColor(event.source),
         }}
       >
-        {sourceLabel(event.source)}
+        {eventSourceLabel(event)}
       </span>
       <span style={styles.agreementEventText}>{event.headline}</span>
       <span

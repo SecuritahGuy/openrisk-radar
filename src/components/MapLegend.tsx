@@ -15,6 +15,8 @@ const ITEMS: LegendItem[] = [
   { label: "Drought", color: "#795548", shape: "circle" },
   { label: "FEMA record", color: "#7b1fa2", shape: "square" },
   { label: "Wildfire", color: "#d84315", shape: "circle" },
+  { label: "State/local hazard", color: "#ad1457", shape: "circle" },
+  { label: "Road work / closure", color: "#37474f", shape: "circle" },
   { label: "SPC outlook / report", color: "#00897b", shape: "square" },
   { label: "Tropical cyclone", color: "#c62828", shape: "circle" },
   { label: "Global disaster", color: "#1565c0", shape: "circle" },

@@ -94,6 +94,8 @@ This table reflects the current codebase. "Main dashboard" means the source is f
 | U.S. Geological Survey (USGS) | Global | Earthquakes by proximity | Main dashboard | `src/services/usgs.ts` |
 | Federal Emergency Management Agency (FEMA) | United States | Disaster declarations by state/county | Main dashboard, feed/detail; no event geometry | `src/services/fema.ts` |
 | National Interagency Fire Center (NIFC) | United States | Wildfires and prescribed burns by proximity | Main dashboard | `src/services/nifc.ts` |
+| Selected state agencies | CA, FL, OR, NY, WI | Local wildfire incidents, evacuation zones, HAB reports, and beach advisories | Main dashboard when the resolved state applies | `src/services/regionalSources.ts` |
+| USDOT WZDx / participating state DOTs | Participating U.S. states | Active and near-term work zones, lane impacts, and closures | Main dashboard when a keyless state feed applies | `src/services/transportation.ts` |
 | Storm Prediction Center (SPC) | United States | Day 1-3 convective outlook polygons and preliminary observed tornado, hail, and wind reports | Main dashboard | `src/services/spc.ts`, `src/services/spcReports.ts` |
 | National Hurricane Center (NHC) | Atlantic and Eastern/Central Pacific | Active tropical cyclones | Main dashboard when active/in range | `src/services/nhc.ts` |
 | Global Disaster Alert and Coordination System (GDACS) | Global | Earthquakes, tropical cyclones, floods, volcanoes, wildfires, droughts | Main dashboard | `src/services/gdacs.ts` |
@@ -117,7 +119,7 @@ This table reflects the current codebase. "Main dashboard" means the source is f
 
 ```mermaid
 flowchart LR
-  A["External authoritative APIs<br/>NWS, USGS, FEMA, NIFC, SPC, NHC, GDACS, EONET, Open-Meteo, Nominatim"] --> B["Source-specific adapters<br/>src/services/*"]
+  A["External authoritative APIs<br/>Federal, state, local, and international providers"] --> B["Source-specific adapters<br/>src/services/*"]
   B --> C["RiskEvent normalization<br/>source, category, severity, timing, geometry"]
   C --> D["Geospatial proximity filtering<br/>radius, polygons, points"]
   D --> E["Severity and risk classification<br/>src/lib/riskInsights.ts<br/>src/lib/impactInsights.ts"]

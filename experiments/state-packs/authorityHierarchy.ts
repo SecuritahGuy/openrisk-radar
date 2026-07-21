@@ -79,7 +79,7 @@ export function canonicalEventSources(
  * Check whether a source is ready for production use based on its status.
  */
 export function isSourceReady(source: StateSourceDefinition): boolean {
-  return source.status === "validated" || source.status === "discovered";
+  return source.status === "validated";
 }
 
 /**

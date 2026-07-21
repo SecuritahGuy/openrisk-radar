@@ -22,7 +22,7 @@ national feeds rather than duplicating them.
 | File | Purpose |
 |------|---------|
 | `types.ts` | `StateIntelligencePack`, `StateSourceDefinition`, capability/output/access enums, authority ranking |
-| `stateRegistry.ts` | Pack configurations for all 50 US states + DC (51 packs) with 331 sources |
+| `stateRegistry.ts` | Pack configurations for all 50 US states + DC (51 packs) with 438 source entries |
 | `authorityHierarchy.ts` | Source authority hierarchy (Local > State > Federal > International) and dedup logic |
 | `stateResolver.ts` | Activation logic: given a location or assets, which packs fire |
 | `validate.ts` | Quick smoke-test: CAL FIRE + CDEC + CAISO + resolver demo |
@@ -105,7 +105,7 @@ are retained as corroborating.
 | ME | 7 | MaineDOT ArcGIS | ME Forest Svc (portal) | USGS ME | Versant/CMP (portal) | — | NWS alerts | USGS FDSN | — | NWS marine | — |
 | RI | 7 | RIDOT 511 (portal) | RI DEM (portal) | USGS RI | NatGrid RI (portal) | — | NWS alerts | USGS FDSN | — | NWS marine | — |
 
-All endpoints live-probed and validated, **211 validated** and **71 discovered** across all 50 states + DC (331 sources). 49 sources flagged as error/unreachable for follow-up repair.
+The registry currently contains **438 entries** across all 50 states + DC: **342 marked validated**, **95 discovered**, and **1 research-required**. A validated endpoint has passed the experiment's HTTP/shape probe; production promotion still requires fixture-based normalization tests, attribution review, geographic filtering, and UI integration.
 
 ## Status legend
 

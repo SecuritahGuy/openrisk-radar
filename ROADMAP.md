@@ -32,6 +32,8 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | FEMA declarations | United States | Disaster declarations by state/county | Main dashboard, no geometry |
 | NOAA Storm Events | United States | Historical severe-weather records | Historical context |
 | NIFC wildfires | United States | Wildfires and prescribed burns | Main dashboard |
+| Selected state agencies | CA, FL, OR, NY, WI | Local wildfire incidents, evacuation zones, HAB reports, and beach advisories | Main dashboard, activated automatically by resolved state |
+| USDOT WZDx / state DOTs | Participating U.S. states | Active and near-term road work, lane impacts, and closures | Main dashboard and map, activated automatically by resolved state and radius |
 | SPC outlooks | United States | Day 1-3 convective outlook polygons | Main dashboard |
 | SPC storm reports | United States | Preliminary observed tornado, hail, and damaging-wind reports | Main dashboard |
 | NHC storms | Atlantic and Eastern/Central Pacific | Active tropical cyclones | Main dashboard when active/in range |

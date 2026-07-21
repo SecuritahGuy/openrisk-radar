@@ -29,6 +29,8 @@ const SOURCE_PRIORITY: Record<EventSource, number> = {
   GTM: 60,
   DWD: 100,
   GEONET: 80,
+  REGIONAL: 98,
+  USDOT: 90,
 };
 
 const CORRELATION_RULES: Partial<Record<EventCategory, { miles: number; hours: number }>> = {
@@ -39,6 +41,7 @@ const CORRELATION_RULES: Partial<Record<EventCategory, { miles: number; hours: n
   Volcanic: { miles: 40, hours: 24 * 7 },
   "River Gauge": { miles: 3, hours: 6 },
   "Coastal Water": { miles: 80, hours: 12 },
+  Transportation: { miles: 1, hours: 12 },
 };
 
 const COASTAL_ALERT_SOURCES = new Set<EventSource>([

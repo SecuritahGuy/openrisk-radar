@@ -44,6 +44,7 @@ const CATEGORY_HAZARD: Record<EventCategory, WatchHazard> = {
   Disaster: "other",
   Volcanic: "other",
   Landslide: "other",
+  Transportation: "other",
   "Space Weather": "other",
 };
 
