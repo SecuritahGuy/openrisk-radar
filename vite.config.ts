@@ -10,6 +10,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: () => "/umbraco/api/incidentapi/List",
       },
+      "/api/emsc": {
+        target: "https://www.seismicportal.eu",
+        changeOrigin: true,
+        rewrite: () => "/fdsnws/event/1/query",
+      },
     },
   },
   build: {

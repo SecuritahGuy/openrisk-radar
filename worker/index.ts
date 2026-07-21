@@ -5,6 +5,7 @@ import { onRequestGet as tsunami } from "../functions/api/noaa/tsunami";
 import { onRequestGet as meteoalarm } from "../functions/api/meteoalarm/alerts";
 import { onRequestGet as calFire } from "../functions/api/regional/cal-fire";
 import { onRequestGet as traffic } from "../functions/api/traffic";
+import { onRequestGet as emsc } from "../functions/api/emsc";
 import { jsonError } from "../functions/_shared/proxy";
 import type { D1Database } from "./d1";
 import { deliverPushMessage, type PushDeliveryEnv, type PushQueueMessage } from "./pushDelivery";
@@ -37,6 +38,7 @@ const apiRoutes = new Map<string, (context: { request: Request }) => Promise<Res
   ["/api/meteoalarm/alerts", meteoalarm],
   ["/api/regional/cal-fire", calFire],
   ["/api/traffic", traffic],
+  ["/api/emsc", emsc],
 ]);
 
 const sourceStatus = [
@@ -47,6 +49,7 @@ const sourceStatus = [
   { id: "meteoalarm", label: "Meteoalarm European Warnings", route: "/api/meteoalarm/alerts", cacheSeconds: 300 },
   { id: "cal-fire", label: "CAL FIRE Incidents", route: "/api/regional/cal-fire", cacheSeconds: 120 },
   { id: "usdot-wzdx", label: "USDOT Work Zone Data Exchange", route: "/api/traffic", cacheSeconds: 90 },
+  { id: "emsc", label: "EMSC Earthquakes", route: "/api/emsc", cacheSeconds: 60 },
 ];
 
 export default {

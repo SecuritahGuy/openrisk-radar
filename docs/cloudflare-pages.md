@@ -45,12 +45,13 @@ Saved locations live in browser IndexedDB. There is no backend database, schedul
 
 The production build routes browser-incompatible feeds and multi-provider
 orchestration—including NOAA Storm Events, FEMA National Risk Index, NOAA NWPS,
-tsunami, CAL FIRE, and WZDx transportation calls—through `/api/*`.
+tsunami, EMSC, CAL FIRE, and WZDx transportation calls—through `/api/*`.
 `assets.run_worker_first` is limited to `/api/*`, so static assets remain free
 and do not invoke Worker code. Responses use the Cache API and conservative
 public TTLs to limit upstream traffic and Workers Free requests.
 
-Local Vite development continues to call the public providers directly. Use
+Local Vite development calls most public providers directly and proxies selected
+feeds such as EMSC when browser behavior needs production parity. Use
 `npm run worker:dev` when testing production proxy routes locally.
 
 Before publishing, run `npm run worker:check`. After publishing, run

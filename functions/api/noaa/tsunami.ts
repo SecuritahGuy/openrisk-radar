@@ -1,4 +1,5 @@
 import { cachedPublicProxy, jsonError, type PagesContext } from "../../_shared/proxy";
+import { parseNoaaTsunamiJson } from "../../../src/lib/noaaTsunamiJson";
 
 const UPSTREAM = "https://www.tsunami.gov/php/esri.php?a=t&format=json";
 
@@ -13,11 +14,7 @@ export async function onRequestGet({ request }: PagesContext): Promise<Response>
   if (!upstreamResponse.ok) return upstreamResponse;
 
   try {
-    const text = (await upstreamResponse.text()).trim()
-      .replace(/^\(/, "")
-      .replace(/\);?$/, "")
-      .replace(/,\s*([}\]])/g, "$1");
-    const data = JSON.parse(text);
+    const data = parseNoaaTsunamiJson(await upstreamResponse.text());
     const headers = new Headers(upstreamResponse.headers);
     headers.set("Content-Type", "application/json; charset=utf-8");
     headers.set("Cache-Control", "public, max-age=30, s-maxage=60");

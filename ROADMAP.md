@@ -28,7 +28,7 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | NWS overlay | United States | Forecast grid cell, hazards, heat risk, forecast/fire weather zones, stations | Optional map overlay |
 | Meteoalarm | Europe | National weather alerts normalized from Meteoalarm | Main dashboard where supported |
 | USGS earthquakes | Global | Earthquakes by proximity | Main dashboard |
-| EMSC | Global, Europe-focused | Earthquakes by proximity and felt-event context | Main dashboard |
+| EMSC | Global, Europe-focused | Earthquakes by proximity and felt-event context | Main dashboard through a cached Worker proxy |
 | FEMA declarations | United States | Disaster declarations by state/county | Main dashboard, no geometry |
 | NOAA Storm Events | United States | Historical severe-weather records | Historical context |
 | NIFC wildfires | United States | Wildfires and prescribed burns | Main dashboard |
@@ -44,7 +44,7 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | USGS Water Services | United States | River conditions — discharge, gauge height, water temperature | Environmental signals panel |
 | NOAA CO-OPS | U.S. coasts + Great Lakes | Coastal water levels, flood thresholds | Environmental signals panel |
 | NOAA NWPS | United States | River forecasts and elevated gauge status | Main dashboard and environmental signals |
-| NOAA Tsunami | United States and territories | Active tsunami alerts | Main dashboard |
+| NOAA Tsunami | United States and territories | Active tsunami alerts | Main dashboard; malformed upstream numeric tokens are repaired defensively |
 | NOAA SWPC | Global | Kp index, DST, X-ray flares, solar flux | Environmental signals panel |
 | US Drought Monitor | United States | D0-D4 drought severity polygons | Environmental signals panel |
 | USGS ShakeMap | Global | Shaking-intensity context for significant earthquakes | Environmental signals panel |
