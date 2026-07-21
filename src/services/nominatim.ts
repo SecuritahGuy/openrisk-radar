@@ -41,13 +41,20 @@ function pickCounty(addr: NominatimAddress): string | null {
 }
 
 export async function geocode(query: string): Promise<ResolvedLocation | null> {
+  const trimmedQuery = query.trim();
+  const isUsZip = /^\d{5}$/.test(trimmedQuery);
   const params = new URLSearchParams({
-    q: query,
     format: "json",
     addressdetails: "1",
     "accept-language": "en",
     limit: "1",
   });
+  if (isUsZip) {
+    params.set("postalcode", trimmedQuery);
+    params.set("countrycodes", "us");
+  } else {
+    params.set("q", trimmedQuery);
+  }
   const url = `${BASE}/search?${params}`;
   const res = await fetch(url, {
     headers: {
