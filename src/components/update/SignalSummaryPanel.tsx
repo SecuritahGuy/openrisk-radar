@@ -7,6 +7,7 @@ interface SignalSummaryPanelProps {
   earthquakes: RiskEvent[];
   wildfires: RiskEvent[];
   spcOutlooks: RiskEvent[];
+  spcReports: RiskEvent[];
   nhcStorms: RiskEvent[];
   gdacsEvents: RiskEvent[];
   eonetEvents: RiskEvent[];
@@ -66,6 +67,7 @@ export function SignalSummaryPanel({
   earthquakes,
   wildfires,
   spcOutlooks,
+  spcReports,
   nhcStorms,
   gdacsEvents,
   eonetEvents,
@@ -124,6 +126,11 @@ export function SignalSummaryPanel({
           {spcOutlooks.length > 0
             ? `${spcOutlooks.length} SPC outlook polygon${spcOutlooks.length !== 1 ? "s" : ""} nearby`
             : "No SPC outlook polygons nearby"}
+        </SignalLine>
+        <SignalLine active={spcReports.length > 0} color="#00796b">
+          {spcReports.length > 0
+            ? `${spcReports.length} preliminary SPC storm report${spcReports.length !== 1 ? "s" : ""} nearby today`
+            : "No preliminary SPC storm reports nearby today"}
         </SignalLine>
         <SignalLine active={nhcStorms.length > 0} color="#c62828">
           {nhcStorms.length > 0

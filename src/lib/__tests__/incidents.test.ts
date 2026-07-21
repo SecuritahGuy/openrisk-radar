@@ -64,4 +64,72 @@ describe("canonical incidents", () => {
     expect(result).toHaveLength(1);
     expect(result[0].updatedAt).toBe("2026-07-14T10:08:00.000Z");
   });
+
+  it("merges transitive cross-source matches regardless of input order", () => {
+    const result = canonicalIncidentEvents([
+      event({ source: "USGS", sourceEventId: "us", longitude: -118 }),
+      event({ source: "GEONET", sourceEventId: "nz", longitude: -117.2 }),
+      event({ source: "EMSC", sourceEventId: "eu", longitude: -117.6 }),
+    ]);
+
+    expect(result).toHaveLength(1);
+    expect(incidentMetadata(result[0])).toMatchObject({
+      agreement: "corroborated",
+      eventCount: 3,
+      sources: ["EMSC", "GEONET", "USGS"],
+    });
+  });
+
+  it("correlates an observed SPC report inside an NWS warning polygon", () => {
+    const result = canonicalIncidentEvents([
+      event({
+        source: "NWS",
+        sourceEventId: "warning",
+        type: "Tornado Warning",
+        category: "Weather",
+        geometryType: "Polygon",
+        latitude: 34,
+        longitude: -118,
+        polygon: [
+          [-118.2, 33.8],
+          [-117.8, 33.8],
+          [-117.8, 34.2],
+          [-118.2, 34.2],
+          [-118.2, 33.8],
+        ],
+      }),
+      event({
+        source: "SPC",
+        sourceEventId: "report",
+        type: "Tornado Report",
+        category: "Weather",
+        latitude: 34.1,
+        longitude: -118.1,
+        startedAt: "2026-07-14T10:20:00Z",
+      }),
+    ]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].source).toBe("NWS");
+    expect(incidentMetadata(result[0])?.sources).toEqual(["NWS", "SPC"]);
+  });
+
+  it("keeps SPC forecast outlooks separate from observed weather incidents", () => {
+    const result = canonicalIncidentEvents([
+      event({
+        source: "NWS",
+        sourceEventId: "warning",
+        type: "Tornado Warning",
+        category: "Weather",
+      }),
+      event({
+        source: "SPC",
+        sourceEventId: "outlook",
+        type: "Day 1 Convective Outlook",
+        category: "Weather",
+      }),
+    ]);
+
+    expect(result).toHaveLength(2);
+  });
 });

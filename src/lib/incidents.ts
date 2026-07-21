@@ -32,12 +32,19 @@ const SOURCE_PRIORITY: Record<EventSource, number> = {
 };
 
 const CORRELATION_RULES: Partial<Record<EventCategory, { miles: number; hours: number }>> = {
+  Weather: { miles: 35, hours: 3 },
   Seismic: { miles: 40, hours: 0.5 },
   Wildfire: { miles: 30, hours: 36 },
   Tropical: { miles: 180, hours: 18 },
   Volcanic: { miles: 40, hours: 24 * 7 },
   "River Gauge": { miles: 3, hours: 6 },
+  "Coastal Water": { miles: 80, hours: 12 },
 };
+
+const COASTAL_ALERT_SOURCES = new Set<EventSource>([
+  "NOAA_TSUNAMI",
+  "GTM",
+]);
 
 function eventTime(event: RiskEvent): number | null {
   const value = new Date(event.startedAt || event.updatedAt).getTime();
@@ -49,19 +56,75 @@ function point(event: RiskEvent): { latitude: number; longitude: number } | null
   return { latitude: event.latitude, longitude: event.longitude };
 }
 
+function polygonContainsPoint(
+  polygon: number[][],
+  target: { latitude: number; longitude: number }
+): boolean {
+  let inside = false;
+  for (let index = 0, previous = polygon.length - 1; index < polygon.length; previous = index++) {
+    const [x, y] = polygon[index];
+    const [previousX, previousY] = polygon[previous];
+    const intersects =
+      y > target.latitude !== previousY > target.latitude &&
+      target.longitude <
+        ((previousX - x) * (target.latitude - y)) /
+          (previousY - y || Number.EPSILON) +
+          x;
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
+function pointToPolygonMiles(
+  target: { latitude: number; longitude: number },
+  polygon: number[][]
+): number {
+  if (polygonContainsPoint(polygon, target)) return 0;
+  return Math.min(
+    ...polygon.map(([longitude, latitude]) =>
+      distanceMiles(target, { latitude, longitude })
+    )
+  );
+}
+
+function eventDistanceMiles(a: RiskEvent, b: RiskEvent): number | null {
+  const aPoint = point(a);
+  const bPoint = point(b);
+  if (!aPoint || !bPoint) return null;
+  if (a.polygon && b.geometryType === "Point") {
+    return pointToPolygonMiles(bPoint, a.polygon);
+  }
+  if (b.polygon && a.geometryType === "Point") {
+    return pointToPolygonMiles(aPoint, b.polygon);
+  }
+  return distanceMiles(aPoint, bPoint);
+}
+
+function supportsCrossSourceCorrelation(event: RiskEvent): boolean {
+  if (event.category === "Weather") {
+    return !/outlook/i.test(event.type);
+  }
+  if (event.category === "Coastal Water") {
+    return COASTAL_ALERT_SOURCES.has(event.source);
+  }
+  return true;
+}
+
 function canCorrelate(a: RiskEvent, b: RiskEvent): boolean {
   if (a.source === b.source && a.sourceEventId === b.sourceEventId) return true;
   if (a.source === b.source || a.category !== b.category) return false;
+  if (!supportsCrossSourceCorrelation(a) || !supportsCrossSourceCorrelation(b)) {
+    return false;
+  }
 
   const rule = CORRELATION_RULES[a.category];
-  const aPoint = point(a);
-  const bPoint = point(b);
+  const milesApart = eventDistanceMiles(a, b);
   const aTime = eventTime(a);
   const bTime = eventTime(b);
-  if (!rule || !aPoint || !bPoint || aTime == null || bTime == null) return false;
+  if (!rule || milesApart == null || aTime == null || bTime == null) return false;
 
   const hoursApart = Math.abs(aTime - bTime) / 3_600_000;
-  return hoursApart <= rule.hours && distanceMiles(aPoint, bPoint) <= rule.miles;
+  return hoursApart <= rule.hours && milesApart <= rule.miles;
 }
 
 function comparePrimary(a: RiskEvent, b: RiskEvent): number {
@@ -113,13 +176,35 @@ function createIncident(events: RiskEvent[]): RiskIncident {
 }
 
 export function buildRiskIncidents(events: RiskEvent[]): RiskIncident[] {
-  const groups: RiskEvent[][] = [];
-  for (const event of events) {
-    const matching = groups.find((group) => group.some((candidate) => canCorrelate(event, candidate)));
-    if (matching) matching.push(event);
-    else groups.push([event]);
+  const parents = events.map((_, index) => index);
+  const findRoot = (index: number): number => {
+    let root = index;
+    while (parents[root] !== root) root = parents[root];
+    while (parents[index] !== index) {
+      const parent = parents[index];
+      parents[index] = root;
+      index = parent;
+    }
+    return root;
+  };
+  const union = (a: number, b: number) => {
+    const aRoot = findRoot(a);
+    const bRoot = findRoot(b);
+    if (aRoot !== bRoot) parents[bRoot] = aRoot;
+  };
+
+  for (let a = 0; a < events.length; a += 1) {
+    for (let b = a + 1; b < events.length; b += 1) {
+      if (canCorrelate(events[a], events[b])) union(a, b);
+    }
   }
-  return groups.map(createIncident);
+
+  const groups = new Map<number, RiskEvent[]>();
+  events.forEach((event, index) => {
+    const root = findRoot(index);
+    groups.set(root, [...(groups.get(root) ?? []), event]);
+  });
+  return Array.from(groups.values()).map(createIncident);
 }
 
 export function incidentToEvent(incident: RiskIncident): RiskEvent {

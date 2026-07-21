@@ -29,7 +29,7 @@ The app calls public feeds directly from the browser:
 - USGS earthquake events
 - FEMA disaster declarations
 - NIFC ArcGIS wildfire incidents
-- SPC convective outlook polygons
+- SPC convective outlook polygons and preliminary observed storm reports
 - NHC active tropical cyclones
 - GDACS global disaster events
 - NASA EONET Earth observation events

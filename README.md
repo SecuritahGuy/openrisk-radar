@@ -94,7 +94,7 @@ This table reflects the current codebase. "Main dashboard" means the source is f
 | U.S. Geological Survey (USGS) | Global | Earthquakes by proximity | Main dashboard | `src/services/usgs.ts` |
 | Federal Emergency Management Agency (FEMA) | United States | Disaster declarations by state/county | Main dashboard, feed/detail; no event geometry | `src/services/fema.ts` |
 | National Interagency Fire Center (NIFC) | United States | Wildfires and prescribed burns by proximity | Main dashboard | `src/services/nifc.ts` |
-| Storm Prediction Center (SPC) | United States | Day 1-3 convective outlook polygons | Main dashboard | `src/services/spc.ts` |
+| Storm Prediction Center (SPC) | United States | Day 1-3 convective outlook polygons and preliminary observed tornado, hail, and wind reports | Main dashboard | `src/services/spc.ts`, `src/services/spcReports.ts` |
 | National Hurricane Center (NHC) | Atlantic and Eastern/Central Pacific | Active tropical cyclones | Main dashboard when active/in range | `src/services/nhc.ts` |
 | Global Disaster Alert and Coordination System (GDACS) | Global | Earthquakes, tropical cyclones, floods, volcanoes, wildfires, droughts | Main dashboard | `src/services/gdacs.ts` |
 | NASA EONET | Global | Earth observation natural events | Main dashboard | `src/services/eonet.ts` |

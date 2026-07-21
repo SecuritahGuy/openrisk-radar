@@ -32,6 +32,7 @@ interface UpdatePanelProps {
   stormEvents: RiskEvent[];
   wildfires: RiskEvent[];
   spcOutlooks: RiskEvent[];
+  spcReports: RiskEvent[];
   nhcStorms: RiskEvent[];
   gdacsEvents: RiskEvent[];
   eonetEvents: RiskEvent[];
@@ -82,6 +83,7 @@ export function UpdatePanel({
   stormEvents,
   wildfires,
   spcOutlooks,
+  spcReports,
   nhcStorms,
   gdacsEvents,
   eonetEvents,
@@ -210,6 +212,7 @@ export function UpdatePanel({
             earthquakes={earthquakes}
             wildfires={wildfires}
             spcOutlooks={spcOutlooks}
+            spcReports={spcReports}
             nhcStorms={nhcStorms}
             gdacsEvents={gdacsEvents}
             eonetEvents={eonetEvents}

@@ -217,6 +217,7 @@ export default function App() {
     stormEvents,
     wildfires,
     spcOutlooks,
+    spcReports,
     nhcStorms,
     gdacsEvents,
     eonetEvents,
@@ -736,6 +737,7 @@ export default function App() {
         stormEvents={stormEvents}
         wildfires={wildfires}
         spcOutlooks={spcOutlooks}
+        spcReports={spcReports}
         nhcStorms={nhcStorms}
         gdacsEvents={gdacsEvents}
         eonetEvents={eonetEvents}
