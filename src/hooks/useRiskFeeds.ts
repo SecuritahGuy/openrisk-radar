@@ -13,6 +13,7 @@ import {
 import { fetchStormEvents } from "../services/stormEvents";
 import { fetchWildfires } from "../services/nifc";
 import { fetchSpcOutlooks } from "../services/spc";
+import { fetchSpcStormReports } from "../services/spcReports";
 import { fetchNhcStorms } from "../services/nhc";
 import { fetchGdacsEvents } from "../services/gdacs";
 import { fetchEonetEvents } from "../services/eonet";
@@ -44,6 +45,7 @@ interface UseRiskFeedsResult {
   stormEvents: RiskEvent[];
   wildfires: RiskEvent[];
   spcOutlooks: RiskEvent[];
+  spcReports: RiskEvent[];
   nhcStorms: RiskEvent[];
   gdacsEvents: RiskEvent[];
   eonetEvents: RiskEvent[];
@@ -347,6 +349,15 @@ export function useRiskFeeds(
     retry: 1,
   });
 
+  const spcReportsQuery = useQuery<RiskEvent[]>({
+    queryKey: ["spc-reports", location?.latitude, location?.longitude, radius],
+    queryFn: () =>
+      fetchSpcStormReports(location!.latitude, location!.longitude, radius),
+    enabled: !!location && location.country === "USA",
+    staleTime: 300_000,
+    retry: 1,
+  });
+
   const nhcQuery = useQuery<RiskEvent[]>({
     queryKey: ["nhc-storms", location?.latitude, location?.longitude, radius],
     queryFn: () =>
@@ -578,6 +589,7 @@ export function useRiskFeeds(
   const stormEvents = stormEventsQuery.data ?? EMPTY_EVENTS;
   const wildfires = nifcQuery.data ?? EMPTY_EVENTS;
   const spcOutlooks = spcQuery.data ?? EMPTY_EVENTS;
+  const spcReports = spcReportsQuery.data ?? EMPTY_EVENTS;
   const nhcStorms = nhcQuery.data ?? EMPTY_EVENTS;
   const gdacsEvents = gdacsQuery.data ?? EMPTY_EVENTS;
   const eonetEvents = eonetQuery.data ?? EMPTY_EVENTS;
@@ -640,6 +652,7 @@ export function useRiskFeeds(
       ...stormEvents,
       ...wildfires,
       ...spcOutlooks,
+      ...spcReports,
       ...nhcStorms,
       ...gdacsEvents,
       ...eonetEvents,
@@ -654,6 +667,7 @@ export function useRiskFeeds(
       stormEvents,
       wildfires,
       spcOutlooks,
+      spcReports,
       nhcStorms,
       gdacsEvents,
       eonetEvents,
@@ -662,9 +676,9 @@ export function useRiskFeeds(
       supplementalEvents,
     ]
   );
-  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || meteoalarmQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || meteoalarmQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
-  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || meteoalarmQuery.isError || weatherQuery.isError || airQualityQuery.isError || marineQuery.isError || tsunamiQuery.isError || shakemapQuery.isError || ukFloodQuery.isError || riverQuery.isError || nwpsQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
+  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || spcReportsQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || meteoalarmQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || spcReportsQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || meteoalarmQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
+  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || spcReportsQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || meteoalarmQuery.isError || weatherQuery.isError || airQualityQuery.isError || marineQuery.isError || tsunamiQuery.isError || shakemapQuery.isError || ukFloodQuery.isError || riverQuery.isError || nwpsQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
@@ -679,6 +693,7 @@ export function useRiskFeeds(
   }
   if (nifcQuery.error) errors.push(`NIFC: ${nifcQuery.error.message}`);
   if (spcQuery.error) errors.push(`SPC: ${spcQuery.error.message}`);
+  if (spcReportsQuery.error) errors.push(`SPC Reports: ${spcReportsQuery.error.message}`);
   if (nhcQuery.error) errors.push(`NHC: ${nhcQuery.error.message}`);
   if (gdacsQuery.error) errors.push(`GDACS: ${gdacsQuery.error.message}`);
   if (eonetQuery.error) errors.push(`EONET: ${eonetQuery.error.message}`);
@@ -778,6 +793,18 @@ export function useRiskFeeds(
       count: spcOutlooks.length,
       liveDetail: `${spcOutlooks.length} outlook polygon${spcOutlooks.length !== 1 ? "s" : ""} nearby.`,
       emptyDetail: "No SPC outlook polygons nearby.",
+    }),
+    queryHealth({
+      id: "spc-reports",
+      label: "SPC Storm Reports",
+      enabled: locationEnabled && location?.country === "USA",
+      isLoading: spcReportsQuery.isLoading,
+      isFetching: spcReportsQuery.isFetching,
+      error: errorMessage(spcReportsQuery.error),
+      count: spcReports.length,
+      liveDetail: `${spcReports.length} preliminary observed storm report${spcReports.length !== 1 ? "s" : ""} nearby.`,
+      emptyDetail: "No preliminary SPC storm reports nearby today.",
+      disabledDetail: "Available for U.S. locations.",
     }),
     queryHealth({
       id: "nhc",
@@ -985,6 +1012,7 @@ export function useRiskFeeds(
     stormEvents,
     wildfires,
     spcOutlooks,
+    spcReports,
     nhcStorms,
     gdacsEvents,
     eonetEvents,
@@ -1006,6 +1034,7 @@ export function useRiskFeeds(
       femaRiskIndexQuery.refetch();
       nifcQuery.refetch();
       spcQuery.refetch();
+      spcReportsQuery.refetch();
       nhcQuery.refetch();
       gdacsQuery.refetch();
       eonetQuery.refetch();

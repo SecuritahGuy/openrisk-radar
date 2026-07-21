@@ -107,6 +107,7 @@ Statuses below reflect live HTTP + CORS + payload testing performed from the pro
 
 ## Next steps
 
-1. Validate Tier 1 top candidates (FIRMS, Blitzortung, WMO SWIC/GDC) for live behavior, CORS, and payload shape.
-2. Implement adapters following `ROADMAP.md` integration pattern (`src/services/<source>.ts`, `types`, `useRiskFeeds.ts`, `riskInsights.ts`, panels, `_headers`).
-3. Promote validated candidates to active sources and update `ROADMAP.md` + README tables.
+1. Select from validated, license-compatible candidates based on the active gaps in `ROADMAP.md`; do not revive rejected Blitzortung work without a new access and licensing review.
+2. Prefer no-key authoritative sources such as WHO Disease Outbreak News, Global Tsunami Monitor, GeoNet, or DWD when they fill a defined product gap.
+3. Implement adapters following the `ROADMAP.md` integration pattern (`src/services/<source>.ts`, types, `useRiskFeeds.ts`, risk insights, panels, and CSP headers).
+4. Add fixture-based normalization tests and update `ROADMAP.md` in the same change that promotes a source into the active dashboard.

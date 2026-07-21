@@ -26,10 +26,14 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | NWS alerts | United States | Active weather alerts | Main dashboard |
 | NWS observations | United States | Current conditions, hourly forecast fallback | Current conditions panel |
 | NWS overlay | United States | Forecast grid cell, hazards, heat risk, forecast/fire weather zones, stations | Optional map overlay |
+| Meteoalarm | Europe | National weather alerts normalized from Meteoalarm | Main dashboard where supported |
 | USGS earthquakes | Global | Earthquakes by proximity | Main dashboard |
+| EMSC | Global, Europe-focused | Earthquakes by proximity and felt-event context | Main dashboard |
 | FEMA declarations | United States | Disaster declarations by state/county | Main dashboard, no geometry |
+| NOAA Storm Events | United States | Historical severe-weather records | Historical context |
 | NIFC wildfires | United States | Wildfires and prescribed burns | Main dashboard |
 | SPC outlooks | United States | Day 1-3 convective outlook polygons | Main dashboard |
+| SPC storm reports | United States | Preliminary observed tornado, hail, and damaging-wind reports | Main dashboard |
 | NHC storms | Atlantic and Eastern/Central Pacific | Active tropical cyclones | Main dashboard when active/in range |
 | GDACS | Global | Earthquakes, cyclones, floods, volcanoes, wildfires, droughts | Main dashboard |
 | NASA EONET | Global | Earth observation natural events | Main dashboard |
@@ -37,10 +41,13 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | Nominatim | Global | Geocoding/reverse geocoding | Location resolution fallback |
 | USGS Water Services | United States | River conditions — discharge, gauge height, water temperature | Environmental signals panel |
 | NOAA CO-OPS | U.S. coasts + Great Lakes | Coastal water levels, flood thresholds | Environmental signals panel |
+| NOAA NWPS | United States | River forecasts and elevated gauge status | Main dashboard and environmental signals |
+| NOAA Tsunami | United States and territories | Active tsunami alerts | Main dashboard |
 | NOAA SWPC | Global | Kp index, DST, X-ray flares, solar flux | Environmental signals panel |
 | US Drought Monitor | United States | D0-D4 drought severity polygons | Environmental signals panel |
-| EMSC | Global | Earthquakes by proximity (European complement) | Service ready, not yet in UI |
-| USGS Volcanoes | United States | Volcano alert levels (WATCH/ADVISORY/NORMAL) | Service ready, not yet in UI |
+| USGS ShakeMap | Global | Shaking-intensity context for significant earthquakes | Environmental signals panel |
+| USGS Volcanoes | United States | Volcano alert levels (WATCH/ADVISORY/NORMAL) | Main dashboard and environmental signals |
+| UK Environment Agency | England | Active flood warnings | Main dashboard |
 | Smithsonian GVP | Global | Holocene volcano reference database | Service ready, not yet in UI |
 
 ### Web priorities
@@ -62,9 +69,10 @@ The current Cloudflare watch/audit implementation is experimental research. It i
 
 | Area | Why It Matters | Notes |
 |------|----------------|-------|
-| Add provider-aware deduplication | Several sources can describe the same hazard | Prioritize authoritative local source, preserve cross-source references |
-| Add focused tests around adapters | Normalization and severity mapping are high-value deterministic logic | Keep tests source-specific and stable |
-| Add real project imagery | README hero, Open Graph image, repository social preview | Required for polished public presentation |
+| Expand provider-aware incident correlation | The canonical incident layer handles selected categories, but related records can still remain separate | Add order-independent grouping, more category rules, authoritative-source preference, and contributor preservation |
+| Add focused tests around adapters | Normalization and severity mapping are high-value deterministic logic | Prioritize authoritative adapters that still lack fixture-based contract tests |
+| Add the next validated authoritative source | New integrations should fill a defined product gap without weakening attribution or reliability | Prefer candidates from the researched backlog with no key and clear licensing |
+| Keep roadmap status aligned with shipped code | Multiple source integrations have moved quickly | Treat this file as canonical and update source status in the same PR as integration work |
 
 ### Investigated / Confirmed — Next Integration Candidates
 
@@ -76,8 +84,8 @@ The current Cloudflare watch/audit implementation is experimental research. It i
 | NOAA CO-OPS | U.S. coasts + Great Lakes | Water levels, tides, coastal flood thresholds, storm surge, meteorological obs | **Coastal flood risk** — complements river flooding. Storm surge and high tide flood data. | ✅ Done |
 | NOAA SWPC | Global | Solar flares, geomagnetic Kp index, solar wind, aurora, radio blackout | **Space weather** — GPS disruption, power grid risk, radio blackout. Zero integration cost. | ✅ Done |
 | US Drought Monitor | United States | D0-D4 drought severity weekly polygons and county-level stats | **Drought** — widely referenced standard for dry conditions, wildfire fuel assessment. | ✅ Done |
-| SPC Storm Reports | United States | Observed tornado/hail/wind reports with lat/lon, size, fatalities | **Confirmed severe weather** — shows *actual* events vs. forecast outlooks already shown. | Ready for service |
-| Blitzortung Lightning | Global (community network) | Real-time cloud-to-ground lightning strikes, seconds latency | **Lightning** — entirely new hazard dimension not covered by any current source. | Ready for service (WebSocket) |
+| SPC Storm Reports | United States | Preliminary tornado, hail, and wind reports with location and available magnitude | **Confirmed severe weather** — shows *actual* events vs. forecast outlooks already shown. | ✅ Done |
+| Blitzortung Lightning | Global (community network) | Real-time cloud-to-ground lightning strikes, seconds latency | **Lightning** — entirely new hazard dimension not covered by any current source. | Rejected: inaccessible endpoints and incompatible non-commercial licensing |
 
 #### Tier 2 — High Value (May Need Free Key or More Integration)
 
