@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { CurrentWeather } from "../services/weather";
 import type { Location, RadiusOption } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
@@ -74,6 +75,8 @@ export function SavedLocationOverview({
   onSelect,
   onShareActiveView,
 }: SavedLocationOverviewProps) {
+  const [collapsed, setCollapsed] = useState(false);
+
   if (savedLocations.length === 0) return null;
 
   const activeWatch = activeLocation ? watchPreferencesFor(activeLocation) : null;
@@ -133,7 +136,12 @@ export function SavedLocationOverview({
 
   return (
     <section className="saved-location-overview" style={styles.container}>
-      <div style={styles.header}>
+      <div
+        style={{
+          ...styles.header,
+          ...(collapsed ? styles.headerCollapsed : {}),
+        }}
+      >
         <div>
           <div style={styles.eyebrow}>Saved location overview</div>
           <div style={styles.title}>
@@ -141,17 +149,36 @@ export function SavedLocationOverview({
             {savedLocations.length !== 1 ? "s" : ""}
           </div>
         </div>
-        {activeLocation && (
+        <div style={styles.headerActions}>
+          {activeLocation && !collapsed && (
+            <button
+              type="button"
+              style={styles.shareBtn}
+              onClick={() => void onShareActiveView()}
+            >
+              Share active
+            </button>
+          )}
           <button
             type="button"
-            style={styles.shareBtn}
-            onClick={() => void onShareActiveView()}
+            style={styles.collapseBtn}
+            onClick={() => setCollapsed((current) => !current)}
+            aria-expanded={!collapsed}
+            aria-controls="saved-location-overview-content"
+            title={collapsed ? "Show monitored places" : "Hide monitored places"}
           >
-            Share active
+            {collapsed ? "Show" : "Hide"}
           </button>
-        )}
+        </div>
       </div>
-      <div style={styles.cardRow}>
+      <div
+        id="saved-location-overview-content"
+        style={{
+          ...styles.cardRow,
+          ...(collapsed ? styles.cardRowHidden : {}),
+        }}
+        hidden={collapsed}
+      >
         {sortedLocations.map((loc) => {
           const active = loc.id === activeLocation?.id;
           const summary = summaryByLocationId.get(loc.id);
@@ -293,6 +320,14 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 10,
     marginBottom: 8,
   },
+  headerCollapsed: {
+    marginBottom: 0,
+  },
+  headerActions: {
+    alignItems: "center",
+    display: "flex",
+    gap: 6,
+  },
   eyebrow: {
     color: "#607d8b",
     fontSize: 10,
@@ -316,10 +351,24 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "6px 8px",
     whiteSpace: "nowrap",
   },
+  collapseBtn: {
+    border: "1px solid #bbdefb",
+    borderRadius: 6,
+    background: "#e3f2fd",
+    color: "#1565c0",
+    cursor: "pointer",
+    fontSize: 11,
+    fontWeight: 900,
+    padding: "6px 8px",
+    whiteSpace: "nowrap",
+  },
   cardRow: {
     display: "grid",
     gap: 8,
     gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+  },
+  cardRowHidden: {
+    display: "none",
   },
   card: {
     background: "#fff",
