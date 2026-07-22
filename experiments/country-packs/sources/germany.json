@@ -9,14 +9,14 @@
       "capability": "environmental-health",
       "outputModel": "risk-event",
       "access": "public",
-      "format": "json",
-      "endpoint": "https://s3.eu-central-1.amazonaws.com/app-prod-static.warnwetter.de/v16/warnings_nowcast.json",
-      "refreshSeconds": 600,
+      "format": "geojson",
+      "endpoint": "https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=dwd:Warnungen_Gemeinden_vereinigt&outputFormat=application/json&srsName=EPSG:4326",
+      "refreshSeconds": 300,
       "proxyRequired": false,
       "attribution": "Deutscher Wetterdienst",
       "termsUrl": "https://www.dwd.de/DE/wetter/warnungen_aktuell/",
-      "status": "discovered",
-      "notes": "DWD nowcast weather warnings JSON (static S3 bucket). Updated every 10 minutes. Also warnings by municipality at dwd.de/DWD/warnungen/warnapp/warnungen_gemeinde.jsonp and English version at /warnings_nowcast_en.json."
+      "status": "integrated",
+      "notes": "Official DWD WFS warning polygons. The production adapter activates for resolved German locations, bounds WFS queries to the selected radius, performs client-side polygon proximity filtering, and deduplicates split warning geometries."
     },
     {
       "id": "de-dwd-warnings-coast",

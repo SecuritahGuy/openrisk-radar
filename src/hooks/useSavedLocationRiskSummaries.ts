@@ -11,6 +11,7 @@ import { fetchGdacsEvents } from "../services/gdacs";
 import { fetchEonetEvents } from "../services/eonet";
 import { fetchEmscEvents } from "../services/emsc";
 import { fetchGeoNetQuakes, fetchGeoNetVolcanoAlerts, supportsGeoNet } from "../services/geonet";
+import { fetchDwdWarnings, supportsDwd } from "../services/dwd";
 import { fetchMeteoalarmAlerts, supportsMeteoalarm } from "../services/meteoalarm";
 import { fetchRegionalEvents, supportsRegionalSources } from "../services/regionalSources";
 import { fetchTransportationEvents } from "../services/transportation";
@@ -111,7 +112,7 @@ async function fetchSavedLocationSummary(
   const radiusMiles = location.radiusMiles || 50;
   const radiusKm = toRadiusKm(radiusMiles);
   const resolvedLocation = toResolvedLocation(location);
-  const [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, geonet, geonetVolcanoes, meteoalarm, weather] = await Promise.all([
+  const [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, geonet, geonetVolcanoes, dwd, meteoalarm, weather] = await Promise.all([
     settleEvents(
       "NWS",
       location.country === "USA"
@@ -185,6 +186,12 @@ async function fetchSavedLocationSummary(
         : Promise.resolve([])
     ),
     settleEvents(
+      "DWD",
+      supportsDwd(resolvedLocation)
+        ? fetchDwdWarnings(location.latitude, location.longitude, radiusKm)
+        : Promise.resolve([])
+    ),
+    settleEvents(
       "Meteoalarm",
       supportsMeteoalarm(resolvedLocation)
         ? fetchMeteoalarmAlerts(resolvedLocation)
@@ -193,7 +200,7 @@ async function fetchSavedLocationSummary(
     settleWeather(location),
   ]);
 
-  const eventResults = [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, geonet, geonetVolcanoes, meteoalarm];
+  const eventResults = [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, geonet, geonetVolcanoes, dwd, meteoalarm];
   const incidents = canonicalIncidentEvents(
     eventResults.flatMap((result) => result.events)
   );

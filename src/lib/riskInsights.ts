@@ -24,6 +24,7 @@ export const EVENT_SOURCES: EventSource[] = [
   "COOPS",
   "SPACE_WEATHER",
   "METEOALARM",
+  "DWD",
   "REGIONAL",
   "USDOT",
 ];

@@ -76,6 +76,7 @@ OpenRisk Radar brings authoritative feeds into a single geospatial workflow. It 
 - Interactive Leaflet map with radius rings, event markers, alert polygons, and optional NWS weather overlays.
 - Real-time source adapters for official government and public hazard feeds.
 - Automatic GeoNet earthquake and elevated volcanic-alert coverage for resolved New Zealand locations.
+- Automatic DWD official warning coverage for resolved German locations, filtered to the selected radius.
 - Normalized `RiskEvent` model for source, category, severity, timing, geometry, confidence, and attribution.
 - Severity and impact classification for quick triage.
 - Feed explorer with sorting by priority, source, category, severity, impact, distance, expiration, and update time.
@@ -92,6 +93,7 @@ This table reflects the current codebase. "Main dashboard" means the source is f
 | National Weather Service (NWS) | United States | Active weather alerts by state | Main dashboard | `src/services/nws.ts` |
 | NWS observations and forecast fallback | United States | Current conditions from stations, hourly forecast fallback | Current conditions panel | `src/services/weather.ts` |
 | NWS weather overlay | United States | Forecast grid cell, hazards, heat risk, forecast zones, fire weather zones, nearby stations | Optional map overlay | `src/services/nwsWeatherOverlay.ts` |
+| Deutscher Wetterdienst (DWD) | Germany | Official severe-weather warning polygons | Main dashboard when a resolved German location and selected radius apply | `src/services/dwd.ts` |
 | U.S. Geological Survey (USGS) | Global | Earthquakes by proximity | Main dashboard | `src/services/usgs.ts` |
 | Federal Emergency Management Agency (FEMA) | United States | Disaster declarations by state/county | Main dashboard, feed/detail; no event geometry | `src/services/fema.ts` |
 | National Interagency Fire Center (NIFC) | United States | Wildfires and prescribed burns by proximity | Main dashboard | `src/services/nifc.ts` |
