@@ -29,6 +29,8 @@ const SOURCE_PRIORITY: Record<EventSource, number> = {
   GTM: 60,
   DWD: 100,
   GEONET: 80,
+  REGIONAL: 98,
+  USDOT: 90,
 };
 
 const CORRELATION_RULES: Partial<Record<EventCategory, { miles: number; hours: number }>> = {
@@ -39,6 +41,7 @@ const CORRELATION_RULES: Partial<Record<EventCategory, { miles: number; hours: n
   Volcanic: { miles: 40, hours: 24 * 7 },
   "River Gauge": { miles: 3, hours: 6 },
   "Coastal Water": { miles: 80, hours: 12 },
+  Transportation: { miles: 1, hours: 12 },
 };
 
 const COASTAL_ALERT_SOURCES = new Set<EventSource>([
@@ -110,9 +113,14 @@ function supportsCrossSourceCorrelation(event: RiskEvent): boolean {
   return true;
 }
 
+function providerIdentity(event: RiskEvent): string {
+  return event.provider?.id ?? event.source;
+}
+
 function canCorrelate(a: RiskEvent, b: RiskEvent): boolean {
-  if (a.source === b.source && a.sourceEventId === b.sourceEventId) return true;
-  if (a.source === b.source || a.category !== b.category) return false;
+  const sameProvider = providerIdentity(a) === providerIdentity(b);
+  if (sameProvider && a.sourceEventId === b.sourceEventId) return true;
+  if (sameProvider || a.category !== b.category) return false;
   if (!supportsCrossSourceCorrelation(a) || !supportsCrossSourceCorrelation(b)) {
     return false;
   }
@@ -132,7 +140,11 @@ function comparePrimary(a: RiskEvent, b: RiskEvent): number {
   if (priority !== 0) return priority;
   const severity = severityRank(b.severity) - severityRank(a.severity);
   if (severity !== 0) return severity;
-  return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  const updated = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  if (updated !== 0) return updated;
+  return `${providerIdentity(a)}:${a.sourceEventId}`.localeCompare(
+    `${providerIdentity(b)}:${b.sourceEventId}`
+  );
 }
 
 function stableHash(value: string): string {
@@ -165,7 +177,7 @@ function createIncident(events: RiskEvent[]): RiskIncident {
     severity: [...events].sort(
       (a, b) => severityRank(b.severity) - severityRank(a.severity)
     )[0].severity,
-    agreement: sources.length > 1 ? "corroborated" : "single-source",
+    agreement: new Set(events.map(providerIdentity)).size > 1 ? "corroborated" : "single-source",
     sources,
     startedAt: validIso(events.map((event) => event.startedAt), "min") ?? primaryEvent.startedAt,
     updatedAt: validIso(events.map((event) => event.updatedAt), "max") ?? primaryEvent.updatedAt,
@@ -204,7 +216,9 @@ export function buildRiskIncidents(events: RiskEvent[]): RiskIncident[] {
     const root = findRoot(index);
     groups.set(root, [...(groups.get(root) ?? []), event]);
   });
-  return Array.from(groups.values()).map(createIncident);
+  return Array.from(groups.values())
+    .map(createIncident)
+    .sort((a, b) => a.id.localeCompare(b.id));
 }
 
 export function incidentToEvent(incident: RiskIncident): RiskEvent {
@@ -213,8 +227,10 @@ export function incidentToEvent(incident: RiskIncident): RiskEvent {
     agreement: incident.agreement,
     eventCount: incident.events.length,
     sources: incident.sources,
+    providerCount: new Set(incident.events.map(providerIdentity)).size,
     contributors: incident.events.map((event) => ({
       source: event.source,
+      provider: event.provider,
       sourceEventId: event.sourceEventId,
       headline: event.headline,
       updatedAt: event.updatedAt,

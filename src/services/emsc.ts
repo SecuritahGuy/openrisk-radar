@@ -1,7 +1,9 @@
 import { newEventId } from "../lib/ids";
+import { readJsonResponse } from "../lib/http";
 import type { RiskEvent, Severity } from "../types/riskEvent";
 
 const BASE = "https://www.seismicportal.eu/fdsnws/event/1/query";
+const PROXY = "/api/emsc";
 
 export interface EmscProperties {
   source_id: string;
@@ -108,14 +110,9 @@ export async function fetchEmscEvents(
     limit: "200",
   });
 
-  const url = `${BASE}?${params}`;
+  const url = `${import.meta.env.PROD ? PROXY : BASE}?${params}`;
   const res = await fetch(url);
-  if (!res.ok) {
-    const body = await res.text().catch(() => "(no body)");
-    throw new Error(`EMSC API returned ${res.status}: ${body}`);
-  }
-
-  const data: EmscResponse = await res.json();
+  const data = await readJsonResponse<EmscResponse>(res, "EMSC API");
   if (!data.features || data.features.length === 0) return [];
 
   return data.features

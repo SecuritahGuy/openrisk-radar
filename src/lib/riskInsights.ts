@@ -13,6 +13,7 @@ export const EVENT_SOURCES: EventSource[] = [
   "VOLCANO",
   "DROUGHT",
   "EMSC",
+  "GEONET",
   "FEMA",
   "NIFC",
   "SPC",
@@ -22,6 +23,10 @@ export const EVENT_SOURCES: EventSource[] = [
   "AIRNOW",
   "COOPS",
   "SPACE_WEATHER",
+  "METEOALARM",
+  "DWD",
+  "REGIONAL",
+  "USDOT",
 ];
 export const EVENT_SEVERITIES: Severity[] = [
   "Extreme",
@@ -101,6 +106,8 @@ export function defaultSourceFilters(): SourceFilters {
     GTM: true,
     DWD: true,
     GEONET: true,
+    REGIONAL: true,
+    USDOT: true,
   };
 }
 
@@ -165,6 +172,10 @@ export function sourceColor(source: EventSource): string {
       return "#1565c0";
     case "GEONET":
       return "#2e7d32";
+    case "REGIONAL":
+      return "#ad1457";
+    case "USDOT":
+      return "#37474f";
   }
 }
 
@@ -195,8 +206,14 @@ export function sourceLabel(source: EventSource): string {
     GTM: "Global Tsunami Monitor",
     DWD: "Deutscher Wetterdienst",
     GEONET: "GeoNet New Zealand",
+    REGIONAL: "State and Local Agencies",
+    USDOT: "State Transportation Data",
   };
   return labels[source];
+}
+
+export function eventSourceLabel(event: Pick<RiskEvent, "source" | "provider">): string {
+  return event.provider?.label ?? sourceLabel(event.source);
 }
 
 export function severityColor(severity: Severity): string {

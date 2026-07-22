@@ -1,5 +1,6 @@
 import { newEventId } from "../lib/ids";
 import { readJsonResponse } from "../lib/http";
+import { parseNoaaTsunamiJson } from "../lib/noaaTsunamiJson";
 import type { SupplementalRiskSignal, SupplementalMetric } from "../types/supplementalRisk";
 import type { Severity } from "../types/riskEvent";
 
@@ -63,11 +64,7 @@ function tsunamiSeverity(segmentCategory: string): Severity {
 }
 
 function parsePayload(text: string): TsunamiResponse {
-  const trimmed = text.trim()
-    .replace(/^\(/, "")
-    .replace(/\);?$/, "")
-    .replace(/,\s*([}\]])/g, "$1");
-  return JSON.parse(trimmed) as TsunamiResponse;
+  return parseNoaaTsunamiJson<TsunamiResponse>(text);
 }
 
 function isActiveSegment(category: string): boolean {

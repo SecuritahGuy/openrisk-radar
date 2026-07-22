@@ -10,7 +10,11 @@ import { fetchNhcStorms } from "../services/nhc";
 import { fetchGdacsEvents } from "../services/gdacs";
 import { fetchEonetEvents } from "../services/eonet";
 import { fetchEmscEvents } from "../services/emsc";
+import { fetchGeoNetQuakes, fetchGeoNetVolcanoAlerts, supportsGeoNet } from "../services/geonet";
+import { fetchDwdWarnings, supportsDwd } from "../services/dwd";
 import { fetchMeteoalarmAlerts, supportsMeteoalarm } from "../services/meteoalarm";
+import { fetchRegionalEvents, supportsRegionalSources } from "../services/regionalSources";
+import { fetchTransportationEvents } from "../services/transportation";
 import type { Location, RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import {
@@ -108,10 +112,12 @@ async function fetchSavedLocationSummary(
   const radiusMiles = location.radiusMiles || 50;
   const radiusKm = toRadiusKm(radiusMiles);
   const resolvedLocation = toResolvedLocation(location);
-  const [nws, usgs, nifc, spc, nhc, gdacs, eonet, emsc, meteoalarm, weather] = await Promise.all([
+  const [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, geonet, geonetVolcanoes, dwd, meteoalarm, weather] = await Promise.all([
     settleEvents(
       "NWS",
-      fetchNwsAlertsForPoint(location.latitude, location.longitude)
+      location.country === "USA"
+        ? fetchNwsAlertsForPoint(location.latitude, location.longitude)
+        : Promise.resolve([])
     ),
     settleEvents(
       "USGS",
@@ -119,11 +125,37 @@ async function fetchSavedLocationSummary(
     ),
     settleEvents(
       "NIFC",
-      fetchWildfires(location.latitude, location.longitude, radiusKm)
+      location.country === "USA"
+        ? fetchWildfires(location.latitude, location.longitude, radiusKm)
+        : Promise.resolve([])
+    ),
+    settleEvents(
+      "Regional agencies",
+      location.country === "USA" && supportsRegionalSources(location.state)
+        ? fetchRegionalEvents(
+            location.state,
+            location.latitude,
+            location.longitude,
+            radiusKm
+          ).then((result) => result.events)
+        : Promise.resolve([])
+    ),
+    settleEvents(
+      "Transportation",
+      location.country === "USA"
+        ? fetchTransportationEvents(
+            location.state,
+            location.latitude,
+            location.longitude,
+            radiusKm
+          ).then((result) => result.events)
+        : Promise.resolve([])
     ),
     settleEvents(
       "SPC",
-      fetchSpcOutlooks(location.latitude, location.longitude, radiusMiles)
+      location.country === "USA"
+        ? fetchSpcOutlooks(location.latitude, location.longitude, radiusMiles)
+        : Promise.resolve([])
     ),
     settleEvents(
       "NHC",
@@ -142,6 +174,24 @@ async function fetchSavedLocationSummary(
       fetchEmscEvents(location.latitude, location.longitude, radiusKm)
     ),
     settleEvents(
+      "GeoNet",
+      supportsGeoNet(resolvedLocation)
+        ? fetchGeoNetQuakes(location.latitude, location.longitude, radiusKm)
+        : Promise.resolve([])
+    ),
+    settleEvents(
+      "GeoNet volcanoes",
+      supportsGeoNet(resolvedLocation)
+        ? fetchGeoNetVolcanoAlerts(location.latitude, location.longitude, radiusKm)
+        : Promise.resolve([])
+    ),
+    settleEvents(
+      "DWD",
+      supportsDwd(resolvedLocation)
+        ? fetchDwdWarnings(location.latitude, location.longitude, radiusKm)
+        : Promise.resolve([])
+    ),
+    settleEvents(
       "Meteoalarm",
       supportsMeteoalarm(resolvedLocation)
         ? fetchMeteoalarmAlerts(resolvedLocation)
@@ -150,7 +200,7 @@ async function fetchSavedLocationSummary(
     settleWeather(location),
   ]);
 
-  const eventResults = [nws, usgs, nifc, spc, nhc, gdacs, eonet, emsc, meteoalarm];
+  const eventResults = [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, geonet, geonetVolcanoes, dwd, meteoalarm];
   const incidents = canonicalIncidentEvents(
     eventResults.flatMap((result) => result.events)
   );

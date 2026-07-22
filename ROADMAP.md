@@ -28,10 +28,14 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | NWS overlay | United States | Forecast grid cell, hazards, heat risk, forecast/fire weather zones, stations | Optional map overlay |
 | Meteoalarm | Europe | National weather alerts normalized from Meteoalarm | Main dashboard where supported |
 | USGS earthquakes | Global | Earthquakes by proximity | Main dashboard |
-| EMSC | Global, Europe-focused | Earthquakes by proximity and felt-event context | Main dashboard |
+| EMSC | Global, Europe-focused | Earthquakes by proximity and felt-event context | Main dashboard through a cached Worker proxy |
+| GeoNet | New Zealand | Authoritative local earthquake catalog and elevated volcanic alert levels | Main dashboard, activated automatically for resolved New Zealand locations |
+| DWD | Germany | Official severe-weather warning polygons | Main dashboard, activated automatically for resolved German locations and filtered by radius |
 | FEMA declarations | United States | Disaster declarations by state/county | Main dashboard, no geometry |
 | NOAA Storm Events | United States | Historical severe-weather records | Historical context |
 | NIFC wildfires | United States | Wildfires and prescribed burns | Main dashboard |
+| Selected state agencies | CA, FL, OR, NY, WI | Local wildfire incidents, evacuation zones, HAB reports, and beach advisories | Main dashboard, activated automatically by resolved state |
+| USDOT WZDx / state DOTs | Participating U.S. states | Active and near-term road work, lane impacts, and closures | Main dashboard and map, activated automatically by resolved state and radius |
 | SPC outlooks | United States | Day 1-3 convective outlook polygons | Main dashboard |
 | SPC storm reports | United States | Preliminary observed tornado, hail, and damaging-wind reports | Main dashboard |
 | NHC storms | Atlantic and Eastern/Central Pacific | Active tropical cyclones | Main dashboard when active/in range |
@@ -42,7 +46,7 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | USGS Water Services | United States | River conditions — discharge, gauge height, water temperature | Environmental signals panel |
 | NOAA CO-OPS | U.S. coasts + Great Lakes | Coastal water levels, flood thresholds | Environmental signals panel |
 | NOAA NWPS | United States | River forecasts and elevated gauge status | Main dashboard and environmental signals |
-| NOAA Tsunami | United States and territories | Active tsunami alerts | Main dashboard |
+| NOAA Tsunami | United States and territories | Active tsunami alerts | Main dashboard; malformed upstream numeric tokens are repaired defensively |
 | NOAA SWPC | Global | Kp index, DST, X-ray flares, solar flux | Environmental signals panel |
 | US Drought Monitor | United States | D0-D4 drought severity polygons | Environmental signals panel |
 | USGS ShakeMap | Global | Shaking-intensity context for significant earthquakes | Environmental signals panel |
@@ -69,8 +73,8 @@ The current Cloudflare watch/audit implementation is experimental research. It i
 
 | Area | Why It Matters | Notes |
 |------|----------------|-------|
-| Expand provider-aware incident correlation | The canonical incident layer handles selected categories, but related records can still remain separate | Add order-independent grouping, more category rules, authoritative-source preference, and contributor preservation |
-| Add focused tests around adapters | Normalization and severity mapping are high-value deterministic logic | Prioritize authoritative adapters that still lack fixture-based contract tests |
+| Expand provider-aware incident correlation | The canonical incident layer now groups transitively and deterministically, distinguishes providers behind shared source families, prefers authoritative sources, and preserves contributors | Continue adding category-specific rules only where provider semantics support them |
+| Add focused tests around adapters | Normalization and severity mapping are high-value deterministic logic | GeoNet and DWD now have activation, normalization, severity, and radius coverage; continue with remaining authoritative adapters |
 | Add the next validated authoritative source | New integrations should fill a defined product gap without weakening attribution or reliability | Prefer candidates from the researched backlog with no key and clear licensing |
 | Keep roadmap status aligned with shipped code | Multiple source integrations have moved quickly | Treat this file as canonical and update source status in the same PR as integration work |
 
@@ -95,7 +99,7 @@ The current Cloudflare watch/audit implementation is experimental research. It i
 | EPA AirNow / OpenAQ | U.S. / Global | Air quality AQI by ZIP/latlon, multi-pollutant | More granular than Open-Meteo for US; OpenAQ adds 200+ countries | Free key / No key | Pending |
 | EMSC | Europe-Mediterranean + global | Earthquake data, felt reports, community-sourced | Complements USGS with European focus and felt intensity reports | No | ✅ Done |
 | Smithsonian GVP | Global | Volcanic activity reports, weekly updates | Authoritative volcano data beyond GDACS alerts | No | ✅ Done |
-| ReliefWeb | Global | Curated humanitarian disaster reports, situation reports | Adds humanitarian context to natural hazard data | No | Pending |
+| ReliefWeb | Global | Curated humanitarian disaster reports, situation reports | Adds humanitarian context to natural hazard data | Pre-approved appname | Blocked: anonymous v2 requests return 403 until an appname is approved |
 | JTWC | Indian Ocean + West Pacific | Tropical cyclone warnings beyond NHC basins | Covers basins NHC doesn't (Asia-Pacific) | No | Pending |
 
 #### Tier 3 — Niche But Valuable

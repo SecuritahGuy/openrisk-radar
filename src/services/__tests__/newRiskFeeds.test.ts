@@ -46,6 +46,25 @@ describe("NOAA tsunami feed", () => {
     } as Response);
     expect(await fetchTsunamiEvents()).toEqual([]);
   });
+
+  it("repairs NOAA's trailing-decimal coordinates without changing strings", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-14T12:00:00Z"));
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      text: async () => `({"items":[{"TWCID":"PAAQ","eventMagnitude":7,
+        "eventMagnitudeType":"M","eventDepth":10,"eventLat":44.,"eventLon":-93.,
+        "originTime":"2026-07-14T09:00:00Z","bulletinIssueTime":"2026-07-14T10:00:00Z",
+        "quakeLocation":"Text ending in 93., stays intact","twcEventID":"test","bulletinNr":"1",
+        "segments":[{"id":1,"category":"Watch","headline":"Tsunami watch",
+        "recommendedActions":"Monitor updates.","productDefinition":""}],"observations":[]}]})`,
+    } as Response);
+
+    const signals = await fetchTsunamiEvents();
+    expect(signals).toHaveLength(1);
+    expect(signals[0].geometry).toEqual({ type: "Point", latitude: 44, longitude: -93 });
+    expect((signals[0].raw.quakeLocation)).toBe("Text ending in 93., stays intact");
+  });
 });
 
 describe("UK Environment Agency flood feed", () => {

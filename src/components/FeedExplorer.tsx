@@ -7,6 +7,7 @@ import {
   distanceMiles,
   EVENT_SEVERITIES,
   EVENT_SOURCES,
+  eventSourceLabel,
   expiresLabel,
   formatDistance,
   severityColor,
@@ -415,7 +416,7 @@ export function FeedExplorer({
                       background: sourceColor(evt.source),
                     }}
                   >
-                    {sourceLabel(evt.source)}
+                    {eventSourceLabel(evt)}
                   </span>
                 </span>
                 <span style={styles.colType}>{evt.type}</span>
@@ -460,7 +461,7 @@ export function FeedExplorer({
                       background: sourceColor(evt.source),
                     }}
                   >
-                    {sourceLabel(evt.source)}
+                    {eventSourceLabel(evt)}
                   </span>
                   <SeverityBadge severity={evt.severity} />
                   <ImpactBadge event={evt} location={location} radius={radius} />

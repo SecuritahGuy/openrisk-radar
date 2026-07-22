@@ -3,6 +3,20 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      "/api/regional/cal-fire": {
+        target: "https://incidents.fire.ca.gov",
+        changeOrigin: true,
+        rewrite: () => "/umbraco/api/incidentapi/List",
+      },
+      "/api/emsc": {
+        target: "https://www.seismicportal.eu",
+        changeOrigin: true,
+        rewrite: () => "/fdsnws/event/1/query",
+      },
+    },
+  },
   build: {
     rollupOptions: {
       output: {

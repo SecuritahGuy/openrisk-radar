@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { RiskEvent } from "../types/riskEvent";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
 import { assessImpact, impactColor } from "../lib/impactInsights";
-import { concernContextLabel, sourceLabel } from "../lib/riskInsights";
+import { concernContextLabel, eventSourceLabel } from "../lib/riskInsights";
 import { incidentMetadata } from "../lib/incidents";
 
 interface EventDetailPanelProps {
@@ -383,7 +383,7 @@ export function EventDetailPanel({
 
     const lines = [
       `OpenRisk Radar Event Detail`,
-      `${sourceLabel(event.source)} · ${event.type} · ${event.severity} · ${impact.label}`,
+      `${eventSourceLabel(event)} · ${event.type} · ${event.severity} · ${impact.label}`,
       event.headline,
       event.description ? `Description: ${event.description}` : null,
       `Impact: ${impact.detail}`,
@@ -473,7 +473,7 @@ export function EventDetailPanel({
                 background: sourceColor(event.source),
               }}
             >
-              {sourceLabel(event.source)}
+              {eventSourceLabel(event)}
             </span>
             <span style={styles.headerType}>{event.type}</span>
             <span style={severityStyle(event.severity)}>{event.severity}</span>
@@ -525,18 +525,18 @@ export function EventDetailPanel({
             <DetailRow
               label="Agreement"
               value={incident.agreement === "corroborated"
-                ? `Corroborated by ${incident.sources.length} sources`
+                ? `Corroborated by ${incident.providerCount} providers`
                 : "Single official source"}
             />
             <DetailRow label="Incident ID" value={incident.id} />
             <div style={styles.contributorList}>
               {incident.contributors.map((contributor) => (
                 <div
-                  key={`${contributor.source}:${contributor.sourceEventId}`}
+                  key={`${contributor.provider?.id ?? contributor.source}:${contributor.sourceEventId}`}
                   style={styles.contributor}
                 >
                   <span style={{ ...styles.contributorSource, color: sourceColor(contributor.source) }}>
-                    {sourceLabel(contributor.source)}
+                    {eventSourceLabel(contributor)}
                   </span>
                   <span style={styles.contributorHeadline}>{contributor.headline}</span>
                   <span style={styles.contributorTime}>{formatTime(contributor.updatedAt)}</span>

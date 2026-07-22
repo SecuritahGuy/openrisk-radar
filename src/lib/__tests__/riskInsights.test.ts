@@ -121,6 +121,8 @@ describe("riskInsights", () => {
       GTM: true,
       DWD: true,
       GEONET: true,
+      REGIONAL: true,
+      USDOT: true,
     };
     const severityFilters: SeverityFilters = {
       Extreme: true,

@@ -12,6 +12,9 @@ interface SignalSummaryPanelProps {
   gdacsEvents: RiskEvent[];
   eonetEvents: RiskEvent[];
   emscEvents: RiskEvent[];
+  geonetEvents: RiskEvent[];
+  geonetVolcanoEvents: RiskEvent[];
+  dwdEvents: RiskEvent[];
   supplementalSignals: SupplementalRiskSignal[];
   isFetching: boolean;
 }
@@ -72,6 +75,9 @@ export function SignalSummaryPanel({
   gdacsEvents,
   eonetEvents,
   emscEvents,
+  geonetEvents,
+  geonetVolcanoEvents,
+  dwdEvents,
   supplementalSignals,
   isFetching,
 }: SignalSummaryPanelProps) {
@@ -116,6 +122,21 @@ export function SignalSummaryPanel({
           {emscEvents.length > 0
             ? `${emscEvents.length} EMSC earthquake${emscEvents.length !== 1 ? "s" : ""} nearby`
             : "No EMSC earthquakes nearby"}
+        </SignalLine>
+        <SignalLine active={geonetEvents.length > 0} color="#2e7d32">
+          {geonetEvents.length > 0
+            ? `${geonetEvents.length} GeoNet earthquake${geonetEvents.length !== 1 ? "s" : ""} nearby`
+            : "No GeoNet earthquakes nearby"}
+        </SignalLine>
+        <SignalLine active={geonetVolcanoEvents.length > 0} color="#8d6e63">
+          {geonetVolcanoEvents.length > 0
+            ? `${geonetVolcanoEvents.length} elevated GeoNet volcanic alert${geonetVolcanoEvents.length !== 1 ? "s" : ""} nearby`
+            : "No elevated GeoNet volcanic alerts nearby"}
+        </SignalLine>
+        <SignalLine active={dwdEvents.length > 0} color="#1565c0">
+          {dwdEvents.length > 0
+            ? `${dwdEvents.length} official DWD warning${dwdEvents.length !== 1 ? "s" : ""} nearby`
+            : "No DWD warnings nearby"}
         </SignalLine>
         <SignalLine active={wildfires.length > 0} color="#d84315">
           {wildfires.length > 0

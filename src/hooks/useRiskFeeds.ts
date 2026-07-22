@@ -18,6 +18,8 @@ import { fetchNhcStorms } from "../services/nhc";
 import { fetchGdacsEvents } from "../services/gdacs";
 import { fetchEonetEvents } from "../services/eonet";
 import { fetchEmscEvents } from "../services/emsc";
+import { fetchGeoNetQuakes, fetchGeoNetVolcanoAlerts, supportsGeoNet } from "../services/geonet";
+import { fetchDwdWarnings, supportsDwd } from "../services/dwd";
 import { fetchCurrentWeather } from "../services/weather";
 import type { CurrentWeather } from "../services/weather";
 import {
@@ -37,6 +39,15 @@ import { fetchSwpcConditions } from "../services/swpc";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 import { scopedNwsAlerts } from "../lib/nwsAlertScope";
 import { fetchMeteoalarmAlerts, supportsMeteoalarm } from "../services/meteoalarm";
+import {
+  fetchRegionalEvents,
+  supportsRegionalSources,
+  type RegionalFeedResult,
+} from "../services/regionalSources";
+import {
+  fetchTransportationEvents,
+  type TransportationFeedResult,
+} from "../services/transportation";
 
 interface UseRiskFeedsResult {
   weatherAlerts: RiskEvent[];
@@ -44,12 +55,17 @@ interface UseRiskFeedsResult {
   femaDeclarations: RiskEvent[];
   stormEvents: RiskEvent[];
   wildfires: RiskEvent[];
+  regionalEvents: RiskEvent[];
+  transportationEvents: RiskEvent[];
   spcOutlooks: RiskEvent[];
   spcReports: RiskEvent[];
   nhcStorms: RiskEvent[];
   gdacsEvents: RiskEvent[];
   eonetEvents: RiskEvent[];
   emscEvents: RiskEvent[];
+  geonetEvents: RiskEvent[];
+  geonetVolcanoEvents: RiskEvent[];
+  dwdEvents: RiskEvent[];
   currentWeather: CurrentWeather | null;
   femaRiskIndex: FemaRiskIndexCounty | null;
   supplementalSignals: SupplementalRiskSignal[];
@@ -266,10 +282,11 @@ export function useRiskFeeds(
   location: ResolvedLocation | null,
   radius: RadiusOption
 ): UseRiskFeedsResult {
+  const usLocationEnabled = !!location && location.country === "USA";
   const nwsQuery = useQuery<RiskEvent[]>({
     queryKey: ["nws-alerts", location?.state],
     queryFn: () => fetchNwsAlerts(location!.state),
-    enabled: !!location,
+    enabled: usLocationEnabled,
     staleTime: 60_000,
     retry: 2,
   });
@@ -278,7 +295,7 @@ export function useRiskFeeds(
     queryKey: ["nws-alerts-point", location?.latitude, location?.longitude],
     queryFn: () =>
       fetchNwsAlertsForPoint(location!.latitude, location!.longitude),
-    enabled: !!location,
+    enabled: usLocationEnabled,
     staleTime: 60_000,
     retry: 2,
   });
@@ -297,7 +314,7 @@ export function useRiskFeeds(
     queryKey: ["fema", location?.state, location?.countyFips],
     queryFn: () =>
       fetchFemaDeclarations(location!.state, location!.countyFips),
-    enabled: !!location,
+    enabled: usLocationEnabled,
     staleTime: 300_000,
     retry: 1,
   });
@@ -335,16 +352,59 @@ export function useRiskFeeds(
     queryKey: ["nifc-wildfires", location?.latitude, location?.longitude, radiusKm],
     queryFn: () =>
       fetchWildfires(location!.latitude, location!.longitude, radiusKm),
-    enabled: !!location,
+    enabled: usLocationEnabled,
     staleTime: 120_000,
     retry: 2,
+  });
+
+  const regionalEnabled =
+    location?.country === "USA" && supportsRegionalSources(location.state);
+  const regionalQuery = useQuery<RegionalFeedResult>({
+    queryKey: [
+      "regional-events",
+      location?.state,
+      location?.latitude,
+      location?.longitude,
+      radiusKm,
+    ],
+    queryFn: () =>
+      fetchRegionalEvents(
+        location!.state,
+        location!.latitude,
+        location!.longitude,
+        radiusKm
+      ),
+    enabled: regionalEnabled,
+    staleTime: 120_000,
+    retry: 1,
+  });
+
+  const transportationEnabled = location?.country === "USA";
+  const transportationQuery = useQuery<TransportationFeedResult>({
+    queryKey: [
+      "transportation-events",
+      location?.state,
+      location?.latitude,
+      location?.longitude,
+      radiusKm,
+    ],
+    queryFn: () =>
+      fetchTransportationEvents(
+        location!.state,
+        location!.latitude,
+        location!.longitude,
+        radiusKm
+      ),
+    enabled: transportationEnabled,
+    staleTime: 90_000,
+    retry: 1,
   });
 
   const spcQuery = useQuery<RiskEvent[]>({
     queryKey: ["spc-outlooks", location?.latitude, location?.longitude, radius],
     queryFn: () =>
       fetchSpcOutlooks(location!.latitude, location!.longitude, radius),
-    enabled: !!location,
+    enabled: usLocationEnabled,
     staleTime: 300_000,
     retry: 1,
   });
@@ -391,6 +451,34 @@ export function useRiskFeeds(
       fetchEmscEvents(location!.latitude, location!.longitude, radiusKm),
     enabled: !!location,
     staleTime: 60_000,
+    retry: 1,
+  });
+
+  const geonetEnabled = supportsGeoNet(location);
+  const geonetQuery = useQuery<RiskEvent[]>({
+    queryKey: ["geonet-quakes", location?.latitude, location?.longitude, radiusKm],
+    queryFn: () =>
+      fetchGeoNetQuakes(location!.latitude, location!.longitude, radiusKm),
+    enabled: geonetEnabled,
+    staleTime: 60_000,
+    retry: 1,
+  });
+  const geonetVolcanoQuery = useQuery<RiskEvent[]>({
+    queryKey: ["geonet-volcanoes", location?.latitude, location?.longitude, radiusKm],
+    queryFn: () =>
+      fetchGeoNetVolcanoAlerts(location!.latitude, location!.longitude, radiusKm),
+    enabled: geonetEnabled,
+    staleTime: 300_000,
+    retry: 1,
+  });
+
+  const dwdEnabled = supportsDwd(location);
+  const dwdQuery = useQuery<RiskEvent[]>({
+    queryKey: ["dwd-warnings", location?.latitude, location?.longitude, radiusKm],
+    queryFn: () =>
+      fetchDwdWarnings(location!.latitude, location!.longitude, radiusKm),
+    enabled: dwdEnabled,
+    staleTime: 300_000,
     retry: 1,
   });
 
@@ -460,7 +548,7 @@ export function useRiskFeeds(
   const tsunamiQuery = useQuery<SupplementalRiskSignal[]>({
     queryKey: ["tsunami-events"],
     queryFn: () => fetchTsunamiEvents(),
-    enabled: !!location,
+    enabled: usLocationEnabled,
     staleTime: 60_000,
     retry: 1,
   });
@@ -588,12 +676,22 @@ export function useRiskFeeds(
   const femaDeclarations = femaQuery.data ?? EMPTY_EVENTS;
   const stormEvents = stormEventsQuery.data ?? EMPTY_EVENTS;
   const wildfires = nifcQuery.data ?? EMPTY_EVENTS;
+  const regionalEvents = regionalQuery.data?.events ?? EMPTY_EVENTS;
+  const transportationEvents = transportationQuery.data?.events ?? EMPTY_EVENTS;
+  const transportationProviderError =
+    transportationQuery.data?.providers.length &&
+    transportationQuery.data.providers.every((provider) => !provider.available)
+      ? transportationQuery.data.warnings.join("; ") || "Registered state transportation feeds are unavailable."
+      : null;
   const spcOutlooks = spcQuery.data ?? EMPTY_EVENTS;
   const spcReports = spcReportsQuery.data ?? EMPTY_EVENTS;
   const nhcStorms = nhcQuery.data ?? EMPTY_EVENTS;
   const gdacsEvents = gdacsQuery.data ?? EMPTY_EVENTS;
   const eonetEvents = eonetQuery.data ?? EMPTY_EVENTS;
   const emscEvents = emscQuery.data ?? EMPTY_EVENTS;
+  const geonetEvents = geonetQuery.data ?? EMPTY_EVENTS;
+  const geonetVolcanoEvents = geonetVolcanoQuery.data ?? EMPTY_EVENTS;
+  const dwdEvents = dwdQuery.data ?? EMPTY_EVENTS;
   const meteoalarmEvents = meteoalarmQuery.data ?? EMPTY_EVENTS;
   const currentWeather = weatherQuery.data ?? null;
   const airQualitySignals = airQualityQuery.data ?? EMPTY_SIGNALS;
@@ -651,12 +749,17 @@ export function useRiskFeeds(
       ...femaDeclarations,
       ...stormEvents,
       ...wildfires,
+      ...regionalEvents,
+      ...transportationEvents,
       ...spcOutlooks,
       ...spcReports,
       ...nhcStorms,
       ...gdacsEvents,
       ...eonetEvents,
       ...emscEvents,
+      ...geonetEvents,
+      ...geonetVolcanoEvents,
+      ...dwdEvents,
       ...meteoalarmEvents,
       ...supplementalEvents,
     ],
@@ -666,19 +769,24 @@ export function useRiskFeeds(
       femaDeclarations,
       stormEvents,
       wildfires,
+      regionalEvents,
+      transportationEvents,
       spcOutlooks,
       spcReports,
       nhcStorms,
       gdacsEvents,
       eonetEvents,
       emscEvents,
+      geonetEvents,
+      geonetVolcanoEvents,
+      dwdEvents,
       meteoalarmEvents,
       supplementalEvents,
     ]
   );
-  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || spcQuery.isFetching || spcReportsQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || meteoalarmQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || spcQuery.isLoading || spcReportsQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || meteoalarmQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
-  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || spcQuery.isError || spcReportsQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || meteoalarmQuery.isError || weatherQuery.isError || airQualityQuery.isError || marineQuery.isError || tsunamiQuery.isError || shakemapQuery.isError || ukFloodQuery.isError || riverQuery.isError || nwpsQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
+  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || regionalQuery.isFetching || transportationQuery.isFetching || spcQuery.isFetching || spcReportsQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || geonetQuery.isFetching || geonetVolcanoQuery.isFetching || dwdQuery.isFetching || meteoalarmQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || regionalQuery.isLoading || transportationQuery.isLoading || spcQuery.isLoading || spcReportsQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || geonetQuery.isLoading || geonetVolcanoQuery.isLoading || dwdQuery.isLoading || meteoalarmQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
+  const isError = nwsQuery.isError || nwsPointQuery.isError || usgsQuery.isError || femaQuery.isError || stormEventsQuery.isError || femaRiskIndexQuery.isError || nifcQuery.isError || regionalQuery.isError || transportationQuery.isError || spcQuery.isError || spcReportsQuery.isError || nhcQuery.isError || gdacsQuery.isError || eonetQuery.isError || emscQuery.isError || geonetQuery.isError || geonetVolcanoQuery.isError || dwdQuery.isError || meteoalarmQuery.isError || weatherQuery.isError || airQualityQuery.isError || marineQuery.isError || tsunamiQuery.isError || shakemapQuery.isError || ukFloodQuery.isError || riverQuery.isError || nwpsQuery.isError || volcanoQuery.isError || droughtQuery.isError || swpcQuery.isError;
 
   const errors: string[] = [];
   if (nwsQuery.error) errors.push(`NWS: ${nwsQuery.error.message}`);
@@ -692,12 +800,17 @@ export function useRiskFeeds(
     errors.push(`FEMA NRI: ${femaRiskIndexQuery.error.message}`);
   }
   if (nifcQuery.error) errors.push(`NIFC: ${nifcQuery.error.message}`);
+  if (regionalQuery.error) errors.push(`Regional sources: ${regionalQuery.error.message}`);
+  if (transportationQuery.error) errors.push(`Transportation: ${transportationQuery.error.message}`);
   if (spcQuery.error) errors.push(`SPC: ${spcQuery.error.message}`);
   if (spcReportsQuery.error) errors.push(`SPC Reports: ${spcReportsQuery.error.message}`);
   if (nhcQuery.error) errors.push(`NHC: ${nhcQuery.error.message}`);
   if (gdacsQuery.error) errors.push(`GDACS: ${gdacsQuery.error.message}`);
   if (eonetQuery.error) errors.push(`EONET: ${eonetQuery.error.message}`);
   if (emscQuery.error) errors.push(`EMSC: ${emscQuery.error.message}`);
+  if (geonetQuery.error) errors.push(`GeoNet: ${geonetQuery.error.message}`);
+  if (geonetVolcanoQuery.error) errors.push(`GeoNet volcanoes: ${geonetVolcanoQuery.error.message}`);
+  if (dwdQuery.error) errors.push(`DWD: ${dwdQuery.error.message}`);
   if (meteoalarmQuery.error) errors.push(`Meteoalarm: ${meteoalarmQuery.error.message}`);
   if (airQualityQuery.error) errors.push(`Open-Meteo Air Quality: ${airQualityQuery.error.message}`);
   if (marineQuery.error) errors.push(`Open-Meteo Marine: ${marineQuery.error.message}`);
@@ -716,7 +829,7 @@ export function useRiskFeeds(
     queryHealth({
       id: "nws",
       label: "NWS Alerts",
-      enabled: locationEnabled,
+      enabled: usLocationEnabled,
       isLoading: nwsQuery.isLoading || nwsPointQuery.isLoading,
       isFetching: nwsQuery.isFetching || nwsPointQuery.isFetching,
       error: [errorMessage(nwsQuery.error), errorMessage(nwsPointQuery.error)]
@@ -725,6 +838,7 @@ export function useRiskFeeds(
       count: weatherAlerts.length,
       liveDetail: `${weatherAlerts.length} active alert${weatherAlerts.length !== 1 ? "s" : ""} affecting or near this location.`,
       emptyDetail: "No active weather alerts matched this location and radius.",
+      disabledDetail: "Available for U.S. locations.",
     }),
     queryHealth({
       id: "usgs",
@@ -740,13 +854,14 @@ export function useRiskFeeds(
     queryHealth({
       id: "fema",
       label: "FEMA Disasters",
-      enabled: locationEnabled,
+      enabled: usLocationEnabled,
       isLoading: femaQuery.isLoading,
       isFetching: femaQuery.isFetching,
       error: errorMessage(femaQuery.error),
       count: femaDeclarations.length,
       liveDetail: `${femaDeclarations.length} declaration${femaDeclarations.length !== 1 ? "s" : ""} on record.`,
       emptyDetail: "No FEMA declarations matched this location.",
+      disabledDetail: "Available for U.S. locations.",
     }),
     queryHealth({
       id: "fema-nri",
@@ -775,24 +890,52 @@ export function useRiskFeeds(
     queryHealth({
       id: "nifc",
       label: "NIFC Wildfires",
-      enabled: locationEnabled,
+      enabled: usLocationEnabled,
       isLoading: nifcQuery.isLoading,
       isFetching: nifcQuery.isFetching,
       error: errorMessage(nifcQuery.error),
       count: wildfires.length,
       liveDetail: `${wildfires.length} wildfire${wildfires.length !== 1 ? "s" : ""} in range.`,
       emptyDetail: "No active wildfires in range.",
+      disabledDetail: "Available for U.S. locations.",
+    }),
+    queryHealth({
+      id: "regional",
+      label: regionalQuery.data?.providers.map((provider) => provider.label).join(", ") || "State and Local Agencies",
+      enabled: regionalEnabled,
+      isLoading: regionalQuery.isLoading,
+      isFetching: regionalQuery.isFetching,
+      error: errorMessage(regionalQuery.error),
+      count: regionalEvents.length,
+      liveDetail: `${regionalEvents.length} state or local signal${regionalEvents.length !== 1 ? "s" : ""} in range.`,
+      emptyDetail: "No active state or local agency signals in range.",
+      disabledDetail: "No production-ready regional source is configured for this state.",
+    }),
+    queryHealth({
+      id: "transportation",
+      label: transportationQuery.data?.providers.map((provider) => provider.label).join(", ") || "USDOT Work Zones",
+      enabled: transportationEnabled,
+      isLoading: transportationQuery.isLoading,
+      isFetching: transportationQuery.isFetching,
+      error: errorMessage(transportationQuery.error) ?? transportationProviderError,
+      count: transportationEvents.length,
+      liveDetail: `${transportationEvents.length} active or upcoming work zone${transportationEvents.length !== 1 ? "s" : ""} in range.`,
+      emptyDetail: transportationQuery.data?.providers.length
+        ? "No active or upcoming work zones in range."
+        : "No keyless WZDx feed is registered for this state.",
+      disabledDetail: "Available for U.S. locations with a registered WZDx feed.",
     }),
     queryHealth({
       id: "spc",
       label: "SPC Outlooks",
-      enabled: locationEnabled,
+      enabled: usLocationEnabled,
       isLoading: spcQuery.isLoading,
       isFetching: spcQuery.isFetching,
       error: errorMessage(spcQuery.error),
       count: spcOutlooks.length,
       liveDetail: `${spcOutlooks.length} outlook polygon${spcOutlooks.length !== 1 ? "s" : ""} nearby.`,
       emptyDetail: "No SPC outlook polygons nearby.",
+      disabledDetail: "Available for U.S. locations.",
     }),
     queryHealth({
       id: "spc-reports",
@@ -849,6 +992,42 @@ export function useRiskFeeds(
       count: emscEvents.length,
       liveDetail: `${emscEvents.length} EMSC earthquake${emscEvents.length !== 1 ? "s" : ""} in range.`,
       emptyDetail: "No EMSC earthquakes in the selected radius.",
+    }),
+    queryHealth({
+      id: "geonet",
+      label: "GeoNet New Zealand",
+      enabled: geonetEnabled,
+      isLoading: geonetQuery.isLoading,
+      isFetching: geonetQuery.isFetching,
+      error: errorMessage(geonetQuery.error),
+      count: geonetEvents.length,
+      liveDetail: `${geonetEvents.length} GeoNet earthquake${geonetEvents.length !== 1 ? "s" : ""} in range.`,
+      emptyDetail: "No GeoNet earthquakes in the selected radius.",
+      disabledDetail: "Available automatically for New Zealand locations.",
+    }),
+    queryHealth({
+      id: "geonet-volcanoes",
+      label: "GeoNet Volcanic Alerts",
+      enabled: geonetEnabled,
+      isLoading: geonetVolcanoQuery.isLoading,
+      isFetching: geonetVolcanoQuery.isFetching,
+      error: errorMessage(geonetVolcanoQuery.error),
+      count: geonetVolcanoEvents.length,
+      liveDetail: `${geonetVolcanoEvents.length} elevated volcanic alert${geonetVolcanoEvents.length !== 1 ? "s" : ""} in range.`,
+      emptyDetail: "No elevated GeoNet volcanic alert in the selected radius.",
+      disabledDetail: "Available automatically for New Zealand locations.",
+    }),
+    queryHealth({
+      id: "dwd",
+      label: "DWD Germany",
+      enabled: dwdEnabled,
+      isLoading: dwdQuery.isLoading,
+      isFetching: dwdQuery.isFetching,
+      error: errorMessage(dwdQuery.error),
+      count: dwdEvents.length,
+      liveDetail: `${dwdEvents.length} official DWD warning${dwdEvents.length !== 1 ? "s" : ""} affecting or near this location.`,
+      emptyDetail: "No active DWD warnings matched this location and radius.",
+      disabledDetail: "Available automatically for German locations.",
     }),
     queryHealth({
       id: "meteoalarm",
@@ -909,13 +1088,14 @@ export function useRiskFeeds(
     queryHealth({
       id: "noaa-tsunami",
       label: "NOAA Tsunami",
-      enabled: locationEnabled,
+      enabled: usLocationEnabled,
       isLoading: tsunamiQuery.isLoading,
       isFetching: tsunamiQuery.isFetching,
       error: errorMessage(tsunamiQuery.error),
       count: tsunamiSignals.length,
       liveDetail: `${tsunamiSignals.length} tsunami signal${tsunamiSignals.length !== 1 ? "s" : ""}.`,
       emptyDetail: "No active tsunami events.",
+      disabledDetail: "Available for U.S. and territorial warning-center coverage.",
     }),
     queryHealth({
       id: "usgs-shakemap",
@@ -1011,12 +1191,17 @@ export function useRiskFeeds(
     femaDeclarations,
     stormEvents,
     wildfires,
+    regionalEvents,
+    transportationEvents,
     spcOutlooks,
     spcReports,
     nhcStorms,
     gdacsEvents,
     eonetEvents,
     emscEvents,
+    geonetEvents,
+    geonetVolcanoEvents,
+    dwdEvents,
     currentWeather,
     femaRiskIndex: femaRiskIndexQuery.data ?? null,
     supplementalSignals,
@@ -1033,12 +1218,17 @@ export function useRiskFeeds(
       stormEventsQuery.refetch();
       femaRiskIndexQuery.refetch();
       nifcQuery.refetch();
+      regionalQuery.refetch();
+      transportationQuery.refetch();
       spcQuery.refetch();
       spcReportsQuery.refetch();
       nhcQuery.refetch();
       gdacsQuery.refetch();
       eonetQuery.refetch();
       emscQuery.refetch();
+      geonetQuery.refetch();
+      geonetVolcanoQuery.refetch();
+      dwdQuery.refetch();
       meteoalarmQuery.refetch();
       weatherQuery.refetch();
       airQualityQuery.refetch();

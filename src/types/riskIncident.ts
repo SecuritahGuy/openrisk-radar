@@ -4,6 +4,7 @@ export type IncidentAgreement = "single-source" | "corroborated";
 
 export interface IncidentContributor {
   source: EventSource;
+  provider?: RiskEvent["provider"];
   sourceEventId: string;
   headline: string;
   updatedAt: string;
@@ -28,5 +29,6 @@ export interface RiskIncidentMetadata {
   agreement: IncidentAgreement;
   eventCount: number;
   sources: EventSource[];
+  providerCount: number;
   contributors: IncidentContributor[];
 }

@@ -14,7 +14,7 @@ Statuses below reflect live HTTP + CORS + payload testing performed from the pro
 - **WHO Disease Outbreak News** — 200, CORS `*`, real OData JSON.
 - **NASA GIBS** — tile 200, CORS `*`. Raster overlay only.
 - **Global Tsunami Monitor** (`/api/geojson/active`) — 200, CORS `*`, GeoJSON.
-- **DWD Germany** (JSONP warnings) — 200, CORS `*`.
+- **DWD Germany** (WFS GeoJSON warning polygons) — active in production; browser-direct with CORS.
 - **GeoNet New Zealand** — 200, CORS `*`, GeoJSON (requires `MMI` param).
 - **HDX / HOT OSM** — CKAN API 200, CORS `*`, real JSON.
 
@@ -74,8 +74,8 @@ Statuses below reflect live HTTP + CORS + payload testing performed from the pro
 
 | Source | Coverage | Signals | Access | License / Attribution | Why on the list | Status |
 |--------|----------|---------|--------|------------------------|-----------------|--------|
-| DWD (Germany) | Germany | Severe weather warnings (CAP/WFS), nowcast, pollen, radar | `opendata.dwd.de` files; JSONP `dwd.de/DWD/warnungen/warnapp/json/warnings.json`; no key; CORS `*` | DWD open data; attribution | Finer than Meteoalarm aggregate | **Validated** (200, CORS `*`, JSONP `warnWetter.loadWarnings(...)`) |
-| GeoNet (New Zealand) | New Zealand | Earthquakes, volcanic alert level, landslides, tsunami | `api.geonet.org.nz/quake?MMI=0` JSON (CORS `*`); no key | Free, CC-BY (cite DOIs) | Very active tectonics/volcanoes; browser-friendly | **Validated** (200, CORS `*`, GeoJSON FeatureCollection; MMI param required) |
+| DWD (Germany) | Germany | Severe weather warnings (CAP/WFS), nowcast, pollen, radar | `maps.dwd.de/geoserver/dwd/ows` WFS GeoJSON; no key; CORS-enabled | DWD open data; attribution | Finer than Meteoalarm aggregate | ✅ Official municipality warning polygons active; automatically enabled for Germany and filtered by radius |
+| GeoNet (New Zealand) | New Zealand | Earthquakes and volcanic alert levels | `api.geonet.org.nz/quake?MMI=0` and `/volcano/val` GeoJSON (CORS `*`); no key | Free, CC-BY (cite DOIs) | Very active tectonics/volcanoes; browser-friendly | ✅ Earthquake and elevated volcanic-alert feeds active; no equivalent public landslide or tsunami endpoint is documented |
 | CWA (Taiwan) | Taiwan | Earthquakes, tsunami, typhoons, weather warnings | `opendata.cwa.gov.tw/api/v1/...` REST; free auth code | Open Gov Data License v1.0 | High quake/typhoon exposure, no current coverage | **Validated (key-gated)** (401 on bad key; endpoint live) |
 | JMA via P2Pquake / Wolfx | Japan | Earthquakes/EEW, tsunami, volcanic, typhoon | Official XML lacks CORS; use `api.p2pquake.net` or `api.wolfx.jp/jma_*.json` (free) | JMO "own risk"; secondary-use free | One of most seismic nations; no US/EU equivalent | **Pending** (third-party wrappers; verify CORS) |
 | INMET WIS2 (Brazil) | Brazil | CAP weather warnings, SYNOP obs (GeoJSON) | OGC API `wis2bra.inmet.gov.br/oapi/collections/...`; no key; CORS `*` | WMO core data policy | Modern clean standard; fills South America | **Validated (obs only)** (CORS `*`, collections live; exposes SYNOP obs + `messages`, but NO CAP alert collection found) |
@@ -99,10 +99,10 @@ Statuses below reflect live HTTP + CORS + payload testing performed from the pro
 
 ## Integration patterns & gotchas
 
-- **Browser-direct, no key, CORS-friendly today:** Blitzortung (WS), GIBS (WMTS), WMO SWIC/GDC (OGC API), WHO DON, Global Tsunami Monitor, OpenAQ, GeoNet, DWD JSONP.
+- **Browser-direct, no key, CORS-friendly today:** GIBS (WMTS), WMO SWIC/GDC (OGC API), WHO DON, Global Tsunami Monitor, OpenAQ, GeoNet, DWD WFS.
 - **Need free key but CORS-friendly:** NASA FIRMS (MAP_KEY), WAQI (token), UNESCO-IOC V2 (key), OpenAQ (key).
 - **Need a tiny proxy / CORS shim (breaks strict no-backend):** WMO SWIC node follows, CAMS/CEMS (server GRIB/NetCDF), AEMET/KNMI/IMD/CWA, P2Pquake/Wolfx, ACLED, ReliefWeb (appname).
-- **CAP XML parsing** required for: SWIC, DWD, INMET, AEMET, JMA — normalize into `RiskEvent`.
+- **CAP XML parsing** required for: SWIC, INMET, AEMET, JMA — normalize into `RiskEvent`. DWD is active through its GeoJSON WFS layer.
 - **Recurring gotchas:** rate limits (FIRMS ~5000/10min), licence restrictions (Blitzortung non-commercial; BoM ambiguous), brittle scraping (PHIVOLCS/SMN not recommended), heavy GRIB/NetCDF (CAMS/CEMS need server decode).
 
 ## Next steps

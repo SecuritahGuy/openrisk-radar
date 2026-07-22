@@ -29,6 +29,7 @@ const CATEGORY_LABELS: Record<EventCategory, string> = {
   "River Gauge": "River conditions",
   Disaster: "Disaster context",
   Wildfire: "Wildfire conditions",
+  Transportation: "Transportation conditions",
   Tropical: "Tropical weather",
   Volcanic: "Volcanic activity",
   Drought: "Drought conditions",

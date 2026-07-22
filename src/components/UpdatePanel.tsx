@@ -37,6 +37,9 @@ interface UpdatePanelProps {
   gdacsEvents: RiskEvent[];
   eonetEvents: RiskEvent[];
   emscEvents: RiskEvent[];
+  geonetEvents: RiskEvent[];
+  geonetVolcanoEvents: RiskEvent[];
+  dwdEvents: RiskEvent[];
   incidents: RiskEvent[];
   currentWeather: CurrentWeather | null;
   femaRiskIndex: FemaRiskIndexCounty | null;
@@ -88,6 +91,9 @@ export function UpdatePanel({
   gdacsEvents,
   eonetEvents,
   emscEvents,
+  geonetEvents,
+  geonetVolcanoEvents,
+  dwdEvents,
   incidents,
   currentWeather,
   femaRiskIndex,
@@ -217,6 +223,9 @@ export function UpdatePanel({
             gdacsEvents={gdacsEvents}
             eonetEvents={eonetEvents}
             emscEvents={emscEvents}
+            geonetEvents={geonetEvents}
+            geonetVolcanoEvents={geonetVolcanoEvents}
+            dwdEvents={dwdEvents}
             supplementalSignals={supplementalSignals}
             isFetching={isFetching}
           />
