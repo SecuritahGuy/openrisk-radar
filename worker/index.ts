@@ -10,8 +10,10 @@ import { jsonError } from "../functions/_shared/proxy";
 import type { D1Database } from "./d1";
 import { deliverPushMessage, type PushDeliveryEnv, type PushQueueMessage } from "./pushDelivery";
 import { runWatchAudit } from "./watchEvaluator";
+import { readWatchAuditOperations } from "./watchOperations";
 import { handleWatchRequest } from "./watchRegistry";
 import { handleWatchPushRequest, type PushQueueBinding } from "./watchPush";
+import { LOCATION_WATCH_AUDIT_SOURCES } from "../src/services/locationEventFeeds";
 
 interface Env extends PushDeliveryEnv {
   ASSETS: { fetch(request: Request): Promise<Response> };
@@ -68,6 +70,7 @@ export default {
       }, { headers: { "Cache-Control": "no-store" } });
     }
     if (url.pathname === "/api/status") {
+      const watchOperations = await readWatchAuditOperations(env.DB);
       return Response.json({
         service: "OpenRisk Radar API",
         version: "worker-v2",
@@ -77,7 +80,8 @@ export default {
         watchRegistry: {
           configured: !!env.DB,
           mode: "audit",
-          evaluatedSources: ["NWS", "USGS", "NIFC"],
+          evaluatedSources: LOCATION_WATCH_AUDIT_SOURCES,
+          operations: watchOperations,
         },
         pushNotifications: {
           configured: !!(env.DB && env.PUSH_QUEUE && env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY && env.PUSH_DATA_KEY),
@@ -152,7 +156,7 @@ export default {
     }
     try {
       const result = await runWatchAudit(env.DB);
-      console.log(JSON.stringify({ type: "watch_audit_complete", processed: result.processed }));
+      console.log(JSON.stringify({ type: "watch_audit_complete", ...result }));
     } catch (error) {
       console.error(JSON.stringify({
         type: "watch_audit_failed",

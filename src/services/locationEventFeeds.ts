@@ -60,7 +60,7 @@ export interface LocationEventFeedResult {
 const everywhere: LocationFeedSurface[] = ["dashboard", "saved-summary", "watch-audit"];
 const foreground: LocationFeedSurface[] = ["dashboard", "saved-summary"];
 
-const locationEventFeedDefinitions: LocationEventFeedDefinition[] = [
+export const LOCATION_EVENT_FEEDS: readonly LocationEventFeedDefinition[] = [
   {
     id: "nws-point",
     label: "NWS",
@@ -217,6 +217,10 @@ const locationEventFeedDefinitions: LocationEventFeedDefinition[] = [
   },
 ];
 
+export const LOCATION_WATCH_AUDIT_SOURCES = LOCATION_EVENT_FEEDS
+  .filter((feed) => feed.surfaces.includes("watch-audit"))
+  .map((feed) => feed.label);
+
 export function createLocationFeedContext(
   location: ResolvedLocation,
   radiusMiles: number
@@ -225,7 +229,7 @@ export function createLocationFeedContext(
 }
 
 export function getLocationEventFeed(id: LocationEventFeedId): LocationEventFeedDefinition {
-  const definition = locationEventFeedDefinitions.find((feed) => feed.id === id);
+  const definition = LOCATION_EVENT_FEEDS.find((feed) => feed.id === id);
   if (!definition) throw new Error(`Unknown location event feed: ${id}`);
   return definition;
 }
@@ -235,11 +239,19 @@ export function eligibleLocationEventFeeds(
   surface: LocationFeedSurface,
   hazards?: WatchHazard[]
 ): LocationEventFeedDefinition[] {
-  return locationEventFeedDefinitions.filter((feed) =>
+  return LOCATION_EVENT_FEEDS.filter((feed) =>
     feed.surfaces.includes(surface) &&
     feed.enabled(context) &&
     (!hazards || feed.hazards.some((hazard) => hazards.includes(hazard)))
   );
+}
+
+export function locationEventFeedEnabled(
+  feed: LocationEventFeedDefinition,
+  context: LocationFeedContext | null,
+  surface: LocationFeedSurface
+): boolean {
+  return !!context && feed.surfaces.includes(surface) && feed.enabled(context);
 }
 
 export async function fetchLocationEventFeeds(

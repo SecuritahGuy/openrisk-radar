@@ -539,6 +539,7 @@ export function EventDetailPanel({
                     {eventSourceLabel(contributor)}
                   </span>
                   <span style={styles.contributorHeadline}>{contributor.headline}</span>
+                  <span style={styles.contributorTime}>{contributor.correlationReason}</span>
                   <span style={styles.contributorTime}>{formatTime(contributor.updatedAt)}</span>
                 </div>
               ))}

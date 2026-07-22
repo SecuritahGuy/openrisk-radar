@@ -188,36 +188,42 @@ function createIncident(events: RiskEvent[]): RiskIncident {
   };
 }
 
-export function buildRiskIncidents(events: RiskEvent[]): RiskIncident[] {
-  const parents = events.map((_, index) => index);
-  const findRoot = (index: number): number => {
-    let root = index;
-    while (parents[root] !== root) root = parents[root];
-    while (parents[index] !== index) {
-      const parent = parents[index];
-      parents[index] = root;
-      index = parent;
-    }
-    return root;
-  };
-  const union = (a: number, b: number) => {
-    const aRoot = findRoot(a);
-    const bRoot = findRoot(b);
-    if (aRoot !== bRoot) parents[bRoot] = aRoot;
-  };
-
-  for (let a = 0; a < events.length; a += 1) {
-    for (let b = a + 1; b < events.length; b += 1) {
-      if (canCorrelate(events[a], events[b])) union(a, b);
-    }
+function correlationReason(primary: RiskEvent, event: RiskEvent): string {
+  if (primary === event) return "Selected as the authoritative primary record.";
+  if (
+    providerIdentity(primary) === providerIdentity(event) &&
+    primary.sourceEventId === event.sourceEventId
+  ) {
+    return "Duplicate update of the same provider record.";
   }
+  const miles = eventDistanceMiles(primary, event);
+  const primaryTime = eventTime(primary);
+  const eventTimestamp = eventTime(event);
+  const minutes = primaryTime != null && eventTimestamp != null
+    ? Math.round(Math.abs(primaryTime - eventTimestamp) / 60_000)
+    : null;
+  const spatial = miles == null
+    ? "matching reported area"
+    : miles < 0.1
+      ? "overlapping reported area"
+      : `${miles.toFixed(1)} miles from the primary record`;
+  const temporal = minutes == null
+    ? "within the category time window"
+    : `${minutes} minute${minutes === 1 ? "" : "s"} apart`;
+  return `${spatial}; ${temporal}.`;
+}
 
-  const groups = new Map<number, RiskEvent[]>();
-  events.forEach((event, index) => {
-    const root = findRoot(index);
-    groups.set(root, [...(groups.get(root) ?? []), event]);
-  });
-  return Array.from(groups.values())
+export function buildRiskIncidents(events: RiskEvent[]): RiskIncident[] {
+  const ordered = [...events].sort(comparePrimary);
+  const groups: RiskEvent[][] = [];
+  for (const event of ordered) {
+    const group = groups.find((candidate) =>
+      candidate.every((member) => canCorrelate(event, member))
+    );
+    if (group) group.push(event);
+    else groups.push([event]);
+  }
+  return groups
     .map(createIncident)
     .sort((a, b) => a.id.localeCompare(b.id));
 }
@@ -229,6 +235,7 @@ export function incidentToEvent(incident: RiskIncident): RiskEvent {
     eventCount: incident.events.length,
     sources: incident.sources,
     providerCount: new Set(incident.events.map(providerIdentity)).size,
+    groupingMethod: "complete-link",
     contributors: incident.events.map((event) => ({
       source: event.source,
       provider: event.provider,
@@ -236,6 +243,7 @@ export function incidentToEvent(incident: RiskIncident): RiskEvent {
       headline: event.headline,
       updatedAt: event.updatedAt,
       url: event.url,
+      correlationReason: correlationReason(incident.primaryEvent, event),
     })),
   };
   return {

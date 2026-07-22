@@ -642,6 +642,13 @@ export default function App() {
 
   return (
     <div className="app-shell" style={styles.root}>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {loading
+          ? "Resolving the requested location and loading risk sources."
+          : result
+            ? `${[result.city, result.state, result.country].filter(Boolean).join(", ")} loaded. ${incidentEvents.length} risk signal${incidentEvents.length === 1 ? "" : "s"} available${isFetching ? "; source updates are still in progress" : ""}.`
+            : ""}
+      </div>
       <div className="app-main" style={styles.leftCol}>
         <SearchBar
           query={query}

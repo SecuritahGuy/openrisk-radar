@@ -141,6 +141,32 @@ body {
     width: 100%;
   }
 
+  .dashboard-header a,
+  .dashboard-intro button,
+  .app-main button,
+  .app-main input,
+  .app-main select,
+  .update-panel button,
+  .update-panel input,
+  .update-panel select {
+    min-height: 44px;
+  }
+
+  .dashboard-header a {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .saved-locations button[aria-label^="Delete"] {
+    min-width: 44px;
+  }
+
+  .leaflet-control-zoom a {
+    width: 44px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+  }
+
   .risk-command-empty {
     padding: 12px !important;
   }

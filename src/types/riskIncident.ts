@@ -9,6 +9,7 @@ export interface IncidentContributor {
   headline: string;
   updatedAt: string;
   url: string | null;
+  correlationReason: string;
 }
 
 export interface RiskIncident {
@@ -30,5 +31,6 @@ export interface RiskIncidentMetadata {
   eventCount: number;
   sources: EventSource[];
   providerCount: number;
+  groupingMethod: "complete-link";
   contributors: IncidentContributor[];
 }

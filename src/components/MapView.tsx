@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import L, { type Marker as LeafletMarker } from "leaflet";
+import L, { type Marker as LeafletMarker, type WMSParams } from "leaflet";
 import {
   MapContainer,
   TileLayer,
+  WMSTileLayer,
   Marker,
   Popup,
   Circle,
@@ -29,6 +30,15 @@ import {
   WEATHER_LAYER_OPTIONS,
   type WeatherLayerMode,
 } from "../types/weatherLayer";
+import {
+  GIBS_LAYERS,
+  GIBS_LAYER_OPTIONS,
+  GIBS_WMS_URL,
+  gibsDateOptions,
+  gibsTileTemplate,
+  latestGibsDate,
+  type GibsLayerId,
+} from "../services/gibs";
 
 interface PendingMapPoint {
   latitude: number;
@@ -205,6 +215,7 @@ function ClickSearchMarker({
       position={[point.latitude, point.longitude]}
       icon={pendingPointIcon(point.status)}
       zIndexOffset={1200}
+      alt={title}
     >
       <Popup closeButton={false}>
         <div style={styles.clickPopup}>
@@ -291,6 +302,12 @@ function MapControlPanel({
   onToggleWeatherOverlay,
   onWeatherLayerModeChange,
   onRadiusChange,
+  gibsLayer,
+  gibsDate,
+  gibsLoading,
+  gibsError,
+  onGibsLayerChange,
+  onGibsDateChange,
 }: {
   collapsed: boolean;
   radius: RadiusOption;
@@ -306,6 +323,12 @@ function MapControlPanel({
   onToggleWeatherOverlay: (show: boolean) => void;
   onWeatherLayerModeChange: (mode: WeatherLayerMode) => void;
   onRadiusChange: (radius: RadiusOption) => void;
+  gibsLayer: GibsLayerId | null;
+  gibsDate: string;
+  gibsLoading: boolean;
+  gibsError: string | null;
+  onGibsLayerChange: (layer: GibsLayerId | null) => void;
+  onGibsDateChange: (date: string) => void;
 }) {
   const activeSourceCount = EVENT_SOURCES.filter(
     (source) => sourceFilters[source]
@@ -476,6 +499,50 @@ function MapControlPanel({
           })}
         </div>
       </div>
+      <div style={styles.controlGroup}>
+        <label style={styles.weatherToggle}>
+          <input
+            type="checkbox"
+            checked={gibsLayer !== null}
+            onChange={(event) => onGibsLayerChange(
+              event.target.checked ? "MODIS_Terra_CorrectedReflectance_TrueColor" : null
+            )}
+            style={styles.checkbox}
+          />
+          NASA satellite imagery
+        </label>
+        {gibsLayer && (
+          <div style={styles.satelliteFields}>
+            <select
+              aria-label="NASA GIBS layer"
+              value={gibsLayer}
+              onChange={(event) => onGibsLayerChange(event.target.value as GibsLayerId)}
+              style={styles.satelliteSelect}
+            >
+              {GIBS_LAYER_OPTIONS.map((layer) => (
+                <option key={layer.id} value={layer.id}>{layer.title}</option>
+              ))}
+            </select>
+            <select
+              aria-label="NASA GIBS imagery date"
+              value={gibsDate}
+              onChange={(event) => onGibsDateChange(event.target.value)}
+              style={styles.satelliteSelect}
+            >
+              {gibsDateOptions().map((date) => (
+                <option key={date} value={date}>{date}</option>
+              ))}
+            </select>
+            <div style={gibsError ? styles.satelliteError : styles.satelliteDetail}>
+              {gibsError
+                ? gibsError
+                : gibsLoading
+                  ? "Loading NASA imagery..."
+                  : GIBS_LAYERS[gibsLayer].description}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -608,6 +675,10 @@ export function MapView({
   } | null>(null);
   const [pendingPoint, setPendingPoint] = useState<PendingMapPoint | null>(null);
   const [controlsCollapsed, setControlsCollapsed] = useState(true);
+  const [gibsLayer, setGibsLayer] = useState<GibsLayerId | null>(null);
+  const [gibsDate, setGibsDate] = useState(() => latestGibsDate());
+  const [gibsLoading, setGibsLoading] = useState(false);
+  const [gibsError, setGibsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!location) setControlsCollapsed(true);
@@ -667,6 +738,18 @@ export function MapView({
   const center: [number, number] = location
     ? [location.latitude, location.longitude]
     : [39.8283, -98.5795];
+  const gibsMetadata = gibsLayer ? GIBS_LAYERS[gibsLayer] : null;
+  const gibsEvents = {
+    loading: () => {
+      setGibsLoading(true);
+      setGibsError(null);
+    },
+    load: () => setGibsLoading(false),
+    tileerror: () => {
+      setGibsLoading(false);
+      setGibsError("NASA imagery is unavailable for this layer, date, or zoom level.");
+    },
+  };
 
   return (
     <div className="map-view" style={{ flex: 1, position: "relative" }}>
@@ -680,6 +763,35 @@ export function MapView({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        {gibsLayer && gibsMetadata?.rendering === "wmts" && (
+          <TileLayer
+            key={`${gibsLayer}-${gibsDate}`}
+            url={gibsTileTemplate(gibsLayer, gibsDate)}
+            attribution="NASA EOSDIS GIBS"
+            opacity={gibsMetadata.opacity}
+            maxNativeZoom={gibsMetadata.maxNativeZoom}
+            maxZoom={18}
+            eventHandlers={gibsEvents}
+          />
+        )}
+        {gibsLayer && gibsMetadata?.rendering === "wms" && (
+          <WMSTileLayer
+            key={`${gibsLayer}-${gibsDate}`}
+            url={GIBS_WMS_URL}
+            layers={gibsMetadata.serviceLayer}
+            format="image/png"
+            transparent
+            opacity={gibsMetadata.opacity}
+            maxNativeZoom={gibsMetadata.maxNativeZoom}
+            maxZoom={18}
+            params={{
+              layers: gibsMetadata.serviceLayer,
+              time: gibsDate,
+            } as WMSParams & { time: string }}
+            attribution="NASA EOSDIS GIBS"
+            eventHandlers={gibsEvents}
+          />
+        )}
         <IpGeoController />
         <MapMoveWatcher location={location} onMoved={setMovedCenter} />
         {location && (
@@ -695,10 +807,12 @@ export function MapView({
                 weight: 2,
                 dashArray: "6 4",
               }}
+              interactive={false}
             />
             <Marker
               position={[location.latitude, location.longitude]}
               icon={searchedLocationIcon}
+              alt={`Searched location: ${location.city}, ${location.state}`}
             >
               <Popup>
                 {location.city}, {location.state}
@@ -750,6 +864,20 @@ export function MapView({
         onToggleWeatherOverlay={onToggleWeatherOverlay}
         onWeatherLayerModeChange={onWeatherLayerModeChange}
         onRadiusChange={onRadiusChange}
+        gibsLayer={gibsLayer}
+        gibsDate={gibsDate}
+        gibsLoading={gibsLoading}
+        gibsError={gibsError}
+        onGibsLayerChange={(layer) => {
+          setGibsLayer(layer);
+          setGibsLoading(layer !== null);
+          setGibsError(null);
+        }}
+        onGibsDateChange={(date) => {
+          setGibsDate(date);
+          setGibsLoading(true);
+          setGibsError(null);
+        }}
       />
       {movedCenter && (
         <button
@@ -772,6 +900,23 @@ export function MapView({
         onClose={() => onToggleWeatherOverlay(false)}
         onModeChange={onWeatherLayerModeChange}
       />
+      {gibsLayer && gibsMetadata && (
+        <div className="gibs-overlay-status" style={styles.gibsStatus} role="status">
+          <div>
+            <strong>NASA GIBS · {gibsMetadata.title}</strong>
+            <span style={styles.gibsStatusMeta}> {gibsDate}</span>
+          </div>
+          <button
+            type="button"
+            aria-label="Hide NASA satellite imagery"
+            title="Hide NASA satellite imagery"
+            onClick={() => setGibsLayer(null)}
+            style={styles.weatherStatusClose}
+          >
+            &times;
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -934,6 +1079,34 @@ const styles: Record<string, React.CSSProperties> = {
     height: 15,
     accentColor: "#1565c0",
   },
+  satelliteFields: {
+    display: "grid",
+    gridTemplateColumns: "minmax(130px, 1fr) minmax(120px, auto)",
+    gap: 5,
+    marginTop: 5,
+  },
+  satelliteSelect: {
+    minWidth: 0,
+    border: "1px solid #cfd8dc",
+    borderRadius: 5,
+    background: "#fff",
+    color: "#263238",
+    fontSize: 11,
+    padding: "5px 6px",
+  },
+  satelliteDetail: {
+    gridColumn: "1 / -1",
+    color: "#607d8b",
+    fontSize: 10,
+    lineHeight: 1.3,
+  },
+  satelliteError: {
+    gridColumn: "1 / -1",
+    color: "#c62828",
+    fontSize: 10,
+    fontWeight: 700,
+    lineHeight: 1.3,
+  },
   searchAreaButton: {
     position: "absolute",
     top: 82,
@@ -1025,6 +1198,29 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #00897b",
     background: "#00897b",
     color: "#fff",
+  },
+  gibsStatus: {
+    position: "absolute",
+    top: 10,
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: 900,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    maxWidth: "calc(100% - 120px)",
+    border: "1px solid #b0bec5",
+    borderRadius: 7,
+    background: "rgba(255,255,255,0.94)",
+    boxShadow: "0 2px 9px rgba(15,23,42,0.15)",
+    color: "#263238",
+    fontSize: 11,
+    padding: "7px 9px",
+  },
+  gibsStatusMeta: {
+    color: "#607d8b",
+    whiteSpace: "nowrap",
   },
   clickPopup: {
     minWidth: 180,

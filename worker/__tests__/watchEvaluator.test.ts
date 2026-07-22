@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyAuditSourceCoverage } from "../watchEvaluator";
+import { classifyAuditSourceCoverage, mapWithConcurrency } from "../watchEvaluator";
 
 describe("watch audit source coverage", () => {
   it("continues with successful feeds when one source fails", () => {
@@ -30,5 +30,28 @@ describe("watch audit source coverage", () => {
       warning: null,
       error: "No audit-mode source currently covers the selected hazards",
     });
+  });
+});
+
+describe("watch audit concurrency", () => {
+  it("bounds parallel work and preserves result order", async () => {
+    let active = 0;
+    let peak = 0;
+    const results = await mapWithConcurrency([5, 4, 3, 2, 1], 2, async (value) => {
+      active += 1;
+      peak = Math.max(peak, active);
+      await new Promise((resolve) => setTimeout(resolve, value));
+      active -= 1;
+      return value * 10;
+    });
+
+    expect(peak).toBe(2);
+    expect(results).toEqual([50, 40, 30, 20, 10]);
+  });
+
+  it("rejects invalid concurrency", async () => {
+    await expect(mapWithConcurrency([1], 0, async (value) => value)).rejects.toThrow(
+      "Concurrency must be a positive integer"
+    );
   });
 });

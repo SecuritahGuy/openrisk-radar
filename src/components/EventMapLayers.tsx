@@ -81,6 +81,15 @@ function clusterIcon(cluster: EventCluster): L.DivIcon {
   });
 }
 
+function accessiblePath(label: string) {
+  return {
+    add: (event: L.LeafletEvent) => {
+      const element = (event.target as L.Path).getElement();
+      element?.setAttribute("aria-label", label);
+    },
+  };
+}
+
 export function EventMapLayers({
   events,
   location,
@@ -140,6 +149,7 @@ export function EventMapLayers({
               opacity: dimmed ? 0.45 : 1,
               weight: impact.level === "affects" ? 3 : 2,
             }}
+            eventHandlers={accessiblePath(`${event.headline}, ${event.severity} ${event.category}`)}
           >
             <Popup>
               <EventPopup
@@ -164,6 +174,7 @@ export function EventMapLayers({
               key={`cluster-${item.id}`}
               position={[item.latitude, item.longitude]}
               icon={clusterIcon(item)}
+              alt={`${item.events.length} risk signals at this map location`}
             >
               <Popup>
                 <ClusterPopup events={topEvents} onEventClick={onEventClick} />
@@ -191,6 +202,7 @@ export function EventMapLayers({
               opacity: dimmed ? 0.5 : 1,
               weight: impact.level === "nearby" ? 3 : 2,
             }}
+            eventHandlers={accessiblePath(`${event.headline}, ${event.severity} ${event.category}`)}
           >
             <Tooltip direction="top" offset={[0, -10]}>
               {event.headline}
