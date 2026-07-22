@@ -297,10 +297,10 @@ export function LocationWatchPanel({
                 <div>
                   <div style={styles.pushTitle}>Browser notifications</div>
                   <div style={styles.pushSubtitle}>
-                    Opt in on this device, then send a real test notification.
+                    Opt in on this device, then send a test. Automatic risk updates are in a controlled rollout.
                   </div>
                 </div>
-                <span style={styles.testBadge}>Test mode</span>
+                <span style={styles.testBadge}>Canary</span>
               </div>
               {cloudWatch.pushNotification ? (
                 <>
@@ -379,7 +379,7 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "space-between",
   },
   label: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 11,
     fontWeight: 700,
     textTransform: "uppercase",
@@ -472,7 +472,7 @@ const styles: Record<string, React.CSSProperties> = {
   note: {
     background: "#f5f7fa",
     borderRadius: 5,
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 10,
     lineHeight: 1.4,
     marginTop: 12,
@@ -486,7 +486,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   cloudHeader: { alignItems: "flex-start", display: "flex", gap: 8, justifyContent: "space-between" },
   cloudTitle: { color: "#33691e", fontSize: 12, fontWeight: 900 },
-  cloudSubtitle: { color: "#607d8b", fontSize: 10, lineHeight: 1.35, marginTop: 2 },
+  cloudSubtitle: { color: "#546e7a", fontSize: 10, lineHeight: 1.35, marginTop: 2 },
   cloudStatus: {
     background: "#e8f5e9",
     borderRadius: 999,
@@ -557,7 +557,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   pushHeader: { alignItems: "flex-start", display: "flex", gap: 8, justifyContent: "space-between" },
   pushTitle: { color: "#0d47a1", fontSize: 11, fontWeight: 900 },
-  pushSubtitle: { color: "#607d8b", fontSize: 9, lineHeight: 1.35, marginTop: 2 },
+  pushSubtitle: { color: "#546e7a", fontSize: 9, lineHeight: 1.35, marginTop: 2 },
   testBadge: {
     background: "#fff3e0",
     borderRadius: 999,

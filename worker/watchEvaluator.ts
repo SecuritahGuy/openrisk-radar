@@ -9,6 +9,11 @@ import {
 import type { ResolvedLocation, WatchPreferences } from "../src/types/location";
 import type { D1Database } from "./d1";
 import {
+  queueAutomatedPush,
+  type AutomatedPushOptions,
+  type AutomatedPushResult,
+} from "./watchAutomation";
+import {
   classifyAuditChange,
   incidentFingerprint,
   isWithinQuietHours,
@@ -121,7 +126,37 @@ async function writeAuditError(db: D1Database, row: DueWatchRow, detail: string,
   `).bind(now, rowNextCheck(row, new Date(now).getTime()), detail.slice(0, 500), row.id).run();
 }
 
-async function evaluateWatch(db: D1Database, row: DueWatchRow): Promise<WatchEvaluationStatus> {
+function locationLabel(row: DueWatchRow): string {
+  const location = resolvedLocation(row);
+  return [location.city, location.state || location.country].filter(Boolean).join(", ") || "watched location";
+}
+
+function pushDetail(result: AutomatedPushResult | null): string {
+  if (!result) return "";
+  if (result.queued > 0) {
+    return ` ${result.queued} notification${result.queued === 1 ? " was" : "s were"} queued.`;
+  }
+  switch (result.suppressedReason) {
+    case "outside_canary":
+      return " Automatic delivery is held outside the current canary rollout.";
+    case "rate_limited":
+      return " Automatic delivery was rate-limited.";
+    case "no_subscriptions":
+      return " No active notification device is linked to this watch.";
+    case "unconfigured":
+      return " Automatic delivery is not fully configured.";
+    case "disabled":
+      return " Automatic delivery is disabled.";
+    default:
+      return "";
+  }
+}
+
+async function evaluateWatch(
+  db: D1Database,
+  row: DueWatchRow,
+  automatedPush: AutomatedPushOptions
+): Promise<WatchEvaluationStatus> {
   const now = new Date().toISOString();
   const preferences = JSON.parse(row.preferences_json) as WatchPreferences;
   const sourceResults = await fetchAuditEvents(row, preferences);
@@ -138,8 +173,22 @@ async function evaluateWatch(db: D1Database, row: DueWatchRow): Promise<WatchEva
   const top = [...incidents].sort((a, b) => severityRank(b.severity) - severityRank(a.severity))[0] ?? null;
   const quiet = isWithinQuietHours(preferences, row.timezone);
   const decision = classifyAuditChange(row.last_incident_fingerprint, fingerprint, quiet);
+  let delivery: AutomatedPushResult | null = null;
+  if (decision.kind === "change" && decision.wouldNotify && top) {
+    delivery = await queueAutomatedPush(db, automatedPush, {
+      watchId: row.id,
+      fingerprint,
+      delivery: preferences.delivery,
+      locationLabel: locationLabel(row),
+      matchCount: incidents.length,
+      topEvent: top,
+      now,
+    });
+  }
 
   if (decision.kind) {
+    const deliverySuppression = delivery?.queued === 0 ? delivery.suppressedReason : null;
+    const notificationQueued = (delivery?.queued ?? 0) > 0;
     await db.prepare(`
       INSERT INTO watch_audit_events (
         id, watch_id, kind, would_notify, suppressed_reason, incident_fingerprint,
@@ -149,8 +198,8 @@ async function evaluateWatch(db: D1Database, row: DueWatchRow): Promise<WatchEva
       crypto.randomUUID(),
       row.id,
       decision.kind,
-      decision.wouldNotify ? 1 : 0,
-      decision.suppressedReason,
+      notificationQueued ? 1 : 0,
+      decision.suppressedReason ?? deliverySuppression,
       fingerprint,
       incidents.length,
       top?.headline ?? null,
@@ -162,7 +211,7 @@ async function evaluateWatch(db: D1Database, row: DueWatchRow): Promise<WatchEva
           ? "Previously matching conditions are no longer active."
           : decision.suppressedReason === "quiet_hours"
             ? "Matching conditions changed during quiet hours."
-            : "Matching conditions changed; a notification would have been sent."}${coverage.warning ? ` Partial source failure: ${coverage.warning}` : ""}`,
+            : "Matching conditions changed."}${pushDetail(delivery)}${coverage.warning ? ` Partial source failure: ${coverage.warning}` : ""}`,
       now
     ).run();
   }
@@ -214,7 +263,14 @@ async function recordRunFailure(
   }
 }
 
-export async function runWatchAudit(db: D1Database): Promise<WatchAuditResult> {
+export async function runWatchAudit(
+  db: D1Database,
+  automatedPush: AutomatedPushOptions = {
+    enabled: false,
+    canaryPercent: 0,
+    configured: false,
+  }
+): Promise<WatchAuditResult> {
   const startedMs = Date.now();
   const now = new Date(startedMs).toISOString();
   const runId = crypto.randomUUID();
@@ -247,7 +303,7 @@ export async function runWatchAudit(db: D1Database): Promise<WatchAuditResult> {
 
     const statuses = await mapWithConcurrency(rows, AUDIT_CONCURRENCY, async (row) => {
       try {
-        return await evaluateWatch(db, row);
+        return await evaluateWatch(db, row, automatedPush);
       } catch (error) {
         const detail = error instanceof Error ? error.message : "Unexpected watch evaluation error";
         try {

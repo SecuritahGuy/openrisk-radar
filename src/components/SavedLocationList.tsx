@@ -213,7 +213,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     fontWeight: 600,
     textTransform: "uppercase",
-    color: "#757575",
+    color: "#616161",
     border: "none",
     borderBottom: "1px solid #e0e0e0",
     display: "flex",
@@ -341,7 +341,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   badgeOutline: {
     fontSize: 10,
-    color: "#757575",
+    color: "#616161",
     border: "1px solid #bdbdbd",
     padding: "1px 6px",
     borderRadius: 3,
@@ -358,6 +358,6 @@ const styles: Record<string, React.CSSProperties> = {
   watchBadgeInactive: {
     background: "#eceff1",
     borderColor: "#cfd8dc",
-    color: "#607d8b",
+    color: "#546e7a",
   },
 };

@@ -134,7 +134,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     fontWeight: 600,
     textTransform: "uppercase",
-    color: "#757575",
+    color: "#616161",
     marginBottom: 4,
   },
   weatherRow: {
@@ -183,7 +183,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#f7f9fb",
     border: "1px solid #e3e9ef",
     borderRadius: 7,
-    color: "#607d8b",
+    color: "#546e7a",
     display: "grid",
     fontSize: 10,
     gap: 2,
@@ -206,7 +206,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "8px 9px",
   },
   forecastTime: {
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 10,
     fontWeight: 800,
     textTransform: "uppercase",
@@ -219,7 +219,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 7,
   },
   forecastMeta: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 11,
   },
 };

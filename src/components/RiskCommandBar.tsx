@@ -15,7 +15,10 @@ import {
   sourceColor,
   sourceLabel,
 } from "../lib/riskInsights";
-import { buildImpactSummary, isCurrentImpact } from "../lib/impactInsights";
+import {
+  buildImpactSummary,
+  currentImpactConcernEvents,
+} from "../lib/impactInsights";
 import {
   buildSignalCorrelations,
   type SignalAgreement,
@@ -63,7 +66,7 @@ function agreementColor(agreement: SignalAgreement): string {
     case "single-source":
       return "#ef6c00";
     case "stale":
-      return "#757575";
+      return "#616161";
   }
 }
 
@@ -167,19 +170,13 @@ export function RiskCommandBar({
   }
 
   const concernEvents = activeConcernEvents(events);
-  const summary = buildRiskSummary(concernEvents);
-  const scoreExplanation = explainRiskScore(concernEvents);
+  const localConcernEvents = currentImpactConcernEvents(events, location, radius);
+  const summary = buildRiskSummary(localConcernEvents);
+  const scoreExplanation = explainRiskScore(localConcernEvents);
   const impactSummary = buildImpactSummary(concernEvents, location, radius);
   const historySummary = buildImpactSummary(events, location, radius);
-  const currentImpactEvents = concernEvents.filter((event) =>
-    isCurrentImpact(event, location, radius)
-  );
-  const topEvents = attentionEvents(
-    currentImpactEvents.length > 0 ? currentImpactEvents : concernEvents,
-    location,
-    2
-  );
-  const correlations = buildSignalCorrelations(concernEvents).slice(0, 3);
+  const topEvents = attentionEvents(localConcernEvents, location, 2);
+  const correlations = buildSignalCorrelations(localConcernEvents).slice(0, 3);
   const selectedAgreement =
     correlations.find((signal) => signal.id === selectedAgreementId) ?? null;
   const color = levelColor(summary.level);
@@ -406,7 +403,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 13,
   },
   emptyDetail: {
-    color: "#757575",
+    color: "#616161",
     fontWeight: 400,
   },
   scoreBlock: {
@@ -424,7 +421,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   scoreLabel: {
     fontSize: 10,
-    color: "#757575",
+    color: "#616161",
     fontWeight: 700,
     textTransform: "uppercase",
   },
@@ -477,7 +474,7 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: 1.25,
   },
   sourceSummary: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 10,
     lineHeight: 1.35,
     marginTop: 8,
@@ -511,7 +508,7 @@ const styles: Record<string, React.CSSProperties> = {
   metricLabel: {
     display: "block",
     fontSize: 11,
-    color: "#757575",
+    color: "#616161",
     marginTop: 4,
   },
   weatherBlock: {
@@ -550,7 +547,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 3,
   },
   agreementHint: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 11,
     lineHeight: 1.25,
   },
@@ -595,7 +592,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   agreementMeta: {
     display: "block",
-    color: "#757575",
+    color: "#616161",
     fontSize: 10,
     lineHeight: 1.3,
     marginTop: 3,
@@ -605,7 +602,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   agreementEmpty: {
     gridColumn: "1 / -1",
-    color: "#757575",
+    color: "#616161",
     fontSize: 12,
   },
   agreementDetail: {
@@ -626,7 +623,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 800,
   },
   agreementDetailSummary: {
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 11,
     lineHeight: 1.35,
     marginTop: 2,
@@ -675,7 +672,7 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: "right",
   },
   agreementEventMeta: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 10,
     overflow: "hidden",
     textAlign: "right",
@@ -685,7 +682,7 @@ const styles: Record<string, React.CSSProperties> = {
   attentionHeader: {
     alignSelf: "center",
     fontSize: 10,
-    color: "#757575",
+    color: "#616161",
     fontWeight: 700,
     textTransform: "uppercase",
     padding: "0 4px",
@@ -729,7 +726,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   attentionMeta: {
     fontSize: 10,
-    color: "#757575",
+    color: "#616161",
     marginTop: 5,
     whiteSpace: "nowrap",
     overflow: "hidden",
@@ -742,6 +739,6 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 8,
     padding: "14px",
     fontSize: 12,
-    color: "#757575",
+    color: "#616161",
   },
 };

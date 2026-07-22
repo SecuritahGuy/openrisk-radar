@@ -15,7 +15,7 @@
       },
       "capability": "wildfire",
       "outputModel": "risk-event",
-      "access": "public",
+      "access": "research-required",
       "format": "geojson",
       "endpoint": "https://www.rfs.nsw.gov.au/feeds/majorIncidents.json",
       "refreshSeconds": 300,
@@ -87,9 +87,9 @@
       "refreshSeconds": 300,
       "proxyRequired": false,
       "attribution": "Australian Bureau of Meteorology",
-      "termsUrl": "https://www.bom.gov.au/catalogue/data-feeds.shtml",
-      "status": "discovered",
-      "notes": "BOM weather warnings. Unofficial API at api.weather.bom.gov.au (reverse-engineered from web app). Returns current warnings by type. Also official XML feeds via FTP at ftp.bom.gov.au/anon/gen/fwo/. JSON observations at /v1/observations/{station}."
+      "termsUrl": "https://www.bom.gov.au/resources/data-services",
+      "status": "research-required",
+      "notes": "Live validation on 2026-07-22 returned warning JSON with CORS, but the response metadata explicitly says the API must not be used, copied, or shared. Anonymous RSS/XML requests were blocked as automated access, and the Bureau states publishing/commercial reuse requires registered-user licensing. Do not promote without a written data agreement."
     },
     {
       "id": "au-bom-marine",

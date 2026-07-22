@@ -2,17 +2,19 @@ import { onRequestGet as femaRiskIndex } from "../functions/api/fema/risk-index"
 import { onRequestGet as nwps } from "../functions/api/noaa/nwps";
 import { onRequestGet as stormEvents } from "../functions/api/noaa/storm-events";
 import { onRequestGet as tsunami } from "../functions/api/noaa/tsunami";
+import { onRequestGet as tsunamiFeed } from "../functions/api/noaa/tsunami-feed";
 import { onRequestGet as meteoalarm } from "../functions/api/meteoalarm/alerts";
 import { onRequestGet as calFire } from "../functions/api/regional/cal-fire";
 import { onRequestGet as traffic } from "../functions/api/traffic";
 import { onRequestGet as emsc } from "../functions/api/emsc";
 import { jsonError } from "../functions/_shared/proxy";
 import type { D1Database } from "./d1";
-import { deliverPushMessage, type PushDeliveryEnv, type PushQueueMessage } from "./pushDelivery";
+import { deliverPushMessage, markPushDeliveryExhausted, type PushDeliveryEnv, type PushQueueMessage } from "./pushDelivery";
 import { runWatchAudit } from "./watchEvaluator";
 import { readWatchAuditOperations } from "./watchOperations";
 import { handleWatchRequest } from "./watchRegistry";
 import { handleWatchPushRequest, type PushQueueBinding } from "./watchPush";
+import { normalizeCanaryPercent } from "./watchAutomation";
 import { LOCATION_WATCH_AUDIT_SOURCES } from "../src/services/locationEventFeeds";
 
 interface Env extends PushDeliveryEnv {
@@ -20,10 +22,12 @@ interface Env extends PushDeliveryEnv {
   DB?: D1Database;
   PUSH_QUEUE?: PushQueueBinding;
   AUTOMATED_PUSH_ENABLED?: string;
+  AUTOMATED_PUSH_CANARY_PERCENT?: string;
 }
 
 interface QueueMessage<T> {
   body: T;
+  attempts?: number;
   ack(): void;
   retry(options?: { delaySeconds?: number }): void;
 }
@@ -37,6 +41,7 @@ const apiRoutes = new Map<string, (context: { request: Request }) => Promise<Res
   ["/api/noaa/nwps", nwps],
   ["/api/noaa/storm-events", stormEvents],
   ["/api/noaa/tsunami", tsunami],
+  ["/api/noaa/tsunami-feed", tsunamiFeed],
   ["/api/meteoalarm/alerts", meteoalarm],
   ["/api/regional/cal-fire", calFire],
   ["/api/traffic", traffic],
@@ -48,11 +53,21 @@ const sourceStatus = [
   { id: "noaa-nwps", label: "NOAA River Forecasts", route: "/api/noaa/nwps", cacheSeconds: 900 },
   { id: "noaa-storm-events", label: "NOAA Storm Events", route: "/api/noaa/storm-events", cacheSeconds: 86_400 },
   { id: "noaa-tsunami", label: "NOAA Tsunami", route: "/api/noaa/tsunami", cacheSeconds: 60 },
+  { id: "noaa-tsunami-feed", label: "NOAA Tsunami Atom Fallback", route: "/api/noaa/tsunami-feed", cacheSeconds: 60 },
   { id: "meteoalarm", label: "Meteoalarm European Warnings", route: "/api/meteoalarm/alerts", cacheSeconds: 300 },
   { id: "cal-fire", label: "CAL FIRE Incidents", route: "/api/regional/cal-fire", cacheSeconds: 120 },
   { id: "usdot-wzdx", label: "USDOT Work Zone Data Exchange", route: "/api/traffic", cacheSeconds: 90 },
   { id: "emsc", label: "EMSC Earthquakes", route: "/api/emsc", cacheSeconds: 60 },
 ];
+
+function pushConfigured(env: Env): boolean {
+  return !!(env.DB && env.PUSH_QUEUE && env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY && env.VAPID_SUBJECT && env.PUSH_DATA_KEY);
+}
+
+function pushMode(env: Env): "test" | "canary" | "active" {
+  if (env.AUTOMATED_PUSH_ENABLED !== "true") return "test";
+  return normalizeCanaryPercent(env.AUTOMATED_PUSH_CANARY_PERCENT) >= 100 ? "active" : "canary";
+}
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -64,9 +79,10 @@ export default {
       }
       return Response.json({
         supported: true,
-        configured: !!(env.DB && env.PUSH_QUEUE && env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY && env.PUSH_DATA_KEY),
+        configured: pushConfigured(env),
         publicKey: env.VAPID_PUBLIC_KEY ?? null,
         automatedDelivery: env.AUTOMATED_PUSH_ENABLED === "true",
+        rolloutPercent: normalizeCanaryPercent(env.AUTOMATED_PUSH_CANARY_PERCENT),
       }, { headers: { "Cache-Control": "no-store" } });
     }
     if (url.pathname === "/api/status") {
@@ -84,9 +100,10 @@ export default {
           operations: watchOperations,
         },
         pushNotifications: {
-          configured: !!(env.DB && env.PUSH_QUEUE && env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY && env.PUSH_DATA_KEY),
+          configured: pushConfigured(env),
           automatedDelivery: env.AUTOMATED_PUSH_ENABLED === "true",
-          mode: "test",
+          rolloutPercent: normalizeCanaryPercent(env.AUTOMATED_PUSH_CANARY_PERCENT),
+          mode: pushMode(env),
         },
       }, { headers: { "Cache-Control": "public, max-age=60, s-maxage=300" } });
     }
@@ -155,8 +172,24 @@ export default {
       return;
     }
     try {
-      const result = await runWatchAudit(env.DB);
+      const result = await runWatchAudit(env.DB, {
+        enabled: env.AUTOMATED_PUSH_ENABLED === "true",
+        canaryPercent: normalizeCanaryPercent(env.AUTOMATED_PUSH_CANARY_PERCENT),
+        configured: pushConfigured(env),
+        queue: env.PUSH_QUEUE,
+      });
       console.log(JSON.stringify({ type: "watch_audit_complete", ...result }));
+      const operations = await readWatchAuditOperations(env.DB);
+      if (operations.health !== "operational") {
+        console.warn(JSON.stringify({
+          type: "operations_alert",
+          health: operations.health,
+          alerts: operations.alerts,
+          activeWatches: operations.activeWatches,
+          dueWatches: operations.dueWatches,
+          push: operations.push,
+        }));
+      }
     } catch (error) {
       console.error(JSON.stringify({
         type: "watch_audit_failed",
@@ -177,6 +210,9 @@ export default {
           deliveryId: message.body.deliveryId,
           message: error instanceof Error ? error.message : "Unknown push delivery error",
         }));
+        if ((message.attempts ?? 1) >= 4) {
+          await markPushDeliveryExhausted(env.DB, message.body.deliveryId, error);
+        }
         message.retry({ delaySeconds: 60 });
       }
     }

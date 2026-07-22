@@ -37,3 +37,9 @@ jobs:
 
       - name: Compile Worker
         run: npm run worker:check
+
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser regressions
+        run: npm run test:e2e

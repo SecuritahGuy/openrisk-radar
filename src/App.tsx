@@ -661,6 +661,7 @@ export default function App() {
           location={result}
           events={incidentEvents}
           isFetching={isFetching}
+          radius={radius}
         />
         {!result && (
           <FirstRunPanel

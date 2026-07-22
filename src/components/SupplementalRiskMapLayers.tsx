@@ -39,7 +39,7 @@ function sourceColor(source: SupplementalSource): string {
     case "HDX":
       return "#37474f";
     default:
-      return "#607d8b";
+      return "#546e7a";
   }
 }
 

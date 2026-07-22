@@ -5,6 +5,8 @@ import {
   gibsTileTemplate,
   gibsTileUrl,
   latestGibsDate,
+  readGibsPreferences,
+  writeGibsPreferences,
 } from "../gibs";
 
 describe("NASA GIBS map layers", () => {
@@ -35,5 +37,27 @@ describe("NASA GIBS map layers", () => {
   it("requires the WMS renderer for thermal anomaly vectors", () => {
     expect(() => gibsTileTemplate("VIIRS_SNPP_Thermal_Anomalies_375m", "2026-07-21"))
       .toThrow("uses the GIBS WMS renderer");
+  });
+
+  it("persists valid imagery preferences and expires dates outside the selector window", () => {
+    const values = new Map<string, string>();
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => void values.set(key, value),
+    };
+    writeGibsPreferences(storage, {
+      layer: "Snow_Cover",
+      date: "2026-07-20",
+      opacity: 0.55,
+    });
+    expect(readGibsPreferences(storage, new Date("2026-07-22T12:00:00Z"))).toEqual({
+      layer: "Snow_Cover",
+      date: "2026-07-20",
+      opacity: 0.55,
+    });
+    expect(readGibsPreferences(storage, new Date("2026-08-22T12:00:00Z"))).toMatchObject({
+      layer: "Snow_Cover",
+      date: "2026-08-21",
+    });
   });
 });

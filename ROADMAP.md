@@ -48,7 +48,7 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | USGS Water Services | United States | River conditions — discharge, gauge height, water temperature | Environmental signals panel |
 | NOAA CO-OPS | U.S. coasts + Great Lakes | Coastal water levels, flood thresholds | Environmental signals panel |
 | NOAA NWPS | United States | River forecasts and elevated gauge status | Main dashboard and environmental signals |
-| NOAA Tsunami | United States and territories | Active tsunami alerts | Main dashboard; malformed upstream numeric tokens are repaired defensively |
+| NOAA Tsunami | United States, territories, and PTWC international threat messages | Active tsunami alerts | Main dashboard; malformed upstream JSON tokens are repaired defensively, with official NTWC/PTWC Atom feeds as an independent fallback |
 | NOAA SWPC | Global | Kp index, DST, X-ray flares, solar flux | Environmental signals panel |
 | US Drought Monitor | United States | D0-D4 drought severity polygons | Environmental signals panel |
 | USGS ShakeMap | Global | Shaking-intensity context for significant earthquakes | Environmental signals panel |
@@ -118,6 +118,8 @@ The current Cloudflare watch/audit implementation is experimental research. It i
 | GlobalBuildingAtlas | Global | Building footprint counts, heights, density — for impact exposure analysis |
 | IBTrACS | Global historical tropical cyclones | Historical context, not live risk feed |
 | WMO CAP warning aggregation | Global by country | Valuable but source discovery and normalization are complex |
+
+BoM Australia warning feeds were revalidated in July 2026 and are not eligible for production promotion under the anonymous/API terms observed. Reconsider only after obtaining a registered-user publishing agreement from the Bureau.
 
 ### Candidate research backlog
 

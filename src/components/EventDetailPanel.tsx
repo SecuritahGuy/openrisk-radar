@@ -51,7 +51,7 @@ function sourceColor(source: string): string {
     case "METEOALARM":
       return "#c62828";
     default:
-      return "#757575";
+      return "#616161";
   }
 }
 
@@ -63,7 +63,7 @@ function severityStyle(severity: string): React.CSSProperties {
         ? "#f57c00"
         : severity === "Moderate"
           ? "#fbc02d"
-          : "#757575";
+          : "#616161";
   return {
     fontSize: 11,
     fontWeight: 700,
@@ -708,7 +708,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 800,
     padding: "2px 8px",
     borderRadius: 3,
-    color: "#607d8b",
+    color: "#546e7a",
     background: "#eceff1",
     textTransform: "uppercase" as const,
   },
@@ -755,7 +755,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderBottom: "1px solid #f5f5f5",
   },
   detailLabel: {
-    color: "#757575",
+    color: "#616161",
     fontWeight: 500,
     minWidth: 120,
   },

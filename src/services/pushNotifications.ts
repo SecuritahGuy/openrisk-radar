@@ -4,6 +4,7 @@ interface PushConfig {
   configured: boolean;
   publicKey: string | null;
   automatedDelivery: boolean;
+  rolloutPercent: number;
 }
 
 interface SubscriptionResponse {

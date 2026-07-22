@@ -152,6 +152,12 @@ body {
     min-height: 44px;
   }
 
+  .dashboard-intro button,
+  .app-main button,
+  .update-panel button {
+    min-width: 44px;
+  }
+
   .dashboard-header a {
     display: inline-flex;
     align-items: center;

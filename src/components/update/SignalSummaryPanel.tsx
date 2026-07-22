@@ -246,7 +246,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     fontWeight: 600,
     textTransform: "uppercase",
-    color: "#757575",
+    color: "#616161",
     marginBottom: 4,
   },
   detail: { fontSize: 13, color: "#616161", marginTop: 2 },
@@ -269,7 +269,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   supplementalMetrics: {
     fontSize: 11,
-    color: "#757575",
+    color: "#616161",
     marginLeft: 16,
     marginTop: 2,
   },

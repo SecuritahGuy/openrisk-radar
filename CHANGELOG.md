@@ -2,6 +2,43 @@
 
 ## Unreleased
 
+### Local public-health risk scoping
+
+- Tightened WHO Disease Outbreak News matching to use the outbreak geography in the report title, preventing an incidental patient-nationality mention from importing a foreign outbreak into a US location.
+- Kept country-level WHO reports as monitoring context while allowing them to affect local risk only when the report names the searched state, county, or city.
+- Applied the same current-impact boundary to dashboard posture, attention cards, situation briefs, saved-place summaries, and offline snapshots so remote severe events cannot inflate local criticality.
+- Added regressions for the WHO Ebola DRC/US-worker wording and for country-only versus state-local WHO impact scoring.
+
+### Resilient tsunami monitoring
+
+- Added an independent official NOAA fallback path using the NTWC and PTWC Atom feeds when the primary tsunami JSON endpoint fails or omits an active warning-center message.
+- Kept warning, advisory, watch, and threat messages only, enforced a 24-hour freshness window, and report fallback operation as degraded coverage instead of a hard source failure.
+- Rejected automatic Global Tsunami Monitor promotion after current provider documentation confirmed that REST API access requires a separate agreement.
+
+### Production operations health
+
+- Expanded `/api/status` with 24-hour audit reliability, stale-run detection, backlog thresholds, active push subscriptions, and queued, failed, invalid, or stuck delivery counts.
+- Added operational, degraded, and critical health classification plus structured scheduled-run alerts suitable for Cloudflare log alerting.
+
+### Controlled automatic notifications
+
+- Activated automatic Web Push through a deterministic 10% watch canary rather than a global cutover.
+- Added per-device idempotency, a three-batch-per-hour watch limit, quiet-hour enforcement, delivery suppression reasons, and exhausted-retry failure recording before dead-letter handoff.
+
+### Browser regression and accessibility coverage
+
+- Added Playwright and axe checks to CI for ZIP `60030`, phone overflow and touch targets, short desktop map scrolling, monitored-place collapse persistence, and NASA imagery preferences.
+- Fixed unnamed searched-location map markers, invalid ARIA grouping, undersized mobile controls, and marginal secondary-text contrast uncovered by the automated audit.
+
+### NASA imagery controls
+
+- Persisted the selected GIBS layer, recent date, and opacity; stale saved dates now fall back to the newest selectable imagery date.
+- Added product-specific legends and partial-tile failure reporting so available imagery remains visible when individual tiles fail.
+
+### Source promotion safeguards
+
+- Revalidated Australian Bureau of Meteorology warning feeds and blocked production promotion: live API metadata prohibits use, copying, or sharing, anonymous feed automation is blocked, and publishing requires a registered-user data agreement.
+
 ### Watch audit operations
 
 - Increased scheduled watch-audit capacity, added bounded per-watch concurrency, and isolated individual watch failures so one malformed registration cannot abort the remaining batch.

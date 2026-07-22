@@ -9,7 +9,7 @@ function ratingColor(rating: string): string {
   if (rating.includes("High")) return "#d84315";
   if (rating.includes("Moderate")) return "#f57c00";
   if (rating.includes("Low")) return "#2e7d32";
-  return "#607d8b";
+  return "#546e7a";
 }
 
 function formatCurrency(value: number | null): string {
@@ -127,7 +127,7 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "space-between",
   },
   label: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 11,
     fontWeight: 700,
     textTransform: "uppercase",
@@ -167,7 +167,7 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: 1.15,
   },
   metricLabel: {
-    color: "#607d8b",
+    color: "#546e7a",
     display: "block",
     fontSize: 10,
     fontWeight: 800,
@@ -175,7 +175,7 @@ const styles: Record<string, React.CSSProperties> = {
     textTransform: "uppercase",
   },
   contextRow: {
-    color: "#607d8b",
+    color: "#546e7a",
     display: "grid",
     fontSize: 11,
     gap: 3,
@@ -188,7 +188,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 10,
   },
   subLabel: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 10,
     fontWeight: 800,
     textTransform: "uppercase",
@@ -224,7 +224,7 @@ const styles: Record<string, React.CSSProperties> = {
     textDecoration: "none",
   },
   empty: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 12,
     lineHeight: 1.35,
     marginTop: 5,

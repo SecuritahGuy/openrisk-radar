@@ -59,7 +59,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "inline-block",
     marginTop: 3,
     fontSize: 11,
-    color: "#607d8b",
+    color: "#546e7a",
     textDecoration: "none",
     fontWeight: 600,
   },

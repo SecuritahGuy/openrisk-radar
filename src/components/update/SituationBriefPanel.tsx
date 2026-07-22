@@ -4,7 +4,6 @@ import type { CurrentWeather } from "../../services/weather";
 import type { RadiusOption, ResolvedLocation } from "../../types/location";
 import type { RiskEvent } from "../../types/riskEvent";
 import {
-  activeConcernEvents,
   attentionEvents,
   buildRiskSummary,
   distanceMiles,
@@ -13,7 +12,10 @@ import {
   severityColor,
   sourceColor,
 } from "../../lib/riskInsights";
-import { assessImpact } from "../../lib/impactInsights";
+import {
+  assessImpact,
+  currentImpactConcernEvents,
+} from "../../lib/impactInsights";
 import { summarizeSourceAgreement } from "../../lib/signalCorrelation";
 
 interface SituationBriefPanelProps {
@@ -99,7 +101,7 @@ export function SituationBriefPanel({
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">(
     "idle"
   );
-  const concernEvents = activeConcernEvents(events);
+  const concernEvents = currentImpactConcernEvents(events, location, radius);
   const risk = buildRiskSummary(concernEvents);
   const latest = latestEvent(concernEvents);
   const topEvents = attentionEvents(concernEvents, location, 3);
@@ -273,7 +275,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     fontWeight: 800,
     textTransform: "uppercase",
-    color: "#607d8b",
+    color: "#546e7a",
   },
   title: {
     color: "#263238",
@@ -319,7 +321,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "9px 10px",
   },
   priorityTitle: {
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 10,
     fontWeight: 900,
     marginBottom: 6,

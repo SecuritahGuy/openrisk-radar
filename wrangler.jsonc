@@ -8,7 +8,8 @@
   "vars": {
     "VAPID_PUBLIC_KEY": "BAzo-xScUUYxFr7J2z8GhfAvyLwBgdRnvw49RFMNZzoRELY9MVurEqQci_yIKJerXZjbPQh_QORbzmpM1W-bYes",
     "VAPID_SUBJECT": "https://openriskradar.com",
-    "AUTOMATED_PUSH_ENABLED": "false"
+    "AUTOMATED_PUSH_ENABLED": "true",
+    "AUTOMATED_PUSH_CANARY_PERCENT": "10"
   },
   "observability": {
     "enabled": true,

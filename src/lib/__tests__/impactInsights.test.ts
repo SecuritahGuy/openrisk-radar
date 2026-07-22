@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { ResolvedLocation } from "../../types/location";
 import type { RiskEvent } from "../../types/riskEvent";
-import { buildImpactSeveritySummary } from "../impactInsights";
+import {
+  assessImpact,
+  buildImpactSeveritySummary,
+  currentImpactConcernEvents,
+} from "../impactInsights";
 import { buildActionGuidance } from "../actionGuidance";
+import { buildRiskSummary } from "../riskInsights";
 
 const location: ResolvedLocation = {
   city: "Chicago", state: "IL", country: "USA", postalCode: null,
@@ -45,5 +50,62 @@ describe("current impact severity", () => {
     expect(guidance.level).toBe("act");
     expect(guidance.sourceEvent?.id).toBe("severe");
     expect(guidance.detail).toContain("evacuation");
+  });
+
+  it("keeps country-only WHO reports from changing local risk", () => {
+    const remoteWhoReport = event({
+      id: "remote-who",
+      source: "WHO",
+      severity: "Severe",
+      geometryType: "None",
+      latitude: null,
+      longitude: null,
+      expiresAt: null,
+      raw: {
+        openRiskScope: {
+          whoCountryMatch: true,
+          whoLocalityMatch: false,
+        },
+      },
+    });
+
+    expect(assessImpact(remoteWhoReport, location, 50)).toMatchObject({
+      level: "monitor",
+    });
+    const localConcerns = currentImpactConcernEvents(
+      [remoteWhoReport],
+      location,
+      50,
+      now
+    );
+    expect(localConcerns).toEqual([]);
+    expect(buildRiskSummary(localConcerns).level).toBe("Clear");
+  });
+
+  it("includes WHO reports that name the searched state or locality", () => {
+    const localWhoReport = event({
+      id: "local-who",
+      source: "WHO",
+      severity: "Severe",
+      geometryType: "None",
+      latitude: null,
+      longitude: null,
+      expiresAt: null,
+      raw: {
+        openRiskScope: {
+          whoCountryMatch: true,
+          whoLocalityMatch: true,
+        },
+      },
+    });
+
+    expect(assessImpact(localWhoReport, location, 50)).toMatchObject({
+      level: "affects",
+    });
+    expect(
+      currentImpactConcernEvents([localWhoReport], location, 50, now).map(
+        (item) => item.id
+      )
+    ).toEqual(["local-who"]);
   });
 });

@@ -8,12 +8,15 @@ import { createLocationFeedContext, fetchLocationEventFeeds } from "../services/
 import type { Location, RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import {
-  activeConcernEvents,
   attentionEvents,
   buildRiskSummary,
   type RiskSummary,
 } from "../lib/riskInsights";
-import { buildImpactSummary, type ImpactSummary } from "../lib/impactInsights";
+import {
+  buildImpactSummary,
+  currentImpactConcernEvents,
+  type ImpactSummary,
+} from "../lib/impactInsights";
 import { canonicalIncidentEvents } from "../lib/incidents";
 import { eventMatchesWatch, watchPreferencesFor } from "../lib/watchPreferences";
 
@@ -178,9 +181,13 @@ export function useSavedLocationRiskSummaries(
     const query = queries[index];
     const payload = query.data;
     const events = payload?.events ?? [];
-    const concernEvents = activeConcernEvents(events);
     const resolvedLocation = toResolvedLocation(location);
     const radius = toRadiusOption(location.radiusMiles || 50);
+    const concernEvents = currentImpactConcernEvents(
+      events,
+      resolvedLocation,
+      radius
+    );
     const risk = buildRiskSummary(concernEvents);
     const impact = buildImpactSummary(events, resolvedLocation, radius);
 

@@ -36,7 +36,7 @@ function statusColor(status: SourceHealthStatus): string {
     case "loading":
       return "#1565c0";
     case "empty":
-      return "#607d8b";
+      return "#546e7a";
     case "degraded":
       return "#ef6c00";
     case "error":
@@ -101,6 +101,12 @@ export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
   const visibleItems =
     showAll || priorityItems.length === 0 ? sortedItems : priorityItems;
   const hiddenCount = sortedItems.length - visibleItems.length;
+  const operations = apiStatus.data?.watchRegistry.operations;
+  const operationsColor = operations?.health === "critical"
+    ? "#c62828"
+    : operations?.health === "degraded"
+      ? "#ef6c00"
+      : "#2e7d32";
 
   return (
     <div style={styles.section}>
@@ -137,28 +143,56 @@ export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
       </div>
       <div style={styles.list}>
         {import.meta.env.PROD && (
-          <div style={styles.row}>
-            <div style={styles.topLine}>
-              <span style={styles.name}>OpenRisk API</span>
-              <span
-                style={{
-                  ...styles.badge,
-                  color: apiStatus.isError ? "#c62828" : apiStatus.data ? "#2e7d32" : "#1565c0",
-                  background: apiStatus.isError ? "#c6282814" : apiStatus.data ? "#2e7d3214" : "#1565c014",
-                  borderColor: apiStatus.isError ? "#c6282855" : apiStatus.data ? "#2e7d3255" : "#1565c055",
-                }}
-              >
-                {apiStatus.isError ? "Unavailable" : apiStatus.data ? "Operational" : "Checking"}
-              </span>
+          <>
+            <div style={styles.row}>
+              <div style={styles.topLine}>
+                <span style={styles.name}>OpenRisk API</span>
+                <span
+                  style={{
+                    ...styles.badge,
+                    color: apiStatus.isError ? "#c62828" : apiStatus.data ? "#2e7d32" : "#1565c0",
+                    background: apiStatus.isError ? "#c6282814" : apiStatus.data ? "#2e7d3214" : "#1565c014",
+                    borderColor: apiStatus.isError ? "#c6282855" : apiStatus.data ? "#2e7d3255" : "#1565c055",
+                  }}
+                >
+                  {apiStatus.isError ? "Unavailable" : apiStatus.data ? "Operational" : "Checking"}
+                </span>
+              </div>
+              <div style={styles.rowDetail}>
+                {apiStatus.data
+                  ? `${apiStatus.data.sources.length} protected proxy routes · ${apiStatus.data.version}`
+                  : apiStatus.isError
+                    ? "The source proxy status endpoint could not be reached."
+                    : "Checking the source proxy."}
+              </div>
             </div>
-            <div style={styles.rowDetail}>
-              {apiStatus.data
-                ? `${apiStatus.data.sources.length} protected proxy routes · ${apiStatus.data.version}`
-                : apiStatus.isError
-                  ? "The source proxy status endpoint could not be reached."
-                  : "Checking the source proxy."}
-            </div>
-          </div>
+            {operations && (
+              <div style={styles.row} data-testid="operations-health">
+                <div style={styles.topLine}>
+                  <span style={styles.name}>Cloud watch operations</span>
+                  <span style={{
+                    ...styles.badge,
+                    color: operationsColor,
+                    background: `${operationsColor}14`,
+                    borderColor: `${operationsColor}55`,
+                  }}>
+                    {operations.health === "critical" ? "Critical" : operations.health === "degraded" ? "Degraded" : "Healthy"}
+                  </span>
+                </div>
+                <div style={styles.rowDetail}>
+                  {operations.activeWatches} active · {operations.dueWatches} due · {operations.recentRuns.total} audits in 24h
+                  {operations.push.activeSubscriptions > 0
+                    ? ` · ${operations.push.activeSubscriptions} notification device${operations.push.activeSubscriptions === 1 ? "" : "s"}`
+                    : ""}
+                </div>
+                {operations.alerts.length > 0 && (
+                  <ul style={styles.alertList}>
+                    {operations.alerts.map((alert) => <li key={alert}>{alert}</li>)}
+                  </ul>
+                )}
+              </div>
+            )}
+          </>
         )}
         {visibleItems.map((item) => {
           const color = statusColor(item.status);
@@ -218,7 +252,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     fontWeight: 600,
     textTransform: "uppercase",
-    color: "#757575",
+    color: "#616161",
     marginBottom: 4,
   },
   detail: { fontSize: 13, color: "#616161", marginTop: 2 },
@@ -255,6 +289,13 @@ const styles: Record<string, React.CSSProperties> = {
     borderBottom: "1px solid #eceff1",
     background: "#fff",
   },
+  alertList: {
+    margin: "6px 0 0 18px",
+    padding: 0,
+    color: "#6d4c41",
+    fontSize: 11,
+    lineHeight: 1.45,
+  },
   topLine: {
     display: "flex",
     justifyContent: "space-between",
@@ -277,7 +318,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   rowDetail: {
     fontSize: 11,
-    color: "#607d8b",
+    color: "#546e7a",
     marginTop: 3,
     lineHeight: 1.35,
   },

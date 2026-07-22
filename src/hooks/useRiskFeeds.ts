@@ -23,7 +23,7 @@ import { fetchRiverConditions } from "../services/usgsWater";
 import { fetchNwpsRiverForecasts } from "../services/nwps";
 import { fetchNearbyVolcanoes } from "../services/usgsVolcanoes";
 import { fetchDroughtAtPoint } from "../services/drought";
-import { fetchTsunamiEvents } from "../services/tsunami";
+import { fetchTsunamiFeed, type TsunamiFeedResult } from "../services/tsunamiFallback";
 import { fetchShakeMap } from "../services/shakemap";
 import { fetchUkFloods } from "../services/ukFlood";
 import { fetchSwpcConditions } from "../services/swpc";
@@ -418,10 +418,10 @@ export function useRiskFeeds(
     retry: 1,
   });
 
-  const tsunamiQuery = useQuery<SupplementalRiskSignal[]>({
-    queryKey: ["tsunami-events"],
-    queryFn: () => fetchTsunamiEvents(),
-    enabled: usLocationEnabled,
+  const tsunamiQuery = useQuery<TsunamiFeedResult>({
+    queryKey: ["tsunami-events", location?.latitude, location?.longitude, usLocationEnabled],
+    queryFn: () => fetchTsunamiFeed({ noaaEnabled: usLocationEnabled }),
+    enabled: !!location,
     staleTime: 60_000,
     retry: 1,
   });
@@ -572,7 +572,7 @@ export function useRiskFeeds(
   const airQualitySignals = airQualityQuery.data ?? EMPTY_SIGNALS;
   const marineSignals = marineQuery.data ?? EMPTY_SIGNALS;
   const floodSignals = floodQuery.data ?? EMPTY_SIGNALS;
-  const tsunamiSignals = tsunamiQuery.data ?? EMPTY_SIGNALS;
+  const tsunamiSignals = tsunamiQuery.data?.signals ?? EMPTY_SIGNALS;
   const shakemapSignals = useMemo(
     () => shakemapQuery.data ? [shakemapQuery.data] : EMPTY_SIGNALS,
     [shakemapQuery.data]
@@ -950,18 +950,29 @@ export function useRiskFeeds(
       liveDetail: `${floodSignals.length} flood signal${floodSignals.length !== 1 ? "s" : ""}.`,
       emptyDetail: "No river discharge data for this location.",
     }),
-    queryHealth({
-      id: "noaa-tsunami",
-      label: "NOAA Tsunami",
-      enabled: usLocationEnabled,
-      isLoading: tsunamiQuery.isLoading,
-      isFetching: tsunamiQuery.isFetching,
-      error: errorMessage(tsunamiQuery.error),
-      count: tsunamiSignals.length,
-      liveDetail: `${tsunamiSignals.length} tsunami signal${tsunamiSignals.length !== 1 ? "s" : ""}.`,
-      emptyDetail: "No active tsunami events.",
-      disabledDetail: "Available for U.S. and territorial warning-center coverage.",
-    }),
+    tsunamiQuery.data?.primaryError
+      ? {
+          id: "tsunami-monitoring",
+          label: "Tsunami Monitoring",
+          status: "degraded",
+          count: tsunamiSignals.length,
+          detail: tsunamiSignals.length > 0
+            ? `Official NTWC/PTWC feed fallback active with ${tsunamiSignals.length} signal${tsunamiSignals.length !== 1 ? "s" : ""}; the NOAA JSON endpoint is temporarily unavailable.`
+            : "Official NTWC/PTWC feed fallback is active with no current signal; the NOAA JSON endpoint is temporarily unavailable.",
+        }
+      : queryHealth({
+          id: "tsunami-monitoring",
+          label: "NOAA Tsunami Monitoring",
+          enabled: locationEnabled,
+          isLoading: tsunamiQuery.isLoading,
+          isFetching: tsunamiQuery.isFetching,
+          error: errorMessage(tsunamiQuery.error),
+          count: tsunamiSignals.length,
+          liveDetail: tsunamiQuery.data?.mode === "official-gap-fill"
+              ? `${tsunamiSignals.length} active signal${tsunamiSignals.length !== 1 ? "s" : ""} from the official NTWC/PTWC feeds.`
+              : `${tsunamiSignals.length} tsunami signal${tsunamiSignals.length !== 1 ? "s" : ""}.`,
+          emptyDetail: "No active tsunami events reported by the available monitors.",
+        }),
     queryHealth({
       id: "usgs-shakemap",
       label: "USGS ShakeMap",

@@ -40,7 +40,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     fontWeight: 600,
     textTransform: "uppercase",
-    color: "#757575",
+    color: "#616161",
     marginBottom: 4,
   },
   detail: { fontSize: 13, color: "#616161", marginTop: 2 },

@@ -5,12 +5,14 @@ import type { RiskEvent } from "../types/riskEvent";
 import type { SourceHealthItem } from "../hooks/useRiskFeeds";
 import type { SavedLocationRiskSummary } from "../hooks/useSavedLocationRiskSummaries";
 import {
-  activeConcernEvents,
   attentionEvents,
   buildRiskSummary,
   sourceColor,
 } from "../lib/riskInsights";
-import { buildImpactSummary } from "../lib/impactInsights";
+import {
+  buildImpactSummary,
+  currentImpactConcernEvents,
+} from "../lib/impactInsights";
 import { readBooleanPreference, writeBooleanPreference } from "../lib/uiPreferences";
 import {
   eventMatchesWatch,
@@ -95,41 +97,30 @@ export function SavedLocationOverview({
   const watchedEvents = activeWatch
     ? events.filter((event) => eventMatchesWatch(event, activeWatch))
     : events;
-  const concernEvents = activeConcernEvents(watchedEvents);
-  const risk = buildRiskSummary(concernEvents);
-  const impact = activeLocation
-    ? buildImpactSummary(
-        watchedEvents,
-        {
-          city: activeLocation.city,
-          state: activeLocation.state,
-          postalCode: activeLocation.postalCode,
-          country: activeLocation.country,
-          latitude: activeLocation.latitude,
-          longitude: activeLocation.longitude,
-          county: activeLocation.county,
-          stateFips: activeLocation.stateFips,
-          countyFips: activeLocation.countyFips,
-        },
-        radius
-      )
+  const resolvedActiveLocation = activeLocation
+    ? {
+        city: activeLocation.city,
+        state: activeLocation.state,
+        postalCode: activeLocation.postalCode,
+        country: activeLocation.country,
+        latitude: activeLocation.latitude,
+        longitude: activeLocation.longitude,
+        county: activeLocation.county,
+        stateFips: activeLocation.stateFips,
+        countyFips: activeLocation.countyFips,
+      }
     : null;
-  const topEvent = activeLocation
-    ? attentionEvents(
-        concernEvents,
-        {
-          city: activeLocation.city,
-          state: activeLocation.state,
-          postalCode: activeLocation.postalCode,
-          country: activeLocation.country,
-          latitude: activeLocation.latitude,
-          longitude: activeLocation.longitude,
-          county: activeLocation.county,
-          stateFips: activeLocation.stateFips,
-          countyFips: activeLocation.countyFips,
-        },
-        1
-      )[0] ?? null
+  const concernEvents = currentImpactConcernEvents(
+    watchedEvents,
+    resolvedActiveLocation,
+    radius
+  );
+  const risk = buildRiskSummary(concernEvents);
+  const impact = resolvedActiveLocation
+    ? buildImpactSummary(watchedEvents, resolvedActiveLocation, radius)
+    : null;
+  const topEvent = resolvedActiveLocation
+    ? attentionEvents(concernEvents, resolvedActiveLocation, 1)[0] ?? null
     : null;
   const liveSources = sourceHealth.filter((item) => item.status === "live").length;
   const sourceIssues = sourceHealth.filter(
@@ -219,7 +210,7 @@ export function SavedLocationOverview({
           const matchingCount = active
             ? concernEvents.length
             : summary?.eventCount ?? 0;
-          const postureColor = cardRisk ? levelColor(cardRisk.level) : "#607d8b";
+          const postureColor = cardRisk ? levelColor(cardRisk.level) : "#546e7a";
           return (
             <button
               key={loc.id}
@@ -346,7 +337,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 6,
   },
   eyebrow: {
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 10,
     fontWeight: 900,
     textTransform: "uppercase",
@@ -432,7 +423,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "3px 6px",
   },
   cardMeta: {
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 11,
     fontWeight: 700,
   },
@@ -446,7 +437,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 900,
   },
   metric: {
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 11,
     fontWeight: 800,
   },

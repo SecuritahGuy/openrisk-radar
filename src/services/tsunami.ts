@@ -79,6 +79,9 @@ export async function fetchTsunamiEvents(): Promise<SupplementalRiskSignal[]> {
 
   const url = import.meta.env.PROD ? PROXY : `${BASE}?${params}`;
   const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`NOAA Tsunami API returned ${res.status}`);
+  }
   const json = import.meta.env.PROD
     ? await readJsonResponse<TsunamiResponse>(res, "NOAA Tsunami API")
     : parsePayload(await res.text());
