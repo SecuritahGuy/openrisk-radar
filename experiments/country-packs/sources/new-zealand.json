@@ -15,15 +15,15 @@
       "proxyRequired": false,
       "attribution": "GNS Science / GeoNet",
       "termsUrl": "https://www.geonet.org.nz/",
-      "status": "discovered",
+      "status": "validated",
       "notes": "GeoNet API — recent quakes in NZ region (365 days, max 100). MMI filter. GeoJSON with location, magnitude, depth, quality. No key required."
     },
     {
       "id": "nz-geonet-volcanic-alerts",
       "authority": "GNS Science (GeoNet)",
       "coverage": { "countries": ["NZ"] },
-      "capability": "earthquake",
-      "outputModel": "supplemental-signal",
+      "capability": "volcano",
+      "outputModel": "risk-event",
       "access": "public",
       "format": "geojson",
       "endpoint": "https://api.geonet.org.nz/volcano/val",
@@ -31,7 +31,7 @@
       "proxyRequired": false,
       "attribution": "GNS Science / GeoNet",
       "termsUrl": "https://www.geonet.org.nz/",
-      "status": "discovered",
+      "status": "validated",
       "notes": "GeoNet volcanic alert levels for all monitored NZ volcanoes. Level (0-5), aviation colour code, activity description, hazards. GeoJSON."
     },
     {

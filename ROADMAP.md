@@ -29,7 +29,7 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | Meteoalarm | Europe | National weather alerts normalized from Meteoalarm | Main dashboard where supported |
 | USGS earthquakes | Global | Earthquakes by proximity | Main dashboard |
 | EMSC | Global, Europe-focused | Earthquakes by proximity and felt-event context | Main dashboard through a cached Worker proxy |
-| GeoNet | New Zealand | Authoritative local earthquake catalog | Main dashboard, activated automatically for resolved New Zealand locations |
+| GeoNet | New Zealand | Authoritative local earthquake catalog and elevated volcanic alert levels | Main dashboard, activated automatically for resolved New Zealand locations |
 | FEMA declarations | United States | Disaster declarations by state/county | Main dashboard, no geometry |
 | NOAA Storm Events | United States | Historical severe-weather records | Historical context |
 | NIFC wildfires | United States | Wildfires and prescribed burns | Main dashboard |
@@ -98,7 +98,7 @@ The current Cloudflare watch/audit implementation is experimental research. It i
 | EPA AirNow / OpenAQ | U.S. / Global | Air quality AQI by ZIP/latlon, multi-pollutant | More granular than Open-Meteo for US; OpenAQ adds 200+ countries | Free key / No key | Pending |
 | EMSC | Europe-Mediterranean + global | Earthquake data, felt reports, community-sourced | Complements USGS with European focus and felt intensity reports | No | ✅ Done |
 | Smithsonian GVP | Global | Volcanic activity reports, weekly updates | Authoritative volcano data beyond GDACS alerts | No | ✅ Done |
-| ReliefWeb | Global | Curated humanitarian disaster reports, situation reports | Adds humanitarian context to natural hazard data | No | Pending |
+| ReliefWeb | Global | Curated humanitarian disaster reports, situation reports | Adds humanitarian context to natural hazard data | Pre-approved appname | Blocked: anonymous v2 requests return 403 until an appname is approved |
 | JTWC | Indian Ocean + West Pacific | Tropical cyclone warnings beyond NHC basins | Covers basins NHC doesn't (Asia-Pacific) | No | Pending |
 
 #### Tier 3 — Niche But Valuable

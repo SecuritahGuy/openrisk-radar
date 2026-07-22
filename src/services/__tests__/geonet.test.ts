@@ -1,5 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchGeoNetQuakes, normalizeGeoNet, supportsGeoNet, type GeoNetFeature } from "../geonet";
+import {
+  fetchGeoNetQuakes,
+  fetchGeoNetVolcanoAlerts,
+  normalizeGeoNet,
+  normalizeGeoNetVolcano,
+  supportsGeoNet,
+  type GeoNetFeature,
+  type GeoNetVolcanoFeature,
+} from "../geonet";
 
 const feature: GeoNetFeature = {
   type: "Feature",
@@ -11,6 +19,19 @@ const feature: GeoNetFeature = {
     magnitude: 4.2,
     locality: "10 km north of Wellington",
     quality: "best",
+  },
+};
+
+const volcano: GeoNetVolcanoFeature = {
+  type: "Feature",
+  geometry: { type: "Point", coordinates: [177.183, -37.521] },
+  properties: {
+    acc: "Yellow",
+    activity: "Moderate to heightened volcanic unrest.",
+    hazards: "Volcanic unrest hazards.",
+    level: 2,
+    volcanoID: "whiteisland",
+    volcanoTitle: "White Island",
   },
 };
 
@@ -52,5 +73,33 @@ describe("GeoNet", () => {
 
     const events = await fetchGeoNetQuakes(-41.29, 174.78, 50);
     expect(events.map((event) => event.sourceEventId)).toEqual(["2026p123456"]);
+  });
+
+  it("normalizes elevated volcanic alert levels with GeoNet attribution", () => {
+    expect(normalizeGeoNetVolcano(volcano, "2026-07-22T12:00:00Z")).toMatchObject({
+      source: "GEONET",
+      sourceEventId: "geonet-volcano-whiteisland",
+      category: "Volcanic",
+      severity: "Severe",
+      headline: "White Island: Volcanic Alert Level 2",
+      provider: { id: "geonet-nz" },
+    });
+  });
+
+  it("drops normal and out-of-radius volcanoes", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-22T12:00:00Z"));
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({
+      type: "FeatureCollection",
+      features: [
+        volcano,
+        { ...volcano, properties: { ...volcano.properties, volcanoID: "normal", level: 0 } },
+        { ...volcano, properties: { ...volcano.properties, volcanoID: "far" }, geometry: { type: "Point", coordinates: [170, -45] } },
+      ],
+    }), { status: 200, headers: { "Content-Type": "application/json" } }));
+
+    const events = await fetchGeoNetVolcanoAlerts(-37.52, 177.18, 50);
+    expect(events.map((event) => event.sourceEventId)).toEqual(["geonet-volcano-whiteisland"]);
+    vi.useRealTimers();
   });
 });

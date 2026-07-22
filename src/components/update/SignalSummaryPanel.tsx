@@ -13,6 +13,7 @@ interface SignalSummaryPanelProps {
   eonetEvents: RiskEvent[];
   emscEvents: RiskEvent[];
   geonetEvents: RiskEvent[];
+  geonetVolcanoEvents: RiskEvent[];
   supplementalSignals: SupplementalRiskSignal[];
   isFetching: boolean;
 }
@@ -74,6 +75,7 @@ export function SignalSummaryPanel({
   eonetEvents,
   emscEvents,
   geonetEvents,
+  geonetVolcanoEvents,
   supplementalSignals,
   isFetching,
 }: SignalSummaryPanelProps) {
@@ -123,6 +125,11 @@ export function SignalSummaryPanel({
           {geonetEvents.length > 0
             ? `${geonetEvents.length} GeoNet earthquake${geonetEvents.length !== 1 ? "s" : ""} nearby`
             : "No GeoNet earthquakes nearby"}
+        </SignalLine>
+        <SignalLine active={geonetVolcanoEvents.length > 0} color="#8d6e63">
+          {geonetVolcanoEvents.length > 0
+            ? `${geonetVolcanoEvents.length} elevated GeoNet volcanic alert${geonetVolcanoEvents.length !== 1 ? "s" : ""} nearby`
+            : "No elevated GeoNet volcanic alerts nearby"}
         </SignalLine>
         <SignalLine active={wildfires.length > 0} color="#d84315">
           {wildfires.length > 0

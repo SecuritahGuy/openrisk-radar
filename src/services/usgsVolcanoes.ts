@@ -36,7 +36,7 @@ interface VolcanoGeoResponse {
   features: VolcanoGeoFeature[];
 }
 
-interface VolcanoElevated {
+export interface VolcanoElevated {
   vName: string;
   vnum: string;
   volcanoCd: string;
@@ -61,6 +61,14 @@ const ALERT_SEVERITY: Record<string, Severity> = {
   UNASSIGNED: "Minor",
 };
 
+const COLOR_SEVERITY: Record<string, Severity> = {
+  RED: "Extreme",
+  ORANGE: "Severe",
+  YELLOW: "Moderate",
+  GREEN: "Minor",
+  UNASSIGNED: "Minor",
+};
+
 const COLOR_ORDER: Record<string, number> = {
   RED: 4,
   ORANGE: 3,
@@ -70,7 +78,39 @@ const COLOR_ORDER: Record<string, number> = {
 };
 
 function severityForAlert(alertLevel: string, colorCode: string): Severity {
-  return ALERT_SEVERITY[alertLevel] ?? ALERT_SEVERITY[colorCode] ?? "Minor";
+  return ALERT_SEVERITY[alertLevel] ?? COLOR_SEVERITY[colorCode] ?? "Minor";
+}
+
+export function normalizeElevatedVolcano(
+  volcano: VolcanoElevated,
+  observedAt: string
+): SupplementalRiskSignal {
+  const severity = severityForAlert(volcano.alertLevel, volcano.colorCode);
+  const metrics: SupplementalMetric[] = [
+    { label: "Alert Level", value: volcano.alertLevel },
+    { label: "Color Code", value: volcano.colorCode },
+    { label: "Previous Level", value: volcano.alertLevelPrev },
+    { label: "Threat Rating", value: volcano.nvewsThreat },
+  ];
+
+  return {
+    id: newEventId(),
+    source: "VOLCANO",
+    sourceEventId: `usgs-volcano-${volcano.vnum}`,
+    category: "Volcano",
+    type: `Volcano: ${volcano.alertLevel}/${volcano.colorCode}`,
+    severity,
+    headline: `${volcano.vName}: ${volcano.alertLevel}/${volcano.colorCode}`,
+    description: volcano.noticeSynopsis || `Volcano ${volcano.vName} is at ${volcano.alertLevel} (${volcano.colorCode}) alert level.`,
+    geometry: { type: "Point", latitude: volcano.lat, longitude: volcano.long },
+    startedAt: volcano.alertDate || observedAt,
+    expiresAt: null,
+    updatedAt: observedAt,
+    url: volcano.noticeUrl || `https://volcanoes.usgs.gov/vsc/api/volcanoApi/volcano?vnum=${volcano.vnum}`,
+    confidence: "Source reported",
+    metrics,
+    raw: volcano as unknown as Record<string, unknown>,
+  };
 }
 
 export async function fetchElevatedVolcanoes(): Promise<SupplementalRiskSignal[]> {
@@ -80,34 +120,8 @@ export async function fetchElevatedVolcanoes(): Promise<SupplementalRiskSignal[]
   const data: VolcanoElevated[] = await res.json();
   if (!data || data.length === 0) return [];
 
-  return data.map((v) => {
-    const sev = severityForAlert(v.alertLevel, v.colorCode);
-    const metrics: SupplementalMetric[] = [
-      { label: "Alert Level", value: v.alertLevel },
-      { label: "Color Code", value: v.colorCode },
-      { label: "Previous Level", value: v.alertLevelPrev },
-      { label: "Threat Rating", value: v.nvewsThreat },
-    ];
-
-    return {
-      id: newEventId(),
-      source: "VOLCANO",
-      sourceEventId: `usgs-volcano-${v.vnum}`,
-      category: "Volcano",
-      type: `Volcano: ${v.alertLevel}/${v.colorCode}`,
-      severity: sev,
-      headline: `${v.vName}: ${v.alertLevel}/${v.colorCode}`,
-      description: v.noticeSynopsis || `Volcano ${v.vName} is at ${v.alertLevel} (${v.colorCode}) alert level.`,
-      geometry: { type: "Point", latitude: v.lat, longitude: v.long },
-      startedAt: v.alertDate || new Date().toISOString(),
-      expiresAt: null,
-      updatedAt: new Date().toISOString(),
-      url: v.noticeUrl || `https://volcanoes.usgs.gov/vsc/api/volcanoApi/volcano?vnum=${v.vnum}`,
-      confidence: "Source reported",
-      metrics,
-      raw: v as unknown as Record<string, unknown>,
-    };
-  });
+  const observedAt = new Date().toISOString();
+  return data.map((volcano) => normalizeElevatedVolcano(volcano, observedAt));
 }
 
 export async function fetchNearbyVolcanoes(
