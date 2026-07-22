@@ -111,6 +111,7 @@ describe("riskInsights", () => {
       NIFC: true,
       SPC: true,
       NHC: true,
+      JMA: true,
       GDACS: true,
       EONET: true,
       AIRNOW: true,
@@ -265,5 +266,32 @@ describe("riskInsights", () => {
     expect(concernContextLabel(expired)).toBe("Expired");
     expect(activeConcernEvents([expired, veryOld, current], now).map((e) => e.id))
       .toEqual(["current"]);
+  });
+
+  it("uses short source-specific windows for time-sensitive open events", () => {
+    const oldTsunami = event({
+      id: "old-tsunami",
+      source: "GTM",
+      category: "Disaster",
+      startedAt: "2026-07-11T11:59:00Z",
+      updatedAt: "2026-07-13T12:00:00Z",
+    });
+    const currentTsunami = event({
+      id: "current-tsunami",
+      source: "GTM",
+      category: "Disaster",
+      startedAt: "2026-07-13T00:00:00Z",
+      updatedAt: "2026-07-13T12:00:00Z",
+    });
+    const oldWhoReport = event({
+      id: "old-who",
+      source: "WHO",
+      category: "Disaster",
+      startedAt: "2026-05-01T00:00:00Z",
+      updatedAt: "2026-07-13T12:00:00Z",
+    });
+
+    expect(activeConcernEvents([oldTsunami, currentTsunami, oldWhoReport], now)
+      .map((item) => item.id)).toEqual(["current-tsunami"]);
   });
 });

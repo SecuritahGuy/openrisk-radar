@@ -1,11 +1,12 @@
 import { canonicalIncidentEvents } from "../src/lib/incidents";
 import { activeConcernEvents, severityRank } from "../src/lib/riskInsights";
 import { eventMatchesWatch } from "../src/lib/watchPreferences";
-import { fetchNwsAlertsForPoint } from "../src/services/nws";
-import { fetchWildfires } from "../src/services/nifc";
-import { fetchEarthquakes } from "../src/services/usgs";
-import type { WatchPreferences } from "../src/types/location";
-import type { RiskEvent } from "../src/types/riskEvent";
+import {
+  createLocationFeedContext,
+  fetchLocationEventFeeds,
+  type LocationEventFeedResult,
+} from "../src/services/locationEventFeeds";
+import type { ResolvedLocation, WatchPreferences } from "../src/types/location";
 import type { D1Database } from "./d1";
 import {
   classifyAuditChange,
@@ -22,50 +23,65 @@ interface DueWatchRow {
   latitude: number;
   longitude: number;
   radius_miles: number;
+  location_json: string;
   preferences_json: string;
   timezone: string;
   last_incident_fingerprint: string | null;
 }
 
-interface SourceResult {
-  source: string;
-  events: RiskEvent[];
+export interface AuditSourceCoverage {
+  usable: boolean;
+  warning: string | null;
   error: string | null;
 }
 
-async function settle(source: string, promise: Promise<RiskEvent[]>): Promise<SourceResult> {
-  try {
-    return { source, events: await promise, error: null };
-  } catch (error) {
+export function classifyAuditSourceCoverage(
+  results: Array<Pick<LocationEventFeedResult, "label" | "error">>
+): AuditSourceCoverage {
+  if (results.length === 0) {
     return {
-      source,
-      events: [],
-      error: error instanceof Error ? error.message : `${source} failed`,
+      usable: false,
+      warning: null,
+      error: "No audit-mode source currently covers the selected hazards",
     };
   }
+  const failures = results.filter((result) => result.error);
+  const detail = failures.map((result) => `${result.label}: ${result.error}`).join("; ");
+  if (failures.length === results.length) {
+    return { usable: false, warning: null, error: detail };
+  }
+  return { usable: true, warning: detail || null, error: null };
 }
 
-async function fetchAuditEvents(row: DueWatchRow, preferences: WatchPreferences): Promise<SourceResult[]> {
-  const requests: Array<Promise<SourceResult>> = [];
-  if (preferences.hazards.includes("weather")) {
-    requests.push(settle("NWS", fetchNwsAlertsForPoint(row.latitude, row.longitude)));
+function resolvedLocation(row: DueWatchRow): ResolvedLocation {
+  let saved: Partial<ResolvedLocation> = {};
+  try {
+    saved = JSON.parse(row.location_json || "{}") as Partial<ResolvedLocation>;
+  } catch {
+    saved = {};
   }
-  if (preferences.hazards.includes("earthquake")) {
-    requests.push(settle("USGS", fetchEarthquakes(
-      row.latitude,
-      row.longitude,
-      row.radius_miles * 1.60934,
-      1
-    )));
-  }
-  if (preferences.hazards.includes("wildfire")) {
-    requests.push(settle("NIFC", fetchWildfires(
-      row.latitude,
-      row.longitude,
-      row.radius_miles * 1.60934
-    )));
-  }
-  return Promise.all(requests);
+  return {
+    city: saved.city ?? "",
+    state: saved.state ?? "",
+    postalCode: saved.postalCode ?? null,
+    country: saved.country ?? "USA",
+    latitude: row.latitude,
+    longitude: row.longitude,
+    county: saved.county ?? null,
+    stateFips: saved.stateFips ?? null,
+    countyFips: saved.countyFips ?? null,
+  };
+}
+
+async function fetchAuditEvents(
+  row: DueWatchRow,
+  preferences: WatchPreferences
+): Promise<LocationEventFeedResult[]> {
+  return fetchLocationEventFeeds(
+    createLocationFeedContext(resolvedLocation(row), row.radius_miles),
+    "watch-audit",
+    preferences.hazards
+  );
 }
 
 async function writeAuditError(db: D1Database, row: DueWatchRow, detail: string, now: string): Promise<void> {
@@ -85,23 +101,14 @@ async function evaluateWatch(db: D1Database, row: DueWatchRow): Promise<void> {
   const now = new Date().toISOString();
   const preferences = JSON.parse(row.preferences_json) as WatchPreferences;
   const sourceResults = await fetchAuditEvents(row, preferences);
-  if (sourceResults.length === 0) {
-    await writeAuditError(db, row, "No audit-mode source currently covers the selected hazards", now);
-    return;
-  }
-  const sourceErrors = sourceResults.filter((result) => result.error);
-  if (sourceErrors.length > 0) {
-    await writeAuditError(
-      db,
-      row,
-      sourceErrors.map((result) => `${result.source}: ${result.error}`).join("; "),
-      now
-    );
+  const coverage = classifyAuditSourceCoverage(sourceResults);
+  if (!coverage.usable) {
+    await writeAuditError(db, row, coverage.error ?? "Audit sources failed", now);
     return;
   }
 
   const incidents = activeConcernEvents(canonicalIncidentEvents(
-    sourceResults.flatMap((result) => result.events)
+    sourceResults.filter((result) => !result.error).flatMap((result) => result.events)
   )).filter((event) => eventMatchesWatch(event, preferences));
   const fingerprint = incidentFingerprint(incidents);
   const top = [...incidents].sort((a, b) => severityRank(b.severity) - severityRank(a.severity))[0] ?? null;
@@ -124,23 +131,23 @@ async function evaluateWatch(db: D1Database, row: DueWatchRow): Promise<void> {
       incidents.length,
       top?.headline ?? null,
       top?.severity ?? null,
-      JSON.stringify(sourceResults.map((result) => result.source)),
-      decision.kind === "baseline"
+      JSON.stringify(sourceResults.filter((result) => !result.error).map((result) => result.label)),
+      `${decision.kind === "baseline"
         ? "Initial audit baseline established; no notification would be sent."
         : decision.kind === "resolved"
           ? "Previously matching conditions are no longer active."
           : decision.suppressedReason === "quiet_hours"
             ? "Matching conditions changed during quiet hours."
-            : "Matching conditions changed; a notification would have been sent.",
+            : "Matching conditions changed; a notification would have been sent."}${coverage.warning ? ` Partial source failure: ${coverage.warning}` : ""}`,
       now
     ).run();
   }
 
   await db.prepare(`
     UPDATE watches SET last_incident_fingerprint = ?1, last_match_count = ?2,
-      last_checked_at = ?3, next_check_at = ?4, last_error = NULL, updated_at = ?3
-    WHERE id = ?5
-  `).bind(fingerprint, incidents.length, now, nextWatchCheck(preferences), row.id).run();
+      last_checked_at = ?3, next_check_at = ?4, last_error = ?5, updated_at = ?3
+    WHERE id = ?6
+  `).bind(fingerprint, incidents.length, now, nextWatchCheck(preferences), coverage.warning, row.id).run();
 }
 
 export async function runWatchAudit(db: D1Database): Promise<{ processed: number }> {
@@ -151,7 +158,7 @@ export async function runWatchAudit(db: D1Database): Promise<{ processed: number
   `).bind(now).run();
 
   const due = await db.prepare(`
-    SELECT id, latitude, longitude, radius_miles, preferences_json, timezone,
+    SELECT id, latitude, longitude, radius_miles, location_json, preferences_json, timezone,
       last_incident_fingerprint
     FROM watches
     WHERE status = 'active' AND next_check_at <= ?1

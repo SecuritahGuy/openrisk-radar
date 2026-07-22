@@ -48,7 +48,7 @@ function latestEvent(events: RiskEvent[]): RiskEvent | null {
 function sourceCoverage(sourceHealth: SourceHealthItem[]): string {
   const liveCount = sourceHealth.filter((item) => item.status === "live").length;
   const issueCount = sourceHealth.filter(
-    (item) => item.status === "error" || item.status === "unavailable"
+    (item) => item.status === "error" || item.status === "unavailable" || item.status === "degraded"
   ).length;
 
   if (issueCount > 0) {

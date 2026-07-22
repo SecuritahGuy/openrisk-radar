@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { CurrentWeather } from "../services/weather";
 import type { Location, RadiusOption } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
@@ -11,6 +11,7 @@ import {
   sourceColor,
 } from "../lib/riskInsights";
 import { buildImpactSummary } from "../lib/impactInsights";
+import { readBooleanPreference, writeBooleanPreference } from "../lib/uiPreferences";
 import {
   eventMatchesWatch,
   isWatchExpired,
@@ -75,7 +76,18 @@ export function SavedLocationOverview({
   onSelect,
   onShareActiveView,
 }: SavedLocationOverviewProps) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => readBooleanPreference(
+    typeof window === "undefined" ? null : window.localStorage,
+    "openrisk:saved-overview-collapsed"
+  ));
+
+  useEffect(() => {
+    writeBooleanPreference(
+      typeof window === "undefined" ? null : window.localStorage,
+      "openrisk:saved-overview-collapsed",
+      collapsed
+    );
+  }, [collapsed]);
 
   if (savedLocations.length === 0) return null;
 
@@ -121,7 +133,7 @@ export function SavedLocationOverview({
     : null;
   const liveSources = sourceHealth.filter((item) => item.status === "live").length;
   const sourceIssues = sourceHealth.filter(
-    (item) => item.status === "error" || item.status === "unavailable"
+    (item) => item.status === "error" || item.status === "unavailable" || item.status === "degraded"
   ).length;
   const summaryByLocationId = new Map(
     summaries.map((summary) => [summary.locationId, summary])
@@ -135,7 +147,11 @@ export function SavedLocationOverview({
   });
 
   return (
-    <section className="saved-location-overview" style={styles.container}>
+    <section
+      className="saved-location-overview"
+      data-testid="saved-location-overview"
+      style={styles.container}
+    >
       <div
         style={{
           ...styles.header,
@@ -161,6 +177,7 @@ export function SavedLocationOverview({
           )}
           <button
             type="button"
+            data-testid="saved-location-overview-toggle"
             style={styles.collapseBtn}
             onClick={() => setCollapsed((current) => !current)}
             aria-expanded={!collapsed}

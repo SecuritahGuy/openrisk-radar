@@ -45,7 +45,7 @@ const CATEGORY_LABELS: Record<EventCategory, string> = {
 
 function signalKey(event: RiskEvent): string {
   if (event.source === "SPC" || event.source === "NWS") return "weather";
-  if (event.source === "NHC") return "tropical";
+  if (event.source === "NHC" || event.source === "JMA") return "tropical";
   if (
     event.source === "NIFC" ||
     event.source === "AIRNOW" ||

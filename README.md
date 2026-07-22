@@ -77,10 +77,12 @@ OpenRisk Radar brings authoritative feeds into a single geospatial workflow. It 
 - Real-time source adapters for official government and public hazard feeds.
 - Automatic GeoNet earthquake and elevated volcanic-alert coverage for resolved New Zealand locations.
 - Automatic DWD official warning coverage for resolved German locations, filtered to the selected radius.
+- Recent WHO Disease Outbreak News automatically scoped to reports that name the resolved country.
 - Normalized `RiskEvent` model for source, category, severity, timing, geometry, confidence, and attribution.
 - Severity and impact classification for quick triage.
 - Feed explorer with sorting by priority, source, category, severity, impact, distance, expiration, and update time.
 - Source and severity filters for operational focus.
+- Source-health reporting distinguishes usable cached data from hard feed failures, and time-sensitive sources use explicit freshness windows.
 - Saved locations stored locally in browser IndexedDB through Dexie.
 - Static browser-first architecture suitable for Cloudflare Pages or similar static hosting.
 
@@ -93,6 +95,7 @@ This table reflects the current codebase. "Main dashboard" means the source is f
 | National Weather Service (NWS) | United States | Active weather alerts by state | Main dashboard | `src/services/nws.ts` |
 | NWS observations and forecast fallback | United States | Current conditions from stations, hourly forecast fallback | Current conditions panel | `src/services/weather.ts` |
 | NWS weather overlay | United States | Forecast grid cell, hazards, heat risk, forecast zones, fire weather zones, nearby stations | Optional map overlay | `src/services/nwsWeatherOverlay.ts` |
+| World Health Organization | Global, country matched | Recent Disease Outbreak News reports | Main dashboard and saved-location summaries when the report names the resolved country | `src/services/who.ts` |
 | Deutscher Wetterdienst (DWD) | Germany | Official severe-weather warning polygons | Main dashboard when a resolved German location and selected radius apply | `src/services/dwd.ts` |
 | U.S. Geological Survey (USGS) | Global | Earthquakes by proximity | Main dashboard | `src/services/usgs.ts` |
 | Federal Emergency Management Agency (FEMA) | United States | Disaster declarations by state/county | Main dashboard, feed/detail; no event geometry | `src/services/fema.ts` |

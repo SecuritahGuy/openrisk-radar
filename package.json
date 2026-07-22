@@ -12,6 +12,7 @@
     "worker:dev": "npm run build && wrangler dev",
     "preview": "vite preview",
     "smoke:production": "node scripts/smoke-production.mjs",
+    "experiments:promotion": "node --experimental-strip-types experiments/source-promotion/validate.ts",
     "test": "vitest run"
   },
   "dependencies": {
