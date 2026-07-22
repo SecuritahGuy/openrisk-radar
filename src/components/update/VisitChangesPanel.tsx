@@ -38,7 +38,7 @@ export function VisitChangesPanel({
 
 const styles: Record<string, React.CSSProperties> = {
   section: { marginBottom: 16, padding: 10, borderRadius: 8, background: "#f7f9fb" },
-  label: { fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#607d8b" },
+  label: { fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#546e7a" },
   value: { marginTop: 4, fontSize: 13, fontWeight: 700, color: "#263238" },
   detail: { marginTop: 3, fontSize: 11, color: "#78909c" },
 };

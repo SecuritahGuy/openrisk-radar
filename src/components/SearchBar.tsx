@@ -103,7 +103,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #cfd8dc",
     borderRadius: 6,
     background: "#fff",
-    color: "#607d8b",
+    color: "#546e7a",
     cursor: "pointer",
     fontSize: 18,
     fontWeight: 700,

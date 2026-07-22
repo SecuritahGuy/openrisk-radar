@@ -121,7 +121,7 @@ const contextBadgeStyle: React.CSSProperties = {
   fontWeight: 800,
   padding: "2px 6px",
   borderRadius: 3,
-  color: "#607d8b",
+  color: "#546e7a",
   background: "#eceff1",
   marginTop: 6,
   textTransform: "uppercase",

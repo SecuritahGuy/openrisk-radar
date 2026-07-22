@@ -65,5 +65,5 @@ const styles: Record<string, React.CSSProperties> = {
   actions: { display: "flex", alignItems: "center", gap: 10, marginTop: 9 },
   button: { border: "1px solid #bdbdbd", borderRadius: 4, background: "#fff", padding: "5px 8px", cursor: "pointer" },
   link: { fontSize: 12, fontWeight: 700, color: "#1565c0" },
-  disclaimer: { fontSize: 10, color: "#757575", marginTop: 9 },
+  disclaimer: { fontSize: 10, color: "#616161", marginTop: 9 },
 };

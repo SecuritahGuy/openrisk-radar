@@ -1,4 +1,4 @@
-import type { ResolvedLocation } from "../types/location";
+import type { RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import { useOfflineSnapshot } from "../hooks/useOfflineSnapshot";
 import { formatTimestamp } from "../lib/format";
@@ -7,12 +7,19 @@ export function OfflineBanner({
   location,
   events,
   isFetching,
+  radius,
 }: {
   location: ResolvedLocation | null;
   events: RiskEvent[];
   isFetching: boolean;
+  radius: RadiusOption;
 }) {
-  const { online, snapshot } = useOfflineSnapshot(location, events, isFetching);
+  const { online, snapshot } = useOfflineSnapshot(
+    location,
+    events,
+    isFetching,
+    radius
+  );
   if (online) return null;
 
   return (

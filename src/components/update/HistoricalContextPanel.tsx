@@ -163,7 +163,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "10px 11px",
   },
   label: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 11,
     fontWeight: 700,
     textTransform: "uppercase",
@@ -183,7 +183,7 @@ const styles: Record<string, React.CSSProperties> = {
   badge: {
     background: "#eceff1",
     borderRadius: 3,
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 10,
     fontWeight: 800,
     padding: "3px 6px",
@@ -191,13 +191,13 @@ const styles: Record<string, React.CSSProperties> = {
     whiteSpace: "nowrap",
   },
   summary: {
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 12,
     lineHeight: 1.35,
     padding: "9px 11px 0",
   },
   empty: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 12,
     lineHeight: 1.35,
     padding: "10px 11px",
@@ -241,12 +241,12 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "2px 5px",
   },
   itemMeta: {
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 11,
     lineHeight: 1.35,
   },
   itemFooter: {
-    color: "#757575",
+    color: "#616161",
     fontSize: 11,
     lineHeight: 1.35,
   },

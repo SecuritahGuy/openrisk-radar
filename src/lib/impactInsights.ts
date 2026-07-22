@@ -131,7 +131,11 @@ export function assessImpact(
   }
 
   const scope = event.raw.openRiskScope as
-    | { nwsPointMatch?: boolean }
+    | {
+        nwsPointMatch?: boolean;
+        whoCountryMatch?: boolean;
+        whoLocalityMatch?: boolean;
+      }
     | undefined;
   if (event.source === "NWS" && scope?.nwsPointMatch) {
     return {
@@ -139,6 +143,23 @@ export function assessImpact(
       label: "Affects area",
       detail: "NWS point alert includes this location",
       sortRank: 4,
+    };
+  }
+
+  if (event.source === "WHO" && scope?.whoCountryMatch) {
+    if (scope.whoLocalityMatch) {
+      return {
+        level: "affects",
+        label: "Affects area",
+        detail: "WHO outbreak report names this state or locality",
+        sortRank: 4,
+      };
+    }
+    return {
+      level: "monitor",
+      label: "Monitor",
+      detail: "WHO report concerns this country but does not name this locality",
+      sortRank: 2,
     };
   }
 
@@ -167,6 +188,17 @@ export function isCurrentImpact(
 ): boolean {
   const level = assessImpact(event, location, radius).level;
   return level === "affects" || level === "nearby";
+}
+
+export function currentImpactConcernEvents(
+  events: RiskEvent[],
+  location: ResolvedLocation | null,
+  radius: RadiusOption,
+  now = Date.now()
+): RiskEvent[] {
+  return activeConcernEvents(events, now).filter((event) =>
+    isCurrentImpact(event, location, radius)
+  );
 }
 
 export function buildImpactSummary(
@@ -200,9 +232,7 @@ export function buildImpactSeveritySummary(
   radius: RadiusOption,
   now = Date.now()
 ): ImpactSeveritySummary {
-  const currentEvents = activeConcernEvents(events, now).filter((event) =>
-    isCurrentImpact(event, location, radius)
-  );
+  const currentEvents = currentImpactConcernEvents(events, location, radius, now);
 
   return {
     criticalCount: currentEvents.filter(

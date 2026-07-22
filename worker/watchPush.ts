@@ -17,6 +17,7 @@ export interface WatchPushEnv {
   PUSH_QUEUE?: PushQueueBinding;
   VAPID_PUBLIC_KEY?: string;
   VAPID_PRIVATE_KEY?: string;
+  VAPID_SUBJECT?: string;
   PUSH_DATA_KEY?: string;
   AUTOMATED_PUSH_ENABLED?: string;
 }
@@ -197,7 +198,7 @@ async function sendTest(
   subscriptionId: string
 ): Promise<Response> {
   if (!sameOrigin(request)) return watchApiError("ORIGIN_NOT_ALLOWED", "Cross-origin test delivery is not allowed", 403);
-  if (!env.PUSH_QUEUE || !env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY || !env.PUSH_DATA_KEY) {
+  if (!env.PUSH_QUEUE || !env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY || !env.VAPID_SUBJECT || !env.PUSH_DATA_KEY) {
     return watchApiError("PUSH_UNAVAILABLE", "Notification delivery is not configured", 503);
   }
   if (!await authorizeWatch(env.DB, request, watchId)) {

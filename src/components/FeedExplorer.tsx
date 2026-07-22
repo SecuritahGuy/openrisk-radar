@@ -510,12 +510,12 @@ function FeedSummaryBar({
         <span style={styles.summaryValue}>{latestUpdate}</span>
         <span style={styles.summaryLabel}>latest update</span>
       </div>
-      <div style={styles.summaryChipGroup} aria-label="Visible source counts">
+      <div style={styles.summaryChipGroup} role="group" aria-label="Visible source counts">
         {topSources.map((item) => (
           <CountBadge key={item.label} item={item} />
         ))}
       </div>
-      <div style={styles.summaryChipGroup} aria-label="Visible severity counts">
+      <div style={styles.summaryChipGroup} role="group" aria-label="Visible severity counts">
         {severities.map((item) => (
           <CountBadge key={item.label} item={item} />
         ))}
@@ -736,7 +736,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 800,
   },
   summaryLabel: {
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 11,
     fontWeight: 700,
     textTransform: "uppercase" as const,
@@ -767,7 +767,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     padding: "6px 12px",
     fontWeight: 600,
-    color: "#757575",
+    color: "#616161",
     borderBottom: "1px solid #e0e0e0",
   },
   columnSortButton: {
@@ -840,7 +840,7 @@ const styles: Record<string, React.CSSProperties> = {
     overflowWrap: "anywhere" as const,
   },
   cardMeta: {
-    color: "#607d8b",
+    color: "#546e7a",
     fontSize: 11,
     fontWeight: 700,
     textTransform: "uppercase" as const,
@@ -909,7 +909,7 @@ const styles: Record<string, React.CSSProperties> = {
   contextBadge: {
     background: "#eceff1",
     borderRadius: 3,
-    color: "#607d8b",
+    color: "#546e7a",
     display: "inline-block",
     fontSize: 9,
     fontWeight: 800,

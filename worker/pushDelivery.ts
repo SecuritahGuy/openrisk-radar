@@ -29,6 +29,19 @@ export function pushFailureAction(statusCode?: number): "invalid" | "retry" | "f
   return "failed";
 }
 
+export async function markPushDeliveryExhausted(
+  db: D1Database | undefined,
+  deliveryId: string,
+  error: unknown
+): Promise<void> {
+  if (!db) return;
+  const detail = error instanceof Error ? error.message : "Push delivery retries were exhausted";
+  await db.prepare(`
+    UPDATE push_deliveries SET status = 'failed', last_error = ?1, updated_at = ?2
+    WHERE id = ?3 AND status = 'queued'
+  `).bind(`Retries exhausted: ${detail}`.slice(0, 500), new Date().toISOString(), deliveryId).run();
+}
+
 export async function deliverPushMessage(env: PushDeliveryEnv, deliveryId: string): Promise<void> {
   if (!env.DB || !env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY || !env.VAPID_SUBJECT || !env.PUSH_DATA_KEY) {
     throw new Error("Push delivery is not configured");

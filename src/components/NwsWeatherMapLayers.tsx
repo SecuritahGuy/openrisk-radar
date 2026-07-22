@@ -18,7 +18,7 @@ function positions(polygon: number[][]): [number, number][] {
 }
 
 function tempColor(temp: number | null): string {
-  if (temp == null) return "#607d8b";
+  if (temp == null) return "#546e7a";
   if (temp >= 100) return "#b71c1c";
   if (temp >= 90) return "#d84315";
   if (temp >= 80) return "#f57c00";
@@ -28,7 +28,7 @@ function tempColor(temp: number | null): string {
 }
 
 function percentColor(value: number | null, base: "blue" | "purple"): string {
-  if (value == null) return "#607d8b";
+  if (value == null) return "#546e7a";
   if (value >= 80) return base === "blue" ? "#0d47a1" : "#6a1b9a";
   if (value >= 60) return base === "blue" ? "#1565c0" : "#8e24aa";
   if (value >= 40) return base === "blue" ? "#0288d1" : "#ab47bc";
@@ -37,7 +37,7 @@ function percentColor(value: number | null, base: "blue" | "purple"): string {
 }
 
 function heatRiskColor(value: number | null): string {
-  if (value == null) return "#607d8b";
+  if (value == null) return "#546e7a";
   if (value >= 4) return "#7f0000";
   if (value >= 3) return "#c62828";
   if (value >= 2) return "#ef6c00";
@@ -46,7 +46,7 @@ function heatRiskColor(value: number | null): string {
 }
 
 function windColor(value: number | null): string {
-  if (value == null) return "#607d8b";
+  if (value == null) return "#546e7a";
   if (value >= 35) return "#6a1b9a";
   if (value >= 25) return "#c62828";
   if (value >= 15) return "#ef6c00";

@@ -17,3 +17,13 @@ const STATE_MAP: Record<string, string> = {
 export function stateAbbr(name: string): string | null {
   return STATE_MAP[name.trim().toLowerCase()] ?? null;
 }
+
+const STATE_NAME_MAP = Object.fromEntries(
+  Object.entries(STATE_MAP).map(([name, abbreviation]) => [abbreviation, name])
+) as Record<string, string>;
+
+export function stateName(abbreviation: string): string | null {
+  const name = STATE_NAME_MAP[abbreviation.trim().toUpperCase()];
+  if (!name) return null;
+  return name.replace(/\b\w/g, (letter) => letter.toUpperCase());
+}

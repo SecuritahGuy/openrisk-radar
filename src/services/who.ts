@@ -1,5 +1,6 @@
 import { newEventId } from "../lib/ids";
 import { readJsonResponse } from "../lib/http";
+import { stateName } from "../data/state-abbr";
 import type { ResolvedLocation } from "../types/location";
 import type { RiskEvent, Severity } from "../types/riskEvent";
 
@@ -49,18 +50,40 @@ function countryNames(location: ResolvedLocation): string[] {
   return [...new Set((aliases[country] ?? [country]).filter((value) => value.length >= 3))];
 }
 
+function normalizedWords(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function includesPhrase(text: string, phrase: string): boolean {
+  const haystack = ` ${normalizedWords(text)} `;
+  const needle = normalizedWords(phrase);
+  return needle.length >= 2 && haystack.includes(` ${needle} `);
+}
+
 export function whoItemMatchesLocation(
   item: WhoOutbreakItem,
   location: ResolvedLocation
 ): boolean {
-  const text = [
-    item.Title,
-    item.Summary,
-    item.Overview,
-    item.Assessment,
-    item.Epidemiology,
-  ].filter(Boolean).join(" ").toLowerCase();
-  return countryNames(location).some((name) => text.includes(name));
+  const title = item.Title ?? "";
+  return countryNames(location).some((name) => includesPhrase(title, name));
+}
+
+export function whoItemMatchesLocality(
+  item: WhoOutbreakItem,
+  location: ResolvedLocation
+): boolean {
+  const geographyText = [item.Title, item.Summary, item.Overview]
+    .filter(Boolean)
+    .join(" ");
+  const expandedState = stateName(location.state);
+  const localityNames = [
+    location.city,
+    location.county,
+    expandedState,
+    expandedState ? null : location.state,
+  ].filter((value): value is string => Boolean(value && value.trim().length >= 4));
+
+  return localityNames.some((name) => includesPhrase(geographyText, name));
 }
 
 function isRecentWhoItem(item: WhoOutbreakItem, nowMs: number): boolean {
@@ -70,7 +93,10 @@ function isRecentWhoItem(item: WhoOutbreakItem, nowMs: number): boolean {
   return Number.isFinite(published) && nowMs - published <= RECENT_WINDOW_MS;
 }
 
-export function normalizeWho(item: WhoOutbreakItem): RiskEvent {
+export function normalizeWho(
+  item: WhoOutbreakItem,
+  location?: ResolvedLocation
+): RiskEvent {
   const id = item.DonId ?? item.Id ?? item.UrlName ?? item.Title ?? "who";
   const updated = item.LastModified ?? item.PublicationDateAndTime ?? item.DateCreated ?? new Date().toISOString();
   const headline = item.Title ?? "WHO disease outbreak news";
@@ -103,7 +129,15 @@ export function normalizeWho(item: WhoOutbreakItem): RiskEvent {
       authority: "international",
       attributionUrl: "https://www.who.int/emergencies/disease-outbreak-news",
     },
-    raw: item as unknown as Record<string, unknown>,
+    raw: {
+      ...item,
+      openRiskScope: location
+        ? {
+            whoCountryMatch: true,
+            whoLocalityMatch: whoItemMatchesLocality(item, location),
+          }
+        : undefined,
+    },
   };
 }
 
@@ -122,6 +156,6 @@ export async function fetchWhoOutbreaks(
   return data.value
     .filter((item) => isRecentWhoItem(item, nowMs))
     .filter((item) => whoItemMatchesLocation(item, location))
-    .map(normalizeWho)
+    .map((item) => normalizeWho(item, location))
     .slice(0, 10);
 }

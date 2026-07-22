@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import type { ResolvedLocation } from "../types/location";
+import type { RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
-import { activeConcernEvents, buildRiskSummary, severityRank } from "../lib/riskInsights";
+import { buildRiskSummary, severityRank } from "../lib/riskInsights";
+import { currentImpactConcernEvents } from "../lib/impactInsights";
 
 const STORAGE_KEY = "openrisk:offline-snapshots:v1";
 
@@ -27,7 +28,8 @@ function readAll(): Record<string, OfflineSnapshot> {
 export function useOfflineSnapshot(
   location: ResolvedLocation | null,
   events: RiskEvent[],
-  isFetching: boolean
+  isFetching: boolean,
+  radius: RadiusOption
 ) {
   const [online, setOnline] = useState(() => navigator.onLine);
 
@@ -44,7 +46,7 @@ export function useOfflineSnapshot(
 
   useEffect(() => {
     if (!online || !location || isFetching) return;
-    const concerns = activeConcernEvents(events);
+    const concerns = currentImpactConcernEvents(events, location, radius);
     const risk = buildRiskSummary(concerns);
     const all = readAll();
     all[keyFor(location)] = {
@@ -61,7 +63,7 @@ export function useOfflineSnapshot(
     } catch {
       // Offline summaries are optional when browser storage is unavailable.
     }
-  }, [events, isFetching, location, online]);
+  }, [events, isFetching, location, online, radius]);
 
   const snapshot = location ? readAll()[keyFor(location)] ?? null : null;
   return { online, snapshot };
