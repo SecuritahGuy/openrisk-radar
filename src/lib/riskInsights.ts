@@ -18,6 +18,7 @@ export const EVENT_SOURCES: EventSource[] = [
   "NIFC",
   "SPC",
   "NHC",
+  "JMA",
   "GDACS",
   "EONET",
   "AIRNOW",
@@ -84,6 +85,7 @@ const SOURCE_CONCERN_MS: Partial<Record<EventSource, number>> = {
   NOAA_TSUNAMI: 24 * 60 * 60 * 1000,
   GTM: 24 * 60 * 60 * 1000,
   NHC: 3 * 24 * 60 * 60 * 1000,
+  JMA: 3 * 24 * 60 * 60 * 1000,
   SPC: 2 * 24 * 60 * 60 * 1000,
   GDACS: 30 * 24 * 60 * 60 * 1000,
   EONET: 45 * 24 * 60 * 60 * 1000,
@@ -107,6 +109,7 @@ export function defaultSourceFilters(): SourceFilters {
     NIFC: true,
     SPC: true,
     NHC: true,
+    JMA: true,
     GDACS: true,
     EONET: true,
     AIRNOW: true,
@@ -163,6 +166,8 @@ export function sourceColor(source: EventSource): string {
       return "#00897b";
     case "NHC":
       return "#c62828";
+    case "JMA":
+      return "#d32f2f";
     case "GDACS":
       return "#1565c0";
     case "EONET":
@@ -207,6 +212,7 @@ export function sourceLabel(source: EventSource): string {
     NIFC: "National Wildfire Data",
     SPC: "Storm Prediction Center",
     NHC: "National Hurricane Center",
+    JMA: "Japan Meteorological Agency",
     GDACS: "Global Disaster Alerts",
     EONET: "NASA Earth Events",
     AIRNOW: "Air Quality",

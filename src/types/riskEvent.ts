@@ -1,4 +1,4 @@
-export type EventSource = "NWS" | "NOAA" | "NOAA_TSUNAMI" | "NWPS" | "USGS" | "USGS_SHAKEMAP" | "USGS_WATER" | "UK_EA" | "VOLCANO" | "DROUGHT" | "FEMA" | "NIFC" | "SPC" | "NHC" | "GDACS" | "EONET" | "AIRNOW" | "COOPS" | "EMSC" | "SPACE_WEATHER" | "METEOALARM" | "WHO" | "GTM" | "DWD" | "GEONET" | "REGIONAL" | "USDOT";
+export type EventSource = "NWS" | "NOAA" | "NOAA_TSUNAMI" | "NWPS" | "USGS" | "USGS_SHAKEMAP" | "USGS_WATER" | "UK_EA" | "VOLCANO" | "DROUGHT" | "FEMA" | "NIFC" | "SPC" | "NHC" | "JMA" | "GDACS" | "EONET" | "AIRNOW" | "COOPS" | "EMSC" | "SPACE_WEATHER" | "METEOALARM" | "WHO" | "GTM" | "DWD" | "GEONET" | "REGIONAL" | "USDOT";
 export type EventCategory = "Weather" | "Seismic" | "River Gauge" | "Disaster" | "Wildfire" | "Transportation" | "Tropical" | "Volcanic" | "Drought" | "Ice" | "Landslide" | "Dust" | "Air Quality" | "Coastal Water" | "Space Weather" | "Pollen" | "UV Index";
 export type Severity = "Minor" | "Moderate" | "Severe" | "Extreme";
 export type GeometryType = "Point" | "Polygon" | "None";

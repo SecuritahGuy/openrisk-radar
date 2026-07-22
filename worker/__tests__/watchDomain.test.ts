@@ -30,6 +30,27 @@ describe("watch domain", () => {
     });
     expect(result.valid).toBe(true);
     expect(result.value?.location.radiusMiles).toBe(50);
+    expect(result.value?.location.country).toBe("USA");
+  });
+
+  it("retains resolved location context for country-aware monitoring", () => {
+    const result = validateWatchRegistration({
+      location: {
+        city: "Berlin",
+        state: "Berlin",
+        postalCode: "10115",
+        country: "Germany",
+        latitude: 52.52,
+        longitude: 13.405,
+        county: null,
+        stateFips: null,
+        countyFips: null,
+        radiusMiles: 25,
+      },
+      preferences,
+      timezone: "Europe/Berlin",
+    });
+    expect(result.value?.location).toMatchObject({ city: "Berlin", country: "Germany" });
   });
 
   it("rejects unsupported radius and timezone values", () => {

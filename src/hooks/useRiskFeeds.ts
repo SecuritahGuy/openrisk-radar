@@ -3,24 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import type { RiskEvent } from "../types/riskEvent";
 import type { EventCategory, EventSource, GeometryType } from "../types/riskEvent";
 import type { ResolvedLocation, RadiusOption } from "../types/location";
-import { fetchNwsAlerts, fetchNwsAlertsForPoint } from "../services/nws";
-import { fetchEarthquakes } from "../services/usgs";
+import { fetchNwsAlerts } from "../services/nws";
 import { fetchFemaDeclarations } from "../services/fema";
 import {
   fetchFemaRiskIndexCounty,
   type FemaRiskIndexCounty,
 } from "../services/femaRiskIndex";
 import { fetchStormEvents } from "../services/stormEvents";
-import { fetchWildfires } from "../services/nifc";
-import { fetchSpcOutlooks } from "../services/spc";
 import { fetchSpcStormReports } from "../services/spcReports";
-import { fetchNhcStorms } from "../services/nhc";
-import { fetchGdacsEvents } from "../services/gdacs";
-import { fetchEonetEvents } from "../services/eonet";
-import { fetchEmscEvents } from "../services/emsc";
-import { fetchGeoNetQuakes, fetchGeoNetVolcanoAlerts, supportsGeoNet } from "../services/geonet";
-import { fetchDwdWarnings, supportsDwd } from "../services/dwd";
-import { fetchWhoOutbreaks } from "../services/who";
 import { fetchCurrentWeather } from "../services/weather";
 import type { CurrentWeather } from "../services/weather";
 import {
@@ -39,7 +29,11 @@ import { fetchUkFloods } from "../services/ukFlood";
 import { fetchSwpcConditions } from "../services/swpc";
 import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 import { scopedNwsAlerts } from "../lib/nwsAlertScope";
-import { fetchMeteoalarmAlerts, supportsMeteoalarm } from "../services/meteoalarm";
+import {
+  createLocationFeedContext,
+  getLocationEventFeed,
+  type LocationEventFeedId,
+} from "../services/locationEventFeeds";
 import {
   fetchRegionalEvents,
   supportsRegionalSources,
@@ -90,6 +84,22 @@ interface UseRiskFeedsResult {
 
 const EMPTY_EVENTS: RiskEvent[] = [];
 const EMPTY_SIGNALS: SupplementalRiskSignal[] = [];
+
+const sharedFeed = (id: LocationEventFeedId) => getLocationEventFeed(id);
+const nwsPointFeed = sharedFeed("nws-point");
+const usgsFeed = sharedFeed("usgs");
+const nifcFeed = sharedFeed("nifc");
+const spcFeed = sharedFeed("spc");
+const nhcFeed = sharedFeed("nhc");
+const jmaFeed = sharedFeed("jma");
+const gdacsFeed = sharedFeed("gdacs");
+const eonetFeed = sharedFeed("eonet");
+const emscFeed = sharedFeed("emsc");
+const geonetFeed = sharedFeed("geonet");
+const geonetVolcanoFeed = sharedFeed("geonet-volcanoes");
+const dwdFeed = sharedFeed("dwd");
+const whoFeed = sharedFeed("who");
+const meteoalarmFeed = sharedFeed("meteoalarm");
 
 function stateCountyFips(location: ResolvedLocation | null): string | null {
   if (!location?.stateFips || !location.countyFips) return null;
@@ -214,6 +224,8 @@ export function useRiskFeeds(
   radius: RadiusOption
 ): UseRiskFeedsResult {
   const usLocationEnabled = !!location && location.country === "USA";
+  const radiusKm = toRadiusKm(radius);
+  const feedContext = location ? createLocationFeedContext(location, radius) : null;
   const nwsQuery = useQuery<RiskEvent[]>({
     queryKey: ["nws-alerts", location?.state],
     queryFn: () => fetchNwsAlerts(location!.state),
@@ -223,22 +235,19 @@ export function useRiskFeeds(
   });
 
   const nwsPointQuery = useQuery<RiskEvent[]>({
-    queryKey: ["nws-alerts-point", location?.latitude, location?.longitude],
-    queryFn: () =>
-      fetchNwsAlertsForPoint(location!.latitude, location!.longitude),
-    enabled: usLocationEnabled,
-    staleTime: 60_000,
-    retry: 2,
+    queryKey: feedContext ? nwsPointFeed.queryKey(feedContext) : ["nws-alerts-point"],
+    queryFn: () => nwsPointFeed.fetch(feedContext!),
+    enabled: !!feedContext && nwsPointFeed.enabled(feedContext),
+    staleTime: nwsPointFeed.staleTime,
+    retry: nwsPointFeed.retry,
   });
 
-  const radiusKm = toRadiusKm(radius);
   const usgsQuery = useQuery<RiskEvent[]>({
-    queryKey: ["usgs-quakes", location?.latitude, location?.longitude, radiusKm],
-    queryFn: () =>
-      fetchEarthquakes(location!.latitude, location!.longitude, radiusKm),
-    enabled: !!location,
-    staleTime: 60_000,
-    retry: 2,
+    queryKey: feedContext ? usgsFeed.queryKey(feedContext) : ["usgs-quakes"],
+    queryFn: () => usgsFeed.fetch(feedContext!),
+    enabled: !!feedContext && usgsFeed.enabled(feedContext),
+    staleTime: usgsFeed.staleTime,
+    retry: usgsFeed.retry,
   });
 
   const femaQuery = useQuery<RiskEvent[]>({
@@ -280,12 +289,11 @@ export function useRiskFeeds(
   });
 
   const nifcQuery = useQuery<RiskEvent[]>({
-    queryKey: ["nifc-wildfires", location?.latitude, location?.longitude, radiusKm],
-    queryFn: () =>
-      fetchWildfires(location!.latitude, location!.longitude, radiusKm),
-    enabled: usLocationEnabled,
-    staleTime: 120_000,
-    retry: 2,
+    queryKey: feedContext ? nifcFeed.queryKey(feedContext) : ["nifc-wildfires"],
+    queryFn: () => nifcFeed.fetch(feedContext!),
+    enabled: !!feedContext && nifcFeed.enabled(feedContext),
+    staleTime: nifcFeed.staleTime,
+    retry: nifcFeed.retry,
   });
 
   const regionalEnabled =
@@ -332,12 +340,11 @@ export function useRiskFeeds(
   });
 
   const spcQuery = useQuery<RiskEvent[]>({
-    queryKey: ["spc-outlooks", location?.latitude, location?.longitude, radius],
-    queryFn: () =>
-      fetchSpcOutlooks(location!.latitude, location!.longitude, radius),
-    enabled: usLocationEnabled,
-    staleTime: 300_000,
-    retry: 1,
+    queryKey: feedContext ? spcFeed.queryKey(feedContext) : ["spc-outlooks"],
+    queryFn: () => spcFeed.fetch(feedContext!),
+    enabled: !!feedContext && spcFeed.enabled(feedContext),
+    staleTime: spcFeed.staleTime,
+    retry: spcFeed.retry,
   });
 
   const spcReportsQuery = useQuery<RiskEvent[]>({
@@ -350,84 +357,85 @@ export function useRiskFeeds(
   });
 
   const nhcQuery = useQuery<RiskEvent[]>({
-    queryKey: ["nhc-storms", location?.latitude, location?.longitude, radius],
-    queryFn: () =>
-      fetchNhcStorms(location!.latitude, location!.longitude, radius),
-    enabled: !!location,
-    staleTime: 300_000,
-    retry: 1,
+    queryKey: feedContext ? nhcFeed.queryKey(feedContext) : ["nhc-storms"],
+    queryFn: () => nhcFeed.fetch(feedContext!),
+    enabled: !!feedContext && nhcFeed.enabled(feedContext),
+    staleTime: nhcFeed.staleTime,
+    retry: nhcFeed.retry,
+  });
+
+  const jmaQuery = useQuery<RiskEvent[]>({
+    queryKey: feedContext ? jmaFeed.queryKey(feedContext) : ["jma-cyclones"],
+    queryFn: () => jmaFeed.fetch(feedContext!),
+    enabled: !!feedContext && jmaFeed.enabled(feedContext),
+    staleTime: jmaFeed.staleTime,
+    retry: jmaFeed.retry,
   });
 
   const gdacsQuery = useQuery<RiskEvent[]>({
-    queryKey: ["gdacs-events", location?.latitude, location?.longitude, radiusKm],
-    queryFn: () =>
-      fetchGdacsEvents(location!.latitude, location!.longitude, radiusKm),
-    enabled: !!location,
-    staleTime: 300_000,
-    retry: 1,
+    queryKey: feedContext ? gdacsFeed.queryKey(feedContext) : ["gdacs-events"],
+    queryFn: () => gdacsFeed.fetch(feedContext!),
+    enabled: !!feedContext && gdacsFeed.enabled(feedContext),
+    staleTime: gdacsFeed.staleTime,
+    retry: gdacsFeed.retry,
   });
 
   const eonetQuery = useQuery<RiskEvent[]>({
-    queryKey: ["eonet-events", location?.latitude, location?.longitude, radiusKm],
-    queryFn: () =>
-      fetchEonetEvents(location!.latitude, location!.longitude, radiusKm),
-    enabled: !!location,
-    staleTime: 300_000,
-    retry: 1,
+    queryKey: feedContext ? eonetFeed.queryKey(feedContext) : ["eonet-events"],
+    queryFn: () => eonetFeed.fetch(feedContext!),
+    enabled: !!feedContext && eonetFeed.enabled(feedContext),
+    staleTime: eonetFeed.staleTime,
+    retry: eonetFeed.retry,
   });
 
   const emscQuery = useQuery<RiskEvent[]>({
-    queryKey: ["emsc-events", location?.latitude, location?.longitude, radiusKm],
-    queryFn: () =>
-      fetchEmscEvents(location!.latitude, location!.longitude, radiusKm),
-    enabled: !!location,
-    staleTime: 60_000,
-    retry: 1,
+    queryKey: feedContext ? emscFeed.queryKey(feedContext) : ["emsc-events"],
+    queryFn: () => emscFeed.fetch(feedContext!),
+    enabled: !!feedContext && emscFeed.enabled(feedContext),
+    staleTime: emscFeed.staleTime,
+    retry: emscFeed.retry,
   });
 
-  const geonetEnabled = supportsGeoNet(location);
+  const geonetEnabled = !!feedContext && geonetFeed.enabled(feedContext);
   const geonetQuery = useQuery<RiskEvent[]>({
-    queryKey: ["geonet-quakes", location?.latitude, location?.longitude, radiusKm],
-    queryFn: () =>
-      fetchGeoNetQuakes(location!.latitude, location!.longitude, radiusKm),
+    queryKey: feedContext ? geonetFeed.queryKey(feedContext) : ["geonet-quakes"],
+    queryFn: () => geonetFeed.fetch(feedContext!),
     enabled: geonetEnabled,
-    staleTime: 60_000,
-    retry: 1,
+    staleTime: geonetFeed.staleTime,
+    retry: geonetFeed.retry,
   });
   const geonetVolcanoQuery = useQuery<RiskEvent[]>({
-    queryKey: ["geonet-volcanoes", location?.latitude, location?.longitude, radiusKm],
-    queryFn: () =>
-      fetchGeoNetVolcanoAlerts(location!.latitude, location!.longitude, radiusKm),
+    queryKey: feedContext ? geonetVolcanoFeed.queryKey(feedContext) : ["geonet-volcanoes"],
+    queryFn: () => geonetVolcanoFeed.fetch(feedContext!),
     enabled: geonetEnabled,
-    staleTime: 300_000,
-    retry: 1,
+    staleTime: geonetVolcanoFeed.staleTime,
+    retry: geonetVolcanoFeed.retry,
   });
 
-  const dwdEnabled = supportsDwd(location);
+  const dwdEnabled = !!feedContext && dwdFeed.enabled(feedContext);
   const dwdQuery = useQuery<RiskEvent[]>({
-    queryKey: ["dwd-warnings", location?.latitude, location?.longitude, radiusKm],
-    queryFn: () =>
-      fetchDwdWarnings(location!.latitude, location!.longitude, radiusKm),
+    queryKey: feedContext ? dwdFeed.queryKey(feedContext) : ["dwd-warnings"],
+    queryFn: () => dwdFeed.fetch(feedContext!),
     enabled: dwdEnabled,
-    staleTime: 300_000,
-    retry: 1,
+    staleTime: dwdFeed.staleTime,
+    retry: dwdFeed.retry,
   });
 
   const whoQuery = useQuery<RiskEvent[]>({
-    queryKey: ["who-outbreaks", location?.country, location?.state, location?.county, location?.city],
-    queryFn: () => fetchWhoOutbreaks(location!),
-    enabled: !!location,
-    staleTime: 15 * 60_000,
-    retry: 1,
+    queryKey: feedContext ? whoFeed.queryKey(feedContext) : ["who-outbreaks"],
+    queryFn: () => whoFeed.fetch(feedContext!),
+    enabled: !!feedContext && whoFeed.enabled(feedContext),
+    staleTime: whoFeed.staleTime,
+    retry: whoFeed.retry,
   });
 
-  const meteoalarmEnabled = supportsMeteoalarm(location);
+  const meteoalarmEnabled = !!feedContext && meteoalarmFeed.enabled(feedContext);
   const meteoalarmQuery = useQuery<RiskEvent[]>({
-    queryKey: ["meteoalarm", location?.country, location?.city, location?.county, location?.state],
-    queryFn: () => fetchMeteoalarmAlerts(location!),
+    queryKey: feedContext ? meteoalarmFeed.queryKey(feedContext) : ["meteoalarm"],
+    queryFn: () => meteoalarmFeed.fetch(feedContext!),
     enabled: meteoalarmEnabled,
-    staleTime: 300_000,
-    retry: 1,
+    staleTime: meteoalarmFeed.staleTime,
+    retry: meteoalarmFeed.retry,
   });
 
   const weatherQuery = useQuery<CurrentWeather>({
@@ -625,6 +633,7 @@ export function useRiskFeeds(
   const spcOutlooks = spcQuery.data ?? EMPTY_EVENTS;
   const spcReports = spcReportsQuery.data ?? EMPTY_EVENTS;
   const nhcStorms = nhcQuery.data ?? EMPTY_EVENTS;
+  const jmaStorms = jmaQuery.data ?? EMPTY_EVENTS;
   const gdacsEvents = gdacsQuery.data ?? EMPTY_EVENTS;
   const eonetEvents = eonetQuery.data ?? EMPTY_EVENTS;
   const emscEvents = emscQuery.data ?? EMPTY_EVENTS;
@@ -694,6 +703,7 @@ export function useRiskFeeds(
       ...spcOutlooks,
       ...spcReports,
       ...nhcStorms,
+      ...jmaStorms,
       ...gdacsEvents,
       ...eonetEvents,
       ...emscEvents,
@@ -715,6 +725,7 @@ export function useRiskFeeds(
       spcOutlooks,
       spcReports,
       nhcStorms,
+      jmaStorms,
       gdacsEvents,
       eonetEvents,
       emscEvents,
@@ -726,8 +737,8 @@ export function useRiskFeeds(
       supplementalEvents,
     ]
   );
-  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || regionalQuery.isFetching || transportationQuery.isFetching || spcQuery.isFetching || spcReportsQuery.isFetching || nhcQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || geonetQuery.isFetching || geonetVolcanoQuery.isFetching || dwdQuery.isFetching || whoQuery.isFetching || meteoalarmQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || regionalQuery.isLoading || transportationQuery.isLoading || spcQuery.isLoading || spcReportsQuery.isLoading || nhcQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || geonetQuery.isLoading || geonetVolcanoQuery.isLoading || dwdQuery.isLoading || whoQuery.isLoading || meteoalarmQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
+  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || regionalQuery.isFetching || transportationQuery.isFetching || spcQuery.isFetching || spcReportsQuery.isFetching || nhcQuery.isFetching || jmaQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || geonetQuery.isFetching || geonetVolcanoQuery.isFetching || dwdQuery.isFetching || whoQuery.isFetching || meteoalarmQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || regionalQuery.isLoading || transportationQuery.isLoading || spcQuery.isLoading || spcReportsQuery.isLoading || nhcQuery.isLoading || jmaQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || geonetQuery.isLoading || geonetVolcanoQuery.isLoading || dwdQuery.isLoading || whoQuery.isLoading || meteoalarmQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
   const locationEnabled = !!location;
   const sourceHealth: SourceHealthItem[] = [
     queryHealth({
@@ -863,6 +874,18 @@ export function useRiskFeeds(
       count: nhcStorms.length,
       liveDetail: `${nhcStorms.length} tropical cyclone signal${nhcStorms.length !== 1 ? "s" : ""} in range.`,
       emptyDetail: "No active tropical cyclones in range.",
+    }),
+    queryHealth({
+      id: "jma",
+      label: "JMA Western North Pacific",
+      enabled: locationEnabled,
+      isLoading: jmaQuery.isLoading,
+      isFetching: jmaQuery.isFetching,
+      error: errorMessage(jmaQuery.error),
+      count: jmaStorms.length,
+      liveDetail: `${jmaStorms.length} JMA tropical cyclone signal${jmaStorms.length !== 1 ? "s" : ""} in range.`,
+      emptyDetail: "No active JMA tropical cyclones in range.",
+      failureStatus: "unavailable",
     }),
     queryHealth({
       id: "gdacs",
@@ -1142,6 +1165,7 @@ export function useRiskFeeds(
       spcQuery.refetch();
       spcReportsQuery.refetch();
       nhcQuery.refetch();
+      jmaQuery.refetch();
       gdacsQuery.refetch();
       eonetQuery.refetch();
       emscQuery.refetch();

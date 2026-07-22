@@ -1,7 +1,7 @@
-import type { WatchPreferences } from "../src/types/location";
+import type { ResolvedLocation, WatchPreferences } from "../src/types/location";
 import type { RiskEvent } from "../src/types/riskEvent";
 
-export const WATCH_AUDIT_SOURCES = ["NWS", "USGS", "NIFC"] as const;
+export const WATCH_AUDIT_SOURCES = ["NWS", "USGS", "NIFC", "NHC", "JMA", "GDACS", "NASA EONET"] as const;
 export const WATCH_RADIUS_OPTIONS = [10, 25, 50, 100] as const;
 export const WATCH_TIMEZONES_MAX_LENGTH = 64;
 
@@ -11,11 +11,7 @@ const DELIVERIES = new Set(["immediate", "daily"]);
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 export interface WatchRegistrationInput {
-  location: {
-    latitude: number;
-    longitude: number;
-    radiusMiles: number;
-  };
+  location: ResolvedLocation & { radiusMiles: number };
   preferences: WatchPreferences;
   timezone: string;
 }
@@ -36,6 +32,12 @@ function validExpiration(value: unknown): value is string | null {
   return Number.isFinite(new Date(value).getTime());
 }
 
+function optionalString(value: unknown, maxLength: number): string | null | undefined {
+  if (value == null) return value === null ? null : undefined;
+  if (typeof value !== "string" || value.length > maxLength) return undefined;
+  return value;
+}
+
 export function validateWatchRegistration(value: unknown): ValidationResult {
   if (!isObject(value) || !isObject(value.location) || !isObject(value.preferences)) {
     return { valid: false, message: "A location and watch preferences are required", value: null };
@@ -44,6 +46,13 @@ export function validateWatchRegistration(value: unknown): ValidationResult {
   const latitude = value.location.latitude;
   const longitude = value.location.longitude;
   const radiusMiles = value.location.radiusMiles;
+  const city = value.location.city === undefined ? "" : optionalString(value.location.city, 120);
+  const state = value.location.state === undefined ? "" : optionalString(value.location.state, 120);
+  const postalCode = value.location.postalCode === undefined ? null : optionalString(value.location.postalCode, 32);
+  const country = value.location.country === undefined ? "USA" : optionalString(value.location.country, 120);
+  const county = value.location.county === undefined ? null : optionalString(value.location.county, 160);
+  const stateFips = value.location.stateFips === undefined ? null : optionalString(value.location.stateFips, 8);
+  const countyFips = value.location.countyFips === undefined ? null : optionalString(value.location.countyFips, 8);
   const timezone = value.timezone;
   const preferences = value.preferences;
 
@@ -55,6 +64,10 @@ export function validateWatchRegistration(value: unknown): ValidationResult {
   }
   if (!WATCH_RADIUS_OPTIONS.includes(radiusMiles as (typeof WATCH_RADIUS_OPTIONS)[number])) {
     return { valid: false, message: "Radius must be 10, 25, 50, or 100 miles", value: null };
+  }
+  if (city === undefined || state === undefined || country === undefined || postalCode === undefined ||
+      county === undefined || stateFips === undefined || countyFips === undefined) {
+    return { valid: false, message: "Resolved location details are invalid", value: null };
   }
   if (typeof timezone !== "string" || timezone.length < 1 || timezone.length > WATCH_TIMEZONES_MAX_LENGTH) {
     return { valid: false, message: "A valid browser timezone is required", value: null };
@@ -84,7 +97,18 @@ export function validateWatchRegistration(value: unknown): ValidationResult {
     valid: true,
     message: null,
     value: {
-      location: { latitude, longitude, radiusMiles },
+      location: {
+        city,
+        state,
+        postalCode,
+        country,
+        latitude,
+        longitude,
+        county,
+        stateFips,
+        countyFips,
+        radiusMiles,
+      },
       preferences: preferences as unknown as WatchPreferences,
       timezone,
     },

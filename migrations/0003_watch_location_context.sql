@@ -1,0 +1,1 @@
+ALTER TABLE watches ADD COLUMN location_json TEXT NOT NULL DEFAULT '{}';

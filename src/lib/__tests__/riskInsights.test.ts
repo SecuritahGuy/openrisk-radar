@@ -111,6 +111,7 @@ describe("riskInsights", () => {
       NIFC: true,
       SPC: true,
       NHC: true,
+      JMA: true,
       GDACS: true,
       EONET: true,
       AIRNOW: true,

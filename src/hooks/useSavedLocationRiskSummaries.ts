@@ -2,20 +2,9 @@ import { useQueries } from "@tanstack/react-query";
 import type { CurrentWeather } from "../services/weather";
 import { fetchCurrentWeather } from "../services/weather";
 import { fetchOpenMeteoWeather } from "../services/openMeteo";
-import { fetchNwsAlertsForPoint } from "../services/nws";
-import { fetchEarthquakes } from "../services/usgs";
-import { fetchWildfires } from "../services/nifc";
-import { fetchSpcOutlooks } from "../services/spc";
-import { fetchNhcStorms } from "../services/nhc";
-import { fetchGdacsEvents } from "../services/gdacs";
-import { fetchEonetEvents } from "../services/eonet";
-import { fetchEmscEvents } from "../services/emsc";
-import { fetchGeoNetQuakes, fetchGeoNetVolcanoAlerts, supportsGeoNet } from "../services/geonet";
-import { fetchDwdWarnings, supportsDwd } from "../services/dwd";
-import { fetchWhoOutbreaks } from "../services/who";
-import { fetchMeteoalarmAlerts, supportsMeteoalarm } from "../services/meteoalarm";
 import { fetchRegionalEvents, supportsRegionalSources } from "../services/regionalSources";
 import { fetchTransportationEvents } from "../services/transportation";
+import { createLocationFeedContext, fetchLocationEventFeeds } from "../services/locationEventFeeds";
 import type { Location, RadiusOption, ResolvedLocation } from "../types/location";
 import type { RiskEvent } from "../types/riskEvent";
 import {
@@ -113,23 +102,9 @@ async function fetchSavedLocationSummary(
   const radiusMiles = location.radiusMiles || 50;
   const radiusKm = toRadiusKm(radiusMiles);
   const resolvedLocation = toResolvedLocation(location);
-  const [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, geonet, geonetVolcanoes, dwd, who, meteoalarm, weather] = await Promise.all([
-    settleEvents(
-      "NWS",
-      location.country === "USA"
-        ? fetchNwsAlertsForPoint(location.latitude, location.longitude)
-        : Promise.resolve([])
-    ),
-    settleEvents(
-      "USGS",
-      fetchEarthquakes(location.latitude, location.longitude, radiusKm)
-    ),
-    settleEvents(
-      "NIFC",
-      location.country === "USA"
-        ? fetchWildfires(location.latitude, location.longitude, radiusKm)
-        : Promise.resolve([])
-    ),
+  const context = createLocationFeedContext(resolvedLocation, radiusMiles);
+  const [sharedFeeds, regional, transportation, weather] = await Promise.all([
+    fetchLocationEventFeeds(context, "saved-summary"),
     settleEvents(
       "Regional agencies",
       location.country === "USA" && supportsRegionalSources(location.state)
@@ -152,60 +127,10 @@ async function fetchSavedLocationSummary(
           ).then((result) => result.events)
         : Promise.resolve([])
     ),
-    settleEvents(
-      "SPC",
-      location.country === "USA"
-        ? fetchSpcOutlooks(location.latitude, location.longitude, radiusMiles)
-        : Promise.resolve([])
-    ),
-    settleEvents(
-      "NHC",
-      fetchNhcStorms(location.latitude, location.longitude, radiusMiles)
-    ),
-    settleEvents(
-      "GDACS",
-      fetchGdacsEvents(location.latitude, location.longitude, radiusKm)
-    ),
-    settleEvents(
-      "NASA EONET",
-      fetchEonetEvents(location.latitude, location.longitude, radiusKm)
-    ),
-    settleEvents(
-      "EMSC",
-      fetchEmscEvents(location.latitude, location.longitude, radiusKm)
-    ),
-    settleEvents(
-      "GeoNet",
-      supportsGeoNet(resolvedLocation)
-        ? fetchGeoNetQuakes(location.latitude, location.longitude, radiusKm)
-        : Promise.resolve([])
-    ),
-    settleEvents(
-      "GeoNet volcanoes",
-      supportsGeoNet(resolvedLocation)
-        ? fetchGeoNetVolcanoAlerts(location.latitude, location.longitude, radiusKm)
-        : Promise.resolve([])
-    ),
-    settleEvents(
-      "DWD",
-      supportsDwd(resolvedLocation)
-        ? fetchDwdWarnings(location.latitude, location.longitude, radiusKm)
-        : Promise.resolve([])
-    ),
-    settleEvents(
-      "WHO",
-      fetchWhoOutbreaks(resolvedLocation)
-    ),
-    settleEvents(
-      "Meteoalarm",
-      supportsMeteoalarm(resolvedLocation)
-        ? fetchMeteoalarmAlerts(resolvedLocation)
-        : Promise.resolve([])
-    ),
     settleWeather(location),
   ]);
 
-  const eventResults = [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, geonet, geonetVolcanoes, dwd, who, meteoalarm];
+  const eventResults = [...sharedFeeds, regional, transportation];
   const incidents = canonicalIncidentEvents(
     eventResults.flatMap((result) => result.events)
   );

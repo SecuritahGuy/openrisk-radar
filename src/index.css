@@ -21,6 +21,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.app-main {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.app-main > :not(.map-view) {
+  flex-shrink: 0;
+}
+
+.map-view {
+  min-height: clamp(360px, 42dvh, 620px);
+}
+
 .map-loading {
   min-height: 420px;
   display: grid;

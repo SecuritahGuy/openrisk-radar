@@ -7,8 +7,15 @@ import type {
 
 interface CloudWatchPayload {
   location: {
+    city: string;
+    state: string;
+    postalCode: string | null;
+    country: string;
     latitude: number;
     longitude: number;
+    county: string | null;
+    stateFips: string | null;
+    countyFips: string | null;
     radiusMiles: number;
   };
   preferences: WatchPreferences;
@@ -31,8 +38,15 @@ interface WatchResponse {
 function payloadFor(location: Location, preferences: WatchPreferences): CloudWatchPayload {
   return {
     location: {
+      city: location.city,
+      state: location.state,
+      postalCode: location.postalCode,
+      country: location.country,
       latitude: Number(location.latitude.toFixed(4)),
       longitude: Number(location.longitude.toFixed(4)),
+      county: location.county,
+      stateFips: location.stateFips,
+      countyFips: location.countyFips,
       radiusMiles: location.radiusMiles,
     },
     preferences,

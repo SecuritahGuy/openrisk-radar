@@ -5,6 +5,7 @@ import {
   newWatchSecret,
   nextWatchCheck,
   validateWatchRegistration,
+  WATCH_AUDIT_SOURCES,
   watchStatus,
 } from "./watchDomain";
 
@@ -19,6 +20,7 @@ export interface WatchRow {
   latitude: number;
   longitude: number;
   radius_miles: number;
+  location_json: string;
   preferences_json: string;
   timezone: string;
   status: "active" | "paused" | "expired";
@@ -114,7 +116,7 @@ function publicWatch(row: WatchRow) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     auditMode: true,
-    evaluatedSources: ["NWS", "USGS", "NIFC"],
+    evaluatedSources: WATCH_AUDIT_SOURCES,
   };
 }
 
@@ -146,15 +148,16 @@ async function createWatch(db: D1Database, request: Request): Promise<Response> 
 
   await db.prepare(`
     INSERT INTO watches (
-      id, secret_hash, latitude, longitude, radius_miles, preferences_json,
+      id, secret_hash, latitude, longitude, radius_miles, location_json, preferences_json,
       timezone, status, next_check_at, expires_at, created_at, updated_at
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
   `).bind(
     id,
     secretHash,
     location.latitude,
     location.longitude,
     location.radiusMiles,
+    JSON.stringify(location),
     JSON.stringify(preferences),
     timezone,
     status,
@@ -189,14 +192,15 @@ async function updateWatch(db: D1Database, request: Request, id: string): Promis
   const nextCheckAt = status === "active" ? now : nextWatchCheck(preferences);
   await db.prepare(`
     UPDATE watches SET latitude = ?1, longitude = ?2, radius_miles = ?3,
-      preferences_json = ?4, timezone = ?5, status = ?6, next_check_at = ?7,
-      expires_at = ?8, updated_at = ?9, last_error = NULL,
+      location_json = ?4, preferences_json = ?5, timezone = ?6, status = ?7, next_check_at = ?8,
+      expires_at = ?9, updated_at = ?10, last_error = NULL,
       last_incident_fingerprint = NULL, last_match_count = 0
-    WHERE id = ?10
+    WHERE id = ?11
   `).bind(
     location.latitude,
     location.longitude,
     location.radiusMiles,
+    JSON.stringify(location),
     JSON.stringify(preferences),
     timezone,
     status,

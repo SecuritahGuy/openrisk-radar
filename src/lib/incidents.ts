@@ -7,6 +7,7 @@ const SOURCE_PRIORITY: Record<EventSource, number> = {
   NWS: 100,
   METEOALARM: 100,
   NHC: 100,
+  JMA: 100,
   USGS: 95,
   NIFC: 95,
   NWPS: 95,
