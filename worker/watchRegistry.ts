@@ -5,12 +5,14 @@ import {
   newWatchSecret,
   nextWatchCheck,
   validateWatchRegistration,
-  WATCH_AUDIT_SOURCES,
   watchStatus,
 } from "./watchDomain";
+import { LOCATION_WATCH_AUDIT_SOURCES } from "../src/services/locationEventFeeds";
 
 const MAX_BODY_BYTES = 8 * 1024;
-const MAX_ACTIVE_WATCHES = 5_000;
+// Four 24-watch audit batches run per hour. Keep headroom for retries and
+// degraded upstreams so every immediate watch can retain its hourly contract.
+const MAX_ACTIVE_WATCHES = 80;
 const WATCH_PATH = /^\/api\/watches\/([0-9a-f-]+)\/status$/i;
 const WATCH_ITEM_PATH = /^\/api\/watches\/([0-9a-f-]+)$/i;
 
@@ -116,7 +118,7 @@ function publicWatch(row: WatchRow) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     auditMode: true,
-    evaluatedSources: WATCH_AUDIT_SOURCES,
+    evaluatedSources: LOCATION_WATCH_AUDIT_SOURCES,
   };
 }
 

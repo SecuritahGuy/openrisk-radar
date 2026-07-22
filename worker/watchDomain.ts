@@ -1,7 +1,6 @@
 import type { ResolvedLocation, WatchPreferences } from "../src/types/location";
 import type { RiskEvent } from "../src/types/riskEvent";
 
-export const WATCH_AUDIT_SOURCES = ["NWS", "USGS", "NIFC", "NHC", "JMA", "GDACS", "NASA EONET"] as const;
 export const WATCH_RADIUS_OPTIONS = [10, 25, 50, 100] as const;
 export const WATCH_TIMEZONES_MAX_LENGTH = 64;
 

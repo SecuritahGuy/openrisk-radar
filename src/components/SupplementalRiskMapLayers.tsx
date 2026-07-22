@@ -1,4 +1,5 @@
 import type React from "react";
+import L from "leaflet";
 import { CircleMarker, Polygon, Popup, Tooltip } from "react-leaflet";
 import type { SupplementalRiskSignal, SupplementalSource } from "../types/supplementalRisk";
 
@@ -60,6 +61,15 @@ function pointRadius(signal: SupplementalRiskSignal): number {
   return 8;
 }
 
+function accessiblePath(label: string) {
+  return {
+    add: (event: L.LeafletEvent) => {
+      const element = (event.target as L.Path).getElement();
+      element?.setAttribute("aria-label", label);
+    },
+  };
+}
+
 function popupContent(
   signal: SupplementalRiskSignal,
   onSignalClick?: (signal: SupplementalRiskSignal) => void
@@ -118,6 +128,7 @@ export function SupplementalRiskMapLayers({
                 fillOpacity: 0.65,
                 weight: 2,
               }}
+              eventHandlers={accessiblePath(`${signal.headline}, ${signal.severity} ${signal.category}`)}
             >
               <Popup>{popupContent(signal, onSignalClick)}</Popup>
               <Tooltip direction="top" offset={[0, -8]}>
@@ -141,6 +152,7 @@ export function SupplementalRiskMapLayers({
                 fillOpacity: 0.1,
                 weight: 2,
               }}
+              eventHandlers={accessiblePath(`${signal.headline}, ${signal.severity} ${signal.category}`)}
             >
               <Popup>{popupContent(signal, onSignalClick)}</Popup>
             </Polygon>
@@ -162,6 +174,7 @@ export function SupplementalRiskMapLayers({
                   fillOpacity: 0.08,
                   weight: 2,
                 }}
+                eventHandlers={accessiblePath(`${signal.headline}, ${signal.severity} ${signal.category}`)}
               >
                 <Popup>{popupContent(signal, onSignalClick)}</Popup>
               </Polygon>

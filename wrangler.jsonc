@@ -15,7 +15,7 @@
     "head_sampling_rate": 0.1
   },
   "triggers": {
-    "crons": ["*/30 * * * *"]
+    "crons": ["*/15 * * * *"]
   },
   "d1_databases": [
     {

@@ -1,97 +1,105 @@
 export type GibsLayerId =
   | "MODIS_Terra_CorrectedReflectance_TrueColor"
-  | "MODIS_Aqua_CorrectedReflectance_TrueColor"
-  | "VIIRS_SNPP_CorrectedReflectance_TrueColor"
-  | "MODIS_Terra_Thermal_Anomalies_All"
   | "VIIRS_SNPP_Thermal_Anomalies_375m"
   | "MODIS_Combined_Value_Added_AOD"
-  | "Sea_Surface_Temp"
   | "Snow_Cover";
 
 export interface GIBSLayer {
   id: GibsLayerId;
+  serviceLayer: string;
   title: string;
   description: string;
-  format: "jpg" | "png";
-  tileMatrixSet: "250m" | "500m";
-  hasTimeDimension: boolean;
+  rendering: "wmts" | "wms";
+  format: "jpeg" | "png";
+  tileMatrixSet: string;
+  maxNativeZoom: number;
+  opacity: number;
 }
 
 export const GIBS_LAYERS: Record<GibsLayerId, GIBSLayer> = {
   MODIS_Terra_CorrectedReflectance_TrueColor: {
     id: "MODIS_Terra_CorrectedReflectance_TrueColor",
-    title: "True Color (MODIS Terra)",
-    description: "Daily natural-color satellite imagery.",
-    format: "jpg",
-    tileMatrixSet: "250m",
-    hasTimeDimension: true,
-  },
-  MODIS_Aqua_CorrectedReflectance_TrueColor: {
-    id: "MODIS_Aqua_CorrectedReflectance_TrueColor",
-    title: "True Color (MODIS Aqua)",
-    description: "Daily natural-color satellite imagery.",
-    format: "jpg",
-    tileMatrixSet: "250m",
-    hasTimeDimension: true,
-  },
-  VIIRS_SNPP_CorrectedReflectance_TrueColor: {
-    id: "VIIRS_SNPP_CorrectedReflectance_TrueColor",
-    title: "True Color (VIIRS SNPP)",
-    description: "Daily natural-color satellite imagery.",
-    format: "jpg",
-    tileMatrixSet: "250m",
-    hasTimeDimension: true,
-  },
-  MODIS_Terra_Thermal_Anomalies_All: {
-    id: "MODIS_Terra_Thermal_Anomalies_All",
-    title: "Thermal Anomalies (MODIS Terra)",
-    description: "Active fire / thermal anomaly overlay.",
-    format: "png",
-    tileMatrixSet: "250m",
-    hasTimeDimension: true,
+    serviceLayer: "MODIS_Terra_CorrectedReflectance_TrueColor",
+    title: "True color",
+    description: "Daily MODIS Terra natural-color satellite imagery.",
+    rendering: "wmts",
+    format: "jpeg",
+    tileMatrixSet: "GoogleMapsCompatible_Level9",
+    maxNativeZoom: 9,
+    opacity: 0.72,
   },
   VIIRS_SNPP_Thermal_Anomalies_375m: {
     id: "VIIRS_SNPP_Thermal_Anomalies_375m",
-    title: "Thermal Anomalies (VIIRS 375m)",
-    description: "High-resolution active fire / thermal anomaly overlay.",
+    serviceLayer: "VIIRS_SNPP_Thermal_Anomalies_375m_All",
+    title: "Thermal anomalies",
+    description: "VIIRS daytime and nighttime thermal-anomaly detections rendered by GIBS.",
+    rendering: "wms",
     format: "png",
-    tileMatrixSet: "250m",
-    hasTimeDimension: true,
+    tileMatrixSet: "GoogleMapsCompatible_Level8",
+    maxNativeZoom: 8,
+    opacity: 0.9,
   },
   MODIS_Combined_Value_Added_AOD: {
     id: "MODIS_Combined_Value_Added_AOD",
-    title: "Aerosol Optical Depth",
-    description: "Global aerosol / smoke concentration.",
+    serviceLayer: "MODIS_Combined_Value_Added_AOD",
+    title: "Aerosol and smoke",
+    description: "MODIS combined aerosol optical depth for broad smoke and haze context.",
+    rendering: "wmts",
     format: "png",
-    tileMatrixSet: "250m",
-    hasTimeDimension: true,
-  },
-  Sea_Surface_Temp: {
-    id: "Sea_Surface_Temp",
-    title: "Sea Surface Temperature",
-    description: "Global sea surface temperature.",
-    format: "png",
-    tileMatrixSet: "250m",
-    hasTimeDimension: true,
+    tileMatrixSet: "GoogleMapsCompatible_Level6",
+    maxNativeZoom: 6,
+    opacity: 0.72,
   },
   Snow_Cover: {
     id: "Snow_Cover",
-    title: "Snow Cover",
-    description: "Global snow cover extent.",
+    serviceLayer: "MODIS_Terra_NDSI_Snow_Cover",
+    title: "Snow cover",
+    description: "Daily MODIS Terra normalized-difference snow-cover imagery.",
+    rendering: "wmts",
     format: "png",
-    tileMatrixSet: "250m",
-    hasTimeDimension: true,
+    tileMatrixSet: "GoogleMapsCompatible_Level8",
+    maxNativeZoom: 8,
+    opacity: 0.72,
   },
 };
 
-const GIBS_BASE = "https://gibs.earthdata.nasa.gov/wmts/epsg4326";
+export const GIBS_LAYER_OPTIONS = Object.values(GIBS_LAYERS);
+export const GIBS_WMS_URL = "https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi";
+const GIBS_WMTS_BASE = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best";
 
-function pad(n: number): string {
-  return n.toString().padStart(2, "0");
+function pad(value: number): string {
+  return value.toString().padStart(2, "0");
 }
 
-function yyyyMmDd(date: Date): string {
+export function yyyyMmDd(date: Date): string {
   return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+}
+
+export function latestGibsDate(now = new Date()): string {
+  return yyyyMmDd(new Date(now.getTime() - 24 * 60 * 60 * 1000));
+}
+
+export function gibsDateOptions(now = new Date(), days = 7): string[] {
+  return Array.from({ length: days }, (_, index) =>
+    yyyyMmDd(new Date(now.getTime() - (index + 1) * 24 * 60 * 60 * 1000))
+  );
+}
+
+export function gibsTileTemplate(layer: GibsLayerId, date: string): string {
+  const metadata = GIBS_LAYERS[layer];
+  if (metadata.rendering !== "wmts") {
+    throw new Error(`${metadata.title} uses the GIBS WMS renderer`);
+  }
+  return [
+    GIBS_WMTS_BASE,
+    metadata.serviceLayer,
+    "default",
+    date,
+    metadata.tileMatrixSet,
+    "{z}",
+    "{y}",
+    `{x}.${metadata.format}`,
+  ].join("/");
 }
 
 export interface GIBSTileOptions {
@@ -103,20 +111,8 @@ export interface GIBSTileOptions {
 }
 
 export function gibsTileUrl({ layer, date = new Date(), zoom, x, y }: GIBSTileOptions): string {
-  const meta = GIBS_LAYERS[layer];
-  const day = yyyyMmDd(date);
-  return [
-    GIBS_BASE,
-    meta.id,
-    "default",
-    day,
-    meta.tileMatrixSet,
-    zoom.toString(),
-    x.toString(),
-    y.toString(),
-  ].join("/") + `.${meta.format}`;
-}
-
-export function latestGibsDate(date = new Date()): string {
-  return yyyyMmDd(date);
+  return gibsTileTemplate(layer, yyyyMmDd(date))
+    .replace("{z}", String(zoom))
+    .replace("{y}", String(y))
+    .replace("{x}", String(x));
 }

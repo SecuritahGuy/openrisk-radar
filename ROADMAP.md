@@ -42,6 +42,7 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | NHC storms | Atlantic and Eastern/Central Pacific | Active tropical cyclones | Main dashboard when active/in range |
 | GDACS | Global | Earthquakes, cyclones, floods, volcanoes, wildfires, droughts | Main dashboard |
 | NASA EONET | Global | Earth observation natural events | Main dashboard |
+| NASA GIBS | Global | Dated true-color, thermal-anomaly, aerosol/smoke, and snow-cover imagery | Optional map overlay with product-specific native zoom limits |
 | Open-Meteo | Global | Weather fallback, air quality, marine conditions | Current conditions fallback and environmental signals panel |
 | Nominatim | Global | Geocoding/reverse geocoding | Location resolution fallback |
 | USGS Water Services | United States | River conditions — discharge, gauge height, water temperature | Environmental signals panel |

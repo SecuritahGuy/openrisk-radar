@@ -65,7 +65,7 @@ describe("canonical incidents", () => {
     expect(result[0].updatedAt).toBe("2026-07-14T10:08:00.000Z");
   });
 
-  it("merges transitive cross-source matches regardless of input order", () => {
+  it("prevents transitive chains from merging distinct incidents regardless of input order", () => {
     const input = [
       event({ source: "USGS", sourceEventId: "us", longitude: -118 }),
       event({ source: "GEONET", sourceEventId: "nz", longitude: -117.2 }),
@@ -74,13 +74,9 @@ describe("canonical incidents", () => {
     const result = canonicalIncidentEvents(input);
     const reversed = canonicalIncidentEvents([...input].reverse());
 
-    expect(result).toHaveLength(1);
+    expect(result).toHaveLength(2);
     expect(reversed.map((item) => item.id)).toEqual(result.map((item) => item.id));
-    expect(incidentMetadata(result[0])).toMatchObject({
-      agreement: "corroborated",
-      eventCount: 3,
-      sources: ["EMSC", "GEONET", "USGS"],
-    });
+    expect(result.map((item) => incidentMetadata(item)?.eventCount).sort()).toEqual([1, 2]);
   });
 
   it("distinguishes providers that share a generic source and event identifier", () => {
@@ -106,7 +102,10 @@ describe("canonical incidents", () => {
     expect(incidentMetadata(result[0])).toMatchObject({
       agreement: "corroborated",
       providerCount: 2,
+      groupingMethod: "complete-link",
     });
+    expect(incidentMetadata(result[0])?.contributors[1].correlationReason)
+      .toContain("miles from the primary record");
   });
 
   it("correlates an observed SPC report inside an NWS warning polygon", () => {

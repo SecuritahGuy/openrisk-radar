@@ -32,7 +32,10 @@ import { scopedNwsAlerts } from "../lib/nwsAlertScope";
 import {
   createLocationFeedContext,
   getLocationEventFeed,
+  locationEventFeedEnabled,
+  type LocationEventFeedDefinition,
   type LocationEventFeedId,
+  type LocationFeedContext,
 } from "../services/locationEventFeeds";
 import {
   fetchRegionalEvents,
@@ -100,6 +103,19 @@ const geonetVolcanoFeed = sharedFeed("geonet-volcanoes");
 const dwdFeed = sharedFeed("dwd");
 const whoFeed = sharedFeed("who");
 const meteoalarmFeed = sharedFeed("meteoalarm");
+
+function useLocationEventFeedQuery(
+  feed: LocationEventFeedDefinition,
+  context: LocationFeedContext | null
+) {
+  return useQuery<RiskEvent[]>({
+    queryKey: context ? feed.queryKey(context) : [feed.id],
+    queryFn: () => feed.fetch(context!),
+    enabled: locationEventFeedEnabled(feed, context, "dashboard"),
+    staleTime: feed.staleTime,
+    retry: feed.retry,
+  });
+}
 
 function stateCountyFips(location: ResolvedLocation | null): string | null {
   if (!location?.stateFips || !location.countyFips) return null;
@@ -234,21 +250,8 @@ export function useRiskFeeds(
     retry: 2,
   });
 
-  const nwsPointQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? nwsPointFeed.queryKey(feedContext) : ["nws-alerts-point"],
-    queryFn: () => nwsPointFeed.fetch(feedContext!),
-    enabled: !!feedContext && nwsPointFeed.enabled(feedContext),
-    staleTime: nwsPointFeed.staleTime,
-    retry: nwsPointFeed.retry,
-  });
-
-  const usgsQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? usgsFeed.queryKey(feedContext) : ["usgs-quakes"],
-    queryFn: () => usgsFeed.fetch(feedContext!),
-    enabled: !!feedContext && usgsFeed.enabled(feedContext),
-    staleTime: usgsFeed.staleTime,
-    retry: usgsFeed.retry,
-  });
+  const nwsPointQuery = useLocationEventFeedQuery(nwsPointFeed, feedContext);
+  const usgsQuery = useLocationEventFeedQuery(usgsFeed, feedContext);
 
   const femaQuery = useQuery<RiskEvent[]>({
     queryKey: ["fema", location?.state, location?.countyFips],
@@ -288,13 +291,7 @@ export function useRiskFeeds(
     retry: 1,
   });
 
-  const nifcQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? nifcFeed.queryKey(feedContext) : ["nifc-wildfires"],
-    queryFn: () => nifcFeed.fetch(feedContext!),
-    enabled: !!feedContext && nifcFeed.enabled(feedContext),
-    staleTime: nifcFeed.staleTime,
-    retry: nifcFeed.retry,
-  });
+  const nifcQuery = useLocationEventFeedQuery(nifcFeed, feedContext);
 
   const regionalEnabled =
     location?.country === "USA" && supportsRegionalSources(location.state);
@@ -339,13 +336,7 @@ export function useRiskFeeds(
     retry: 1,
   });
 
-  const spcQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? spcFeed.queryKey(feedContext) : ["spc-outlooks"],
-    queryFn: () => spcFeed.fetch(feedContext!),
-    enabled: !!feedContext && spcFeed.enabled(feedContext),
-    staleTime: spcFeed.staleTime,
-    retry: spcFeed.retry,
-  });
+  const spcQuery = useLocationEventFeedQuery(spcFeed, feedContext);
 
   const spcReportsQuery = useQuery<RiskEvent[]>({
     queryKey: ["spc-reports", location?.latitude, location?.longitude, radius],
@@ -356,87 +347,22 @@ export function useRiskFeeds(
     retry: 1,
   });
 
-  const nhcQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? nhcFeed.queryKey(feedContext) : ["nhc-storms"],
-    queryFn: () => nhcFeed.fetch(feedContext!),
-    enabled: !!feedContext && nhcFeed.enabled(feedContext),
-    staleTime: nhcFeed.staleTime,
-    retry: nhcFeed.retry,
-  });
-
-  const jmaQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? jmaFeed.queryKey(feedContext) : ["jma-cyclones"],
-    queryFn: () => jmaFeed.fetch(feedContext!),
-    enabled: !!feedContext && jmaFeed.enabled(feedContext),
-    staleTime: jmaFeed.staleTime,
-    retry: jmaFeed.retry,
-  });
-
-  const gdacsQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? gdacsFeed.queryKey(feedContext) : ["gdacs-events"],
-    queryFn: () => gdacsFeed.fetch(feedContext!),
-    enabled: !!feedContext && gdacsFeed.enabled(feedContext),
-    staleTime: gdacsFeed.staleTime,
-    retry: gdacsFeed.retry,
-  });
-
-  const eonetQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? eonetFeed.queryKey(feedContext) : ["eonet-events"],
-    queryFn: () => eonetFeed.fetch(feedContext!),
-    enabled: !!feedContext && eonetFeed.enabled(feedContext),
-    staleTime: eonetFeed.staleTime,
-    retry: eonetFeed.retry,
-  });
-
-  const emscQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? emscFeed.queryKey(feedContext) : ["emsc-events"],
-    queryFn: () => emscFeed.fetch(feedContext!),
-    enabled: !!feedContext && emscFeed.enabled(feedContext),
-    staleTime: emscFeed.staleTime,
-    retry: emscFeed.retry,
-  });
+  const nhcQuery = useLocationEventFeedQuery(nhcFeed, feedContext);
+  const jmaQuery = useLocationEventFeedQuery(jmaFeed, feedContext);
+  const gdacsQuery = useLocationEventFeedQuery(gdacsFeed, feedContext);
+  const eonetQuery = useLocationEventFeedQuery(eonetFeed, feedContext);
+  const emscQuery = useLocationEventFeedQuery(emscFeed, feedContext);
 
   const geonetEnabled = !!feedContext && geonetFeed.enabled(feedContext);
-  const geonetQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? geonetFeed.queryKey(feedContext) : ["geonet-quakes"],
-    queryFn: () => geonetFeed.fetch(feedContext!),
-    enabled: geonetEnabled,
-    staleTime: geonetFeed.staleTime,
-    retry: geonetFeed.retry,
-  });
-  const geonetVolcanoQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? geonetVolcanoFeed.queryKey(feedContext) : ["geonet-volcanoes"],
-    queryFn: () => geonetVolcanoFeed.fetch(feedContext!),
-    enabled: geonetEnabled,
-    staleTime: geonetVolcanoFeed.staleTime,
-    retry: geonetVolcanoFeed.retry,
-  });
+  const geonetQuery = useLocationEventFeedQuery(geonetFeed, feedContext);
+  const geonetVolcanoQuery = useLocationEventFeedQuery(geonetVolcanoFeed, feedContext);
 
   const dwdEnabled = !!feedContext && dwdFeed.enabled(feedContext);
-  const dwdQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? dwdFeed.queryKey(feedContext) : ["dwd-warnings"],
-    queryFn: () => dwdFeed.fetch(feedContext!),
-    enabled: dwdEnabled,
-    staleTime: dwdFeed.staleTime,
-    retry: dwdFeed.retry,
-  });
-
-  const whoQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? whoFeed.queryKey(feedContext) : ["who-outbreaks"],
-    queryFn: () => whoFeed.fetch(feedContext!),
-    enabled: !!feedContext && whoFeed.enabled(feedContext),
-    staleTime: whoFeed.staleTime,
-    retry: whoFeed.retry,
-  });
+  const dwdQuery = useLocationEventFeedQuery(dwdFeed, feedContext);
+  const whoQuery = useLocationEventFeedQuery(whoFeed, feedContext);
 
   const meteoalarmEnabled = !!feedContext && meteoalarmFeed.enabled(feedContext);
-  const meteoalarmQuery = useQuery<RiskEvent[]>({
-    queryKey: feedContext ? meteoalarmFeed.queryKey(feedContext) : ["meteoalarm"],
-    queryFn: () => meteoalarmFeed.fetch(feedContext!),
-    enabled: meteoalarmEnabled,
-    staleTime: meteoalarmFeed.staleTime,
-    retry: meteoalarmFeed.retry,
-  });
+  const meteoalarmQuery = useLocationEventFeedQuery(meteoalarmFeed, feedContext);
 
   const weatherQuery = useQuery<CurrentWeather>({
     queryKey: ["current-weather", location?.latitude, location?.longitude],
