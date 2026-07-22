@@ -10,6 +10,7 @@ import { fetchNhcStorms } from "../services/nhc";
 import { fetchGdacsEvents } from "../services/gdacs";
 import { fetchEonetEvents } from "../services/eonet";
 import { fetchEmscEvents } from "../services/emsc";
+import { fetchGeoNetQuakes, supportsGeoNet } from "../services/geonet";
 import { fetchMeteoalarmAlerts, supportsMeteoalarm } from "../services/meteoalarm";
 import { fetchRegionalEvents, supportsRegionalSources } from "../services/regionalSources";
 import { fetchTransportationEvents } from "../services/transportation";
@@ -110,10 +111,12 @@ async function fetchSavedLocationSummary(
   const radiusMiles = location.radiusMiles || 50;
   const radiusKm = toRadiusKm(radiusMiles);
   const resolvedLocation = toResolvedLocation(location);
-  const [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, meteoalarm, weather] = await Promise.all([
+  const [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, geonet, meteoalarm, weather] = await Promise.all([
     settleEvents(
       "NWS",
-      fetchNwsAlertsForPoint(location.latitude, location.longitude)
+      location.country === "USA"
+        ? fetchNwsAlertsForPoint(location.latitude, location.longitude)
+        : Promise.resolve([])
     ),
     settleEvents(
       "USGS",
@@ -121,7 +124,9 @@ async function fetchSavedLocationSummary(
     ),
     settleEvents(
       "NIFC",
-      fetchWildfires(location.latitude, location.longitude, radiusKm)
+      location.country === "USA"
+        ? fetchWildfires(location.latitude, location.longitude, radiusKm)
+        : Promise.resolve([])
     ),
     settleEvents(
       "Regional agencies",
@@ -147,7 +152,9 @@ async function fetchSavedLocationSummary(
     ),
     settleEvents(
       "SPC",
-      fetchSpcOutlooks(location.latitude, location.longitude, radiusMiles)
+      location.country === "USA"
+        ? fetchSpcOutlooks(location.latitude, location.longitude, radiusMiles)
+        : Promise.resolve([])
     ),
     settleEvents(
       "NHC",
@@ -166,6 +173,12 @@ async function fetchSavedLocationSummary(
       fetchEmscEvents(location.latitude, location.longitude, radiusKm)
     ),
     settleEvents(
+      "GeoNet",
+      supportsGeoNet(resolvedLocation)
+        ? fetchGeoNetQuakes(location.latitude, location.longitude, radiusKm)
+        : Promise.resolve([])
+    ),
+    settleEvents(
       "Meteoalarm",
       supportsMeteoalarm(resolvedLocation)
         ? fetchMeteoalarmAlerts(resolvedLocation)
@@ -174,7 +187,7 @@ async function fetchSavedLocationSummary(
     settleWeather(location),
   ]);
 
-  const eventResults = [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, meteoalarm];
+  const eventResults = [nws, usgs, nifc, regional, transportation, spc, nhc, gdacs, eonet, emsc, geonet, meteoalarm];
   const incidents = canonicalIncidentEvents(
     eventResults.flatMap((result) => result.events)
   );

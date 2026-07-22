@@ -75,6 +75,7 @@ OpenRisk Radar brings authoritative feeds into a single geospatial workflow. It 
 - Search by U.S. ZIP code, city/state, geocoded place, or map location.
 - Interactive Leaflet map with radius rings, event markers, alert polygons, and optional NWS weather overlays.
 - Real-time source adapters for official government and public hazard feeds.
+- Automatic GeoNet earthquake coverage for resolved New Zealand locations.
 - Normalized `RiskEvent` model for source, category, severity, timing, geometry, confidence, and attribution.
 - Severity and impact classification for quick triage.
 - Feed explorer with sorting by priority, source, category, severity, impact, distance, expiration, and update time.

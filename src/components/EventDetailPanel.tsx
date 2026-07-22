@@ -525,14 +525,14 @@ export function EventDetailPanel({
             <DetailRow
               label="Agreement"
               value={incident.agreement === "corroborated"
-                ? `Corroborated by ${incident.sources.length} sources`
+                ? `Corroborated by ${incident.providerCount} providers`
                 : "Single official source"}
             />
             <DetailRow label="Incident ID" value={incident.id} />
             <div style={styles.contributorList}>
               {incident.contributors.map((contributor) => (
                 <div
-                  key={`${contributor.source}:${contributor.sourceEventId}`}
+                  key={`${contributor.provider?.id ?? contributor.source}:${contributor.sourceEventId}`}
                   style={styles.contributor}
                 >
                   <span style={{ ...styles.contributorSource, color: sourceColor(contributor.source) }}>

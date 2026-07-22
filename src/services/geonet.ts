@@ -1,5 +1,6 @@
 import { newEventId } from "../lib/ids";
 import { readJsonResponse } from "../lib/http";
+import type { ResolvedLocation } from "../types/location";
 import type { RiskEvent, Severity } from "../types/riskEvent";
 
 const BASE = "https://api.geonet.org.nz/quake";
@@ -15,10 +16,10 @@ interface GeoNetProperties {
   earthquakeId?: string;
 }
 
-interface GeoNetFeature {
+export interface GeoNetFeature {
   type: "Feature";
   id?: string;
-  geometry: { type: "Point"; coordinates: [number, number, number] };
+  geometry: { type: "Point"; coordinates: [number, number] | [number, number, number] };
   properties: GeoNetProperties;
 }
 
@@ -49,6 +50,7 @@ export function normalizeGeoNet(feature: GeoNetFeature): RiskEvent {
   const p = feature.properties;
   const coords = feature.geometry.coordinates;
   const mag = p.magnitude ?? 0;
+  const displayMagnitude = mag.toFixed(1);
 
   return {
     id: newEventId(),
@@ -57,10 +59,10 @@ export function normalizeGeoNet(feature: GeoNetFeature): RiskEvent {
     type: "Earthquake",
     category: "Seismic",
     severity: geonetSeverity(mag),
-    headline: `M${mag} — ${p.locality ?? "New Zealand"}`,
+    headline: `M${displayMagnitude} — ${p.locality ?? "New Zealand"}`,
     description: [
-      `Magnitude ${mag} earthquake detected by GeoNet.`,
-      `Depth: ${Math.abs(coords[2])} km.`,
+      `Magnitude ${displayMagnitude} earthquake detected by GeoNet.`,
+      `Depth: ${Math.abs(p.depth ?? coords[2] ?? 0).toFixed(1)} km.`,
       p.locality ? `Location: ${p.locality}.` : "",
     ].filter(Boolean).join(" "),
     geometryType: "Point",
@@ -74,8 +76,19 @@ export function normalizeGeoNet(feature: GeoNetFeature): RiskEvent {
       ? `https://api.geonet.org.nz/quake/${p.publicID}`
       : "https://www.geonet.org.nz/earthquake",
     confidence: "Source reported",
+    provider: {
+      id: "geonet-nz",
+      label: "GeoNet New Zealand",
+      authority: "international",
+      attributionUrl: "https://www.geonet.org.nz/",
+    },
     raw: feature as unknown as Record<string, unknown>,
   };
+}
+
+export function supportsGeoNet(location: ResolvedLocation | null): boolean {
+  if (!location) return false;
+  return ["new zealand", "nz", "nzl"].includes(location.country.trim().toLowerCase());
 }
 
 export async function fetchGeoNetQuakes(

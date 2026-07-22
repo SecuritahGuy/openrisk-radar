@@ -29,6 +29,7 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | Meteoalarm | Europe | National weather alerts normalized from Meteoalarm | Main dashboard where supported |
 | USGS earthquakes | Global | Earthquakes by proximity | Main dashboard |
 | EMSC | Global, Europe-focused | Earthquakes by proximity and felt-event context | Main dashboard through a cached Worker proxy |
+| GeoNet | New Zealand | Authoritative local earthquake catalog | Main dashboard, activated automatically for resolved New Zealand locations |
 | FEMA declarations | United States | Disaster declarations by state/county | Main dashboard, no geometry |
 | NOAA Storm Events | United States | Historical severe-weather records | Historical context |
 | NIFC wildfires | United States | Wildfires and prescribed burns | Main dashboard |
@@ -71,8 +72,8 @@ The current Cloudflare watch/audit implementation is experimental research. It i
 
 | Area | Why It Matters | Notes |
 |------|----------------|-------|
-| Expand provider-aware incident correlation | The canonical incident layer handles selected categories, but related records can still remain separate | Add order-independent grouping, more category rules, authoritative-source preference, and contributor preservation |
-| Add focused tests around adapters | Normalization and severity mapping are high-value deterministic logic | Prioritize authoritative adapters that still lack fixture-based contract tests |
+| Expand provider-aware incident correlation | The canonical incident layer now groups transitively and deterministically, distinguishes providers behind shared source families, prefers authoritative sources, and preserves contributors | Continue adding category-specific rules only where provider semantics support them |
+| Add focused tests around adapters | Normalization and severity mapping are high-value deterministic logic | GeoNet now has live-shape, activation, depth, severity, and radius coverage; continue with remaining authoritative adapters |
 | Add the next validated authoritative source | New integrations should fill a defined product gap without weakening attribution or reliability | Prefer candidates from the researched backlog with no key and clear licensing |
 | Keep roadmap status aligned with shipped code | Multiple source integrations have moved quickly | Treat this file as canonical and update source status in the same PR as integration work |
 

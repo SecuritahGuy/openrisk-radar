@@ -222,6 +222,7 @@ export default function App() {
     gdacsEvents,
     eonetEvents,
     emscEvents,
+    geonetEvents,
     currentWeather,
     femaRiskIndex,
     supplementalSignals,
@@ -742,6 +743,7 @@ export default function App() {
         gdacsEvents={gdacsEvents}
         eonetEvents={eonetEvents}
         emscEvents={emscEvents}
+        geonetEvents={geonetEvents}
         incidents={incidentEvents}
         currentWeather={currentWeather}
         femaRiskIndex={femaRiskIndex}

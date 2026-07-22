@@ -13,6 +13,7 @@ export const EVENT_SOURCES: EventSource[] = [
   "VOLCANO",
   "DROUGHT",
   "EMSC",
+  "GEONET",
   "FEMA",
   "NIFC",
   "SPC",
@@ -22,6 +23,7 @@ export const EVENT_SOURCES: EventSource[] = [
   "AIRNOW",
   "COOPS",
   "SPACE_WEATHER",
+  "METEOALARM",
   "REGIONAL",
   "USDOT",
 ];

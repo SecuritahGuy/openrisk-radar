@@ -66,17 +66,46 @@ describe("canonical incidents", () => {
   });
 
   it("merges transitive cross-source matches regardless of input order", () => {
-    const result = canonicalIncidentEvents([
+    const input = [
       event({ source: "USGS", sourceEventId: "us", longitude: -118 }),
       event({ source: "GEONET", sourceEventId: "nz", longitude: -117.2 }),
       event({ source: "EMSC", sourceEventId: "eu", longitude: -117.6 }),
+    ];
+    const result = canonicalIncidentEvents(input);
+    const reversed = canonicalIncidentEvents([...input].reverse());
+
+    expect(result).toHaveLength(1);
+    expect(reversed.map((item) => item.id)).toEqual(result.map((item) => item.id));
+    expect(incidentMetadata(result[0])).toMatchObject({
+      agreement: "corroborated",
+      eventCount: 3,
+      sources: ["EMSC", "GEONET", "USGS"],
+    });
+  });
+
+  it("distinguishes providers that share a generic source and event identifier", () => {
+    const shared = {
+      source: "REGIONAL" as const,
+      sourceEventId: "42",
+      category: "Wildfire" as const,
+      type: "Wildfire",
+    };
+    const result = canonicalIncidentEvents([
+      event({
+        ...shared,
+        provider: { id: "state-fire", label: "State Fire", authority: "state", attributionUrl: "https://example.com/fire" },
+      }),
+      event({
+        ...shared,
+        longitude: -117.9,
+        provider: { id: "county-oem", label: "County OEM", authority: "local", attributionUrl: "https://example.com/oem" },
+      }),
     ]);
 
     expect(result).toHaveLength(1);
     expect(incidentMetadata(result[0])).toMatchObject({
       agreement: "corroborated",
-      eventCount: 3,
-      sources: ["EMSC", "GEONET", "USGS"],
+      providerCount: 2,
     });
   });
 
