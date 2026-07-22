@@ -11,9 +11,9 @@ Project constraints (from `ROADMAP.md` / `README.md`): browser-first, anonymous,
 Statuses below reflect live HTTP + CORS + payload testing performed from the project environment.
 
 ### ✅ Will work (no key/token required — browser-direct)
-- **WHO Disease Outbreak News** — 200, CORS `*`, real OData JSON.
+- **WHO Disease Outbreak News** — active; 200, CORS `*`, newest-first OData JSON with recency and resolved-country matching.
 - **NASA GIBS** — tile 200, CORS `*`. Raster overlay only.
-- **Global Tsunami Monitor** (`/api/geojson/active`) — 200, CORS `*`, GeoJSON.
+- **Global Tsunami Monitor** (`/api/geojson/active`) — 200, CORS `*`, single GeoJSON Feature; adapter scaffold now enforces a 24-hour active window, but is not active in the dashboard.
 - **DWD Germany** (WFS GeoJSON warning polygons) — active in production; browser-direct with CORS.
 - **GeoNet New Zealand** — 200, CORS `*`, GeoJSON (requires `MMI` param).
 - **HDX / HOT OSM** — CKAN API 200, CORS `*`, real JSON.
@@ -46,12 +46,12 @@ Statuses below reflect live HTTP + CORS + payload testing performed from the pro
 |--------|----------|---------|--------|------------------------|-----------------|--------|
 | NASA FIRMS (Active Fire) | Global | MODIS (1km) + VIIRS (375m) fire hotspots, FRP, brightness, confidence | REST CSV, free MAP_KEY (`firms.modaps.eosdis.nasa.gov/api/area/csv/{KEY}/{SRC}/{BBOX}/{DAYS}`); CORS not guaranteed → may need proxy | NASA EOSDIS; "NASA FIRMS" | NIFC is US-only; fills global fire gap with higher-res VIIRS | **Backlog** (key-gated; endpoint live, returns 400 on bad key) |
 | Blitzortung / LightningMaps | Global (densest EU/NA/Oceania) | Near-real-time cloud-to-ground + intracloud lightning (lat/lon, time, polarity) | WebSocket `wss://ws1-7.blitzortung.org:3000/`; no REST, no key; CORS N/A for WS | CC-BY-SA 4.0; non-commercial only | Lightning entirely uncovered; only free global real-time feed | **Rejected** (all WS hosts ECONNREFUSED; archive 401; non-commercial licence conflicts with iOS commercial track) |
-| WHO Disease Outbreak News | Global | Confirmed public-health events (outbreaks/epidemics) with region/country | REST JSON `who.int/api/news/diseaseoutbreaknews`; no key; CORS `*` | WHO open content | Disease/epidemic hazard completely absent; authoritative | **Validated** (200, CORS `*`, real OData JSON) |
+| WHO Disease Outbreak News | Global | Confirmed public-health events (outbreaks/epidemics) with region/country | REST JSON `who.int/api/news/diseaseoutbreaknews`; no key; CORS `*` | WHO open content | Disease/epidemic hazard completely absent; authoritative | ✅ Active with newest-first queries, a 45-day window, resolved-country text matching, capped results, saved-location coverage, and fixture contracts |
 | NASA GIBS | Global | 1000+ satellite imagery layers (thermal anomalies, aerosol/smoke, SST, snow) as tiles | WMTS `gibs.earthdata.nasa.gov/wmts/epsg4326/...`; no key; CORS-enabled | NASA open data; acknowledge GIBS | Adds rich global raster overlays complementing vector feeds | **Validated** (tile 200, CORS `*`) |
 | OpenAQ | Global (10k+ stations, 130+ countries) | PM2.5/PM10/O3/NO2/SO2/CO/BC by location | REST `api.openaq.org/v3/...` (JSON), free `X-API-Key`; CORS enabled | Mixed per-station (incl. public domain); attribute `licenses` | More granular/global than Open-Meteo air quality | **Validated (key-gated)** (401 without key; documented free key) |
 | WAQI (World Air Quality Index) | Global (10k+ stations, 100+ countries) | AQI + per-pollutant, 3–8 day forecast, stations-in-bounds | REST `api.waqi.info/feed/{city}/?token=...`; free token; CORS `*` | Free "acceptable use"; attribution | Easy global AQI overlay, broader than OpenAQ | **Validated (token-gated)** (200 with demo token, CORS `*`) |
 | UNESCO-IOC Sea Level Station Monitoring | Global (~hundreds of gauges + DART) | Real-time sea-level height, station status, QC flags | REST `api.ioc-sealevelmonitoring.org/v2/...`; free V2 key; CORS generally OK | Free; cite DOI 10.14284/482 | NOAA tsunami is US-centric; direct water-level signal | **Validated (key-gated)** (401 without key; endpoint live) |
-| Global Tsunami Monitor (crisisinfo.eu) | Global | Aggregated tsunami alerts as GeoJSON | `/api/geojson/active` (not `/geojson/`); no key; CORS `*` | Open (verify) | Clean GeoJSON tsunami layer vs. scraping IOC/NCEI | **Validated** (200, CORS `*`, real Point FeatureCollection) |
+| Global Tsunami Monitor (crisisinfo.eu) | Global | Aggregated tsunami alerts as GeoJSON | `/api/geojson/active` (not `/geojson/`); no key; CORS `*` | Open (verify) | Supplementary modeled tsunami context; not an official warning center | **Adapter hardened, activation pending** (live endpoint returns one Point Feature; 24-hour window and fixture contracts added; licensing and coastal-impact semantics still need review) |
 
 ---
 

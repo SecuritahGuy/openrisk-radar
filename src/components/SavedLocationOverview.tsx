@@ -121,7 +121,7 @@ export function SavedLocationOverview({
     : null;
   const liveSources = sourceHealth.filter((item) => item.status === "live").length;
   const sourceIssues = sourceHealth.filter(
-    (item) => item.status === "error" || item.status === "unavailable"
+    (item) => item.status === "error" || item.status === "unavailable" || item.status === "degraded"
   ).length;
   const summaryByLocationId = new Map(
     summaries.map((summary) => [summary.locationId, summary])

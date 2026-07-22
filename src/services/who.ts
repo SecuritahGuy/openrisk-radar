@@ -1,10 +1,12 @@
 import { newEventId } from "../lib/ids";
 import { readJsonResponse } from "../lib/http";
+import type { ResolvedLocation } from "../types/location";
 import type { RiskEvent, Severity } from "../types/riskEvent";
 
 const BASE = "https://www.who.int/api/news/diseaseoutbreaknews";
+const RECENT_WINDOW_MS = 45 * 24 * 60 * 60 * 1000;
 
-interface WhoOutbreakItem {
+export interface WhoOutbreakItem {
   Id?: string;
   DonId?: string;
   Title?: string;
@@ -36,15 +38,36 @@ function whoSeverity(item: WhoOutbreakItem): Severity {
   return "Moderate";
 }
 
-function haversineKm(latA: number, lngA: number, latB: number, lngB: number): number {
-  const toRad = (v: number) => (v * Math.PI) / 180;
-  const R = 6371;
-  const dLat = toRad(latB - latA);
-  const dLng = toRad(lngB - lngA);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(latA)) * Math.cos(toRad(latB)) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+function countryNames(location: ResolvedLocation): string[] {
+  const country = location.country.trim().toLowerCase();
+  const aliases: Record<string, string[]> = {
+    usa: ["united states", "usa", "u.s."],
+    "united states": ["united states", "usa", "u.s."],
+    uk: ["united kingdom", "uk", "u.k."],
+    "united kingdom": ["united kingdom", "uk", "u.k."],
+  };
+  return [...new Set((aliases[country] ?? [country]).filter((value) => value.length >= 3))];
+}
+
+export function whoItemMatchesLocation(
+  item: WhoOutbreakItem,
+  location: ResolvedLocation
+): boolean {
+  const text = [
+    item.Title,
+    item.Summary,
+    item.Overview,
+    item.Assessment,
+    item.Epidemiology,
+  ].filter(Boolean).join(" ").toLowerCase();
+  return countryNames(location).some((name) => text.includes(name));
+}
+
+function isRecentWhoItem(item: WhoOutbreakItem, nowMs: number): boolean {
+  const published = new Date(
+    item.PublicationDateAndTime ?? item.PublicationDate ?? item.DateCreated ?? ""
+  ).getTime();
+  return Number.isFinite(published) && nowMs - published <= RECENT_WINDOW_MS;
 }
 
 export function normalizeWho(item: WhoOutbreakItem): RiskEvent {
@@ -74,23 +97,31 @@ export function normalizeWho(item: WhoOutbreakItem): RiskEvent {
       ? `https://www.who.int${item.ItemDefaultUrl}`
       : "https://www.who.int/emergencies/disease-outbreak-news",
     confidence: "Source reported",
+    provider: {
+      id: "who-don",
+      label: "WHO Disease Outbreak News",
+      authority: "international",
+      attributionUrl: "https://www.who.int/emergencies/disease-outbreak-news",
+    },
     raw: item as unknown as Record<string, unknown>,
   };
 }
 
 export async function fetchWhoOutbreaks(
-  lat: number,
-  lng: number,
-  radiusKm = 20000
+  location: ResolvedLocation,
+  nowMs = Date.now()
 ): Promise<RiskEvent[]> {
-  const res = await fetch(BASE);
+  const params = new URLSearchParams({
+    "$orderby": "PublicationDateAndTime desc",
+    "$top": "50",
+  });
+  const res = await fetch(`${BASE}?${params}`);
   const data = await readJsonResponse<WhoOutbreakResponse>(res, "WHO Disease Outbreak News");
   if (!data.value?.length) return [];
 
   return data.value
+    .filter((item) => isRecentWhoItem(item, nowMs))
+    .filter((item) => whoItemMatchesLocation(item, location))
     .map(normalizeWho)
-    .filter((event) => {
-      if (event.latitude == null || event.longitude == null) return true;
-      return haversineKm(lat, lng, event.latitude, event.longitude) <= radiusKm;
-    });
+    .slice(0, 10);
 }

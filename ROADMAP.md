@@ -31,6 +31,7 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | EMSC | Global, Europe-focused | Earthquakes by proximity and felt-event context | Main dashboard through a cached Worker proxy |
 | GeoNet | New Zealand | Authoritative local earthquake catalog and elevated volcanic alert levels | Main dashboard, activated automatically for resolved New Zealand locations |
 | DWD | Germany | Official severe-weather warning polygons | Main dashboard, activated automatically for resolved German locations and filtered by radius |
+| WHO Disease Outbreak News | Global, country matched | Recent authoritative outbreak reports | Main dashboard and saved-location summaries when a report names the resolved country |
 | FEMA declarations | United States | Disaster declarations by state/county | Main dashboard, no geometry |
 | NOAA Storm Events | United States | Historical severe-weather records | Historical context |
 | NIFC wildfires | United States | Wildfires and prescribed burns | Main dashboard |
@@ -74,6 +75,7 @@ The current Cloudflare watch/audit implementation is experimental research. It i
 | Area | Why It Matters | Notes |
 |------|----------------|-------|
 | Expand provider-aware incident correlation | The canonical incident layer now groups transitively and deterministically, distinguishes providers behind shared source families, prefers authoritative sources, and preserves contributors | Continue adding category-specific rules only where provider semantics support them |
+| Enforce feed freshness and locality contracts | Cached data is now reported as degraded rather than failed, hard-error summaries exclude usable cached responses, and time-sensitive open events use source-specific freshness windows | Continue requiring explicit recency and geographic relevance before promoting experimental adapters |
 | Add focused tests around adapters | Normalization and severity mapping are high-value deterministic logic | GeoNet and DWD now have activation, normalization, severity, and radius coverage; continue with remaining authoritative adapters |
 | Add the next validated authoritative source | New integrations should fill a defined product gap without weakening attribution or reliability | Prefer candidates from the researched backlog with no key and clear licensing |
 | Keep roadmap status aligned with shipped code | Multiple source integrations have moved quickly | Treat this file as canonical and update source status in the same PR as integration work |

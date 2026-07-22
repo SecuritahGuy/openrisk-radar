@@ -3,8 +3,9 @@ import { readJsonResponse } from "../lib/http";
 import type { RiskEvent, Severity } from "../types/riskEvent";
 
 const BASE = "https://gtm.crisisinfo.eu/api/geojson/active";
+const ACTIVE_WINDOW_MS = 24 * 60 * 60 * 1000;
 
-interface GtmProperties {
+export interface GtmProperties {
   guid?: string;
   event_time?: string;
   place?: string;
@@ -18,7 +19,7 @@ interface GtmProperties {
   source?: string;
 }
 
-interface GtmFeature {
+export interface GtmFeature {
   type: "Feature";
   geometry: { type: "Point"; coordinates: [number, number] } | { type: string; coordinates: unknown };
   properties: GtmProperties;
@@ -61,6 +62,11 @@ export function normalizeGtm(feature: GtmFeature, nowIso: string): RiskEvent {
   const lat = coords[1];
   const magnitude = p.magnitude ? `M${p.magnitude}` : "Tsunami event";
   const place = p.place ?? p.ocean_name ?? "Open ocean";
+  const startedAt = p.event_time ?? nowIso;
+  const startedMs = new Date(startedAt).getTime();
+  const expiresAt = Number.isFinite(startedMs)
+    ? new Date(startedMs + ACTIVE_WINDOW_MS).toISOString()
+    : new Date(new Date(nowIso).getTime() + ACTIVE_WINDOW_MS).toISOString();
 
   return {
     id: newEventId(),
@@ -81,11 +87,17 @@ export function normalizeGtm(feature: GtmFeature, nowIso: string): RiskEvent {
     latitude: lat,
     longitude: lon,
     polygon: null,
-    startedAt: p.event_time ?? nowIso,
-    expiresAt: null,
-    updatedAt: nowIso,
+    startedAt,
+    expiresAt,
+    updatedAt: startedAt,
     url: "https://gtm.crisisinfo.eu/",
     confidence: "Source reported",
+    provider: {
+      id: "gtm-crisisinfo",
+      label: "Global Tsunami Monitor",
+      authority: "international",
+      attributionUrl: "https://gtm.crisisinfo.eu/",
+    },
     raw: feature as unknown as Record<string, unknown>,
   };
 }
@@ -102,6 +114,9 @@ export async function fetchGlobalTsunamiAlerts(
   const feature = data as unknown as GtmFeature;
   const coords = (feature.geometry as { coordinates: [number, number] }).coordinates;
   const nowIso = new Date().toISOString();
+
+  const eventTime = new Date(feature.properties.event_time ?? "").getTime();
+  if (!Number.isFinite(eventTime) || Date.now() - eventTime > ACTIVE_WINDOW_MS) return [];
 
   if (haversineKm(lat, lng, coords[1], coords[0]) > radiusKm) return [];
   return [normalizeGtm(feature, nowIso)];

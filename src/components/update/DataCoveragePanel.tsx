@@ -20,6 +20,8 @@ function statusLabel(status: SourceHealthStatus): string {
       return "Live";
     case "empty":
       return "No signal";
+    case "degraded":
+      return "Cached";
     case "error":
       return "Error";
     case "unavailable":
@@ -35,6 +37,8 @@ function statusColor(status: SourceHealthStatus): string {
       return "#1565c0";
     case "empty":
       return "#607d8b";
+    case "degraded":
+      return "#ef6c00";
     case "error":
       return "#c62828";
     case "unavailable":
@@ -48,16 +52,18 @@ function statusRank(status: SourceHealthStatus): number {
   switch (status) {
     case "error":
       return 0;
-    case "unavailable":
+    case "degraded":
       return 1;
-    case "loading":
+    case "unavailable":
       return 2;
-    case "disabled":
+    case "loading":
       return 3;
-    case "live":
+    case "disabled":
       return 4;
-    case "empty":
+    case "live":
       return 5;
+    case "empty":
+      return 6;
   }
 }
 
@@ -75,9 +81,10 @@ export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
   const unavailableCount = items.filter(
     (item) => item.status === "unavailable"
   ).length;
+  const degradedCount = items.filter((item) => item.status === "degraded").length;
   const errorCount = items.filter((item) => item.status === "error").length;
   const issueCount = items.filter(
-    (item) => item.status === "error" || item.status === "unavailable"
+    (item) => item.status === "error" || item.status === "unavailable" || item.status === "degraded"
   ).length;
   const sortedItems = [...items].sort((a, b) => {
     const statusDelta = statusRank(a.status) - statusRank(b.status);
@@ -87,6 +94,7 @@ export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
   const priorityItems = sortedItems.filter(
     (item) =>
       item.status === "error" ||
+      item.status === "degraded" ||
       item.status === "unavailable" ||
       item.status === "loading"
   );
@@ -101,13 +109,18 @@ export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
           <div style={styles.label}>Data coverage</div>
           <div style={styles.detail}>
             {liveCount} live source{liveCount !== 1 ? "s" : ""}
-            {issueCount > 0 ? ` · ${issueCount} unavailable or errored` : ""}
+            {issueCount > 0 ? ` · ${issueCount} degraded or unavailable` : ""}
           </div>
         </div>
         <div style={styles.summaryPills} aria-label="Source health summary">
           {errorCount > 0 && (
             <span style={{ ...styles.summaryPill, color: "#c62828" }}>
               {errorCount} error{errorCount !== 1 ? "s" : ""}
+            </span>
+          )}
+          {degradedCount > 0 && (
+            <span style={{ ...styles.summaryPill, color: "#ef6c00" }}>
+              {degradedCount} cached
             </span>
           )}
           {unavailableCount > 0 && (

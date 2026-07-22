@@ -25,6 +25,7 @@ export const EVENT_SOURCES: EventSource[] = [
   "SPACE_WEATHER",
   "METEOALARM",
   "DWD",
+  "WHO",
   "REGIONAL",
   "USDOT",
 ];
@@ -77,6 +78,16 @@ const SEISMIC_CONCERN_MS: Record<Severity, number> = {
   Moderate: 7 * 24 * 60 * 60 * 1000,
   Severe: 30 * 24 * 60 * 60 * 1000,
   Extreme: 30 * 24 * 60 * 60 * 1000,
+};
+
+const SOURCE_CONCERN_MS: Partial<Record<EventSource, number>> = {
+  NOAA_TSUNAMI: 24 * 60 * 60 * 1000,
+  GTM: 24 * 60 * 60 * 1000,
+  NHC: 3 * 24 * 60 * 60 * 1000,
+  SPC: 2 * 24 * 60 * 60 * 1000,
+  GDACS: 30 * 24 * 60 * 60 * 1000,
+  EONET: 45 * 24 * 60 * 60 * 1000,
+  WHO: 45 * 24 * 60 * 60 * 1000,
 };
 
 export function defaultSourceFilters(): SourceFilters {
@@ -315,6 +326,12 @@ export function isStaleConcernEvent(
   if (event.category === "Seismic") {
     const started = new Date(event.startedAt).getTime();
     return !Number.isNaN(started) && nowMs - started > SEISMIC_CONCERN_MS[event.severity];
+  }
+
+  const sourceWindow = SOURCE_CONCERN_MS[event.source];
+  if (sourceWindow != null) {
+    const started = new Date(event.startedAt).getTime();
+    return !Number.isFinite(started) || nowMs - started > sourceWindow;
   }
 
   const updated = new Date(event.updatedAt).getTime();
