@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### NYSDOT roadwork clarity
+
+- Enriched WZDx roadwork signals with cross streets, effective lane impact, mileposts, reduced speeds, work/lane/restriction metadata, source verification, and direct state-feed attribution in the event detail dialog.
+- Collapsed linked recurring WZDx occurrences into one project signal with a recurrence count and series end date, eliminating repeated NYSDOT rows for each scheduled work day.
+- Replaced generic transportation circles with a crisp, accessible construction-pin SVG marker and strengthened legacy event-dialog contrast uncovered by browser accessibility testing.
+- Added normalization and browser regressions covering NYSDOT recurrence grouping, description-derived lane impacts, construction-marker rendering, detailed fields, and axe accessibility checks.
+
+### Detailed five-day forecast
+
+- Replaced the narrow inline forecast expansion with a user-triggered responsive dialog: centered on larger screens and presented as a scrollable bottom sheet on phones.
+- Added selectable daily summaries, NWS narrative guidance, richer daily metrics, and three-hour intervals backed by up to five days of hourly forecast data.
+- Extracted the event-detail dialog behavior into a shared accessible modal shell with focus trapping, Escape handling, scroll locking, and focus restoration.
+- Added unit coverage for NWS and Open-Meteo normalization plus browser regressions for dialog accessibility, centering, scrolling, day selection, mobile overflow, and focus restoration.
+
 ### Local public-health risk scoping
 
 - Tightened WHO Disease Outbreak News matching to use the outbreak geography in the report title, preventing an incidental patient-nationality mention from importing a foreign outbreak into a US location.

@@ -8,6 +8,7 @@ interface WzdxCoreDetails {
   creation_date?: string;
   update_date?: string;
   data_source_id?: string;
+  related_road_events?: Array<{ type?: string; id?: string }>;
 }
 
 interface WzdxProperties {
@@ -25,6 +26,18 @@ interface WzdxProperties {
   creation_date?: string;
   update_date?: string;
   data_source_id?: string;
+  related_road_events?: Array<{ type?: string; id?: string }>;
+  road_event_id?: string;
+  beginning_cross_street?: string;
+  ending_cross_street?: string;
+  is_start_position_verified?: boolean;
+  is_end_position_verified?: boolean;
+  is_start_date_verified?: boolean;
+  is_end_date_verified?: boolean;
+  location_method?: string;
+  restrictions?: Array<Record<string, unknown>>;
+  types_of_work?: Array<Record<string, unknown>>;
+  lanes?: Array<Record<string, unknown>>;
 }
 
 interface WzdxFeature {
@@ -41,6 +54,7 @@ interface WzdxFeed {
 export interface WzdxProvider {
   id: string;
   label: string;
+  url?: string;
 }
 
 export const US_STATE_NAMES: Record<string, string> = {
@@ -115,10 +129,43 @@ function severityForImpact(value: string | undefined): Severity {
   }
 }
 
+function meaningfulValue(value: string | undefined): string | null {
+  const normalized = value?.trim();
+  if (!normalized || ["unknown", "unspecified", "other"].includes(normalized.toLowerCase())) {
+    return null;
+  }
+  return normalized;
+}
+
+function impactFromDescription(impact: string | undefined, description: string | undefined): string | undefined {
+  if (meaningfulValue(impact)) return impact;
+  const text = description?.toLowerCase() ?? "";
+  if (/\b(?:all lanes?|road(?:way)?) (?:is |are )?(?:closed|blocked)\b/.test(text)) {
+    return "all-lanes-closed";
+  }
+  if (/\b(?:lane|lanes) closed\b|\balternating traffic\b|\bvarious lanes closed\b/.test(text)) {
+    return "some-lanes-closed";
+  }
+  return impact;
+}
+
 function eventType(value: string | undefined, impact: string | undefined): string {
   if ((impact ?? "").toLowerCase() === "all-lanes-closed") return "Road Closure";
   if ((value ?? "").toLowerCase() === "detour") return "Road Detour";
   return "Work Zone";
+}
+
+function headlineForEvent(
+  description: string | undefined,
+  type: string,
+  road: string,
+  direction: string | null
+): string {
+  const descriptionLead = description?.split(/\s+(?:between|from)\s+/i)[0]?.trim();
+  if (descriptionLead && descriptionLead.length <= 120 && descriptionLead.length >= 8) {
+    return descriptionLead;
+  }
+  return `${type} on ${road}${direction ? ` (${direction})` : ""}`;
 }
 
 function validDate(value: string | undefined, fallback: string): string {
@@ -147,32 +194,75 @@ export function normalizeWzdxFeed(
   if (feed.type !== "FeatureCollection" || !Array.isArray(feed.features)) return [];
   const nowIso = new Date(nowMs).toISOString();
 
-  return feed.features.flatMap((feature): RiskEvent[] => {
-    const properties = feature.properties;
-    if (!properties || !feature.geometry) return [];
+  const groups = new Map<string, WzdxFeature[]>();
+  feed.features.forEach((feature, index) => {
+    const core = feature.properties?.core_details ?? feature.properties;
+    const firstOccurrence = core?.related_road_events?.find(
+      (relation) => relation.type?.toLowerCase() === "first-occurrence" && relation.id
+    )?.id;
+    const hasNextOccurrence = core?.related_road_events?.some(
+      (relation) => relation.type?.toLowerCase() === "next-occurrence"
+    );
+    const ownId = String(feature.id ?? feature.properties?.road_event_id ?? index);
+    const groupId = firstOccurrence ?? (hasNextOccurrence ? ownId : `single:${ownId}`);
+    groups.set(groupId, [...(groups.get(groupId) ?? []), feature]);
+  });
+
+  return Array.from(groups.entries()).flatMap(([recurrenceId, features]): RiskEvent[] => {
+    const candidates = features.flatMap((feature) => {
+      const properties = feature.properties;
+      if (!properties || !feature.geometry) return [];
+      if (!isRelevantWindow(properties.start_date, properties.end_date, nowMs)) return [];
+      const nearest = nearestCoordinate(feature.geometry.coordinates, latitude, longitude);
+      if (!nearest || nearest.distanceKm > radiusKm) return [];
+      return [{ feature, properties, nearest }];
+    });
+    if (!candidates.length) return [];
+
+    candidates.sort((a, b) => {
+      const aStart = new Date(a.properties.start_date ?? nowIso).getTime();
+      const bStart = new Date(b.properties.start_date ?? nowIso).getTime();
+      return aStart - bStart;
+    });
+    const current = candidates.find(({ properties }) => {
+      const start = new Date(properties.start_date ?? nowIso).getTime();
+      const end = new Date(properties.end_date ?? nowIso).getTime();
+      return start <= nowMs && (!Number.isFinite(end) || end >= nowMs);
+    }) ?? candidates[0];
+    const { feature, properties, nearest } = current;
     const core = properties.core_details ?? properties;
-    if (!isRelevantWindow(properties.start_date, properties.end_date, nowMs)) return [];
-    const nearest = nearestCoordinate(feature.geometry.coordinates, latitude, longitude);
-    if (!nearest || nearest.distanceKm > radiusKm) return [];
 
     const roads = core.road_names?.filter(Boolean) ?? [];
     const road = roads.join(" / ") || "nearby roadway";
-    const type = eventType(core.event_type, properties.vehicle_impact);
-    const direction = core.direction ? ` (${core.direction})` : "";
-    const sourceEventId = String(
-      feature.id ??
-      properties.core_details?.data_source_id ??
-      properties.data_source_id ??
-      `${road}-${properties.start_date ?? nowIso}`
-    );
+    const effectiveImpact = impactFromDescription(properties.vehicle_impact, core.description);
+    const type = eventType(core.event_type, effectiveImpact);
+    const direction = meaningfulValue(core.direction);
+    const sourceEventId = features.length > 1
+      ? recurrenceId
+      : String(
+          feature.id ??
+          properties.road_event_id ??
+          properties.core_details?.data_source_id ??
+          properties.data_source_id ??
+          `${road}-${properties.start_date ?? nowIso}`
+        );
     const startedAt = validDate(properties.start_date ?? core.creation_date, nowIso);
     const updatedAt = validDate(core.update_date ?? properties.update_date, startedAt);
     const details = [
       core.description,
-      properties.vehicle_impact ? `Vehicle impact: ${properties.vehicle_impact.replace(/-/g, " ")}.` : "",
+      meaningfulValue(effectiveImpact) ? `Vehicle impact: ${effectiveImpact?.replace(/-/g, " ")}.` : "",
       properties.reduced_speed_limit_kph ? `Reduced speed: ${properties.reduced_speed_limit_kph} km/h.` : "",
       properties.beginning_milepost != null ? `Begins near milepost ${properties.beginning_milepost}.` : "",
     ].filter(Boolean).join(" ");
+
+    const validStarts = features
+      .map((item) => item.properties?.start_date)
+      .filter((value): value is string => !!value && Number.isFinite(new Date(value).getTime()))
+      .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    const validEnds = features
+      .map((item) => item.properties?.end_date)
+      .filter((value): value is string => !!value && Number.isFinite(new Date(value).getTime()))
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
     return [{
       id: `usdot-${provider.id}-${sourceEventId}`,
@@ -180,8 +270,8 @@ export function normalizeWzdxFeed(
       sourceEventId: `${provider.id}:${sourceEventId}`,
       type,
       category: "Transportation",
-      severity: severityForImpact(properties.vehicle_impact),
-      headline: `${type} on ${road}${direction}`,
+      severity: severityForImpact(effectiveImpact),
+      headline: headlineForEvent(core.description, type, road, direction),
       description: details || `${type} reported by ${provider.label}.`,
       geometryType: "Point",
       latitude: nearest.latitude,
@@ -190,20 +280,38 @@ export function normalizeWzdxFeed(
       startedAt,
       expiresAt: properties.end_date ? validDate(properties.end_date, startedAt) : null,
       updatedAt,
-      url: "https://data.transportation.gov/",
+      url: provider.url ?? "https://data.transportation.gov/",
       confidence: "Source reported",
       provider: {
         id: provider.id,
         label: provider.label,
         authority: "state",
-        attributionUrl: "https://data.transportation.gov/",
+        attributionUrl: provider.url ?? "https://data.transportation.gov/",
       },
       raw: {
         state,
-        geometryType: feature.geometry.type ?? "Unknown",
+        geometryType: feature.geometry?.type ?? "Unknown",
         vehicleImpact: properties.vehicle_impact ?? null,
+        effectiveVehicleImpact: effectiveImpact ?? null,
+        direction: direction ?? null,
+        roadNames: roads,
+        beginningCrossStreet: properties.beginning_cross_street ?? null,
+        endingCrossStreet: properties.ending_cross_street ?? null,
         beginningMilepost: properties.beginning_milepost ?? null,
         endingMilepost: properties.ending_milepost ?? null,
+        reducedSpeedLimitKph: properties.reduced_speed_limit_kph ?? null,
+        locationMethod: meaningfulValue(properties.location_method),
+        startPositionVerified: properties.is_start_position_verified ?? null,
+        endPositionVerified: properties.is_end_position_verified ?? null,
+        startDateVerified: properties.is_start_date_verified ?? null,
+        endDateVerified: properties.is_end_date_verified ?? null,
+        restrictions: properties.restrictions ?? [],
+        typesOfWork: properties.types_of_work ?? [],
+        lanes: properties.lanes ?? [],
+        recurrenceId,
+        occurrenceCount: features.length,
+        seriesStartAt: validStarts[0] ?? properties.start_date ?? null,
+        seriesEndAt: validEnds[0] ?? properties.end_date ?? null,
       },
     }];
   });

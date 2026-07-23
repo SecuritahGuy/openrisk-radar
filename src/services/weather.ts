@@ -2,12 +2,20 @@ export interface WeatherForecastPeriod {
   startTime: string;
   temperature: number;
   temperatureLow: number | null;
+  apparentTemperature: number | null;
+  apparentTemperatureLow: number | null;
   humidity: number | null;
   windSpeed: number;
   windDirection: number | null;
   windGust: number | null;
   precipitationChance: number | null;
+  precipitationAmount: number | null;
+  snowfallAmount: number | null;
+  sunrise: string | null;
+  sunset: string | null;
+  uvIndex: number | null;
   shortForecast: string;
+  detailedForecast: string | null;
 }
 
 export interface HourlyWeatherPeriod {
@@ -90,19 +98,22 @@ interface NwsPointResponse {
   };
 }
 
+export interface NwsForecastPeriod {
+  name?: string;
+  isDaytime?: boolean;
+  temperature: number;
+  relativeHumidity?: QuantitativeValue;
+  windSpeed: string;
+  windDirection: string;
+  probabilityOfPrecipitation?: QuantitativeValue;
+  shortForecast: string;
+  detailedForecast?: string;
+  startTime: string;
+}
+
 interface NwsForecastResponse {
   properties: {
-    periods: Array<{
-      name?: string;
-      isDaytime?: boolean;
-      temperature: number;
-      relativeHumidity?: QuantitativeValue;
-      windSpeed: string;
-      windDirection: string;
-      probabilityOfPrecipitation?: QuantitativeValue;
-      shortForecast: string;
-      startTime: string;
-    }>;
+    periods: NwsForecastPeriod[];
   };
 }
 
@@ -243,7 +254,7 @@ function fromForecast(forecast: NwsForecastResponse): CurrentWeather {
     source: "NWS forecast",
     stationName: null,
     observedAt: first.startTime,
-    forecast: dailyForecastPeriods(forecast),
+    forecast: normalizeNwsDailyForecast(forecast.properties.periods),
     hourlyForecast: [],
   };
 }
@@ -252,9 +263,10 @@ function dateKey(iso: string): string {
   return iso.slice(0, 10);
 }
 
-function dailyForecastPeriods(forecast: NwsForecastResponse): WeatherForecastPeriod[] {
+export function normalizeNwsDailyForecast(
+  periods: NwsForecastPeriod[]
+): WeatherForecastPeriod[] {
   const days: WeatherForecastPeriod[] = [];
-  const periods = forecast.properties.periods;
 
   for (let index = 0; index < periods.length && days.length < 5; index += 1) {
     const period = periods[index];
@@ -272,12 +284,20 @@ function dailyForecastPeriods(forecast: NwsForecastResponse): WeatherForecastPer
       startTime: period.startTime,
       temperature: period.temperature,
       temperatureLow: overnight?.temperature ?? null,
+      apparentTemperature: null,
+      apparentTemperatureLow: null,
       humidity: period.relativeHumidity?.value ?? null,
       windSpeed: parseWindMph(period.windSpeed),
       windDirection: windDirectionLabelToDegrees(period.windDirection),
       windGust: null,
       precipitationChance: period.probabilityOfPrecipitation?.value ?? null,
+      precipitationAmount: null,
+      snowfallAmount: null,
+      sunrise: null,
+      sunset: null,
+      uvIndex: null,
       shortForecast: period.shortForecast || "Forecast conditions",
+      detailedForecast: period.detailedForecast?.trim() || null,
     });
   }
 
@@ -287,17 +307,27 @@ function dailyForecastPeriods(forecast: NwsForecastResponse): WeatherForecastPer
         startTime: period.startTime,
         temperature: period.temperature,
         temperatureLow: null,
+        apparentTemperature: null,
+        apparentTemperatureLow: null,
         humidity: period.relativeHumidity?.value ?? null,
         windSpeed: parseWindMph(period.windSpeed),
         windDirection: windDirectionLabelToDegrees(period.windDirection),
         windGust: null,
         precipitationChance: period.probabilityOfPrecipitation?.value ?? null,
+        precipitationAmount: null,
+        snowfallAmount: null,
+        sunrise: null,
+        sunset: null,
+        uvIndex: null,
         shortForecast: period.shortForecast || "Forecast conditions",
+        detailedForecast: period.detailedForecast?.trim() || null,
       }));
 }
 
-function hourlyForecastPeriods(forecast: NwsForecastResponse): HourlyWeatherPeriod[] {
-  return forecast.properties.periods.slice(0, 24).map((period) => ({
+export function normalizeNwsHourlyForecast(
+  periods: NwsForecastPeriod[]
+): HourlyWeatherPeriod[] {
+  return periods.slice(0, 120).map((period) => ({
     startTime: period.startTime,
     temperature: period.temperature,
     humidity: period.relativeHumidity?.value ?? null,
@@ -320,8 +350,8 @@ export async function fetchCurrentWeather(
     fetchJson<NwsForecastResponse>(point.properties.forecastHourly),
   ]);
 
-  const dailyForecast = dailyForecastPeriods(forecast);
-  const hourlyForecast = hourlyForecastPeriods(hourly);
+  const dailyForecast = normalizeNwsDailyForecast(forecast.properties.periods);
+  const hourlyForecast = normalizeNwsHourlyForecast(hourly.properties.periods);
   return observation
     ? { ...observation, forecast: dailyForecast, hourlyForecast }
     : { ...fromForecast(forecast), hourlyForecast };

@@ -81,6 +81,31 @@ function clusterIcon(cluster: EventCluster): L.DivIcon {
   });
 }
 
+function constructionEventIcon(dimmed = false): L.DivIcon {
+  return L.divIcon({
+    className: "construction-event-marker",
+    html: `<span style="
+      width:34px;
+      height:34px;
+      border-radius:50% 50% 50% 8px;
+      border:2px solid #fff;
+      background:#a63d00;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 2px 10px rgba(0,0,0,0.28);
+      opacity:${dimmed ? "0.55" : "1"};
+      transform:rotate(-45deg);
+    "><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" style="transform:rotate(45deg)">
+      <path fill="#fff" d="M9.2 3h5.6l1 4H8.2l1-4Zm-1.7 6h9l1.1 4.2H6.4L7.5 9Zm-1.7 6.2h12.4L19 19H5l.8-3.8ZM3 20h18v2H3z"/>
+    </svg></span>`,
+    iconSize: [38, 38],
+    iconAnchor: [19, 34],
+    popupAnchor: [0, -30],
+    tooltipAnchor: [0, -30],
+  });
+}
+
 function accessiblePath(label: string) {
   return {
     add: (event: L.LeafletEvent) => {
@@ -189,6 +214,29 @@ export function EventMapLayers({
           !currentImpactOnly &&
           (impact.level === "monitor" || impact.level === "historical");
         const color = sourceColor(event.source);
+
+        if (event.category === "Transportation") {
+          return (
+            <Marker
+              key={event.id}
+              position={[event.latitude!, event.longitude!]}
+              icon={constructionEventIcon(dimmed)}
+              alt={`${event.headline}, ${event.severity} transportation event`}
+            >
+              <Tooltip direction="top" offset={[0, -28]}>
+                {event.headline}
+              </Tooltip>
+              <Popup>
+                <EventPopup
+                  event={event}
+                  impact={impact}
+                  timeLabel={formatTime(event.startedAt)}
+                  onEventClick={onEventClick}
+                />
+              </Popup>
+            </Marker>
+          );
+        }
 
         return (
           <CircleMarker

@@ -24,7 +24,7 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | Source | Coverage | Signals | Status |
 |--------|----------|---------|--------|
 | NWS alerts | United States | Active weather alerts | Main dashboard |
-| NWS observations | United States | Current conditions, hourly forecast fallback | Current conditions panel |
+| NWS observations | United States | Current conditions, detailed five-day forecast, and five days of hourly periods | Current conditions panel and responsive forecast dialog |
 | NWS overlay | United States | Forecast grid cell, hazards, heat risk, forecast/fire weather zones, stations | Optional map overlay |
 | Meteoalarm | Europe | National weather alerts normalized from Meteoalarm | Main dashboard where supported |
 | USGS earthquakes | Global | Earthquakes by proximity | Main dashboard |
@@ -36,7 +36,7 @@ These sources are part of the current web codebase. "Main dashboard" indicates t
 | NOAA Storm Events | United States | Historical severe-weather records | Historical context |
 | NIFC wildfires | United States | Wildfires and prescribed burns | Main dashboard |
 | Selected state agencies | CA, FL, OR, NY, WI | Local wildfire incidents, evacuation zones, HAB reports, and beach advisories | Main dashboard, activated automatically by resolved state |
-| USDOT WZDx / state DOTs | Participating U.S. states | Active and near-term road work, lane impacts, and closures | Main dashboard and map, activated automatically by resolved state and radius |
+| USDOT WZDx / state DOTs | Participating U.S. states | Active and near-term road work, lane impacts, closures, cross streets, and recurrence-aware schedules | Main dashboard and construction-marker map layer, activated automatically by resolved state and radius |
 | SPC outlooks | United States | Day 1-3 convective outlook polygons | Main dashboard |
 | SPC storm reports | United States | Preliminary observed tornado, hail, and damaging-wind reports | Main dashboard |
 | NHC storms | Atlantic and Eastern/Central Pacific | Active tropical cyclones | Main dashboard when active/in range |

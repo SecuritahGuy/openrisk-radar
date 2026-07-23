@@ -64,7 +64,14 @@ async function fetchFeed(
     const raw = await response.json();
     return {
       provider,
-      events: normalizeWzdxFeed(raw, provider, state, latitude, longitude, radiusKm),
+      events: normalizeWzdxFeed(
+        raw,
+        { ...provider, url: rowUrl(row) },
+        state,
+        latitude,
+        longitude,
+        radiusKm
+      ),
       error: null,
     };
   } catch (error) {
