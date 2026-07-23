@@ -4,7 +4,7 @@ import type { WeatherLayerMode } from "../types/weatherLayer";
 interface LegendItem {
   label: string;
   color: string;
-  shape: "circle" | "square" | "diamond";
+  shape: "circle" | "square" | "diamond" | "ring";
 }
 
 const ITEMS: LegendItem[] = [
@@ -31,6 +31,12 @@ const WEATHER_ZONE_ITEMS: LegendItem[] = [
   { label: "Forecast zone", color: "#6a1b9a", shape: "diamond" },
   { label: "Fire weather zone", color: "#d84315", shape: "diamond" },
 ];
+
+const VOLCANO_BASELINE_ITEM: LegendItem = {
+  label: "Historical volcano",
+  color: "#ef6c00",
+  shape: "ring",
+};
 
 function weatherModeItems(mode: WeatherLayerMode): LegendItem[] {
   if (mode === "precip") {
@@ -95,6 +101,18 @@ function Shape({ item }: { item: LegendItem }) {
       />
     );
   }
+  if (item.shape === "ring") {
+    return (
+      <div
+        style={{
+          ...style,
+          borderRadius: "50%",
+          borderStyle: "dashed",
+          background: `${item.color}12`,
+        }}
+      />
+    );
+  }
   if (item.shape === "diamond") {
     return (
       <div
@@ -121,17 +139,22 @@ function Shape({ item }: { item: LegendItem }) {
 export function MapLegend({
   showWeatherOverlay,
   weatherLayerMode,
+  showVolcanoBaseline,
 }: {
   showWeatherOverlay: boolean;
   weatherLayerMode: WeatherLayerMode;
+  showVolcanoBaseline: boolean;
 }) {
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.matchMedia("(max-width: 760px)").matches;
   });
-  const items = showWeatherOverlay
-    ? [...ITEMS, ...weatherModeItems(weatherLayerMode), ...WEATHER_ZONE_ITEMS]
+  const baseItems = showVolcanoBaseline
+    ? [...ITEMS, VOLCANO_BASELINE_ITEM]
     : ITEMS;
+  const items = showWeatherOverlay
+    ? [...baseItems, ...weatherModeItems(weatherLayerMode), ...WEATHER_ZONE_ITEMS]
+    : baseItems;
 
   if (collapsed) {
     return (

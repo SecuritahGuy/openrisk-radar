@@ -22,6 +22,7 @@ import {
 import { fetchRiverConditions } from "../services/usgsWater";
 import { fetchNwpsRiverForecasts } from "../services/nwps";
 import { fetchNearbyVolcanoes } from "../services/usgsVolcanoes";
+import { fetchVolcanoesNearby as fetchGvpVolcanoesNearby } from "../services/gvp";
 import { fetchDroughtAtPoint } from "../services/drought";
 import { fetchTsunamiFeed, type TsunamiFeedResult } from "../services/tsunamiFallback";
 import { fetchShakeMap } from "../services/shakemap";
@@ -51,6 +52,7 @@ import {
   querySourceHealth as queryHealth,
   type SourceHealthItem,
 } from "../lib/sourceHealth";
+import { supplementalSignalContributesToCurrentRisk } from "../lib/supplementalContext";
 
 export type { SourceHealthItem, SourceHealthStatus } from "../lib/sourceHealth";
 
@@ -75,6 +77,7 @@ interface UseRiskFeedsResult {
   currentWeather: CurrentWeather | null;
   femaRiskIndex: FemaRiskIndexCounty | null;
   supplementalSignals: SupplementalRiskSignal[];
+  baselineSignals: SupplementalRiskSignal[];
   sourceHealth: SourceHealthItem[];
   allEvents: RiskEvent[];
   isLoading: boolean;
@@ -508,6 +511,24 @@ export function useRiskFeeds(
     retry: 1,
   });
 
+  const gvpQuery = useQuery<SupplementalRiskSignal[]>({
+    queryKey: [
+      "gvp-volcano-baseline",
+      location?.latitude,
+      location?.longitude,
+      radiusKm,
+    ],
+    queryFn: () =>
+      fetchGvpVolcanoesNearby(
+        location!.latitude,
+        location!.longitude,
+        radiusKm
+      ),
+    enabled: !!location,
+    staleTime: 24 * 60 * 60_000,
+    retry: 1,
+  });
+
   const droughtQuery = useQuery<SupplementalRiskSignal[]>({
     queryKey: [
       "drought-monitor",
@@ -581,6 +602,7 @@ export function useRiskFeeds(
   const riverSignals = riverQuery.data ?? EMPTY_SIGNALS;
   const nwpsSignals = nwpsQuery.data ?? EMPTY_SIGNALS;
   const volcanoSignals = volcanoQuery.data ?? EMPTY_SIGNALS;
+  const baselineSignals = gvpQuery.data ?? EMPTY_SIGNALS;
   const droughtSignals = droughtQuery.data ?? EMPTY_SIGNALS;
   const swpcSignals = swpcQuery.data ?? EMPTY_SIGNALS;
   const supplementalSignals = useMemo(
@@ -613,7 +635,7 @@ export function useRiskFeeds(
   );
   const supplementalEvents = useMemo(
     () => supplementalSignals
-      .filter((signal) => signal.source !== "USGS_SHAKEMAP")
+      .filter(supplementalSignalContributesToCurrentRisk)
       .map(supplementalToEvent),
     [supplementalSignals]
   );
@@ -663,8 +685,8 @@ export function useRiskFeeds(
       supplementalEvents,
     ]
   );
-  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || regionalQuery.isFetching || transportationQuery.isFetching || spcQuery.isFetching || spcReportsQuery.isFetching || nhcQuery.isFetching || jmaQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || geonetQuery.isFetching || geonetVolcanoQuery.isFetching || dwdQuery.isFetching || whoQuery.isFetching || meteoalarmQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
-  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || regionalQuery.isLoading || transportationQuery.isLoading || spcQuery.isLoading || spcReportsQuery.isLoading || nhcQuery.isLoading || jmaQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || geonetQuery.isLoading || geonetVolcanoQuery.isLoading || dwdQuery.isLoading || whoQuery.isLoading || meteoalarmQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
+  const isFetching = nwsQuery.isFetching || nwsPointQuery.isFetching || usgsQuery.isFetching || femaQuery.isFetching || stormEventsQuery.isFetching || femaRiskIndexQuery.isFetching || nifcQuery.isFetching || regionalQuery.isFetching || transportationQuery.isFetching || spcQuery.isFetching || spcReportsQuery.isFetching || nhcQuery.isFetching || jmaQuery.isFetching || gdacsQuery.isFetching || eonetQuery.isFetching || emscQuery.isFetching || geonetQuery.isFetching || geonetVolcanoQuery.isFetching || dwdQuery.isFetching || whoQuery.isFetching || meteoalarmQuery.isFetching || weatherQuery.isFetching || airQualityQuery.isFetching || marineQuery.isFetching || tsunamiQuery.isFetching || shakemapQuery.isFetching || ukFloodQuery.isFetching || riverQuery.isFetching || nwpsQuery.isFetching || volcanoQuery.isFetching || gvpQuery.isFetching || droughtQuery.isFetching || swpcQuery.isFetching;
+  const isLoading = nwsQuery.isLoading || nwsPointQuery.isLoading || usgsQuery.isLoading || femaQuery.isLoading || stormEventsQuery.isLoading || femaRiskIndexQuery.isLoading || nifcQuery.isLoading || regionalQuery.isLoading || transportationQuery.isLoading || spcQuery.isLoading || spcReportsQuery.isLoading || nhcQuery.isLoading || jmaQuery.isLoading || gdacsQuery.isLoading || eonetQuery.isLoading || emscQuery.isLoading || geonetQuery.isLoading || geonetVolcanoQuery.isLoading || dwdQuery.isLoading || whoQuery.isLoading || meteoalarmQuery.isLoading || weatherQuery.isLoading || airQualityQuery.isLoading || marineQuery.isLoading || tsunamiQuery.isLoading || shakemapQuery.isLoading || ukFloodQuery.isLoading || riverQuery.isLoading || nwpsQuery.isLoading || volcanoQuery.isLoading || gvpQuery.isLoading || droughtQuery.isLoading || swpcQuery.isLoading;
   const locationEnabled = !!location;
   const sourceHealth: SourceHealthItem[] = [
     queryHealth({
@@ -1029,6 +1051,18 @@ export function useRiskFeeds(
       emptyDetail: "No elevated volcano status nearby.",
     }),
     queryHealth({
+      id: "gvp-volcano-baseline",
+      label: "Smithsonian Volcano Reference",
+      enabled: locationEnabled,
+      isLoading: gvpQuery.isLoading,
+      isFetching: gvpQuery.isFetching,
+      error: errorMessage(gvpQuery.error),
+      count: baselineSignals.length,
+      liveDetail: `${baselineSignals.length} historical volcano record${baselineSignals.length !== 1 ? "s" : ""} in range; not active alerts.`,
+      emptyDetail: "No Smithsonian Holocene volcano records in the selected radius.",
+      failureStatus: "unavailable",
+    }),
+    queryHealth({
       id: "drought",
       label: "Drought Monitor",
       enabled: locationEnabled,
@@ -1084,6 +1118,7 @@ export function useRiskFeeds(
     currentWeather,
     femaRiskIndex: femaRiskIndexQuery.data ?? null,
     supplementalSignals,
+    baselineSignals,
     sourceHealth,
     allEvents,
     isLoading,
@@ -1117,6 +1152,7 @@ export function useRiskFeeds(
       riverQuery.refetch();
       nwpsQuery.refetch();
       volcanoQuery.refetch();
+      gvpQuery.refetch();
       droughtQuery.refetch();
       swpcQuery.refetch();
     },

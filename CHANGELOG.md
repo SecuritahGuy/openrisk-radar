@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### Water-observation reliability contracts
+
+- Added exact circular-radius filtering for USGS stream stations so bounding-box corner results cannot appear outside the selected area.
+- Limited USGS and NOAA CO-OPS observations to valid readings no more than six hours old, preventing delayed or malformed sensor values from appearing current.
+- Isolated NOAA station request failures so one unavailable gauge no longer suppresses valid nearby coastal observations.
+- Added deterministic adapter regressions for locality, freshness, invalid measurements, and partial upstream failure.
+
+### Smithsonian volcano baseline context
+
+- Promoted nearby Smithsonian Global Volcanism Program Holocene records into a dedicated historical map and detail path.
+- Corrected the WFS 2.0 EPSG:4326 bounding-box axis order so nearby queries return the intended volcanoes.
+- Kept GVP records out of current risk posture, incident correlation, the feed explorer, and background notifications, regardless of the listed last-eruption year.
+- Added a bounds-validated, day-cached Worker proxy for the WFS endpoint plus stable record IDs, nearest-first radius filtering, source-health reporting, detailed geology and eruption metadata, map attribution, and unit/browser regressions.
+
+### Website monitoring descriptions
+
+- Updated the dashboard watch panel to present cloud watches as optional background monitoring instead of a pre-launch preview.
+- Corrected the listed background feed coverage and controlled browser-notification rollout language.
+- Updated the homepage, methodology, about, privacy, and data-source pages to reflect isolated cloud checks, aggregate NHC handling, opt-in storage, and best-effort notification delivery.
+
 ### NYSDOT roadwork clarity
 
 - Enriched WZDx roadwork signals with cross streets, effective lane impact, mileposts, reduced speeds, work/lane/restriction metadata, source verification, and direct state-feed attribution in the event detail dialog.
@@ -15,6 +35,14 @@
 - Added selectable daily summaries, NWS narrative guidance, richer daily metrics, and three-hour intervals backed by up to five days of hourly forecast data.
 - Extracted the event-detail dialog behavior into a shared accessible modal shell with focus trapping, Escape handling, scroll locking, and focus restoration.
 - Added unit coverage for NWS and Open-Meteo normalization plus browser regressions for dialog accessibility, centering, scrolling, day selection, mobile overflow, and focus restoration.
+
+### Cloudflare watch-audit subrequest isolation
+
+- Replaced 15 per-slot NHC forecast-point requests with NOAA's aggregate tropical forecast layer, reducing each NHC refresh from 16 upstream requests to 2 including the outlook feed.
+- Changed scheduled watch audits from a 24-location fan-out inside one Worker invocation to one queue message and one fresh Worker invocation per watched location.
+- Added retry-safe D1 audit-job tracking, run-result accounting, removed-watch handling, and terminal failure recording while retaining the existing 24-watch scheduling capacity.
+- Limited queue consumer batches to one message so watch audits and push deliveries cannot share a single invocation's external subrequest allowance.
+- Added regressions for the NHC request budget and one-message-per-watch queue dispatch.
 
 ### Local public-health risk scoping
 

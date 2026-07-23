@@ -37,13 +37,57 @@ function hourlyForecastPeriods() {
   }));
 }
 
+function gvpFixture() {
+  return {
+    type: "FeatureCollection",
+    numberReturned: 1,
+    numberMatched: 1,
+    features: [{
+      type: "Feature",
+      id: "GVP-VOTW.321050",
+      geometry: { type: "Point", coordinates: [-122.18, 46.2] },
+      properties: {
+        Volcano_Number: "321050",
+        Volcano_Name: "Mount St. Helens",
+        Primary_Volcano_Type: "Stratovolcano",
+        Volcanic_Landform: "Stratovolcano",
+        Last_Eruption_Year: "2008",
+        Country: "United States",
+        Region: "Canada and Western USA",
+        Subregion: "Cascade Range",
+        Latitude: "46.2",
+        Longitude: "-122.18",
+        Elevation: "2549",
+        Tectonic_Setting: "Subduction zone / Continental crust",
+        Geologic_Epoch: "Holocene",
+        Evidence_Category: "Eruption Dated",
+        Major_Rock_Type: "Andesite / Basaltic Andesite",
+      },
+    }],
+  };
+}
+
 async function blockExternalRequests(
   page: Page,
-  options: { tsunamiFallback?: boolean; weatherForecast?: boolean; newYorkTransportation?: boolean } = {}
+  options: {
+    tsunamiFallback?: boolean;
+    weatherForecast?: boolean;
+    newYorkTransportation?: boolean;
+    gvpBaseline?: boolean;
+  } = {}
 ) {
   await page.route("**/*", async (route) => {
     const url = new URL(route.request().url());
-    if (url.hostname === "127.0.0.1" || url.hostname === "localhost") {
+    if (
+      options.gvpBaseline &&
+      (url.hostname === "127.0.0.1" || url.hostname === "localhost") &&
+      url.pathname === "/api/smithsonian/gvp"
+    ) {
+      await route.fulfill({
+        contentType: "application/geo+json",
+        body: JSON.stringify(gvpFixture()),
+      });
+    } else if (url.hostname === "127.0.0.1" || url.hostname === "localhost") {
       await route.continue();
     } else if (url.hostname === "nominatim.openstreetmap.org" && url.pathname === "/search") {
       const location = options.newYorkTransportation
@@ -60,7 +104,20 @@ async function blockExternalRequests(
               country_code: "us",
             },
           }
-        : {
+        : options.gvpBaseline
+          ? {
+              lat: "46.0528",
+              lon: "-122.2995",
+              display_name: "Cougar, Cowlitz County, Washington, United States",
+              address: {
+                village: "Cougar",
+                county: "Cowlitz County",
+                state: "Washington",
+                country: "United States",
+                country_code: "us",
+              },
+            }
+          : {
             lat: "42.3443070",
             lon: "-88.0335501",
             display_name: "60030, Grayslake, Lake County, Illinois, United States",
@@ -72,7 +129,7 @@ async function blockExternalRequests(
               country: "United States",
               country_code: "us",
             },
-          };
+            };
       await route.fulfill({
         contentType: "application/json",
         body: JSON.stringify([location]),
@@ -131,6 +188,11 @@ async function blockExternalRequests(
             ]),
           ],
         }),
+      });
+    } else if (options.gvpBaseline && url.hostname === "webservices.volcano.si.edu") {
+      await route.fulfill({
+        contentType: "application/geo+json",
+        body: JSON.stringify(gvpFixture()),
       });
     } else if (options.weatherForecast && url.hostname === "api.weather.gov" && url.pathname.startsWith("/points/")) {
       await route.fulfill({
@@ -348,4 +410,30 @@ test("NYSDOT recurrences use one construction marker with richer details", async
   expect(accessibility.violations.filter(
     (violation) => violation.impact === "critical" || violation.impact === "serious"
   )).toEqual([]);
+});
+
+test("Smithsonian volcano records stay in historical baseline context", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await blockExternalRequests(page, { gvpBaseline: true });
+  await page.goto("/app?q=Cougar%2C%20WA");
+  await expect(page.getByText("Cougar, WA", { exact: false }).first()).toBeVisible();
+
+  const baseline = page.getByTestId("volcano-baseline-context");
+  await expect(baseline).toBeVisible();
+  await expect(baseline).toContainText("Mount St. Helens");
+  await expect(baseline).toContainText("Historical");
+  await expect(baseline).toContainText("do not affect risk posture or background notifications");
+  await expect(baseline).toContainText("Subduction zone / Continental crust");
+  await expect(page.locator(".feed-explorer")).not.toContainText("Mount St. Helens");
+
+  const marker = page.locator(
+    '.leaflet-interactive[aria-label*="historical volcano baseline"]'
+  );
+  await expect(marker).toHaveCount(1);
+  await marker.click({ force: true });
+  await expect(page.getByText("Historical baseline · not an active alert")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Official source/ })).toHaveAttribute(
+    "href",
+    "https://volcano.si.edu/volcano.cfm?vn=321050"
+  );
 });

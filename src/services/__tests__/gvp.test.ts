@@ -1,6 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { GvpProperties } from "../gvp";
-import { gvpSeverity, normalize } from "../gvp";
+import { fetchVolcanoesNearby, normalize } from "../gvp";
+import { supplementalSignalContributesToCurrentRisk } from "../../lib/supplementalContext";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 function makeProps(overrides: Partial<GvpProperties> = {}): GvpProperties {
   return {
@@ -23,35 +28,19 @@ function makeProps(overrides: Partial<GvpProperties> = {}): GvpProperties {
   };
 }
 
-describe("gvpSeverity", () => {
-  it("returns Moderate for volcanoes that erupted in 2000 or later", () => {
-    expect(gvpSeverity(makeProps({ Last_Eruption_Year: "2026" }))).toBe("Moderate");
-    expect(gvpSeverity(makeProps({ Last_Eruption_Year: "2000" }))).toBe("Moderate");
-  });
-
-  it("returns Minor for volcanoes with no known eruption", () => {
-    expect(gvpSeverity(makeProps({ Last_Eruption_Year: "None" }))).toBe("Minor");
-    expect(gvpSeverity(makeProps({ Last_Eruption_Year: "Unknown" }))).toBe("Minor");
-  });
-
-  it("returns Minor for volcanoes with pre-2000 eruptions", () => {
-    expect(gvpSeverity(makeProps({ Last_Eruption_Year: "1999" }))).toBe("Minor");
-    expect(gvpSeverity(makeProps({ Last_Eruption_Year: "1800" }))).toBe("Minor");
-  });
-
-  it("returns Minor for empty eruption year", () => {
-    expect(gvpSeverity(makeProps({ Last_Eruption_Year: "" }))).toBe("Minor");
-  });
-});
-
 describe("normalize", () => {
-  it("produces a valid SupplementalRiskSignal from GVP properties", () => {
+  it("produces stable historical baseline context rather than an active signal", () => {
     const props = makeProps();
     const signal = normalize(props);
 
+    expect(signal.id).toBe("gvp-332010");
     expect(signal.source).toBe("GVP");
     expect(signal.sourceEventId).toBe("gvp-332010");
+    expect(signal.context).toBe("baseline");
     expect(signal.category).toBe("Volcano");
+    expect(signal.severity).toBe("Minor");
+    expect(signal.description).toContain("not a current activity alert");
+    expect(supplementalSignalContributesToCurrentRisk(signal)).toBe(false);
     expect(signal.confidence).toBe("Source reported");
     expect(signal.url).toContain("volcano.si.edu");
   });
@@ -102,5 +91,70 @@ describe("normalize", () => {
     const signal = normalize(props);
     expect(signal.raw).toBeDefined();
     expect((signal.raw as Record<string, unknown>).Volcano_Name).toBe("Kilauea");
+  });
+});
+
+describe("fetchVolcanoesNearby", () => {
+  it("keeps only in-radius records and sorts nearest first", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({
+      type: "FeatureCollection",
+      numberReturned: 3,
+      numberMatched: 3,
+      features: [
+        {
+          type: "Feature",
+          id: "far",
+          geometry: { type: "Point", coordinates: [-156.5, 20.5] },
+          properties: makeProps({
+            Volcano_Number: "3",
+            Volcano_Name: "Far Volcano",
+            Latitude: "20.5",
+            Longitude: "-156.5",
+          }),
+        },
+        {
+          type: "Feature",
+          id: "nearer",
+          geometry: { type: "Point", coordinates: [-155.3, 19.43] },
+          properties: makeProps({
+            Volcano_Number: "1",
+            Volcano_Name: "Nearer Volcano",
+            Latitude: "19.43",
+            Longitude: "-155.3",
+          }),
+        },
+        {
+          type: "Feature",
+          id: "near",
+          geometry: { type: "Point", coordinates: [-155.5, 19.6] },
+          properties: makeProps({
+            Volcano_Number: "2",
+            Volcano_Name: "Near Volcano",
+            Latitude: "19.6",
+            Longitude: "-155.5",
+          }),
+        },
+      ],
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    }));
+
+    const signals = await fetchVolcanoesNearby(19.421, -155.287, 50);
+
+    expect(signals.map((signal) => signal.sourceEventId)).toEqual([
+      "gvp-1",
+      "gvp-2",
+    ]);
+    const requestUrl = new URL(
+      String(vi.mocked(fetch).mock.calls[0][0]),
+      "https://example.test"
+    );
+    const bbox = requestUrl.searchParams.get("bbox")?.split(",").map(Number) ?? [];
+    expect(bbox).toHaveLength(4);
+    expect(bbox[0]).toBeLessThan(19.421);
+    expect(bbox[1]).toBeLessThan(-155.287);
+    expect(bbox[2]).toBeGreaterThan(19.421);
+    expect(bbox[3]).toBeGreaterThan(-155.287);
   });
 });

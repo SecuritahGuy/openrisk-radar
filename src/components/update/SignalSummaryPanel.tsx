@@ -16,6 +16,7 @@ interface SignalSummaryPanelProps {
   geonetVolcanoEvents: RiskEvent[];
   dwdEvents: RiskEvent[];
   supplementalSignals: SupplementalRiskSignal[];
+  baselineSignals: SupplementalRiskSignal[];
   isFetching: boolean;
 }
 
@@ -65,6 +66,31 @@ function SupplementalSignalLine({ signal }: { signal: SupplementalRiskSignal }) 
   );
 }
 
+function BaselineSignalLine({ signal }: { signal: SupplementalRiskSignal }) {
+  return (
+    <article style={styles.baselineCard}>
+      <div style={styles.baselineHeader}>
+        <span style={styles.baselineHeadline}>{signal.headline}</span>
+        <span style={styles.baselineBadge}>Historical</span>
+      </div>
+      <div style={styles.baselineDescription}>{signal.description}</div>
+      <dl style={styles.baselineMetrics}>
+        {signal.metrics.map((metric) => (
+          <div key={metric.label} style={styles.baselineMetric}>
+            <dt style={styles.baselineMetricLabel}>{metric.label}</dt>
+            <dd style={styles.baselineMetricValue}>{metric.value}{metric.unit ? ` ${metric.unit}` : ""}</dd>
+          </div>
+        ))}
+      </dl>
+      {signal.url && (
+        <a href={signal.url} target="_blank" rel="noreferrer" style={styles.baselineLink}>
+          Smithsonian GVP record &rarr;
+        </a>
+      )}
+    </article>
+  );
+}
+
 export function SignalSummaryPanel({
   weatherAlerts,
   earthquakes,
@@ -79,6 +105,7 @@ export function SignalSummaryPanel({
   geonetVolcanoEvents,
   dwdEvents,
   supplementalSignals,
+  baselineSignals,
   isFetching,
 }: SignalSummaryPanelProps) {
   const airQualitySignals = supplementalSignals.filter((s) => s.category === "Air Quality");
@@ -236,6 +263,20 @@ export function SignalSummaryPanel({
           </div>
         </div>
       )}
+
+      {baselineSignals.length > 0 && (
+        <div style={styles.section} data-testid="volcano-baseline-context">
+          <div style={styles.label}>Nearby baseline context</div>
+          <div style={styles.baselineNote}>
+            Smithsonian Holocene volcano records are geographic reference data,
+            not current activity alerts. They do not affect risk posture or
+            background notifications.
+          </div>
+          {baselineSignals.map((signal) => (
+            <BaselineSignalLine key={signal.id} signal={signal} />
+          ))}
+        </div>
+      )}
     </>
   );
 }
@@ -272,6 +313,68 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#616161",
     marginLeft: 16,
     marginTop: 2,
+  },
+  baselineCard: {
+    background: "#fffaf3",
+    border: "1px solid #ffe0b2",
+    borderRadius: 7,
+    marginTop: 8,
+    padding: 9,
+  },
+  baselineHeader: {
+    alignItems: "flex-start",
+    display: "flex",
+    gap: 8,
+    justifyContent: "space-between",
+  },
+  baselineHeadline: { color: "#3e2723", fontSize: 13, fontWeight: 800 },
+  baselineBadge: {
+    background: "#fff3e0",
+    borderRadius: 999,
+    color: "#a84300",
+    fontSize: 9,
+    fontWeight: 900,
+    padding: "3px 6px",
+    textTransform: "uppercase",
+  },
+  baselineDescription: {
+    color: "#5d4037",
+    fontSize: 11,
+    lineHeight: 1.45,
+    marginTop: 6,
+  },
+  baselineMetrics: {
+    display: "grid",
+    gap: 5,
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    margin: "8px 0 0",
+  },
+  baselineMetric: {
+    minWidth: 0,
+  },
+  baselineMetricLabel: {
+    color: "#8d6e63",
+    fontSize: 9,
+    fontWeight: 800,
+    textTransform: "uppercase",
+  },
+  baselineMetricValue: {
+    color: "#4e342e",
+    fontSize: 10,
+    margin: "2px 0 0",
+    overflowWrap: "anywhere",
+  },
+  baselineNote: {
+    color: "#6d4c41",
+    fontSize: 11,
+    lineHeight: 1.45,
+  },
+  baselineLink: {
+    color: "#1565c0",
+    display: "inline-block",
+    fontSize: 11,
+    fontWeight: 700,
+    marginTop: 8,
   },
   spinner: { fontSize: 13 },
 };

@@ -65,5 +65,5 @@ export function Breadcrumbs({ items }: { items: { label: string; to?: string }[]
 }
 
 export function Disclaimer() {
-  return <aside className="disclaimer"><strong>Use official channels for urgent decisions.</strong><p>OpenRisk Radar is an informational situational-awareness tool, not an emergency notification service. Data can be delayed, incomplete, duplicated, or revised.</p></aside>;
+  return <aside className="disclaimer"><strong>Use official channels for urgent decisions.</strong><p>OpenRisk Radar is an informational situational-awareness tool, not an official or guaranteed emergency alerting service. Data and optional notifications can be delayed, incomplete, duplicated, unavailable, or revised.</p></aside>;
 }

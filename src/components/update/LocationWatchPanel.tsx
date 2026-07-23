@@ -212,17 +212,17 @@ export function LocationWatchPanel({
 
       <div style={styles.note}>
         These settings filter this place’s risk summary. Cloud checks and browser
-        notification testing below are optional and require separate opt in.
+        notifications below are optional and require separate opt in.
       </div>
 
       <div style={styles.cloudCard}>
         <div style={styles.cloudHeader}>
           <div>
-            <div style={styles.cloudTitle}>Cloud audit preview</div>
+            <div style={styles.cloudTitle}>Background monitoring</div>
             <div style={styles.cloudSubtitle}>
               {cloudWatch
-                ? "Cloudflare checks this watch even when the site is closed."
-                : "Optionally test background matching before notifications launch."}
+                ? "Cloudflare checks this place even when the site is closed."
+                : "Optionally check this place for matching changes while the site is closed."}
             </div>
           </div>
           {cloudWatch && (
@@ -297,7 +297,7 @@ export function LocationWatchPanel({
                 <div>
                   <div style={styles.pushTitle}>Browser notifications</div>
                   <div style={styles.pushSubtitle}>
-                    Opt in on this device, then send a test. Automatic risk updates are in a controlled rollout.
+                    Opt in on this device, then send a test. Automatic matching updates are in a controlled rollout.
                   </div>
                 </div>
                 <span style={styles.testBadge}>Canary</span>
@@ -338,7 +338,7 @@ export function LocationWatchPanel({
                 </>
               )}
               <div style={styles.pushSafety}>
-                Automated hazard alerts remain off while delivery is validated.
+                Delivery is not guaranteed. Keep official emergency alerts enabled.
               </div>
             </div>
           </>
@@ -346,8 +346,9 @@ export function LocationWatchPanel({
           <>
             <div style={styles.cloudPrivacy}>
               Sends rounded coordinates, radius, timezone, and watch preferences.
-              No label, email, or account identity is stored. NWS, USGS, and NIFC
-              are included in this audit phase.
+              No label, email, or account identity is stored. Eligible checks use
+              NWS, USGS, NIFC, NHC, JMA, GDACS, and NASA EONET based on your
+              selected hazards.
             </div>
             {cloudWatchError && <div role="alert" style={styles.cloudError}>{cloudWatchError}</div>}
             <button
@@ -356,7 +357,7 @@ export function LocationWatchPanel({
               disabled={cloudWatchBusy}
               onClick={onEnableCloudWatch}
             >
-              {cloudWatchBusy ? "Enabling..." : "Enable cloud audit"}
+              {cloudWatchBusy ? "Enabling..." : "Enable background monitoring"}
             </button>
           </>
         )}

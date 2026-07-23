@@ -1,8 +1,7 @@
-import { newEventId } from "../lib/ids";
-import type { Severity } from "../types/riskEvent";
 import type { SupplementalRiskSignal, SupplementalMetric } from "../types/supplementalRisk";
 
 const WFS = "https://webservices.volcano.si.edu/geoserver/GVP-VOTW/wfs";
+const PROXY = "/api/smithsonian/gvp";
 const TYPE_NAME = "GVP-VOTW:Smithsonian_VOTW_Holocene_Volcanoes";
 
 export interface GvpProperties {
@@ -40,21 +39,11 @@ interface GvpResponse {
   numberMatched: number;
 }
 
-export function gvpSeverity(volcano: GvpProperties): Severity {
-  const year = volcano.Last_Eruption_Year;
-  if (!year || year === "None" || year === "Unknown") return "Minor";
-  const y = parseInt(year, 10);
-  if (isNaN(y)) return "Minor";
-  if (y >= 2000) return "Moderate";
-  if (y >= 1900) return "Minor";
-  return "Minor";
-}
-
 export function normalize(volcano: GvpProperties): SupplementalRiskSignal {
   const lat = parseFloat(volcano.Latitude);
   const lng = parseFloat(volcano.Longitude);
   const year = volcano.Last_Eruption_Year || "Unknown";
-  const sev = gvpSeverity(volcano);
+  const sourceEventId = `gvp-${volcano.Volcano_Number}`;
 
   const metrics: SupplementalMetric[] = [
     { label: "Type", value: volcano.Primary_Volcano_Type },
@@ -66,17 +55,19 @@ export function normalize(volcano: GvpProperties): SupplementalRiskSignal {
   ];
 
   return {
-    id: newEventId(),
+    id: sourceEventId,
     source: "GVP",
-    sourceEventId: `gvp-${volcano.Volcano_Number}`,
+    sourceEventId,
+    context: "baseline",
     category: "Volcano",
-    type: `Volcano: ${volcano.Primary_Volcano_Type}`,
-    severity: sev,
-    headline: `${volcano.Volcano_Name} (${volcano.Country}) — Last erupted ${year}`,
+    type: `Historical volcano: ${volcano.Primary_Volcano_Type}`,
+    severity: "Minor",
+    headline: `${volcano.Volcano_Name} (${volcano.Country})`,
     description: [
-      `${volcano.Volcano_Name} is a ${volcano.Primary_Volcano_Type} in ${volcano.Region}, ${volcano.Country}.`,
+      `Smithsonian GVP lists ${volcano.Volcano_Name} as a ${volcano.Primary_Volcano_Type} in ${volcano.Region}, ${volcano.Country}.`,
       `Elevation: ${volcano.Elevation} m.`,
       `Last eruption: ${year}.`,
+      "This is historical baseline context, not a current activity alert.",
     ].join(" "),
     geometry: {
       type: "Point",
@@ -149,6 +140,12 @@ function haversineKm(latA: number, lngA: number, latB: number, lngB: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function pointCoordinates(feature: GvpFeature): [number, number] | null {
+  const [lng, lat] = feature.geometry.coordinates;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return [lat, lng];
+}
+
 export async function fetchVolcanoesNearby(
   lat: number,
   lng: number,
@@ -156,10 +153,16 @@ export async function fetchVolcanoesNearby(
 ): Promise<SupplementalRiskSignal[]> {
   const kmPerDeg = 111.32;
   const latDelta = radiusKm / kmPerDeg;
-  const lngDelta = radiusKm / (kmPerDeg * Math.cos((lat * Math.PI) / 180));
+  const longitudeScale = Math.max(0.01, Math.abs(Math.cos((lat * Math.PI) / 180)));
+  const lngDelta = radiusKm / (kmPerDeg * longitudeScale);
 
-  const bbox = `${lng - lngDelta},${lat - latDelta},${lng + lngDelta},${lat + latDelta}`;
-  const url = wfsUrl(TYPE_NAME, `bbox=${bbox}`);
+  // WFS 2.0 uses EPSG:4326 axis order (latitude, longitude) for bbox.
+  const bbox = `${lat - latDelta},${lng - lngDelta},${lat + latDelta},${lng + lngDelta}`;
+  const url = import.meta.env.PROD
+    ? `${PROXY}?bbox=${encodeURIComponent(bbox)}`
+    : `${PROXY}?service=WFS&version=2.0.0&request=GetFeature` +
+      `&typeNames=${encodeURIComponent(TYPE_NAME)}&outputFormat=application/json` +
+      `&bbox=${encodeURIComponent(bbox)}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(`GVP WFS returned ${res.status}`);
@@ -167,9 +170,25 @@ export async function fetchVolcanoesNearby(
   if (!data.features || data.features.length === 0) return [];
 
   return data.features
-    .filter((f) => {
-      const coords = f.geometry.coordinates;
-      return haversineKm(lat, lng, coords[1], coords[0]) <= radiusKm;
-    })
-    .map((f) => normalize(f.properties));
+    .map((feature) => ({
+      feature,
+      coordinates: pointCoordinates(feature),
+    }))
+    .filter((candidate): candidate is {
+      feature: GvpFeature;
+      coordinates: [number, number];
+    } => candidate.coordinates !== null)
+    .map((candidate) => ({
+      ...candidate,
+      distanceKm: haversineKm(
+        lat,
+        lng,
+        candidate.coordinates[0],
+        candidate.coordinates[1]
+      ),
+    }))
+    .filter((candidate) => candidate.distanceKm <= radiusKm)
+    .sort((a, b) => a.distanceKm - b.distanceKm)
+    .slice(0, 50)
+    .map(({ feature }) => normalize(feature.properties));
 }

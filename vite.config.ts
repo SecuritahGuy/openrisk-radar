@@ -15,6 +15,14 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: () => "/fdsnws/event/1/query",
       },
+      "/api/smithsonian/gvp": {
+        target: "https://webservices.volcano.si.edu",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(
+          "/api/smithsonian/gvp",
+          "/geoserver/GVP-VOTW/wfs"
+        ),
+      },
     },
   },
   build: {

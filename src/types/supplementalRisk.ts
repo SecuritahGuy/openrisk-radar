@@ -57,6 +57,7 @@ export interface SupplementalRiskSignal {
   id: string;
   source: SupplementalSource;
   sourceEventId: string;
+  context?: "active" | "baseline";
   category: SupplementalCategory;
   type: string;
   severity: Severity;

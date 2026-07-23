@@ -44,6 +44,7 @@ interface UpdatePanelProps {
   currentWeather: CurrentWeather | null;
   femaRiskIndex: FemaRiskIndexCounty | null;
   supplementalSignals: SupplementalRiskSignal[];
+  baselineSignals: SupplementalRiskSignal[];
   sourceHealth: SourceHealthItem[];
   weatherOverlay: NwsWeatherOverlay | null;
   showWeatherOverlay: boolean;
@@ -98,6 +99,7 @@ export function UpdatePanel({
   currentWeather,
   femaRiskIndex,
   supplementalSignals,
+  baselineSignals,
   sourceHealth,
   weatherOverlay,
   showWeatherOverlay,
@@ -230,6 +232,7 @@ export function UpdatePanel({
             geonetVolcanoEvents={geonetVolcanoEvents}
             dwdEvents={dwdEvents}
             supplementalSignals={supplementalSignals}
+            baselineSignals={baselineSignals}
             isFetching={isFetching}
           />
 
