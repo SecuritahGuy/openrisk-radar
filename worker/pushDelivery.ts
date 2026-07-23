@@ -2,10 +2,6 @@ import webpush from "web-push";
 import type { D1Database } from "./d1";
 import { decryptPushSubscription } from "./pushCrypto";
 
-export interface PushQueueMessage {
-  deliveryId: string;
-}
-
 export interface PushDeliveryEnv {
   DB?: D1Database;
   VAPID_PUBLIC_KEY?: string;

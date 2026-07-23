@@ -2,7 +2,7 @@
 
 This document describes experimental Cloudflare watch audit research. The implementation is a proof of concept for background watch evaluation and is not required for OpenRiskRadar Web to remain useful.
 
-Cloud watch audit mode evaluates an explicitly opted-in saved-location watch when the site is closed. It records whether a notification would have been sent, but it does not deliver notifications.
+Cloud watch audit mode evaluates an explicitly opted-in saved-location watch when the site is closed. It records matching changes and can queue Web Push delivery for watches included in the configured canary rollout.
 
 ## Privacy model
 
@@ -16,14 +16,17 @@ Cloud watch audit mode evaluates an explicitly opted-in saved-location watch whe
 
 ## Audit behavior
 
-- One Cron Trigger runs every 30 minutes.
-- Each invocation processes at most three due watches.
+- One Cron Trigger runs every 15 minutes.
+- Each scheduled invocation leases and queues at most 24 due watches.
+- Every queued watch is evaluated by a separate Worker invocation, preserving an independent Cloudflare subrequest budget for each location.
+- Queue consumer batches are intentionally limited to one message.
 - Immediate watches become due hourly; daily watches become due every 24 hours.
 - The first successful evaluation establishes a baseline and never counts as a notification.
 - Later fingerprint changes are recorded as `wouldNotify`, `quiet_hours`, or `resolved` outcomes.
 - A partial provider failure does not replace the previous fingerprint, preventing false change notices.
 - Audit records and expired watches are retained for 30 days.
-- The initial evaluator covers NWS alerts, USGS earthquakes, and NIFC wildfires.
+- The evaluator uses the shared location-feed registry and currently covers NWS, USGS, NIFC, NHC, JMA, GDACS, and NASA EONET when the selected hazards apply.
+- NHC uses NOAA's aggregate forecast-points layer plus its outlook layer rather than querying every possible storm slot.
 
 ## Cloudflare setup
 
@@ -53,3 +56,7 @@ npx wrangler d1 migrations apply openradar-risk --remote
 ```
 
 For local development, the same migration can be applied with `--local` after the binding is configured.
+
+Migration `0005_watch_audit_queue.sql` must be applied before deploying the
+queue-isolated evaluator. It creates retry-safe audit jobs linked to each
+scheduled audit run.

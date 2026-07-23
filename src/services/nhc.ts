@@ -2,16 +2,10 @@ import { newEventId } from "../lib/ids";
 import type { RiskEvent, Severity } from "../types/riskEvent";
 
 const MAPSERVER =
-  "https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather/MapServer";
+  "https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather_summary/MapServer";
 
 const MONITOR_RADIUS_FLOOR_MILES = 300;
-
-const FORECAST_POINTS_LAYERS = [
-  6, 32, 58, 84, 110,
-  136, 162, 188, 214, 240,
-  266, 292, 318, 344, 370,
-];
-
+const FORECAST_POINTS_LAYER = 5;
 const OUTLOOK_2DAY_LAYER = 1;
 
 interface GeoJsonFeature {
@@ -219,12 +213,9 @@ export async function fetchNhcStorms(
 ): Promise<RiskEvent[]> {
   const monitorRadius = Math.max(radiusMiles, MONITOR_RADIUS_FLOOR_MILES);
 
-  const namedStormResults = await Promise.all(
-    FORECAST_POINTS_LAYERS.map((layerId) =>
-      fetchLayerGeoJson(layerId, "fcstprd=0").then(featuresToStorms)
-    )
+  const namedStorms = featuresToStorms(
+    await fetchLayerGeoJson(FORECAST_POINTS_LAYER, "fcstprd=0")
   );
-  const namedStorms = namedStormResults.flat();
 
   const outlookFeatures = await fetchLayerGeoJson(OUTLOOK_2DAY_LAYER, "1=1");
 

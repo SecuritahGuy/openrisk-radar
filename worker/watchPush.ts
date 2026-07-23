@@ -1,5 +1,6 @@
 import type { D1Database } from "./d1";
 import { encryptPushSubscription, hashPushEndpoint, validatePushSubscription } from "./pushCrypto";
+import type { WorkerQueueBinding } from "./queueMessages";
 import { authorizeWatch, watchApiError, watchApiJson } from "./watchRegistry";
 
 const MAX_BODY_BYTES = 12 * 1024;
@@ -8,9 +9,7 @@ const COLLECTION_PATH = /^\/api\/watches\/([0-9a-f-]+)\/push-subscriptions$/i;
 const ITEM_PATH = /^\/api\/watches\/([0-9a-f-]+)\/push-subscriptions\/([0-9a-f-]+)$/i;
 const TEST_PATH = /^\/api\/watches\/([0-9a-f-]+)\/push-subscriptions\/([0-9a-f-]+)\/test$/i;
 
-export interface PushQueueBinding {
-  send(message: { deliveryId: string }): Promise<void>;
-}
+export type PushQueueBinding = WorkerQueueBinding;
 
 export interface WatchPushEnv {
   DB: D1Database;
