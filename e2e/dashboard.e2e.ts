@@ -1,27 +1,157 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-async function blockExternalRequests(page: Page, options: { tsunamiFallback?: boolean } = {}) {
+function forecastPeriods() {
+  return Array.from({ length: 10 }, (_, index) => {
+    const day = String(22 + Math.floor(index / 2)).padStart(2, "0");
+    const daytime = index % 2 === 0;
+    return {
+      name: daytime ? "Day" : "Night",
+      isDaytime: daytime,
+      temperature: daytime ? 82 + index : 64 + index,
+      relativeHumidity: { value: 58, unitCode: "wmoUnit:percent" },
+      windSpeed: "8 to 16 mph",
+      windDirection: "SW",
+      probabilityOfPrecipitation: { value: 35, unitCode: "wmoUnit:percent" },
+      shortForecast: daytime ? "Partly Sunny" : "Partly Cloudy",
+      detailedForecast: daytime
+        ? `Detailed forecast guidance for day ${Math.floor(index / 2) + 1}.`
+        : "Partly cloudy overnight.",
+      startTime: `2026-07-${day}T${daytime ? "06" : "18"}:00:00-05:00`,
+    };
+  });
+}
+
+function hourlyForecastPeriods() {
+  return Array.from({ length: 120 }, (_, index) => ({
+    name: "Hourly",
+    isDaytime: index % 24 >= 6 && index % 24 < 18,
+    temperature: 70 + (index % 12),
+    relativeHumidity: { value: 55, unitCode: "wmoUnit:percent" },
+    windSpeed: "10 mph",
+    windDirection: "W",
+    probabilityOfPrecipitation: { value: index % 4 === 0 ? 45 : 20, unitCode: "wmoUnit:percent" },
+    shortForecast: index % 4 === 0 ? "Chance Showers" : "Partly Cloudy",
+    detailedForecast: "",
+    startTime: new Date(Date.UTC(2026, 6, 22, 5 + index)).toISOString(),
+  }));
+}
+
+async function blockExternalRequests(
+  page: Page,
+  options: { tsunamiFallback?: boolean; weatherForecast?: boolean; newYorkTransportation?: boolean } = {}
+) {
   await page.route("**/*", async (route) => {
     const url = new URL(route.request().url());
     if (url.hostname === "127.0.0.1" || url.hostname === "localhost") {
       await route.continue();
     } else if (url.hostname === "nominatim.openstreetmap.org" && url.pathname === "/search") {
+      const location = options.newYorkTransportation
+        ? {
+            lat: "41.7848",
+            lon: "-73.9332",
+            display_name: "12538, Hyde Park, Dutchess County, New York, United States",
+            address: {
+              postcode: "12538",
+              town: "Hyde Park",
+              county: "Dutchess County",
+              state: "New York",
+              country: "United States",
+              country_code: "us",
+            },
+          }
+        : {
+            lat: "42.3443070",
+            lon: "-88.0335501",
+            display_name: "60030, Grayslake, Lake County, Illinois, United States",
+            address: {
+              postcode: "60030",
+              town: "Grayslake",
+              county: "Lake County",
+              state: "Illinois",
+              country: "United States",
+              country_code: "us",
+            },
+          };
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify([location]),
+      });
+    } else if (options.newYorkTransportation && url.hostname === "data.transportation.gov") {
       await route.fulfill({
         contentType: "application/json",
         body: JSON.stringify([{
-          lat: "42.3443070",
-          lon: "-88.0335501",
-          display_name: "60030, Grayslake, Lake County, Illinois, United States",
-          address: {
-            postcode: "60030",
-            town: "Grayslake",
-            county: "Lake County",
-            state: "Illinois",
-            country: "United States",
-            country_code: "us",
-          },
+          state: "NEW YORK",
+          issuingorganization: "New York DOT",
+          feedname: "NYSDOT 511 WZDx",
+          url: { url: "https://511ny.org/api/wzdx" },
+          active: true,
+          needapikey: false,
         }]),
+      });
+    } else if (options.newYorkTransportation && url.hostname === "511ny.org" && url.pathname === "/api/wzdx") {
+      const description = "Bridge maintenance on US 9 northbound between Pine Street and Market Street - various lanes closed";
+      const occurrence = (id: string, start: string, end: string, related: Array<{ type: string; id: string }>) => ({
+        id,
+        type: "Feature",
+        geometry: { type: "MultiPoint", coordinates: [[-73.75, 41.79]] },
+        properties: {
+          core_details: {
+            event_type: "work-zone",
+            data_source_id: "TRANSCOM",
+            road_names: ["US 9"],
+            direction: "unknown",
+            description,
+            update_date: "2026-07-22T16:00:00Z",
+            related_road_events: related,
+          },
+          road_event_id: id,
+          beginning_cross_street: "Pine Street",
+          ending_cross_street: "Market Street",
+          start_date: start,
+          end_date: end,
+          vehicle_impact: "unknown",
+          is_start_position_verified: false,
+          is_end_position_verified: false,
+          restrictions: [],
+          types_of_work: [{ type: "maintenance" }],
+          lanes: [{ status: "closed" }],
+        },
+      });
+      await route.fulfill({
+        contentType: "application/geo+json",
+        body: JSON.stringify({
+          type: "FeatureCollection",
+          features: [
+            occurrence("work-1", "2026-07-22T13:00:00Z", "2026-07-22T23:30:00Z", [
+              { type: "next-occurrence", id: "work-2" },
+            ]),
+            occurrence("work-2", "2026-07-23T13:00:00Z", "2026-07-23T23:30:00Z", [
+              { type: "first-occurrence", id: "work-1" },
+            ]),
+          ],
+        }),
+      });
+    } else if (options.weatherForecast && url.hostname === "api.weather.gov" && url.pathname.startsWith("/points/")) {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ properties: {
+          forecast: "https://api.weather.gov/gridpoints/LOT/70,76/forecast",
+          forecastHourly: "https://api.weather.gov/gridpoints/LOT/70,76/forecast/hourly",
+          observationStations: "https://api.weather.gov/gridpoints/LOT/70,76/stations",
+        } }),
+      });
+    } else if (options.weatherForecast && url.hostname === "api.weather.gov" && url.pathname.endsWith("/stations")) {
+      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ features: [] }) });
+    } else if (options.weatherForecast && url.hostname === "api.weather.gov" && url.pathname.endsWith("/forecast/hourly")) {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ properties: { periods: hourlyForecastPeriods() } }),
+      });
+    } else if (options.weatherForecast && url.hostname === "api.weather.gov" && url.pathname.endsWith("/forecast")) {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ properties: { periods: forecastPeriods() } }),
       });
     } else if (options.tsunamiFallback && url.hostname === "tsunami.gov") {
       await route.fulfill({ status: 502, body: "Bad gateway" });
@@ -115,4 +245,107 @@ test("a NOAA JSON outage activates the official tsunami fallback without a hard 
   await expect(page.getByText("Grayslake, IL", { exact: false }).first()).toBeVisible();
   await expect(page.getByText(/Official NTWC\/PTWC feed fallback active with 1 signal/)).toBeVisible();
   await expect(page.getByText(/NOAA Tsunami API returned 502/)).toHaveCount(0);
+});
+
+test("forecast dialog is centered, scrollable, accessible, and restores focus", async ({ page }) => {
+  const consoleProblems: string[] = [];
+  page.on("console", (message) => {
+    if (
+      (message.type() === "error" || message.type() === "warning") &&
+      !message.text().includes("net::ERR_BLOCKED_BY_CLIENT")
+    ) {
+      consoleProblems.push(message.text());
+    }
+  });
+  page.on("pageerror", (error) => consoleProblems.push(error.message));
+  await page.setViewportSize({ width: 1280, height: 620 });
+  await blockExternalRequests(page, { weatherForecast: true });
+  await page.goto("/app?q=60030");
+  await expect(page.getByText("Grayslake, IL", { exact: false }).first()).toBeVisible();
+
+  const opener = page.getByRole("button", { name: "View 5-day forecast" });
+  await expect(opener).toBeVisible();
+  await opener.click();
+
+  const dialog = page.getByRole("dialog", { name: "5-day forecast" });
+  await expect(dialog).toBeVisible();
+  await expect(page.locator("#forecast-dialog-title")).toBeFocused();
+  await expect(dialog).toHaveAttribute("aria-modal", "true");
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe("hidden");
+
+  const bounds = await dialog.boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(bounds!.width).toBeGreaterThan(700);
+  expect(Math.abs((bounds!.x + bounds!.width / 2) - 640)).toBeLessThan(3);
+  expect(await page.locator(".forecast-dialog-body").evaluate(
+    (element) => element.scrollHeight > element.clientHeight
+  )).toBe(true);
+
+  await page.getByRole("button", { name: /Thu, Jul 23/ }).click();
+  await expect(page.getByRole("heading", { name: "Thursday, July 23" })).toBeVisible();
+  await expect(page.getByText("Detailed forecast guidance for day 2.")).toBeVisible();
+
+  const accessibility = await new AxeBuilder({ page })
+    .include(".forecast-dialog-panel")
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(accessibility.violations.filter(
+    (violation) => violation.impact === "critical" || violation.impact === "serious"
+  )).toEqual([]);
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(opener).toBeFocused();
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe("");
+  expect(consoleProblems).toEqual([]);
+});
+
+test("forecast dialog becomes a bottom sheet without mobile overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await blockExternalRequests(page, { weatherForecast: true });
+  await page.goto("/app?q=60030");
+  await page.getByRole("button", { name: "View 5-day forecast" }).click();
+
+  const dialog = page.getByRole("dialog", { name: "5-day forecast" });
+  const bounds = await dialog.boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(Math.abs(bounds!.width - 375)).toBeLessThan(2);
+  expect(Math.abs(bounds!.y + bounds!.height - 667)).toBeLessThan(2);
+  expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  expect(await page.locator(".forecast-dialog-body").evaluate(
+    (element) => element.scrollHeight > element.clientHeight
+  )).toBe(true);
+
+  await page.getByRole("button", { name: "Close 5-day forecast" }).click();
+  await expect(dialog).toHaveCount(0);
+});
+
+test("NYSDOT recurrences use one construction marker with richer details", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await blockExternalRequests(page, { newYorkTransportation: true });
+  await page.goto("/app?q=12538");
+  await expect(page.getByText("Hyde Park, NY", { exact: false }).first()).toBeVisible();
+
+  const marker = page.locator(".construction-event-marker");
+  await expect(marker).toHaveCount(1);
+  await expect(marker.locator("svg")).toHaveCount(1);
+  await marker.click({ force: true });
+  await page.getByRole("button", { name: /Details/ }).click();
+
+  const dialog = page.getByRole("dialog", { name: /Bridge maintenance on US 9 northbound/ });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText("Roadwork Details")).toBeVisible();
+  await expect(dialog.getByText("Pine Street to Market Street")).toBeVisible();
+  await expect(dialog.getByText("Some Lanes Closed", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("2 linked occurrences through")).toBeVisible();
+  await expect(dialog.getByText("Maintenance", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("Closed", { exact: true })).toBeVisible();
+
+  const accessibility = await new AxeBuilder({ page })
+    .include(".event-detail-panel")
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(accessibility.violations.filter(
+    (violation) => violation.impact === "critical" || violation.impact === "serious"
+  )).toEqual([]);
 });

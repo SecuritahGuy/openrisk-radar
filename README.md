@@ -74,6 +74,8 @@ OpenRisk Radar brings authoritative feeds into a single geospatial workflow. It 
 
 - Search by U.S. ZIP code, city/state, geocoded place, or map location.
 - Interactive Leaflet map with radius rings, event markers, alert polygons, and optional NWS weather overlays.
+- Dedicated construction markers and recurrence-aware roadwork details for participating state DOT WZDx feeds.
+- Responsive five-day forecast dialog with daily detail, NWS narrative guidance, and three-hour outlook intervals.
 - Optional dated NASA GIBS imagery with persisted layer, opacity, legends, and partial-tile status.
 - Real-time source adapters for official government and public hazard feeds.
 - Automatic GeoNet earthquake and elevated volcanic-alert coverage for resolved New Zealand locations.
@@ -95,7 +97,7 @@ This table reflects the current codebase. "Main dashboard" means the source is f
 | Source | Coverage | Signals | Current status | Implementation |
 |--------|----------|---------|----------------|----------------|
 | National Weather Service (NWS) | United States | Active weather alerts by state | Main dashboard | `src/services/nws.ts` |
-| NWS observations and forecast fallback | United States | Current conditions from stations, hourly forecast fallback | Current conditions panel | `src/services/weather.ts` |
+| NWS observations and forecast fallback | United States | Current conditions, detailed five-day forecast, and five days of hourly forecast periods | Current conditions panel and responsive forecast dialog | `src/services/weather.ts` |
 | NWS weather overlay | United States | Forecast grid cell, hazards, heat risk, forecast zones, fire weather zones, nearby stations | Optional map overlay | `src/services/nwsWeatherOverlay.ts` |
 | World Health Organization | Global, outbreak-title country matched | Recent Disease Outbreak News reports | Main dashboard and saved-location summaries; local posture only when the report names the searched state, county, or city | `src/services/who.ts` |
 | Deutscher Wetterdienst (DWD) | Germany | Official severe-weather warning polygons | Main dashboard when a resolved German location and selected radius apply | `src/services/dwd.ts` |
@@ -103,7 +105,7 @@ This table reflects the current codebase. "Main dashboard" means the source is f
 | Federal Emergency Management Agency (FEMA) | United States | Disaster declarations by state/county | Main dashboard, feed/detail; no event geometry | `src/services/fema.ts` |
 | National Interagency Fire Center (NIFC) | United States | Wildfires and prescribed burns by proximity | Main dashboard | `src/services/nifc.ts` |
 | Selected state agencies | CA, FL, OR, NY, WI | Local wildfire incidents, evacuation zones, HAB reports, and beach advisories | Main dashboard when the resolved state applies | `src/services/regionalSources.ts` |
-| USDOT WZDx / participating state DOTs | Participating U.S. states | Active and near-term work zones, lane impacts, and closures | Main dashboard when a keyless state feed applies | `src/services/transportation.ts` |
+| USDOT WZDx / participating state DOTs | Participating U.S. states | Active and near-term work zones, lane impacts, closures, cross streets, and recurring schedules | Main dashboard with construction markers and roadwork details when a keyless state feed applies | `src/services/transportation.ts` |
 | Storm Prediction Center (SPC) | United States | Day 1-3 convective outlook polygons and preliminary observed tornado, hail, and wind reports | Main dashboard | `src/services/spc.ts`, `src/services/spcReports.ts` |
 | National Hurricane Center (NHC) | Atlantic and Eastern/Central Pacific | Active tropical cyclones | Main dashboard when active/in range | `src/services/nhc.ts` |
 | Global Disaster Alert and Coordination System (GDACS) | Global | Earthquakes, tropical cyclones, floods, volcanoes, wildfires, droughts | Main dashboard | `src/services/gdacs.ts` |

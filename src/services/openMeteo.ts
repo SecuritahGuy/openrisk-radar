@@ -31,11 +31,18 @@ interface OpenMeteoForecastResponse {
     time: string[];
     temperature_2m_max: number[];
     temperature_2m_min: number[];
+    apparent_temperature_max: number[];
+    apparent_temperature_min: number[];
     weather_code: number[];
     wind_speed_10m_max: number[];
     wind_direction_10m_dominant: number[];
     wind_gusts_10m_max: number[];
     precipitation_probability_max: number[];
+    precipitation_sum: number[];
+    snowfall_sum: number[];
+    sunrise: string[];
+    sunset: string[];
+    uv_index_max: number[];
   };
   hourly?: {
     time: string[];
@@ -144,10 +151,17 @@ export async function fetchOpenMeteoWeather(
       "weather_code",
       "temperature_2m_max",
       "temperature_2m_min",
+      "apparent_temperature_max",
+      "apparent_temperature_min",
       "wind_speed_10m_max",
       "wind_direction_10m_dominant",
       "wind_gusts_10m_max",
       "precipitation_probability_max",
+      "precipitation_sum",
+      "snowfall_sum",
+      "sunrise",
+      "sunset",
+      "uv_index_max",
     ].join(","),
     hourly: [
       "temperature_2m",
@@ -158,7 +172,7 @@ export async function fetchOpenMeteoWeather(
       "wind_speed_10m",
       "wind_gusts_10m",
     ].join(","),
-    forecast_hours: "24",
+    forecast_hours: "120",
     forecast_days: "5",
     timezone: "auto",
   });
@@ -178,6 +192,14 @@ export async function fetchOpenMeteoWeather(
         json.daily?.temperature_2m_min[index] != null
           ? Math.round(json.daily.temperature_2m_min[index] * 9 / 5 + 32)
           : null,
+      apparentTemperature:
+        json.daily?.apparent_temperature_max[index] != null
+          ? Math.round(json.daily.apparent_temperature_max[index] * 9 / 5 + 32)
+          : null,
+      apparentTemperatureLow:
+        json.daily?.apparent_temperature_min[index] != null
+          ? Math.round(json.daily.apparent_temperature_min[index] * 9 / 5 + 32)
+          : null,
       humidity: null,
       windSpeed: Math.round((json.daily?.wind_speed_10m_max[index] ?? 0) * 0.621371),
       windDirection: json.daily?.wind_direction_10m_dominant[index] ?? null,
@@ -185,10 +207,22 @@ export async function fetchOpenMeteoWeather(
         ? Math.round(json.daily.wind_gusts_10m_max[index] * 0.621371)
         : null,
       precipitationChance: json.daily?.precipitation_probability_max[index] ?? null,
+      precipitationAmount:
+        json.daily?.precipitation_sum[index] != null
+          ? Math.round(json.daily.precipitation_sum[index] * 0.0393701 * 100) / 100
+          : null,
+      snowfallAmount:
+        json.daily?.snowfall_sum[index] != null
+          ? Math.round(json.daily.snowfall_sum[index] * 0.393701 * 10) / 10
+          : null,
+      sunrise: json.daily?.sunrise[index] ?? null,
+      sunset: json.daily?.sunset[index] ?? null,
+      uvIndex: json.daily?.uv_index_max[index] ?? null,
       shortForecast: openMeteoWeatherLabel(json.daily?.weather_code[index] ?? -1),
+      detailedForecast: null,
     }));
   const hourlyForecast: HourlyWeatherPeriod[] = (json.hourly?.time ?? [])
-    .slice(0, 24)
+    .slice(0, 120)
     .map((time, index) => ({
       startTime: time,
       temperature: Math.round((json.hourly?.temperature_2m[index] ?? 0) * 9 / 5 + 32),

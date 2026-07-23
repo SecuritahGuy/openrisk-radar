@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import type { RiskEvent } from "../types/riskEvent";
 import type { RadiusOption, ResolvedLocation } from "../types/location";
-import { assessImpact, impactColor } from "../lib/impactInsights";
+import { assessImpact } from "../lib/impactInsights";
 import { concernContextLabel, eventSourceLabel } from "../lib/riskInsights";
 import { incidentMetadata } from "../lib/incidents";
+import { ModalDialog } from "./ModalDialog";
 
 interface EventDetailPanelProps {
   event: RiskEvent;
@@ -50,6 +51,8 @@ function sourceColor(source: string): string {
       return "#5e35b1";
     case "METEOALARM":
       return "#c62828";
+    case "USDOT":
+      return "#963800";
     default:
       return "#616161";
   }
@@ -58,12 +61,12 @@ function sourceColor(source: string): string {
 function severityStyle(severity: string): React.CSSProperties {
   const color =
     severity === "Extreme"
-      ? "#d32f2f"
+      ? "#a31515"
       : severity === "Severe"
-        ? "#f57c00"
+        ? "#963800"
         : severity === "Moderate"
-          ? "#fbc02d"
-          : "#616161";
+          ? "#6b5500"
+          : "#424242";
   return {
     fontSize: 11,
     fontWeight: 700,
@@ -73,6 +76,19 @@ function severityStyle(severity: string): React.CSSProperties {
     borderRadius: 3,
     textTransform: "uppercase" as const,
   };
+}
+
+function accessibleImpactColor(level: ReturnType<typeof assessImpact>["level"]): string {
+  switch (level) {
+    case "affects":
+      return "#a31515";
+    case "nearby":
+      return "#963800";
+    case "historical":
+      return "#6a1b9a";
+    case "monitor":
+      return "#455a64";
+  }
 }
 
 function formatTime(iso: string): string {
@@ -335,22 +351,81 @@ function SupplementalFields({ raw }: { raw: Record<string, unknown> }) {
   );
 }
 
-function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  return Array.from(
-    container.querySelectorAll<HTMLElement>(
-      [
-        "a[href]",
-        "button:not([disabled])",
-        "input:not([disabled])",
-        "select:not([disabled])",
-        "textarea:not([disabled])",
-        "[tabindex]:not([tabindex='-1'])",
-      ].join(",")
-    )
-  ).filter((element) => {
-    const style = window.getComputedStyle(element);
-    return style.display !== "none" && style.visibility !== "hidden";
+function humanizeTransportationValue(value: unknown): string {
+  return String(value ?? "")
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function summarizeTransportationObjects(value: unknown): string {
+  if (!Array.isArray(value)) return "—";
+  const summaries = value.flatMap((item) => {
+    if (typeof item === "string") return [humanizeTransportationValue(item)];
+    if (!item || typeof item !== "object") return [];
+    const record = item as Record<string, unknown>;
+    const preferred = record.type ?? record.status ?? record.lane_type ?? record.restriction_type;
+    return preferred == null ? [] : [humanizeTransportationValue(preferred)];
   });
+  return summaries.length ? Array.from(new Set(summaries)).join(", ") : "—";
+}
+
+function TransportationFields({ raw }: { raw: Record<string, unknown> }) {
+  const roads = Array.isArray(raw.roadNames)
+    ? raw.roadNames.filter((road): road is string => typeof road === "string")
+    : [];
+  const crossStreets = [raw.beginningCrossStreet, raw.endingCrossStreet]
+    .filter((street): street is string => typeof street === "string" && !!street)
+    .join(" to ");
+  const beginningMilepost = typeof raw.beginningMilepost === "number" ? raw.beginningMilepost : null;
+  const endingMilepost = typeof raw.endingMilepost === "number" ? raw.endingMilepost : null;
+  const mileposts = beginningMilepost != null
+    ? endingMilepost != null && endingMilepost !== beginningMilepost
+      ? `${beginningMilepost} to ${endingMilepost}`
+      : String(beginningMilepost)
+    : "—";
+  const occurrenceCount = typeof raw.occurrenceCount === "number" ? raw.occurrenceCount : 1;
+  const verificationValues = [
+    raw.startPositionVerified,
+    raw.endPositionVerified,
+    raw.startDateVerified,
+    raw.endDateVerified,
+  ].filter((value): value is boolean => typeof value === "boolean");
+  const verification = verificationValues.length
+    ? verificationValues.every(Boolean)
+      ? "Verified by source"
+      : verificationValues.some(Boolean)
+        ? "Partially verified by source"
+        : "Not verified by source"
+    : "—";
+
+  return (
+    <>
+      <DetailRow label="Road" value={roads.join(" / ") || "—"} />
+      <DetailRow label="Direction" value={humanizeTransportationValue(raw.direction) || "—"} />
+      <DetailRow label="Cross streets" value={crossStreets || "—"} />
+      <DetailRow
+        label="Traffic impact"
+        value={humanizeTransportationValue(raw.effectiveVehicleImpact ?? raw.vehicleImpact) || "—"}
+      />
+      <DetailRow label="Mileposts" value={mileposts} />
+      {typeof raw.reducedSpeedLimitKph === "number" && (
+        <DetailRow
+          label="Reduced speed"
+          value={`${Math.round(raw.reducedSpeedLimitKph * 0.621371)} mph (${raw.reducedSpeedLimitKph} km/h)`}
+        />
+      )}
+      <DetailRow label="Work type" value={summarizeTransportationObjects(raw.typesOfWork)} />
+      <DetailRow label="Affected lanes" value={summarizeTransportationObjects(raw.lanes)} />
+      <DetailRow label="Restrictions" value={summarizeTransportationObjects(raw.restrictions)} />
+      {occurrenceCount > 1 && (
+        <DetailRow
+          label="Recurring schedule"
+          value={`${occurrenceCount} linked occurrences through ${formatTime(String(raw.seriesEndAt ?? ""))}`}
+        />
+      )}
+      <DetailRow label="Source verification" value={verification} />
+    </>
+  );
 }
 
 export function EventDetailPanel({
@@ -368,11 +443,8 @@ export function EventDetailPanel({
       : "—";
   const impact = assessImpact(event, location, radius);
   const incident = incidentMetadata(event);
-  const impactBadgeColor = impactColor(impact.level);
+  const impactBadgeColor = accessibleImpactColor(impact.level);
   const contextLabel = concernContextLabel(event);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   async function handleCopyEvent() {
     if (!navigator.clipboard?.writeText) {
@@ -404,67 +476,15 @@ export function EventDetailPanel({
     window.setTimeout(() => setCopyStatus("idle"), 2200);
   }
 
-  useEffect(() => {
-    previousFocusRef.current =
-      document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    closeButtonRef.current?.focus();
-
-    return () => {
-      previousFocusRef.current?.focus();
-    };
-  }, []);
-
-  useEffect(() => {
-    function handleKeyDown(keyEvent: KeyboardEvent) {
-      if (keyEvent.key === "Escape") {
-        keyEvent.preventDefault();
-        onClose();
-        return;
-      }
-
-      if (keyEvent.key !== "Tab" || !panelRef.current) return;
-
-      const focusable = getFocusableElements(panelRef.current);
-      if (focusable.length === 0) {
-        keyEvent.preventDefault();
-        panelRef.current.focus();
-        return;
-      }
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const active = document.activeElement;
-
-      if (keyEvent.shiftKey && active === first) {
-        keyEvent.preventDefault();
-        last.focus();
-      } else if (!keyEvent.shiftKey && active === last) {
-        keyEvent.preventDefault();
-        first.focus();
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
   return (
-    <div
-      className="event-detail-backdrop"
-      style={styles.backdrop}
-      onMouseDown={onClose}
-      role="presentation"
+    <ModalDialog
+      titleId="event-detail-title"
+      onClose={onClose}
+      backdropClassName="event-detail-backdrop"
+      panelClassName="event-detail-panel"
+      backdropStyle={styles.backdrop}
+      panelStyle={styles.panel}
     >
-      <div
-        ref={panelRef}
-        className="event-detail-panel"
-        style={styles.panel}
-        onMouseDown={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="event-detail-title"
-        tabIndex={-1}
-      >
         <div className="event-detail-header" style={styles.header}>
           <div className="event-detail-header-left" style={styles.headerLeft}>
             <span
@@ -491,10 +511,10 @@ export function EventDetailPanel({
             )}
           </div>
           <button
-            ref={closeButtonRef}
             onClick={onClose}
             style={styles.closeBtn}
             aria-label="Close event details"
+            data-modal-initial-focus
           >
             &times;
           </button>
@@ -609,6 +629,12 @@ export function EventDetailPanel({
             <EonetFields raw={event.raw} />
           </div>
         )}
+        {event.source === "USDOT" && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Roadwork Details</div>
+            <TransportationFields raw={event.raw} />
+          </div>
+        )}
         {(event.source === "AIRNOW" || event.source === "COOPS" || event.source === "VOLCANO" || event.source === "DROUGHT") && (
           <div style={styles.section}>
             <div style={styles.sectionTitle}>
@@ -646,8 +672,7 @@ export function EventDetailPanel({
             </a>
           )}
         </div>
-      </div>
-    </div>
+    </ModalDialog>
   );
 }
 
@@ -716,7 +741,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: "none",
     background: "none",
     fontSize: 24,
-    color: "#9e9e9e",
+    color: "#616161",
     cursor: "pointer",
     padding: 0,
     lineHeight: 1,
@@ -744,7 +769,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
     fontWeight: 600,
     textTransform: "uppercase" as const,
-    color: "#9e9e9e",
+    color: "#616161",
     marginBottom: 8,
   },
   detailRow: {
@@ -790,7 +815,7 @@ const styles: Record<string, React.CSSProperties> = {
     whiteSpace: "nowrap",
   },
   contributorTime: {
-    color: "#78909c",
+    color: "#455a64",
     whiteSpace: "nowrap",
   },
   actionRow: {

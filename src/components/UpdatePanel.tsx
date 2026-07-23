@@ -167,7 +167,10 @@ export function UpdatePanel({
             />
           )}
 
-          <CurrentConditionsPanel currentWeather={currentWeather} />
+          <CurrentConditionsPanel
+            currentWeather={currentWeather}
+            location={location}
+          />
 
           <SituationBriefPanel
             location={location}

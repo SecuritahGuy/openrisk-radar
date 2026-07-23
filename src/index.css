@@ -345,16 +345,36 @@ body {
     display: block !important;
   }
 
+  .modal-dialog-backdrop,
   .event-detail-backdrop {
     align-items: flex-end !important;
   }
 
+  .modal-dialog-panel,
   .event-detail-panel {
     width: 100% !important;
     max-width: none !important;
     max-height: 88dvh !important;
     border-radius: 12px 12px 0 0 !important;
+  }
+
+  .event-detail-panel {
     padding: 16px !important;
+  }
+
+  .forecast-dialog-header {
+    padding: 14px 16px 12px !important;
+  }
+
+  .forecast-dialog-body {
+    overscroll-behavior: contain;
+    padding: 13px 16px 20px !important;
+  }
+
+  .forecast-day-grid,
+  .forecast-metric-grid,
+  .forecast-hourly-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 
   .event-detail-header {

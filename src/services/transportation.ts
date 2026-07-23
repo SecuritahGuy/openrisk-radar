@@ -50,7 +50,14 @@ async function fetchDirect(
       const raw = await readJsonResponse<unknown>(response, label);
       return {
         provider: { id, label, available: true },
-        events: normalizeWzdxFeed(raw, { id, label }, state, latitude, longitude, radiusKm),
+        events: normalizeWzdxFeed(
+          raw,
+          { id, label, url: registryUrl(row) },
+          state,
+          latitude,
+          longitude,
+          radiusKm
+        ),
         warning: null,
       };
     } catch (error) {
