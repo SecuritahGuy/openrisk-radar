@@ -223,7 +223,7 @@ describe("authoritative adapter contracts", () => {
   it("normalizes an in-range NHC named storm", async () => {
     vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
       const url = String(input);
-      if (url.includes("/6/query")) {
+      if (url.includes("/5/query")) {
         return jsonResponse({
           type: "FeatureCollection",
           features: [
@@ -256,6 +256,7 @@ describe("authoritative adapter contracts", () => {
       severity: "Severe",
       headline: "NHC Hurricane ALPHA",
     });
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 
   it("normalizes a nearby GDACS centroid and ignores other feeds", async () => {
