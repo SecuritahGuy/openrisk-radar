@@ -12,6 +12,7 @@ import {
 } from "react-leaflet";
 import type { ResolvedLocation, RadiusOption } from "../types/location";
 import type { EventSource, RiskEvent, Severity } from "../types/riskEvent";
+import type { SupplementalRiskSignal } from "../types/supplementalRisk";
 import type { NwsWeatherOverlay } from "../services/nwsWeatherOverlay";
 import { resolveCoordinates } from "../services/locationResolver";
 import {
@@ -24,6 +25,7 @@ import {
   sourceLabel,
 } from "../lib/riskInsights";
 import { EventMapLayers } from "./EventMapLayers";
+import { SupplementalRiskMapLayers } from "./SupplementalRiskMapLayers";
 import { MapLegend } from "./MapLegend";
 import { NwsWeatherMapLayers } from "./NwsWeatherMapLayers";
 import {
@@ -53,6 +55,7 @@ interface MapViewProps {
   location: ResolvedLocation | null;
   radius: RadiusOption;
   events: RiskEvent[];
+  baselineSignals: SupplementalRiskSignal[];
   weatherOverlay: NwsWeatherOverlay | null;
   showWeatherOverlay: boolean;
   weatherLayerMode: WeatherLayerMode;
@@ -683,6 +686,7 @@ export function MapView({
   location,
   radius,
   events,
+  baselineSignals,
   weatherOverlay,
   showWeatherOverlay,
   weatherLayerMode,
@@ -877,6 +881,7 @@ export function MapView({
           currentImpactOnly={currentImpactOnly}
           onEventClick={onEventClick}
         />
+        <SupplementalRiskMapLayers signals={baselineSignals} />
         <ClickSearchMarker
           point={pendingPoint}
           onClickPoint={handleClickPoint}
@@ -895,6 +900,7 @@ export function MapView({
         <MapLegend
           showWeatherOverlay={showWeatherOverlay}
           weatherLayerMode={weatherLayerMode}
+          showVolcanoBaseline={baselineSignals.length > 0}
         />
       </MapContainer>
       <MapControlPanel

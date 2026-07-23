@@ -58,6 +58,7 @@ function pointRadius(signal: SupplementalRiskSignal): number {
     return Math.max(8, Math.min(22, 8 + aqi / 25));
   }
   if (signal.source === "NHC") return 14;
+  if (signal.context === "baseline") return 7;
   return 8;
 }
 
@@ -74,26 +75,43 @@ function popupContent(
   signal: SupplementalRiskSignal,
   onSignalClick?: (signal: SupplementalRiskSignal) => void
 ): React.ReactNode {
+  const baseline = signal.context === "baseline";
   return (
     <>
       <strong>{signal.headline}</strong>
       <br />
+      {baseline && (
+        <>
+          <span style={baselineBadgeStyle}>Historical baseline · not an active alert</span>
+          <br />
+        </>
+      )}
       {signal.description}
       <br />
       <em style={{ fontSize: 11 }}>
-        {signal.source} · {signal.severity} · Updated {formatTime(signal.updatedAt)}
+        {baseline
+          ? "Smithsonian Global Volcanism Program reference record"
+          : `${signal.source} · ${signal.severity} · Updated ${formatTime(signal.updatedAt)}`}
       </em>
       {signal.metrics.length > 0 && (
         <>
           <br />
           <span style={{ fontSize: 11 }}>
             {signal.metrics
-              .slice(0, 3)
+              .slice(0, baseline ? 6 : 3)
               .map((metric) =>
                 `${metric.label}: ${metric.value}${metric.unit ? ` ${metric.unit}` : ""}`
               )
               .join(" · ")}
           </span>
+        </>
+      )}
+      {signal.url && (
+        <>
+          <br />
+          <a href={signal.url} target="_blank" rel="noreferrer" style={officialLinkStyle}>
+            Official source &rarr;
+          </a>
         </>
       )}
       {onSignalClick && (
@@ -116,6 +134,7 @@ export function SupplementalRiskMapLayers({
     <>
       {signals.map((signal) => {
         const color = sourceColor(signal.source);
+        const baseline = signal.context === "baseline";
         if (signal.geometry.type === "Point") {
           return (
             <CircleMarker
@@ -125,10 +144,15 @@ export function SupplementalRiskMapLayers({
               pathOptions={{
                 color,
                 fillColor: color,
-                fillOpacity: 0.65,
+                fillOpacity: baseline ? 0.12 : 0.65,
                 weight: 2,
+                dashArray: baseline ? "4 3" : undefined,
               }}
-              eventHandlers={accessiblePath(`${signal.headline}, ${signal.severity} ${signal.category}`)}
+              eventHandlers={accessiblePath(
+                baseline
+                  ? `${signal.headline}, historical volcano baseline, not an active alert`
+                  : `${signal.headline}, ${signal.severity} ${signal.category}`
+              )}
             >
               <Popup>{popupContent(signal, onSignalClick)}</Popup>
               <Tooltip direction="top" offset={[0, -8]}>
@@ -196,4 +220,23 @@ const detailLinkStyle: React.CSSProperties = {
   fontWeight: 600,
   cursor: "pointer",
   textDecoration: "underline",
+};
+
+const baselineBadgeStyle: React.CSSProperties = {
+  display: "inline-block",
+  margin: "5px 0",
+  padding: "2px 5px",
+  borderRadius: 4,
+  background: "#fff3e0",
+  color: "#a84300",
+  fontSize: 10,
+  fontWeight: 800,
+};
+
+const officialLinkStyle: React.CSSProperties = {
+  display: "inline-block",
+  marginTop: 6,
+  color: "#1565c0",
+  fontSize: 11,
+  fontWeight: 700,
 };

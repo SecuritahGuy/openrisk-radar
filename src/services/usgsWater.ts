@@ -3,6 +3,7 @@ import type { Severity } from "../types/riskEvent";
 import type { SupplementalRiskSignal, SupplementalMetric } from "../types/supplementalRisk";
 
 const WATER_API = "https://api.waterdata.usgs.gov/ogcapi/v0/collections";
+const MAX_OBSERVATION_AGE_MS = 6 * 60 * 60 * 1000;
 
 interface WaterDataFeature {
   type: "Feature";
@@ -95,6 +96,21 @@ function distanceKm(
   return earthKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function finiteReadingValue(reading: WaterDataFeature | undefined): number | null {
+  if (!reading) return null;
+  const value = Number(reading.properties.value);
+  return Number.isFinite(value) ? value : null;
+}
+
+function readingIsCurrent(reading: WaterDataFeature, nowMs: number): boolean {
+  const observedAt = Date.parse(reading.properties.time);
+  return (
+    Number.isFinite(observedAt) &&
+    observedAt <= nowMs + 5 * 60_000 &&
+    nowMs - observedAt <= MAX_OBSERVATION_AGE_MS
+  );
+}
+
 async function fetchLatestReadings(siteId: string): Promise<WaterDataFeature[]> {
   const url = `${WATER_API}/latest-continuous/items?monitoring_location_id=${encodeURIComponent(siteId)}&limit=10`;
   const res = await fetch(url);
@@ -134,7 +150,9 @@ export async function fetchRiverConditions(
 ): Promise<SupplementalRiskSignal[]> {
   const locations = await fetchNearbyMonitoringLocations(lat, lng, radiusKm);
   const streamSites = locations.filter(
-    (f) => f.properties.site_type_code === "ST" || f.properties.site_type_code === "ST-CA"
+    (f) =>
+      (f.properties.site_type_code === "ST" || f.properties.site_type_code === "ST-CA") &&
+      distanceKm(lat, lng, f) <= radiusKm
   ).sort((a, b) => distanceKm(lat, lng, a) - distanceKm(lat, lng, b));
 
   if (streamSites.length === 0) return [];
@@ -151,7 +169,9 @@ export async function fetchRiverConditions(
   results.forEach((result) => {
     if (result.status !== "fulfilled") return;
 
-    const { site, readings } = result.value;
+    const { site, readings: fetchedReadings } = result.value;
+    const nowMs = Date.now();
+    const readings = fetchedReadings.filter((reading) => readingIsCurrent(reading, nowMs));
     if (readings.length === 0) return;
 
     const info = site.properties;
@@ -161,11 +181,12 @@ export async function fetchRiverConditions(
     const gaugeHeight = readings.find((r) => r.properties.parameter_code === "00065");
     const waterTemp = readings.find((r) => r.properties.parameter_code === "00010");
 
-    const dischargeVal = discharge ? parseFloat(discharge.properties.value) : null;
-    const heightVal = gaugeHeight ? parseFloat(gaugeHeight.properties.value) : null;
-    const tempVal = waterTemp ? parseFloat(waterTemp.properties.value) : null;
+    const dischargeVal = finiteReadingValue(discharge);
+    const heightVal = finiteReadingValue(gaugeHeight);
+    const tempVal = finiteReadingValue(waterTemp);
+    if (dischargeVal == null && heightVal == null && tempVal == null) return;
 
-    const sev = dischargeVal ? dischargeSeverity(dischargeVal) : "Minor";
+    const sev = dischargeVal != null ? dischargeSeverity(dischargeVal) : "Minor";
 
     const metrics: SupplementalMetric[] = [];
     if (dischargeVal != null) {

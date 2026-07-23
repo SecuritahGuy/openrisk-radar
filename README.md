@@ -80,6 +80,7 @@ OpenRisk Radar brings authoritative feeds into a single geospatial workflow. It 
 - Real-time source adapters for official government and public hazard feeds.
 - Automatic GeoNet earthquake and elevated volcanic-alert coverage for resolved New Zealand locations.
 - Automatic DWD official warning coverage for resolved German locations, filtered to the selected radius.
+- Nearby Smithsonian GVP volcano records shown as historical baseline context without affecting current risk or notifications.
 - Recent WHO Disease Outbreak News scoped by outbreak-title country; reports affect local posture only when they also name the searched state, county, or city.
 - Normalized `RiskEvent` model for source, category, severity, timing, geometry, confidence, and attribution.
 - Severity and impact classification for quick triage.
@@ -92,7 +93,7 @@ OpenRisk Radar brings authoritative feeds into a single geospatial workflow. It 
 
 ## Live Data Sources
 
-This table reflects the current codebase. "Main dashboard" means the source is fetched through `useRiskFeeds` and appears in the map/feed path.
+This table reflects the current codebase. "Main dashboard" means the source is fetched through `useRiskFeeds` and appears in the active map/feed path; baseline-only sources are labeled separately.
 
 | Source | Coverage | Signals | Current status | Implementation |
 |--------|----------|---------|----------------|----------------|
@@ -110,6 +111,7 @@ This table reflects the current codebase. "Main dashboard" means the source is f
 | National Hurricane Center (NHC) | Atlantic and Eastern/Central Pacific | Active tropical cyclones | Main dashboard when active/in range | `src/services/nhc.ts` |
 | Global Disaster Alert and Coordination System (GDACS) | Global | Earthquakes, tropical cyclones, floods, volcanoes, wildfires, droughts | Main dashboard | `src/services/gdacs.ts` |
 | NASA EONET | Global | Earth observation natural events | Main dashboard | `src/services/eonet.ts` |
+| Smithsonian Global Volcanism Program | Global | Holocene volcano locations, geology, and eruption history | Nearby map and baseline context only; excluded from current risk and notifications | `src/services/gvp.ts` |
 | Open-Meteo | Global | Weather fallback, air quality, marine conditions | Current conditions fallback and environmental signals panel | `src/services/openMeteo.ts` |
 | Nominatim / OpenStreetMap | Global | Geocoding and reverse geocoding | Location resolution fallback | `src/services/nominatim.ts` |
 | Local lookup tables | United States | ZIP/city/state/county/FIPS lookup | Fast location resolution | `src/data/` |

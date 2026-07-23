@@ -228,6 +228,7 @@ export default function App() {
     currentWeather,
     femaRiskIndex,
     supplementalSignals,
+    baselineSignals,
     sourceHealth,
     allEvents,
     error: feedError,
@@ -705,6 +706,7 @@ export default function App() {
             location={result}
             radius={radius}
             events={filteredEvents}
+            baselineSignals={baselineSignals}
             weatherOverlay={weatherOverlay}
             showWeatherOverlay={showWeatherOverlay}
             weatherLayerMode={weatherLayerMode}
@@ -760,6 +762,7 @@ export default function App() {
         currentWeather={currentWeather}
         femaRiskIndex={femaRiskIndex}
         supplementalSignals={supplementalSignals}
+        baselineSignals={baselineSignals}
         sourceHealth={sourceHealth}
         weatherOverlay={weatherOverlay}
         showWeatherOverlay={showWeatherOverlay}

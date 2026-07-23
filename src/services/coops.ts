@@ -4,6 +4,7 @@ import type { SupplementalMetric, SupplementalRiskSignal } from "../types/supple
 
 const METADATA_BASE = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi";
 const DATA_BASE = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter";
+const MAX_OBSERVATION_AGE_MS = 6 * 60 * 60 * 1000;
 
 interface CoopsStation {
   id: string;
@@ -41,8 +42,18 @@ let stationCache: CoopsStation[] | null = null;
 
 function parseNoaaTime(value: string): string {
   const [date, time] = value.split(" ");
-  if (!date || !time) return new Date().toISOString();
-  return new Date(`${date}T${time}:00Z`).toISOString();
+  if (!date || !time) return "";
+  const parsed = new Date(`${date}T${time}:00Z`);
+  return Number.isFinite(parsed.getTime()) ? parsed.toISOString() : "";
+}
+
+function observationIsCurrent(value: string, nowMs: number): boolean {
+  const observedAt = Date.parse(value);
+  return (
+    Number.isFinite(observedAt) &&
+    observedAt <= nowMs + 5 * 60_000 &&
+    nowMs - observedAt <= MAX_OBSERVATION_AGE_MS
+  );
 }
 
 function stationPoint(station: CoopsStation): { latitude: number; longitude: number } {
@@ -114,20 +125,27 @@ export async function fetchCoopsWaterLevels(
   limit = 5
 ): Promise<SupplementalRiskSignal[]> {
   const stations = await fetchCoopsNearestStations(latitude, longitude, radiusKm, limit);
-  const observations = await Promise.all(
+  const observations = await Promise.allSettled(
     stations.map(async (station) => ({
       station,
       observation: await fetchLatestWaterLevel(station),
     }))
   );
 
-  return observations.flatMap(({ station, observation }) => {
+  return observations.flatMap((result) => {
+    if (result.status !== "fulfilled") return [];
+    const { station, observation } = result.value;
     const latest = observation?.data?.[0];
     if (!latest) return [];
 
     const waterLevel = Number(latest.v);
     const sigma = latest.s != null ? Number(latest.s) : null;
     const updatedAt = parseNoaaTime(latest.t);
+    if (
+      !Number.isFinite(waterLevel) ||
+      !updatedAt ||
+      !observationIsCurrent(updatedAt, Date.now())
+    ) return [];
     const metrics: SupplementalMetric[] = [
       { label: "Water level", value: waterLevel, unit: "ft MLLW" },
       ...(sigma != null && Number.isFinite(sigma)

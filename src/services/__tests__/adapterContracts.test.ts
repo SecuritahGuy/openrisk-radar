@@ -356,7 +356,12 @@ describe("authoritative adapter contracts", () => {
       }
       return jsonResponse({
         metadata: { id: "9087044", name: "Calumet Harbor", lat: "41.73", lon: "-87.54" },
-        data: [{ t: "2026-07-21 12:00", v: "1.25", s: "0.05", q: "v" }],
+        data: [{
+          t: new Date().toISOString().slice(0, 16).replace("T", " "),
+          v: "1.25",
+          s: "0.05",
+          q: "v",
+        }],
       });
     });
 
@@ -403,7 +408,7 @@ describe("authoritative adapter contracts", () => {
               monitoring_location_id: "USGS-05500000",
               parameter_code: "00060",
               value: "60000",
-              time: "2026-07-21T12:00:00Z",
+              time: new Date().toISOString(),
               unit_of_measure: "ft3/s",
               approval_status: "Approved",
             },

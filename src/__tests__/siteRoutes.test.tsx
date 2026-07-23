@@ -1,6 +1,12 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { HomePage } from "../pages/HomePage";
+import {
+  AboutPage,
+  DataSourcesPage,
+  MethodologyPage,
+  PrivacyPage,
+} from "../pages/InformationPages";
 import { LearnIndexPage } from "../pages/LearnPages";
 import { isAdEligibleRoute } from "../config/advertising";
 import { learnArticles } from "../data/learnArticles";
@@ -24,6 +30,22 @@ describe("public site routes", () => {
     expect(html).toContain('href="/methodology"');
     expect(html).toContain('href="/learn"');
     expect(html).toContain("Open Live Radar");
+    expect(html).toContain("optional background monitoring");
+  });
+
+  it("keeps public monitoring descriptions aligned with production behavior", () => {
+    const methodology = renderToStaticMarkup(<MethodologyPage />);
+    const privacy = renderToStaticMarkup(<PrivacyPage />);
+    const about = renderToStaticMarkup(<AboutPage />);
+    const sources = renderToStaticMarkup(<DataSourcesPage />);
+
+    expect(methodology).toContain("each location evaluated in a separate queued Worker invocation");
+    expect(methodology).toContain("NWS, USGS, NIFC, NHC, JMA, GDACS, and NASA EONET");
+    expect(methodology).toContain("They do not enter the active feed, risk posture, incident correlation, or background notifications");
+    expect(privacy).toContain("Last reviewed July 23, 2026");
+    expect(privacy).toContain("routinely removed after 30 days");
+    expect(about).toContain("explicitly enable background monitoring");
+    expect(sources).toContain("aggregate active-storm forecast-point layer");
   });
 
   it("renders all learning articles in the learning center", () => {
