@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Cloudflare watch-audit subrequest isolation
+
+- Replaced 15 per-slot NHC forecast-point requests with NOAA's aggregate tropical forecast layer, reducing each NHC refresh from 16 upstream requests to 2 including the outlook feed.
+- Changed scheduled watch audits from a 24-location fan-out inside one Worker invocation to one queue message and one fresh Worker invocation per watched location.
+- Added retry-safe D1 audit-job tracking, run-result accounting, removed-watch handling, and terminal failure recording while retaining the existing 24-watch scheduling capacity.
+- Limited queue consumer batches to one message so watch audits and push deliveries cannot share a single invocation's external subrequest allowance.
+- Added regressions for the NHC request budget and one-message-per-watch queue dispatch.
+
 ### Local public-health risk scoping
 
 - Tightened WHO Disease Outbreak News matching to use the outbreak geography in the report title, preventing an incidental patient-nationality mention from importing a foreign outbreak into a US location.

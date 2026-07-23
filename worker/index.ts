@@ -9,13 +9,21 @@ import { onRequestGet as traffic } from "../functions/api/traffic";
 import { onRequestGet as emsc } from "../functions/api/emsc";
 import { jsonError } from "../functions/_shared/proxy";
 import type { D1Database } from "./d1";
-import { deliverPushMessage, markPushDeliveryExhausted, type PushDeliveryEnv, type PushQueueMessage } from "./pushDelivery";
-import { runWatchAudit } from "./watchEvaluator";
+import { deliverPushMessage, markPushDeliveryExhausted, type PushDeliveryEnv } from "./pushDelivery";
+import {
+  markQueuedWatchAuditExhausted,
+  processQueuedWatchAudit,
+  scheduleWatchAudit,
+} from "./watchEvaluator";
 import { readWatchAuditOperations } from "./watchOperations";
 import { handleWatchRequest } from "./watchRegistry";
 import { handleWatchPushRequest, type PushQueueBinding } from "./watchPush";
 import { normalizeCanaryPercent } from "./watchAutomation";
 import { LOCATION_WATCH_AUDIT_SOURCES } from "../src/services/locationEventFeeds";
+import {
+  isWatchAuditQueueMessage,
+  type WorkerQueueMessage,
+} from "./queueMessages";
 
 interface Env extends PushDeliveryEnv {
   ASSETS: { fetch(request: Request): Promise<Response> };
@@ -167,18 +175,16 @@ export default {
   },
 
   async scheduled(_controller: unknown, env: Env): Promise<void> {
-    if (!env.DB) {
-      console.warn(JSON.stringify({ type: "watch_audit_skipped", reason: "D1 binding unavailable" }));
+    if (!env.DB || !env.PUSH_QUEUE) {
+      console.warn(JSON.stringify({
+        type: "watch_audit_skipped",
+        reason: !env.DB ? "D1 binding unavailable" : "Queue binding unavailable",
+      }));
       return;
     }
     try {
-      const result = await runWatchAudit(env.DB, {
-        enabled: env.AUTOMATED_PUSH_ENABLED === "true",
-        canaryPercent: normalizeCanaryPercent(env.AUTOMATED_PUSH_CANARY_PERCENT),
-        configured: pushConfigured(env),
-        queue: env.PUSH_QUEUE,
-      });
-      console.log(JSON.stringify({ type: "watch_audit_complete", ...result }));
+      const result = await scheduleWatchAudit(env.DB, env.PUSH_QUEUE);
+      console.log(JSON.stringify({ type: "watch_audit_queued", ...result }));
       const operations = await readWatchAuditOperations(env.DB);
       if (operations.health !== "operational") {
         console.warn(JSON.stringify({
@@ -199,8 +205,41 @@ export default {
     }
   },
 
-  async queue(batch: QueueBatch<PushQueueMessage>, env: Env): Promise<void> {
+  async queue(batch: QueueBatch<WorkerQueueMessage>, env: Env): Promise<void> {
     for (const message of batch.messages) {
+      if (isWatchAuditQueueMessage(message.body)) {
+        try {
+          if (!env.DB) throw new Error("D1 binding unavailable");
+          const status = await processQueuedWatchAudit(env.DB, message.body.watchAuditJobId, {
+            enabled: env.AUTOMATED_PUSH_ENABLED === "true",
+            canaryPercent: normalizeCanaryPercent(env.AUTOMATED_PUSH_CANARY_PERCENT),
+            configured: pushConfigured(env),
+            queue: env.PUSH_QUEUE,
+          });
+          console.log(JSON.stringify({
+            type: "watch_audit_job_complete",
+            jobId: message.body.watchAuditJobId,
+            status: status ?? "already_completed",
+          }));
+          message.ack();
+        } catch (error) {
+          console.error(JSON.stringify({
+            type: "watch_audit_job_retry",
+            jobId: message.body.watchAuditJobId,
+            message: error instanceof Error ? error.message : "Unknown watch audit error",
+          }));
+          if ((message.attempts ?? 1) >= 4) {
+            await markQueuedWatchAuditExhausted(
+              env.DB,
+              message.body.watchAuditJobId,
+              error
+            );
+          }
+          message.retry({ delaySeconds: 60 });
+        }
+        continue;
+      }
+
       try {
         await deliverPushMessage(env, message.body.deliveryId);
         message.ack();

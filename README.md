@@ -84,6 +84,7 @@ OpenRisk Radar brings authoritative feeds into a single geospatial workflow. It 
 - Feed explorer with sorting by priority, source, category, severity, impact, distance, expiration, and update time.
 - Source and severity filters for operational focus.
 - Source-health reporting distinguishes usable cached data from hard feed failures, and time-sensitive sources use explicit freshness windows.
+- Cloud watch audits isolate each location in its own queue invocation so provider fan-out remains within Cloudflare's per-invocation subrequest budget.
 - Saved locations stored locally in browser IndexedDB through Dexie.
 - Static browser-first architecture suitable for Cloudflare Pages or similar static hosting.
 

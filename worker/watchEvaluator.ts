@@ -8,6 +8,7 @@ import {
 } from "../src/services/locationEventFeeds";
 import type { ResolvedLocation, WatchPreferences } from "../src/types/location";
 import type { D1Database } from "./d1";
+import type { WatchAuditQueueMessage, WorkerQueueBinding } from "./queueMessages";
 import {
   queueAutomatedPush,
   type AutomatedPushOptions,
@@ -21,7 +22,6 @@ import {
 } from "./watchDomain";
 
 const AUDIT_BATCH_SIZE = 24;
-const AUDIT_CONCURRENCY = 3;
 const AUDIT_RETENTION_DAYS = 30;
 const AUDIT_LEASE_MINUTES = 20;
 
@@ -41,10 +41,21 @@ type WatchEvaluationStatus = "processed" | "degraded" | "failed";
 export interface WatchAuditResult {
   runId: string;
   selected: number;
-  processed: number;
-  degraded: number;
-  failed: number;
+  queued: number;
   durationMs: number;
+}
+
+interface QueuedWatchRow {
+  run_id: string;
+  job_status: "queued" | "completed";
+  id: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  radius_miles: number | null;
+  location_json: string | null;
+  preferences_json: string | null;
+  timezone: string | null;
+  last_incident_fingerprint: string | null;
 }
 
 export interface AuditSourceCoverage {
@@ -224,29 +235,6 @@ async function evaluateWatch(
   return coverage.warning ? "degraded" : "processed";
 }
 
-export async function mapWithConcurrency<T, R>(
-  values: T[],
-  concurrency: number,
-  operation: (value: T, index: number) => Promise<R>
-): Promise<R[]> {
-  if (!Number.isInteger(concurrency) || concurrency < 1) {
-    throw new Error("Concurrency must be a positive integer");
-  }
-  const results = new Array<R>(values.length);
-  let nextIndex = 0;
-  const worker = async () => {
-    while (nextIndex < values.length) {
-      const index = nextIndex;
-      nextIndex += 1;
-      results[index] = await operation(values[index], index);
-    }
-  };
-  await Promise.all(
-    Array.from({ length: Math.min(concurrency, values.length) }, () => worker())
-  );
-  return results;
-}
-
 async function recordRunFailure(
   db: D1Database,
   runId: string,
@@ -263,17 +251,126 @@ async function recordRunFailure(
   }
 }
 
-export async function runWatchAudit(
+function requireBatch(db: D1Database) {
+  if (!db.batch) throw new Error("D1 batch support is required for queued watch audits");
+  return db.batch.bind(db);
+}
+
+async function completeAuditJob(
   db: D1Database,
-  automatedPush: AutomatedPushOptions = {
-    enabled: false,
-    canaryPercent: 0,
-    configured: false,
+  jobId: string,
+  status: WatchEvaluationStatus,
+  error: string | null = null
+): Promise<void> {
+  const batch = requireBatch(db);
+  const now = new Date().toISOString();
+  const processed = status === "processed" ? 1 : 0;
+  const degraded = status === "degraded" ? 1 : 0;
+  const failed = status === "failed" ? 1 : 0;
+  await batch([
+    db.prepare(`
+      UPDATE watch_audit_runs SET
+        processed_count = processed_count + ?1,
+        degraded_count = degraded_count + ?2,
+        failed_count = failed_count + ?3,
+        status = CASE
+          WHEN processed_count + degraded_count + failed_count + 1 >= selected_count
+            THEN 'completed'
+          ELSE status
+        END,
+        completed_at = CASE
+          WHEN processed_count + degraded_count + failed_count + 1 >= selected_count
+            THEN ?4
+          ELSE completed_at
+        END,
+        duration_ms = CASE
+          WHEN processed_count + degraded_count + failed_count + 1 >= selected_count
+            THEN CAST((julianday(?4) - julianday(started_at)) * 86400000 AS INTEGER)
+          ELSE duration_ms
+        END
+      WHERE status = 'running' AND id = (
+        SELECT run_id FROM watch_audit_jobs WHERE id = ?5 AND status = 'queued'
+      )
+    `).bind(processed, degraded, failed, now, jobId),
+    db.prepare(`
+      UPDATE watch_audit_jobs SET status = 'completed', result_status = ?1,
+        completed_at = ?2, error = ?3 WHERE id = ?4 AND status = 'queued'
+    `).bind(status, now, error?.slice(0, 500) ?? null, jobId),
+  ]);
+}
+
+export async function processQueuedWatchAudit(
+  db: D1Database,
+  jobId: string,
+  automatedPush: AutomatedPushOptions
+): Promise<WatchEvaluationStatus | null> {
+  const row = await db.prepare(`
+    SELECT j.run_id, j.status AS job_status,
+      w.id, w.latitude, w.longitude, w.radius_miles, w.location_json,
+      w.preferences_json, w.timezone, w.last_incident_fingerprint
+    FROM watch_audit_jobs j
+    LEFT JOIN watches w ON w.id = j.watch_id
+    WHERE j.id = ?1
+  `).bind(jobId).first<QueuedWatchRow>();
+  if (!row || row.job_status === "completed") return null;
+  if (
+    !row.id ||
+    row.latitude == null ||
+    row.longitude == null ||
+    row.radius_miles == null ||
+    row.location_json == null ||
+    row.preferences_json == null ||
+    row.timezone == null
+  ) {
+    await completeAuditJob(db, jobId, "failed", "Watch was removed before its audit ran");
+    return "failed";
   }
+  const status = await evaluateWatch(db, row as DueWatchRow, automatedPush);
+  await completeAuditJob(db, jobId, status);
+  return status;
+}
+
+export async function markQueuedWatchAuditExhausted(
+  db: D1Database | undefined,
+  jobId: string,
+  error: unknown
+): Promise<void> {
+  if (!db) return;
+  const detail = error instanceof Error ? error.message : "Watch audit retries were exhausted";
+  const row = await db.prepare(`
+    SELECT w.id, w.latitude, w.longitude, w.radius_miles, w.location_json,
+      w.preferences_json, w.timezone, w.last_incident_fingerprint
+    FROM watch_audit_jobs j
+    JOIN watches w ON w.id = j.watch_id
+    WHERE j.id = ?1 AND j.status = 'queued'
+  `).bind(jobId).first<DueWatchRow>();
+  if (row) {
+    try {
+      await writeAuditError(db, row, `Retries exhausted: ${detail}`, new Date().toISOString());
+    } catch {
+      // The job and run accounting still need to reach a terminal state.
+    }
+  }
+  await completeAuditJob(db, jobId, "failed", `Retries exhausted: ${detail}`);
+}
+
+async function cleanupAuditHistory(db: D1Database, startedMs: number): Promise<void> {
+  const cutoff = new Date(startedMs - AUDIT_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  await db.prepare("DELETE FROM watch_audit_events WHERE created_at < ?1").bind(cutoff).run();
+  await db.prepare("DELETE FROM watches WHERE status = 'expired' AND updated_at < ?1").bind(cutoff).run();
+  await db.prepare("DELETE FROM watch_audit_jobs WHERE completed_at < ?1").bind(cutoff).run();
+  await db.prepare("DELETE FROM watch_audit_runs WHERE started_at < ?1").bind(cutoff).run();
+}
+
+export async function scheduleWatchAudit(
+  db: D1Database,
+  queue: WorkerQueueBinding
 ): Promise<WatchAuditResult> {
   const startedMs = Date.now();
   const now = new Date(startedMs).toISOString();
   const runId = crypto.randomUUID();
+  const batch = requireBatch(db);
+  let jobs: Array<{ id: string; watchId: string }> = [];
   try {
     await db.prepare(`
       INSERT INTO watch_audit_runs (id, status, started_at)
@@ -294,55 +391,70 @@ export async function runWatchAudit(
       LIMIT ?2
     `).bind(now, AUDIT_BATCH_SIZE).all<DueWatchRow>();
     const rows = due.results ?? [];
-    const leaseUntil = new Date(startedMs + AUDIT_LEASE_MINUTES * 60 * 1000).toISOString();
-    for (const row of rows) {
+    if (rows.length === 0) {
       await db.prepare(`
-        UPDATE watches SET next_check_at = ?1 WHERE id = ?2 AND next_check_at <= ?3
-      `).bind(leaseUntil, row.id, now).run();
+        UPDATE watch_audit_runs SET status = 'completed', completed_at = ?1,
+          duration_ms = ?2 WHERE id = ?3
+      `).bind(new Date().toISOString(), Date.now() - startedMs, runId).run();
+      await cleanupAuditHistory(db, startedMs);
+      return { runId, selected: 0, queued: 0, durationMs: Date.now() - startedMs };
     }
 
-    const statuses = await mapWithConcurrency(rows, AUDIT_CONCURRENCY, async (row) => {
-      try {
-        return await evaluateWatch(db, row, automatedPush);
-      } catch (error) {
-        const detail = error instanceof Error ? error.message : "Unexpected watch evaluation error";
-        try {
-          await writeAuditError(db, row, detail, new Date().toISOString());
-        } catch {
-          // The run-level failure count still exposes an isolated row failure.
-        }
-        return "failed" as const;
-      }
-    });
+    const leaseUntil = new Date(startedMs + AUDIT_LEASE_MINUTES * 60 * 1000).toISOString();
+    jobs = rows.map((row) => ({
+      id: crypto.randomUUID(),
+      watchId: row.id,
+    }));
+    await batch(jobs.flatMap((job) => [
+      db.prepare(`
+        UPDATE watches SET next_check_at = ?1 WHERE id = ?2 AND next_check_at <= ?3
+      `).bind(leaseUntil, job.watchId, now),
+      db.prepare(`
+        INSERT INTO watch_audit_jobs (id, run_id, watch_id, status, created_at)
+        VALUES (?1, ?2, ?3, 'queued', ?4)
+      `).bind(job.id, runId, job.watchId, now),
+    ]));
+    await db.prepare(`
+      UPDATE watch_audit_runs SET selected_count = ?1 WHERE id = ?2
+    `).bind(jobs.length, runId).run();
 
-    await db.prepare("DELETE FROM watch_audit_events WHERE created_at < ?1").bind(
-      new Date(startedMs - AUDIT_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString()
-    ).run();
-    await db.prepare("DELETE FROM watches WHERE status = 'expired' AND updated_at < ?1").bind(
-      new Date(startedMs - AUDIT_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString()
-    ).run();
+    await cleanupAuditHistory(db, startedMs);
+
+    const messages: WatchAuditQueueMessage[] = jobs.map((job) => ({
+      watchAuditJobId: job.id,
+    }));
+    if (queue.sendBatch) {
+      await queue.sendBatch(messages.map((body) => ({ body })));
+    } else {
+      for (const message of messages) await queue.send(message);
+    }
+
     const result: WatchAuditResult = {
       runId,
       selected: rows.length,
-      processed: statuses.filter((status) => status === "processed").length,
-      degraded: statuses.filter((status) => status === "degraded").length,
-      failed: statuses.filter((status) => status === "failed").length,
+      queued: messages.length,
       durationMs: Date.now() - startedMs,
     };
-    await db.prepare(`
-      UPDATE watch_audit_runs SET status = 'completed', completed_at = ?1,
-        selected_count = ?2, processed_count = ?3, degraded_count = ?4,
-        failed_count = ?5, duration_ms = ?6 WHERE id = ?7
-    `).bind(
-      new Date().toISOString(), result.selected, result.processed, result.degraded,
-      result.failed, result.durationMs, runId
-    ).run();
-    await db.prepare("DELETE FROM watch_audit_runs WHERE started_at < ?1").bind(
-      new Date(startedMs - AUDIT_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString()
-    ).run();
     return result;
   } catch (error) {
     const detail = error instanceof Error ? error.message : "Unknown audit error";
+    if (jobs.length > 0) {
+      try {
+        await batch([
+          ...jobs.map((job) =>
+            db.prepare(`
+              UPDATE watches SET next_check_at = ?1 WHERE id = ?2
+                AND next_check_at > ?1
+            `).bind(now, job.watchId)
+          ),
+          ...jobs.map((job) =>
+            db.prepare("DELETE FROM watch_audit_jobs WHERE id = ?1").bind(job.id)
+          ),
+        ]);
+      } catch {
+        // Preserve the original queueing failure.
+      }
+    }
     await recordRunFailure(db, runId, detail, startedMs);
     throw error;
   }
