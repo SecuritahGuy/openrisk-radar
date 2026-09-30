@@ -670,6 +670,14 @@ export default function App() {
           isFetching={isFetching}
           radius={radius}
         />
+        {result && (
+          <nav className="dashboard-section-nav" aria-label="Dashboard sections">
+            <a href="#dashboard-summary">Summary</a>
+            <a href="#dashboard-map">Map</a>
+            <a href="#dashboard-feed">Feed</a>
+            <a href="#dashboard-details">Details</a>
+          </nav>
+        )}
         {!result && (
           <FirstRunPanel
             loading={loading}
@@ -698,56 +706,63 @@ export default function App() {
           onSelect={handleSelectSaved}
           onShareActiveView={handleShareView}
         />
-        <RiskCommandBar
-          location={result}
-          radius={radius}
-          events={incidentEvents}
-          currentWeather={currentWeather}
-          currentImpactOnly={currentImpactOnly}
-          onToggleCurrentImpact={setCurrentImpactOnly}
-          onEventClick={handleSelectEvent}
-        />
-        <Suspense fallback={<div className="map-loading" aria-live="polite">Loading map…</div>}>
-          <MapView
+        <section id="dashboard-summary" className="dashboard-anchor-target">
+          <RiskCommandBar
             location={result}
             radius={radius}
-            events={showHistoricalMapContext ? filteredAllEvents : filteredConcernEvents}
-            baselineSignals={showHistoricalMapContext ? baselineSignals : []}
-            exposureSignals={showExposureOnMap ? exposure.data?.facilities ?? [] : []}
-            weatherOverlay={weatherOverlay}
-            showWeatherOverlay={showWeatherOverlay}
-            weatherLayerMode={weatherLayerMode}
-            weatherOverlayLoading={weatherOverlayLoading}
-            weatherOverlayError={weatherOverlayError}
-            sourceFilters={sourceFilters}
-            severityFilters={severityFilters}
+            events={incidentEvents}
+            currentWeather={currentWeather}
             currentImpactOnly={currentImpactOnly}
-            onToggleSource={handleToggleSource}
-            onToggleSeverity={handleToggleSeverity}
-            onResetSourceFilters={handleResetSourceFilters}
-            onResetSeverityFilters={handleResetSeverityFilters}
-            onToggleWeatherOverlay={setShowWeatherOverlay}
-            onWeatherLayerModeChange={setWeatherLayerMode}
-            onRadiusChange={handleRadiusChange}
-            onSearchMapArea={searchCoordinates}
-            mapSearchLoading={loading}
+            onToggleCurrentImpact={setCurrentImpactOnly}
             onEventClick={handleSelectEvent}
           />
-        </Suspense>
-        <FeedExplorer
-          events={filteredConcernEvents}
-          allEvents={filteredAllEvents}
-          totalEvents={allConcernEvents.length}
-          totalAllEvents={incidentEvents.length}
-          location={result}
-          radius={radius}
-          isFetching={isFetching}
-          collapsed={feedExplorerCollapsed}
-          onCollapsedChange={setFeedExplorerCollapsed}
-          onEventClick={handleSelectEvent}
-        />
+        </section>
+        <section id="dashboard-map" className="dashboard-anchor-target dashboard-map-anchor">
+          <Suspense fallback={<div className="map-loading" aria-live="polite">Loading map…</div>}>
+            <MapView
+              location={result}
+              radius={radius}
+              events={showHistoricalMapContext ? filteredAllEvents : filteredConcernEvents}
+              baselineSignals={showHistoricalMapContext ? baselineSignals : []}
+              exposureSignals={showExposureOnMap ? exposure.data?.facilities ?? [] : []}
+              weatherOverlay={weatherOverlay}
+              showWeatherOverlay={showWeatherOverlay}
+              weatherLayerMode={weatherLayerMode}
+              weatherOverlayLoading={weatherOverlayLoading}
+              weatherOverlayError={weatherOverlayError}
+              sourceFilters={sourceFilters}
+              severityFilters={severityFilters}
+              currentImpactOnly={currentImpactOnly}
+              onToggleSource={handleToggleSource}
+              onToggleSeverity={handleToggleSeverity}
+              onResetSourceFilters={handleResetSourceFilters}
+              onResetSeverityFilters={handleResetSeverityFilters}
+              onToggleWeatherOverlay={setShowWeatherOverlay}
+              onWeatherLayerModeChange={setWeatherLayerMode}
+              onRadiusChange={handleRadiusChange}
+              onSearchMapArea={searchCoordinates}
+              mapSearchLoading={loading}
+              onEventClick={handleSelectEvent}
+            />
+          </Suspense>
+        </section>
+        <section id="dashboard-feed" className="dashboard-anchor-target">
+          <FeedExplorer
+            events={filteredConcernEvents}
+            allEvents={filteredAllEvents}
+            totalEvents={allConcernEvents.length}
+            totalAllEvents={incidentEvents.length}
+            location={result}
+            radius={radius}
+            isFetching={isFetching}
+            collapsed={feedExplorerCollapsed}
+            onCollapsedChange={setFeedExplorerCollapsed}
+            onEventClick={handleSelectEvent}
+          />
+        </section>
       </div>
-      <UpdatePanel
+      <section id="dashboard-details" className="dashboard-anchor-target dashboard-details-anchor">
+        <UpdatePanel
         location={result}
         radius={radius}
         onRadiusChange={handleRadiusChange}
@@ -825,7 +840,8 @@ export default function App() {
         }}
         isSaving={isSaving}
         onEventClick={handleSelectEvent}
-      />
+        />
+      </section>
       {selectedEvent && (
         <EventDetailPanel
           event={selectedEvent}

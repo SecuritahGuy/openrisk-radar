@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/prerender-seo.mjs",
     "deploy": "npm run build && wrangler deploy",
     "lint": "eslint .",
     "worker:check": "wrangler deploy --dry-run --outdir .wrangler/tmp/worker",

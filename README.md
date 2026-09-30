@@ -182,7 +182,7 @@ Production app: [https://openriskradar.com](https://openriskradar.com)
 - `/data-sources` and `/methodology` document providers and processing.
 - `/about`, `/privacy`, `/terms`, and `/contact` provide project and policy information.
 
-Cloudflare's static-asset SPA fallback serves `index.html` for direct route requests, while Worker execution remains limited to `/api/*`. The service worker treats `/app` as the installable application shell and does not replace uncached public pages with the dashboard when offline. See [docs/site-architecture.md](docs/site-architecture.md) and [docs/cloudflare-pages.md](docs/cloudflare-pages.md).
+The build emits route-specific static HTML metadata for public pages and learning articles; Cloudflare serves those files directly and uses the SPA fallback for unknown routes. `wrangler.jsonc` drops trailing slashes to match the site's canonical URLs, while Worker execution remains limited to `/api/*`. The service worker treats `/app` as the installable application shell and does not replace uncached public pages with the dashboard when offline. See [docs/site-architecture.md](docs/site-architecture.md) and [docs/cloudflare-pages.md](docs/cloudflare-pages.md).
 
 Learning articles live in `src/data/learnArticles.ts`. Add metadata, original sections, authoritative source links, and a route entry in `src/routes.ts`, then add the canonical URL to `public/sitemap.xml`. Data-source cards are maintained in `src/data/dataSources.ts`; verify them against service adapters, provider documentation, and actual React Query cache settings.
 

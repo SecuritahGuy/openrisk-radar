@@ -51,10 +51,11 @@ describe("public site routes", () => {
 
   it("renders all learning articles in the learning center", () => {
     const html = renderToStaticMarkup(<LearnIndexPage />);
-    expect(learnArticles).toHaveLength(6);
+    expect(learnArticles).toHaveLength(LEARN_ARTICLE_PATHS.length);
     for (const article of learnArticles) {
       expect(article.reviewedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(article.sources.length).toBeGreaterThan(0);
+      expect(LEARN_ARTICLE_PATHS).toContain(`/learn/${article.slug}`);
       expect(html).toContain(`/learn/${article.slug}`);
     }
   });

@@ -148,6 +148,9 @@ export function SignalSummaryPanel({
           Current signals
           {isFetching && <span style={styles.spinner}> &#8987;</span>}
         </div>
+        <div style={styles.scopeNote}>
+          Alerts, outlooks, reports, and monitored activity. A current record does not necessarily mean local impact.
+        </div>
         <SignalLine active={currentWeatherAlerts.length > 0} color="#f57c00">
           {currentWeatherAlerts.length > 0
             ? `${currentWeatherAlerts.length} active weather alert${currentWeatherAlerts.length !== 1 ? "s" : ""} nearby`
@@ -228,6 +231,9 @@ export function SignalSummaryPanel({
       {supplementalSignals.length > 0 && (
         <div style={styles.section}>
           <div style={styles.label}>Environmental signals</div>
+          <div style={styles.scopeNote}>
+            Conditions and observations for context; some values are model estimates, not warnings.
+          </div>
           {airQualitySignals.map((signal) => (
             <SupplementalSignalLine key={signal.id} signal={signal} />
           ))}
@@ -304,6 +310,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 4,
   },
   detail: { fontSize: 13, color: "#616161", marginTop: 2 },
+  scopeNote: { color: "#607080", fontSize: 12, lineHeight: 1.4, marginBottom: 6 },
   signal: {
     fontSize: 13,
     color: "#616161",

@@ -196,6 +196,9 @@ export function RiskCommandBar({
         </div>
         <div style={{ ...styles.scoreValue, color }}>{summary.level}</div>
         <div style={styles.scoreDetail}>{summary.topDriver}</div>
+        <div style={styles.scoreScope}>
+          Active signals affecting or near here; not a probability. Open Explain for contributors.
+        </div>
         {showScoreDetails ? (
           <div id="risk-score-explanation" style={styles.scoreExplanation}>
             <div style={styles.scoreRule}>
@@ -246,7 +249,7 @@ export function RiskCommandBar({
           <span style={styles.metricValue}>
             {summary.criticalCount + summary.severeCount}
           </span>
-          <span style={styles.metricLabel}>High priority</span>
+          <span style={styles.metricLabel}>Severe or extreme</span>
         </div>
         <div style={styles.metric}>
           <span style={styles.metricValue}>{historySummary.historicalCount}</span>
@@ -433,6 +436,12 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
     color: "#616161",
     marginTop: 4,
+    lineHeight: 1.35,
+  },
+  scoreScope: {
+    marginTop: 5,
+    color: "#607080",
+    fontSize: 12,
     lineHeight: 1.35,
   },
   explainButton: {

@@ -1,5 +1,7 @@
 import { Breadcrumbs, Disclaimer, PageHero, SiteLayout } from "../components/site/SiteLayout";
 import { Seo } from "../components/site/Seo";
+
+const siteUrl = (import.meta.env.VITE_SITE_URL || "https://openriskradar.com").replace(/\/$/, "");
 import { learnArticleByPath, learnArticles, type LearnArticle } from "../data/learnArticles";
 import { Link } from "../router";
 
@@ -19,8 +21,8 @@ export function LearnArticlePage({ pathname }: { pathname: string }) {
   const article = learnArticleByPath.get(pathname);
   if (!article) return null;
   const structuredData = [
-    { "@context": "https://schema.org", "@type": "Article", headline: article.title, description: article.description, dateModified: article.reviewedAt, author: { "@type": "Organization", name: "OpenRisk Radar Editorial" }, publisher: { "@type": "Organization", name: "OpenRisk Radar" }, mainEntityOfPage: `https://openriskradar.com${pathname}` },
-    { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: "https://openriskradar.com/" }, { "@type": "ListItem", position: 2, name: "Learn", item: "https://openriskradar.com/learn" }, { "@type": "ListItem", position: 3, name: article.title, item: `https://openriskradar.com${pathname}` }] },
+    { "@context": "https://schema.org", "@type": "Article", headline: article.title, description: article.description, dateModified: article.reviewedAt, author: { "@type": "Organization", name: "OpenRisk Radar Editorial" }, publisher: { "@type": "Organization", name: "OpenRisk Radar" }, mainEntityOfPage: `${siteUrl}${pathname}` },
+    { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: `${siteUrl}/` }, { "@type": "ListItem", position: 2, name: "Learn", item: `${siteUrl}/learn` }, { "@type": "ListItem", position: 3, name: article.title, item: `${siteUrl}${pathname}` }] },
   ];
   return <SiteLayout><Seo path={pathname} title={`${article.title} | OpenRisk Radar`} description={article.description} type="article" structuredData={structuredData} />
     <article className="learn-article"><header className="article-hero"><div className="site-container narrow"><Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Learn", to: "/learn" }, { label: article.title }]} /><p className="eyebrow">{article.category}</p><h1>{article.title}</h1><p className="article-deck">{article.description}</p><div className="byline"><span>OpenRisk Radar Editorial</span><span>{article.readingTime}</span><span>Last reviewed {article.reviewedAt}</span></div></div></header>

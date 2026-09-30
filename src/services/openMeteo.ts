@@ -318,7 +318,7 @@ export async function fetchOpenMeteoAirQuality(
     category: "Air Quality",
     type: "Air Quality",
     severity: aqiSev,
-    headline: `Air Quality Index: ${aqi}${c.european_aqi != null ? ` (EAQI: ${c.european_aqi})` : ""}`,
+    headline: `${c.european_aqi != null ? "European AQI" : "US AQI"}: ${aqi}`,
     description: `Air quality near ${locationName || `${lat.toFixed(2)}, ${lng.toFixed(2)}`}.`,
     geometry: { type: "Point", latitude: lat, longitude: lng },
     startedAt: new Date().toISOString(),
