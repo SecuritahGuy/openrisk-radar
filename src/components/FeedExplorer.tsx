@@ -316,6 +316,15 @@ export function FeedExplorer({
           </button>
         )}
       </div>
+      {!collapsed && (
+        <div className="feed-scope-note" style={styles.scopeNote}>
+          {mode === "active"
+            ? "Active shows current source records, not only local impacts. Check Impact to see whether a record affects, is near, or is only monitored for this place."
+            : mode === "historical"
+              ? "History shows expired and older context; these records are not active alerts. Impact describes their location relative to this place."
+              : "All combines current and historical source records. Check the time and Impact fields to understand their relevance to this place."}
+        </div>
+      )}
       {collapsed ? null : hasNoEvents ? (
         <div style={styles.empty}>{emptyMessage}</div>
       ) : (
@@ -665,6 +674,14 @@ const styles: Record<string, React.CSSProperties> = {
     top: 0,
   },
   headerTitle: { flex: 1 },
+  scopeNote: {
+    padding: "6px 10px",
+    color: "#526574",
+    background: "#f7f9fb",
+    borderBottom: "1px solid #e4eaf0",
+    fontSize: 12,
+    lineHeight: 1.4,
+  },
   collapsedHint: {
     color: "#616161",
     fontSize: 12,

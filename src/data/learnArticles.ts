@@ -19,6 +19,28 @@ export interface LearnArticle {
 
 export const learnArticles: LearnArticle[] = [
   {
+    slug: "tsunami-alerts-readiness",
+    title: "Tsunami Alerts: What They Mean and How to Prepare",
+    description: "Learn what tsunami warnings, advisories, watches, and information statements mean, how natural warning signs matter, and where to find local evacuation guidance.",
+    category: "Natural hazards",
+    readingTime: "6 min read",
+    reviewedAt: "2026-09-30",
+    featured: true,
+    sections: [
+      { heading: "Know the four U.S. alert levels", paragraphs: ["For U.S. and Canadian coastlines, the U.S. Tsunami Warning Centers use four domestic message types. A Warning means dangerous coastal flooding and powerful currents are possible or occurring; move to high ground or inland and follow local evacuation instructions. An Advisory means strong currents and waves may be dangerous in or near the water; stay out of the water and away from beaches and waterways. A Watch means a tsunami may later affect the area; stay informed and be ready to act. An Information Statement usually means there is no threat of a destructive tsunami for the covered area, though a distant event may still be under evaluation.", "The situation and alert area can change as new earthquake and sea-level information arrives. Read the latest message and any local instructions, rather than relying on an earlier screenshot or headline."] },
+      { heading: "Do not wait for an alert if you notice natural warning signs", paragraphs: ["If you are near the coast and feel a strong or long earthquake, see the ocean suddenly withdraw or rise, or hear an unusual roar from the sea, move immediately to high ground or inland. Do not wait for an official message or an evacuation order. If shaking is happening, protect yourself from the earthquake first; when it stops, evacuate on foot if you can do so safely, following posted routes and local plans."] },
+      { heading: "Use local evacuation maps and instructions", paragraphs: ["Tsunami.gov messages describe broad forecast areas. The colored areas on its map use forecast zones and are not exact inundation boundaries; local emergency managers determine evacuation areas and routes. Before an event, learn whether your home, work, school, or travel routes are in a tsunami hazard zone and identify signed routes to high ground or inland. During an event, follow local authorities and do not go to the shore to watch."], bullets: ["A tsunami can arrive as a series of waves; the first may not be the largest.", "Stay away from beaches, harbors, and waterways until officials say the danger has passed.", "Do not treat a missing marker or an OpenRisk Radar summary as proof that a place is safe."] },
+      { heading: "Use official channels for decisions", paragraphs: ["Check the U.S. Tsunami Warning Centers for current messages and your local emergency-management agency for evacuation areas and routes. For locations outside the U.S. and Canada, follow the national and local authorities responsible for that coast. OpenRisk Radar is a public-feed situational-awareness tool; it is not an emergency notification service, may be delayed or incomplete, and cannot determine whether you should evacuate. Call emergency services for immediate assistance."] },
+    ],
+    sources: [
+      { label: "NOAA / U.S. Tsunami Warning Centers: message definitions", url: "https://www.tsunami.gov/php/message_definitions.php" },
+      { label: "NOAA / U.S. Tsunami Warning Centers: map FAQ and forecast-zone limits", url: "https://www.tsunami.gov/?page=help" },
+      { label: "FEMA / Ready.gov: tsunami preparedness", url: "https://www.ready.gov/sites/default/files/2024-03/ready.gov_tsunami_hazard-info-sheet.pdf" },
+      { label: "NOAA Tsunami Program: forecast and warning system", url: "https://www.tsunami.noaa.gov/pmel-theme/forecast-warning" },
+    ],
+    cta: "Explore tsunami signals in OpenRisk Radar",
+  },
+  {
     slug: "weather-alerts",
     title: "How to Read Weather Alerts",
     description: "Understand watches, warnings, advisories, timing, geographic scope, and the alert fields that help put a weather hazard in context.",
@@ -81,6 +103,28 @@ export const learnArticles: LearnArticle[] = [
       { label: "AirNow Fire and Smoke Map", url: "https://fire.airnow.gov/" },
     ],
     cta: "View current wildfire signals in OpenRisk Radar",
+  },
+  {
+    slug: "air-quality",
+    title: "How to Read Air Quality and AQI",
+    description: "Understand AQI categories, pollutant readings, model estimates, and what an air-quality signal can—and cannot—tell you about conditions where you are.",
+    category: "Health and environment",
+    readingTime: "6 min read",
+    reviewedAt: "2026-09-30",
+    featured: true,
+    sections: [
+      { heading: "AQI is a communication scale", paragraphs: ["The U.S. Air Quality Index (AQI) turns pollutant concentrations into a scale for communicating outdoor air quality and health concern. Its categories run from Good (0–50) through Moderate (51–100), Unhealthy for Sensitive Groups (101–150), Unhealthy (151–200), Very Unhealthy (201–300), and Hazardous (301 and above). Higher values mean greater concern; above 100, some groups may be affected before the general public." ] },
+      { heading: "Find out which pollutant and index you are seeing", paragraphs: ["AQI is calculated separately for pollutants such as ground-level ozone and particulate matter (PM2.5 and PM10). A single headline number can hide which pollutant is driving it. Open the record and inspect available metrics and units. The U.S. and European AQI use different scales and category definitions, so their numbers are not directly interchangeable. OpenRisk Radar's headline uses the European AQI when present; the details can show both European and U.S. AQI values."], bullets: ["PM2.5 means fine particles 2.5 micrometers or smaller; smoke is one possible source.", "A pollutant concentration, such as PM2.5 in µg/m³, is not itself an AQI value.", "Check whether a value is observed, forecast, modeled, or sensor-reported before comparing it with another source."] },
+      { heading: "A map estimate is not a nearby monitor", paragraphs: ["OpenRisk Radar's air-quality signal is generated from Open-Meteo's air-quality API, which provides gridded model data. A location result is therefore an estimate for an area, not necessarily a measurement from a monitoring station at that point. Local conditions can vary between grid cells and may change faster than a model or feed refreshes. Compare it with current observations and forecasts from AirNow or your local air agency, especially when conditions are unhealthy." ] },
+      { heading: "Use the signal as context, then follow health guidance", paragraphs: ["AQI categories help people understand general health concern; they do not diagnose an individual or account for every person's sensitivity. EPA's activity guidance describes steps for reducing exposure, with more caution as AQI rises. Follow your clinician's advice and local public-health guidance. OpenRisk Radar is a situational-awareness tool, not an official alerting or medical service."], bullets: ["For current U.S. AQI observations and forecasts, check AirNow.", "During wildfire smoke, consult AirNow's Fire and Smoke Map and local health authorities.", "If you have a health condition, use your care plan and seek professional advice for concerning symptoms."] },
+    ],
+    sources: [
+      { label: "U.S. EPA / AirNow: AQI basics and categories", url: "https://www.airnow.gov/aqi/aqi-basics/" },
+      { label: "U.S. EPA / AirNow: particle pollution activity guidance", url: "https://www.airnow.gov/publications/air-quality-index/air-quality-guide-for-particle-pollution/" },
+      { label: "Open-Meteo Air Quality API documentation", url: "https://open-meteo.com/en/docs/air-quality-api" },
+      { label: "U.S. EPA / AirNow Fire and Smoke Map guide", url: "https://www.airnow.gov/fasm-v4/how-to-use/" },
+    ],
+    cta: "Explore air-quality signals for a location",
   },
   {
     slug: "floods",

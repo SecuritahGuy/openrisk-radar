@@ -1,12 +1,12 @@
 # Public Site Architecture
 
-Last reviewed: 2026-07-16
+Last reviewed: 2026-09-30
 
 ## Current architecture audit
 
 OpenRisk Radar is a React 18 and TypeScript application built by Vite. The original implementation mounted `src/App.tsx` directly and assumed the dashboard occupied `/`. It did not include React Router or another routing package. Dashboard share state is stored in the `q`, `radius`, `weather`, and `layer` query parameters; view preferences use local storage; saved locations use Dexie/IndexedDB.
 
-The dashboard obtains data through source-specific adapters in `src/services`. Most public APIs are called directly in the browser. Browser-incompatible routes, the watch registry, push configuration, and service status are handled by `worker/index.ts` under `/api/*`. The Worker delegates non-API requests to Cloudflare static assets. `wrangler.jsonc` uses `not_found_handling: "single-page-application"`, so direct requests for content routes return the Vite shell. `public/_routes.json` also limits the legacy Pages Functions surface to `/api/*`; static assets do not invoke Functions.
+The dashboard obtains data through source-specific adapters in `src/services`. Most public APIs are called directly in the browser. Browser-incompatible routes, the watch registry, push configuration, and service status are handled by `worker/index.ts` under `/api/*`. The Worker delegates non-API requests to Cloudflare static assets. The build writes route-specific HTML files for known public routes; `wrangler.jsonc` drops trailing slashes to serve those files at canonical slashless URLs and uses `not_found_handling: "single-page-application"` for unknown routes. `public/_routes.json` also limits the legacy Pages Functions surface to `/api/*`; static assets do not invoke Functions.
 
 The original service worker cached `/` as its application shell and used it as the fallback for every offline navigation. The manifest also started at `/`. That behavior would have incorrectly rendered the new homepage as an offline dashboard shell.
 
@@ -18,7 +18,7 @@ The application already had a strict Content Security Policy, a manifest, a smal
 
 - `/` renders a public explanation and lightweight CSS dashboard preview.
 - `/app` lazy-loads the existing operational dashboard and its Leaflet dependencies.
-- `/learn` and the six `/learn/*` routes use structured article metadata in `src/data/learnArticles.ts`.
+- `/learn` and the eight `/learn/*` routes use structured article metadata in `src/data/learnArticles.ts`.
 - `/data-sources` is generated from `src/data/dataSources.ts`, which was assembled from implemented service adapters and their actual cache settings.
 - `/methodology`, `/about`, `/privacy`, `/terms`, and `/contact` use the shared public layout.
 - Unknown routes render the no-index 404 view. `/404` intentionally renders the same view.
@@ -33,9 +33,7 @@ The manifest starts at `/app` with root scope. Service worker cache version `ope
 
 ## SEO
 
-`src/components/site/Seo.tsx` updates the title, description, canonical link, robots directive, Open Graph fields, Twitter card fields, and route JSON-LD after navigation. Articles include `Article` and `BreadcrumbList`; the homepage includes `WebSite` and `SoftwareApplication` data. The canonical origin defaults to `https://openriskradar.com` and may be configured with `VITE_SITE_URL`.
-
-Because this remains a client-rendered SPA, crawlers that do not execute JavaScript see the homepage metadata from `index.html` for a direct content request. Cloudflare HTML rewriting or static prerendering would be a future improvement if search indexing shows this to be a limitation.
+`scripts/prerender-seo.mjs` writes route-specific titles, descriptions, canonical URLs, social metadata, robots directives, and JSON-LD into the initial HTML for known public routes. Articles include `Article` and `BreadcrumbList`; the homepage includes `WebSite` and `SoftwareApplication` data. `src/components/site/Seo.tsx` keeps metadata in sync during client-side navigation. The canonical origin defaults to `https://openriskradar.com` and may be configured with `VITE_SITE_URL`. The page body remains client-rendered.
 
 `public/sitemap.xml` includes indexable public content. `/app` is excluded because its useful content appears only after user interaction and live requests. The 404 route and parameterized dashboard URLs are also excluded.
 
@@ -53,7 +51,7 @@ The privacy page documents browser storage, geolocation, third-party requests, C
 
 ## Known limitations and owner review
 
-- Route metadata is client-side; static prerendering is not implemented.
+- Public routes have prerendered head metadata and structured data, while their page bodies remain client-rendered.
 - The dashboard has significant existing JavaScript because it includes many source adapters and panels. Route splitting prevents it from loading on public pages.
 - Learning content uses authoritative source links but requires editorial review by the project owner.
 - Data provider license statements are conservative; provider terms should be reviewed before commercial launch.

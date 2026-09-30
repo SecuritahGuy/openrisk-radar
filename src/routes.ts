@@ -2,6 +2,8 @@ export const LEARN_ARTICLE_PATHS = [
   "/learn/weather-alerts",
   "/learn/earthquakes",
   "/learn/wildfires",
+  "/learn/air-quality",
+  "/learn/tsunami-alerts-readiness",
   "/learn/floods",
   "/learn/alert-severity",
   "/learn/using-openriskradar",

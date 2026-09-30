@@ -10,7 +10,8 @@ interface DataCoveragePanelProps {
   items: SourceHealthItem[];
 }
 
-function statusLabel(status: SourceHealthStatus): string {
+function statusLabel(item: SourceHealthItem): string {
+  const { status } = item;
   switch (status) {
     case "disabled":
       return "Waiting";
@@ -23,7 +24,9 @@ function statusLabel(status: SourceHealthStatus): string {
     case "degraded":
       return "Cached";
     case "error":
-      return "Error";
+      return item.detail.toLowerCase().includes("proxy is unavailable")
+        ? "Proxy issue"
+        : "Request failed";
     case "unavailable":
       return "Unavailable";
   }
@@ -208,14 +211,16 @@ export function DataCoveragePanel({ items }: DataCoveragePanelProps) {
                     borderColor: `${color}55`,
                   }}
                 >
-                  {statusLabel(item.status)}
+                  {statusLabel(item)}
                 </span>
               </div>
               <div style={styles.rowDetail}>
                 {item.count != null && (
                   <span style={styles.count}>{item.count}</span>
                 )}
-                {item.detail}
+                {item.status === "error" && item.detail.toLowerCase().includes("proxy is unavailable")
+                  ? "The radar could not retrieve this feed through its data proxy. Try refreshing later."
+                  : item.detail}
               </div>
             </div>
           );

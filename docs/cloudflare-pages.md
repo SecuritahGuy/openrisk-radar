@@ -16,7 +16,7 @@ The checked-in `wrangler.jsonc` is the source of truth for the Worker name, entr
 
 Cloudflare deploys the generated static files with the API Worker in one operation.
 
-- Do not add a catch-all `_redirects` rule for the SPA shell. `wrangler.jsonc` sets static asset `not_found_handling` to `single-page-application`, which serves the Vite shell for `/app` and public content routes without routing assets through the Worker.
+- Do not add a catch-all `_redirects` rule for the SPA shell. The build generates route-specific `index.html` files for known public pages, and `wrangler.jsonc` sets `html_handling` to `drop-trailing-slash` so Cloudflare serves those folder indexes at the site's canonical slashless URLs. `not_found_handling: "single-page-application"` serves the Vite shell for unknown routes without routing assets through the Worker.
 - `_headers` adds browser security headers, allows the current feed/map domains, and marks hashed assets as immutable.
 
 ## Current Runtime Shape
@@ -76,7 +76,8 @@ return the expected content type instead of falling through to `index.html`.
 ## Public Routes and Offline Shell
 
 The public landing page is `/`; the operational dashboard is `/app`. Direct
-refreshes work through the static asset SPA fallback. `_routes.json` and
+refreshes of generated routes serve route-specific static HTML, while unknown
+routes use the static asset SPA fallback. `_routes.json` and
 `assets.run_worker_first` remain limited to `/api/*`, so public HTML and static
 assets do not consume API Worker invocations.
 
