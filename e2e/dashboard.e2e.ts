@@ -74,12 +74,13 @@ async function blockExternalRequests(
     weatherForecast?: boolean;
     newYorkTransportation?: boolean;
     gvpBaseline?: boolean;
+    mockGvp?: boolean;
   } = {}
 ) {
   await page.route("**/*", async (route) => {
     const url = new URL(route.request().url());
     if (
-      options.gvpBaseline &&
+      (options.gvpBaseline || options.mockGvp) &&
       (url.hostname === "127.0.0.1" || url.hostname === "localhost") &&
       url.pathname === "/api/smithsonian/gvp"
     ) {
@@ -190,7 +191,7 @@ async function blockExternalRequests(
           ],
         }),
       });
-    } else if (options.gvpBaseline && url.hostname === "webservices.volcano.si.edu") {
+    } else if ((options.gvpBaseline || options.mockGvp) && url.hostname === "webservices.volcano.si.edu") {
       await route.fulfill({
         contentType: "application/geo+json",
         body: JSON.stringify(gvpFixture()),
@@ -235,7 +236,7 @@ async function blockExternalRequests(
 }
 
 async function openZip(page: Page) {
-  await blockExternalRequests(page);
+  await blockExternalRequests(page, { mockGvp: true });
   await page.goto("/app?q=60030");
   await expect(page.getByText("Grayslake, IL", { exact: false }).first()).toBeVisible();
 }
@@ -266,7 +267,9 @@ test("ZIP search is accessible and overflow-free on a phone viewport", async ({ 
 
 test("short desktop view keeps the map reachable through scrolling", async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 600 });
-  await openZip(page);
+  await blockExternalRequests(page, { mockGvp: true });
+  await page.goto("/app?q=60030");
+  await expect(page.getByText("Grayslake, IL", { exact: false }).first()).toBeVisible();
   const main = page.locator(".app-main");
   const map = page.locator(".map-view");
   await expect(map).toBeVisible();
@@ -303,7 +306,7 @@ test("NASA imagery layer and opacity preferences survive reload", async ({ page 
 });
 
 test("a NOAA JSON outage activates the official tsunami fallback without a hard source error", async ({ page }) => {
-  await blockExternalRequests(page, { tsunamiFallback: true });
+  await blockExternalRequests(page, { tsunamiFallback: true, mockGvp: true });
   await page.goto("/app?q=60030");
   await expect(page.getByText("Grayslake, IL", { exact: false }).first()).toBeVisible();
   await expect(page.getByText(/Official NTWC\/PTWC feed fallback active with 1 signal/)).toBeVisible();
@@ -322,7 +325,7 @@ test("forecast dialog is centered, scrollable, accessible, and restores focus", 
   });
   page.on("pageerror", (error) => consoleProblems.push(error.message));
   await page.setViewportSize({ width: 1280, height: 620 });
-  await blockExternalRequests(page, { weatherForecast: true });
+  await blockExternalRequests(page, { weatherForecast: true, mockGvp: true });
   await page.goto("/app?q=60030");
   await expect(page.getByText("Grayslake, IL", { exact: false }).first()).toBeVisible();
 
@@ -365,7 +368,7 @@ test("forecast dialog is centered, scrollable, accessible, and restores focus", 
 
 test("forecast dialog becomes a bottom sheet without mobile overflow", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
-  await blockExternalRequests(page, { weatherForecast: true });
+  await blockExternalRequests(page, { weatherForecast: true, mockGvp: true });
   await page.goto("/app?q=60030");
   await page.getByRole("button", { name: "View 5-day forecast" }).click();
 
@@ -385,7 +388,7 @@ test("forecast dialog becomes a bottom sheet without mobile overflow", async ({ 
 
 test("NYSDOT recurrences use one construction marker with richer details", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await blockExternalRequests(page, { newYorkTransportation: true });
+  await blockExternalRequests(page, { newYorkTransportation: true, mockGvp: true });
   await page.goto("/app?q=12538");
   await expect(page.getByText("Hyde Park, NY", { exact: false }).first()).toBeVisible();
 

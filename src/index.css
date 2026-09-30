@@ -31,7 +31,7 @@ body {
 }
 
 .map-view {
-  min-height: clamp(360px, 42dvh, 620px);
+  min-height: clamp(380px, 42dvh, 620px);
 }
 
 .map-loading {
